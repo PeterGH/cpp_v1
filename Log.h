@@ -1,9 +1,11 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
+#include <map>
 #include <iostream>
 #include <stdarg.h>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -81,6 +83,52 @@ class Log
     Log &operator<<(ostream &(*pf)(ostream &))
     {
         _os << (*pf);
+        return *this;
+    }
+
+    template <class T1, class T2>
+    Log &operator<<(const pair<T1, T2> &p)
+    {
+        *this << "(" << p.first << ", " << p.second << ")";
+        return *this;
+    }
+
+    template <class T>
+    Log &operator<<(const vector<T> &v)
+    {
+        _os << "{";
+        for (size_t i = 0; i < v.size(); i++)
+        {
+            if (i > 0)
+                _os << ", ";
+            *this << v[i];
+        }
+        _os << "}" << endl;
+        return *this;
+    }
+
+    template <class T>
+    Log &operator<<(const vector<vector<T>> &m)
+    {
+        _os << "{" << endl;
+        for (size_t i = 0; i < m.size(); i++)
+        {
+            *this << " " << m[i];
+        }
+        _os << "}" << endl;
+        return *this;
+    }
+
+    template <class K, class V>
+    Log &operator<<(const map<K, V> &m)
+    {
+        _os << "{" << endl;
+        for (typename map<K, V>::const_iterator it = m.cbegin(); it != m.cend(); it++)
+        {
+            *this << it->first << ":" << endl;
+            *this << it->second << endl;
+        }
+        _os << "}" << endl;
         return *this;
     }
 };

@@ -1,23 +1,63 @@
 #include <iostream>
 #include "Argument.h"
 #include "Log.h"
+#include "ArgumentTest.h"
+#include "LogTest.h"
 
 using namespace std;
 
 int main(int argc, const char *argv[])
 {
-    Test::Argument<char> arg(argc, argv);
+    if (argc < 2)
+    {
+        cout << argv[0] << " -l" << endl;
+        cout << "\tList all tests." << endl;
+        cout << argv[0] << " test -l" << endl;
+        cout << "\tList all test methods of a test." << endl;
+        cout << argv[0] << " -a" << endl;
+        cout << "\tRun all tests." << endl;
+        cout << argv[0] << " test" << endl;
+        cout << "\tRun all test methods of a test." << endl;
+        cout << argv[0] << " test method" << endl;
+        cout << "\tRun a specific method of a test." << endl;
+        return -1;
+    }
 
-    Test::Log log;
-    log << arg.ToString() << endl;
-    log.WriteError("haha %d\n", 1);
-    log << "Another one" << endl
-        << "Third" << endl;
+    Argument<char> arg(argc, argv);
 
-    const wchar_t *wargv[6] = { L"-key1", L"value1", L"-key2", L"-key3", L"value3", L"value4"};
+    Log log(cout,
+            arg.Has("v") ? Log::Level::Verbose : Log::Level::Warning);
+    TestSuite suite(log);
+    suite.Add(new ArgumentTest(log));
+    suite.Add(new LogTest(log));
 
-    Test::Argument<wchar_t> warg(6, wargv);
-
-    wcout << warg.ToString() << endl;
+    if (arg.Has("l"))
+    {
+        if (arg.IndexedArgCount() <= 1)
+        {
+            cout << "Available tests are:" << endl;
+            suite.List();
+        }
+        else
+        {
+            for (size_t i = 1; i < arg.IndexedArgCount(); i++)
+            {
+                suite.List(arg[i]);
+            }
+        }
+    }
+    else if (arg.Has("a"))
+    {
+        suite.Run();
+        suite.Report();
+    }
+    else if (arg.IndexedArgCount() > 1)
+    {
+        if (arg.IndexedArgCount() == 2)
+            suite.Run(arg[1]);
+        else
+            suite.Run(arg[1], arg[2]);
+        suite.Report();
+    }
     return 0;
 }
