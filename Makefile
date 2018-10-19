@@ -1,5 +1,5 @@
-CXXFLAGS = -g -Wall
-DEPS = Argument.h Log.h Test.h ArgumentTest.h LogTest.h
+CXXFLAGS = -g -Wall -Wno-unused-function
+DEPS = Argument.h LeetCode.h Log.h Random.h Test.h ArgumentTest.h LeetCodeTest.h LogTest.h
 OBJS = main.o
 TARGET = test
 
