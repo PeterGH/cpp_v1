@@ -291,8 +291,355 @@ static vector<pair<int, int>> sortedMultiSolutions2(vector<int> &nums, int targe
     }
     return result;
 }
-
 } // namespace TwoSum
+
+// 4. Median of Two Sorted Arrays
+// Find the median of the two sorted arrays.
+// [1, 3], [2] -> 2.0
+// [1, 2], [3, 4] -> 2.5
+// @array, @binarysearch
+static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
+{
+    // For an array a[0..n-1]
+    // If n is even, its medians are indexed at (n-1)/2 and n/2
+    // If n is odd, its median is indexed at (n-1)/2 == n/2
+    function<double(vector<int> &, vector<int> &)> search =
+        [&](vector<int> &s, vector<int> &l) -> double {
+        // Assume s.size() <= l.size()
+        int bs = 0;
+        int es = s.size() - 1;
+        int n = s.size() + l.size();
+        bool odd = ((n & 0x1) == 1);
+        // index of the lower median is (n-1)/2 whether n is odd or even
+        // index of the upper median is n/2 whether n is odd or even
+        int m = (n - 1) / 2;
+        if (s.empty())
+        {
+            if (odd)
+                return l[m];
+            else
+                return (l[m] + l[m + 1]) / 2.0;
+        }
+        while (bs <= es)
+        {
+            // index of the lower median
+            // 0 <= ms <= s.size() - 1
+            int ms = bs + ((es - bs) >> 1);
+
+            // s[0..ms] has ms + 1 elements
+            // l[0..ml] has ml + 1 elements
+            // Combining two has m + 1 elements, i.e., n[0..m]
+            // so ms + 1 + ml + 1 = m + 1
+            // (1) ml = -1, if ms = s.size() - 1 && s.size() == l.size()
+            // (2) 0 <= ml < l.size() - 1, otherwise
+            int ml = m - ms - 1;
+
+            if (ml == -1)
+                return (s[ms] + l[0]) / 2.0;
+
+            if (s[ms] >= l[ml])
+            {
+                if (s[ms] <= l[ml + 1])
+                {
+                    if (odd)
+                        return s[ms];
+                    else if (ms + 1 < (int)s.size())
+                        return (s[ms] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                    else
+                        return (s[ms] + l[ml + 1]) / 2.0;
+                }
+                if (bs == ms)
+                {
+                    if (odd)
+                        return l[ml + 1];
+                    else if (ml + 2 < (int)l.size())
+                        return (l[ml + 1] + min(s[ms], l[ml + 2])) / 2.0;
+                    else
+                        return (l[ml + 1] + s[ms]) / 2.0;
+                }
+                es = ms - 1;
+            }
+            else
+            {
+                if (ms == (int)s.size() - 1)
+                {
+                    if (odd)
+                        return l[ml];
+                    else
+                        return (l[ml] + l[ml + 1]) / 2.0;
+                }
+                if (l[ml] <= s[ms + 1])
+                {
+                    if (odd)
+                        return l[ml];
+                    else
+                        return (l[ml] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                }
+                if (ms == es)
+                {
+                    if (odd)
+                        return s[ms + 1];
+                    else if (ms + 2 < (int)s.size())
+                        return (s[ms + 1] + min(s[ms + 2], l[ml + 1])) / 2.0;
+                    else
+                        return (s[ms + 1] + l[ml + 1]) / 2.0;
+                }
+                bs = ms + 1;
+            }
+        }
+        throw runtime_error("The median is not found.");
+    };
+
+    if (nums1.size() <= nums2.size())
+        return search(nums1, nums2);
+    else
+        return search(nums2, nums1);
+}
+
+namespace LengthOfLongestSubstring
+{
+// 3. Longest Substring Without Repeating Characters
+// Given a string, find the length of the longest substring without repeating characters.
+// "abcabcbb" -> "abc"
+// "bbbbb" -> "b"
+// "pwwkew" -> "wke"
+// @string, @hash
+static int solve1(string s)
+{
+    map<char, int> m;
+    int l = 0;
+    int i = 0;
+    int j = 0;
+    for (j = 0; j < (int)s.size(); j++)
+    {
+        if (m.find(s[j]) != m.end())
+        {
+            l = max(l, j - i);
+            while (i <= m[s[j]])
+            {
+                m.erase(s[i]);
+                i++;
+            }
+        }
+        m[s[j]] = j;
+    }
+    l = max(l, j - i);
+    return l;
+}
+// @string, @set
+static int solve2(string s)
+{
+    set<char> chars;
+    int i = 0;
+    int l = 0;
+    int j = 0;
+    for (j = 0; j < (int)s.size(); j++)
+    {
+        if (chars.find(s[j]) == chars.end())
+            chars.insert(s[j]);
+        else
+        {
+            l = max(l, j - i);
+            while (s[i] != s[j])
+            {
+                chars.erase(s[i]);
+                i++;
+            }
+            i++;
+        }
+    }
+    l = max(l, j - i);
+    return l;
+}
+} // namespace LengthOfLongestSubstring
+
+namespace LongestPalindrome
+{
+// 5. Longest Palindromic Substring
+// Assume the max length is 1000.
+// "babad" -> "bab" or "aba"
+// "cbbd" -> "bb"
+// @string, @bruteforce
+static string solve1(string s)
+{
+    function<pair<int, int>(int, int)> expand =
+        [&](int l, int r) -> pair<int, int> {
+        while (0 <= l && r < (int)s.size() && s[l] == s[r])
+        {
+            l--;
+            r++;
+        }
+        return make_pair(l + 1, r - 1);
+    };
+    int begin = 0, end = 0;
+    for (int i = 0; i < (int)s.size(); i++)
+    {
+        auto p = expand(i, i);
+        if (p.second - p.first > end - begin)
+        {
+            begin = p.first;
+            end = p.second;
+        }
+        if (i < (int)s.size() - 1)
+        {
+            p = expand(i, i + 1);
+            if (p.second - p.first > end - begin)
+            {
+                begin = p.first;
+                end = p.second;
+            }
+        }
+    }
+    return s.substr(begin, end - begin + 1);
+}
+// @string, @dynamicprogramming
+static string solve2(string s)
+{
+    vector<vector<int>> len(2, vector<int>(s.size(), 1));
+    int begin = 0, end = 0;
+    for (size_t i = 0; i + 1 < s.size(); i++)
+    {
+        if (s[i] == s[i + 1])
+        {
+            len[1][i] = 2;
+            if (2 > end - begin + 1)
+            {
+                begin = i;
+                end = i + 1;
+            }
+        }
+    }
+    for (int l = 3; l <= (int)s.size(); l++)
+    {
+        int v = ((l & 0x1) == 1 ? 0 : 1);
+        for (size_t i = 0; i + l - 1 < s.size(); i++)
+        {
+            if (s[i] == s[i + l - 1] && len[v][i + 1] == l - 2)
+            {
+                len[v][i] = l;
+                if (l > end - begin + 1)
+                {
+                    begin = i;
+                    end = i + l - 1;
+                }
+            }
+        }
+    }
+    return s.substr(begin, end - begin + 1);
+}
+// @string, @linear
+static string solve3(string s)
+{
+    auto getChar = [&](int i) -> char {
+        if ((i & 0x1) == 0)
+            return '#';
+        return s[i >> 1];
+    };
+    auto expand = [&](int c, int &l) {
+        int n = (s.size() << 1) + 1;
+        while (true)
+        {
+            int i = c - l;
+            int j = c + l;
+            if (i - 1 >= 0 && j + 1 < n && getChar(i - 1) == getChar(j + 1))
+                l++;
+            else
+                break;
+        }
+    };
+    if (s.empty())
+        return s;
+    int n = (s.size() << 1) + 1;
+    vector<int> l(n, 0);
+    int c = 0, r = 0;
+    int mi = 0, ml = 0;
+    int i = 0;
+    while (i < n)
+    {
+        if (i < r)
+        {
+            int j = (c << 1) - i;
+            l[i] = min(l[j], r - i);
+            if (i + l[i] < r)
+            {
+                i++;
+                continue;
+            }
+        }
+        expand(i, l[i]);
+        if (i + l[i] >= r)
+        {
+            c = i;
+            r = i + l[i];
+        }
+        if (l[i] > ml)
+        {
+            mi = i;
+            ml = l[i];
+        }
+        i++;
+    }
+    return s.substr((mi - ml) >> 1, ml);
+}
+} // namespace LongestPalindrome
+
+struct ListNode
+{
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+// 2. Add Two Numbers
+// Given two non-empty linked lists representing two non-negative integers.
+// The digits are stored in reverse order (LSB is the head) and each node contain
+// a single digit. Add the two numbers and return a linked list.
+// The two numbers do not contain leading zero, except the number 0 itself.
+// Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+// Output: (7 -> 0 -> 8)
+// @list
+static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
+{
+    if (l1 == nullptr)
+        return l2;
+    if (l2 == nullptr)
+        return l1;
+    ListNode *l = nullptr;
+    ListNode *n = nullptr;
+    int c = 0;
+    while (l1 != nullptr || l2 != nullptr || c == 1)
+    {
+        int v = c;
+        if (l1 != nullptr)
+        {
+            v += l1->val;
+            l1 = l1->next;
+        }
+        if (l2 != nullptr)
+        {
+            v += l2->val;
+            l2 = l2->next;
+        }
+        if (v >= 10)
+        {
+            v -= 10;
+            c = 1;
+        }
+        else
+            c = 0;
+        if (l == nullptr)
+        {
+            l = new ListNode(v);
+            n = l;
+        }
+        else
+        {
+            n->next = new ListNode(v);
+            n = n->next;
+        }
+    }
+    return l;
+}
 } // namespace LeetCode
 } // namespace Test
 

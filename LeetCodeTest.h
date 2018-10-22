@@ -89,5 +89,51 @@ void LeetCodeTest::Init(void)
             }
         }
     });
+
+    Add("MedianOfTwoSortedArrays", [&]() {
+        auto search = [&](vector<int> &v1, vector<int> &v2) -> double {
+            vector<int> v(v1);
+            v.insert(v.end(), v2.begin(), v2.end());
+            sort(v.begin(), v.end());
+            int n = v.size();
+            int m = (n - 1) / 2;
+            if ((n & 0x1) == 0)
+                return (v[m] + v[m + 1]) / 2.0;
+            else
+                return v[m];
+        };
+
+        auto check = [&](vector<int> &v1, vector<int> &v2) {
+            Logger() << v1 << v2;
+            double e = search(v1, v2);
+            double m = LeetCode::findMedianSortedArrays(v1, v2);
+            Logger() << "Median " << m << (m == e ? " == " : " != ") << e << endl;
+            ASSERT1(m == e);
+        };
+
+        for (int i = 0; i < 1000; i++)
+        {
+            vector<int> v1 = Random::Vector(Random::Int(50), 50);
+            vector<int> v2 = Random::Vector(Random::Int(50), 50);
+            if (v1.empty() && v2.empty())
+                v1.push_back(Random::Int(50));
+            sort(v1.begin(), v1.end());
+            sort(v2.begin(), v2.end());
+            check(v1, v2);
+        }
+    });
+
+    Add("LongestPalindromeSubstring", [&]() {
+        auto check = [&](const string &s) {
+            string p1 = LeetCode::LongestPalindrome::solve1(s);
+            string p2 = LeetCode::LongestPalindrome::solve2(s);
+            string p3 = LeetCode::LongestPalindrome::solve3(s);
+            Logger() << s << ", '" << p1 << "', '" << p2 << "', '" << p3 << "'" << endl;
+            ASSERT1(p1 == p2);
+            ASSERT1(p1 == p3);
+        };
+
+        check("babad");
+    });
 }
 #endif
