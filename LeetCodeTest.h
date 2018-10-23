@@ -135,5 +135,18 @@ void LeetCodeTest::Init(void)
 
         check("babad");
     });
+
+    Add("StringToInteger", [&]() {
+        auto check = [&](const string &s, int e) {
+            int r1 = LeetCode::AToI::solve1(s);
+            int r2 = LeetCode::AToI::solve2(s);
+            Logger() << "atoi(\"" << s << "\") = " << r1 << (r1 == e ? " == " : " != ") << e << endl;
+            Logger() << "atoi2(\"" << s << "\") = " << r2 << (r2 == e ? " == " : " != ") << e << endl;
+            ASSERT1(r1 == e);
+            ASSERT1(r2 == e);
+        };
+
+        check("-2147483647", -2147483647);
+    });
 }
 #endif

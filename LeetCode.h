@@ -516,6 +516,9 @@ static string solve2(string s)
         {
             if (s[i] == s[i + l - 1] && len[v][i + 1] == l - 2)
             {
+                // s[i..(i + l - 1)] is a palindrome of length l, if
+                // (1) s[i] == s[i + l - 1], and
+                // (2) s[(i + 1)..(i + l - 2)] is a palindrome (of length (l - 2))
                 len[v][i] = l;
                 if (l > end - begin + 1)
                 {
@@ -530,13 +533,15 @@ static string solve2(string s)
 // @string, @linear
 static string solve3(string s)
 {
+    if (s.empty())
+        return s;
     auto getChar = [&](int i) -> char {
         if ((i & 0x1) == 0)
             return '#';
         return s[i >> 1];
     };
+    int n = (s.size() << 1) + 1;
     auto expand = [&](int c, int &l) {
-        int n = (s.size() << 1) + 1;
         while (true)
         {
             int i = c - l;
@@ -547,9 +552,6 @@ static string solve3(string s)
                 break;
         }
     };
-    if (s.empty())
-        return s;
-    int n = (s.size() << 1) + 1;
     vector<int> l(n, 0);
     int c = 0, r = 0;
     int mi = 0, ml = 0;
@@ -582,6 +584,161 @@ static string solve3(string s)
     return s.substr((mi - ml) >> 1, ml);
 }
 } // namespace LongestPalindrome
+
+// 6. ZigZag Conversion
+// "PAYPALISHIRING"
+// P   A   H   N
+// A P L S I I G
+// Y   I   R
+// "PAHNAPLSIIGYIR"
+// @string
+static string convert(string s, int numRows)
+{
+    string output;
+    int len = s.size();
+    int delta = numRows == 1 ? 1 : (numRows << 1) - 2;
+    for (int i = 0; i < numRows; i++)
+    {
+        for (int j = 0; j < len; j += delta)
+        {
+            if (j + i < len)
+                output.append(1, s[j + i]);
+            if (i != 0 && i != (numRows - 1) && (j + delta - i < len))
+                output.append(1, s[j + delta - i]);
+        }
+    }
+    return output;
+}
+
+// 7. Reverse Integer
+// 123 => 321
+// -123 => -321
+// 120 => 21
+// Assume 32-bit int. Return 0 if overflow.
+// @numeric
+static int reverse(int x)
+{
+    bool negative = false;
+    if (x < 0)
+    {
+        negative = true;
+        x = -x;
+    }
+    long r = 0;
+    while (x > 0)
+    {
+        int d = x % 10;
+        x = x / 10;
+        r = r * 10 + d;
+        if ((negative && -r < INT_MIN) || r > INT_MAX)
+            return 0;
+    }
+    return negative ? -r : r;
+}
+
+namespace AToI
+{
+// 8. String to Integer (atoi)
+// The function first discards as many whitespace characters as necessary until
+// the first non-whitespace character is found. Then, takes an optional initial
+// plus or minus sign followed by as many numerical digits as possible, and
+// convert them as an integer. Any additional characters after those will be
+// ignored. If the first sequence of non-whitespace characters in the input is not
+// a valid integer, or the input is empty, or the input contains only whitespaces,
+// then no conversion is performed, and a zero value is returned.
+// If overflow, then INT_MIN (-2147483648) or INT_MAX(2147483647) is returned.
+// @numeric
+static int solve1(string str)
+{
+    long r = 0;
+    bool negative = false;
+    bool foundStart = false;
+    size_t i = 0;
+    while (i < str.length())
+    {
+        char c = str[i++];
+        if (c == '+' || c == '-')
+        {
+            if (foundStart)
+                break;
+            foundStart = true;
+            negative = (c == '-');
+        }
+        else if ('0' <= c && c <= '9')
+        {
+            if (!foundStart)
+                foundStart = true;
+
+            r = r * 10 + c - '0';
+            if (negative && -r <= INT_MIN)
+                return INT_MIN;
+            else if (!negative && r >= INT_MAX)
+                return INT_MAX;
+        }
+        else if (c == ' ')
+        {
+            if (foundStart)
+                break;
+        }
+        else
+            break;
+    }
+    return negative ? -r : r;
+}
+// @numeric
+static int solve2(string str)
+{
+    size_t i = 0;
+    while (i < str.length() && str[i] == ' ')
+        i++;
+    if (i == str.length())
+        return 0;
+    bool negative = false;
+    if (str[i] == '+' || str[i] == '-')
+    {
+        negative = (str[i++] == '-');
+    }
+    if (i == str.length() || str[i] < '0' || str[i] > '9')
+        return 0;
+    long r = 0;
+    while (i < str.length() && '0' <= str[i] && str[i] <= '9')
+    {
+        r = r * 10 + str[i++] - '0';
+        if (negative && -r <= INT_MIN)
+            return INT_MIN;
+        else if (!negative && r >= INT_MAX)
+            return INT_MAX;
+    }
+    return negative ? -r : r;
+}
+} // namespace AToI
+
+// 9. Palindrome Number
+// Determine whether an integer is a palindrome. Do this without extra space.
+static bool isPalindrome(int x)
+{
+    if (x < 0)
+        return false;
+    long long y = x;
+    long long d = 1;
+    while (y >= 10 * d)
+    {
+        d *= 10;
+    }
+
+    int l = 0;
+    int r = 0;
+    while (y > 0)
+    {
+        l = y >= d ? (y / d) : 0;
+        r = y % 10;
+        if (l != r)
+            return false;
+        y = (y % d) / 10;
+        d /= 100;
+    }
+    return true;
+}
 
 struct ListNode
 {
