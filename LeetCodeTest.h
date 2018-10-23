@@ -148,5 +148,58 @@ void LeetCodeTest::Init(void)
 
         check("-2147483647", -2147483647);
     });
+
+    Add("NextPermutation", [&]() {
+        auto check = [&](vector<int> &v) {
+            sort(v.begin(), v.end());
+            Logger() << v;
+            vector<int> v2(v);
+            vector<int> v3(v);
+            while (std::next_permutation(v.begin(), v.end()))
+            {
+                LeetCode::Permutation::next(v2);
+                LeetCode::Permutation::next2(v3);
+                Logger() << v2;
+                for (size_t i = 0; i < v.size(); i++)
+                {
+                    ASSERT1(v[i] == v2[i]);
+                    ASSERT1(v[i] == v3[i]);
+                }
+            }
+            LeetCode::Permutation::next(v2);
+            LeetCode::Permutation::next2(v3);
+            Logger() << v2;
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                ASSERT1(v[i] == v2[i]);
+                ASSERT1(v[i] == v3[i]);
+            }
+        };
+        for (int i = 0; i < 10; i++)
+        {
+            vector<int> input = Random::Vector(Random::Int(6, 1), 6);
+            int length = (int)input.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            check(input);
+        }
+        for (int i = 0; i < 100; i++)
+        {
+            vector<int> v = Random::Vector(Random::Int(10, 1), 10);
+            int length = (int)v.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            Logger() << v;
+            vector<int> v2(v);
+            vector<int> v3(v);
+            std::next_permutation(v.begin(), v.end());
+            LeetCode::Permutation::next(v2);
+            LeetCode::Permutation::next2(v3);
+            Logger() << v2;
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                ASSERT1(v[i] == v2[i]);
+                ASSERT1(v[i] == v3[i]);
+            }
+        }
+    });
 }
 #endif

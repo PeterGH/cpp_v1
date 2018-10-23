@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <map>
 #include <set>
+#include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -396,6 +397,90 @@ static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
         return search(nums2, nums1);
 }
 
+namespace Permutation
+{
+// 31. Next Permutation
+// Implement next permutation, which rearranges numbers into
+// the lexicographically next greater permutation of numbers.
+// If such arrangement is not possible, it must rearrange it
+// as the lowest possible order(ie, sorted in ascending order).
+// The replacement must be in-place, do not allocate extra memory.
+// Here are some examples. Inputs are in the left-hand column
+// and its corresponding outputs are in the right-hand column.
+// 1, 2, 3 -> 1, 3, 2
+// 3, 2, 1 -> 1, 2, 3
+// 1, 1, 5 -> 1, 5, 1
+// @array, @permutation
+static void next(vector<int> &nums)
+{
+    if (nums.size() < 2)
+        return;
+    size_t i = nums.size() - 1;
+    while (1 <= i && nums[i - 1] >= nums[i])
+        i--;
+    size_t j = i;
+    size_t k = nums.size() - 1;
+    while (j < k)
+        swap(nums[j++], nums[k--]);
+    if (1 <= i)
+    {
+        j = i;
+        while (j < nums.size() && nums[i - 1] >= nums[j])
+            j++;
+        if (j < nums.size())
+            swap(nums[i - 1], nums[j]);
+    }
+}
+
+// @array, @permutation, @binarysearch
+static void next2(vector<int> &nums)
+{
+    if (nums.size() < 2)
+        return;
+    size_t i = nums.size() - 1;
+    while (1 <= i && nums[i - 1] >= nums[i])
+        i--;
+    size_t j = i;
+    size_t k = nums.size() - 1;
+    while (j < k)
+        swap(nums[j++], nums[k--]);
+    if (1 <= i)
+    {
+        j = i;
+        k = nums.size() - 1;
+        while (j <= k)
+        {
+            size_t m = j + ((k - j) >> 1);
+            if (nums[i - 1] >= nums[m])
+            {
+                if (nums[i - 1] < nums[m + 1])
+                {
+                    swap(nums[i - 1], nums[m + 1]);
+                    break;
+                }
+                else
+                {
+                    j = m + 1;
+                }
+            }
+            else
+            {
+                if (m == j || nums[i - 1] >= nums[m - 1])
+                {
+                    swap(nums[i - 1], nums[m]);
+                    break;
+                }
+                else
+                {
+                    k = m - 1;
+                }
+            }
+        }
+    }
+}
+
+} // namespace Permutation
+
 namespace LengthOfLongestSubstring
 {
 // 3. Longest Substring Without Repeating Characters
@@ -739,6 +824,51 @@ static bool isPalindrome(int x)
     }
     return true;
 }
+
+// 155. Min Stack
+// Design a stack that supports push, pop, top, and retrieving
+// the minimum element in constant time.
+// push(x) --  Push element x onto stack.
+// pop()   --  Removes the element on top of the stack.
+// top()   --  Get the top element.
+// getMin() -- Retrieve the minimum element in the stack.
+// Example:
+// MinStack minStack = new MinStack();
+// minStack.push(-2);
+// minStack.push(0);
+// minStack.push(-3);
+// minStack.getMin();   --> Returns -3.
+// minStack.pop();
+// minStack.top();      --> Returns 0.
+// minStack.getMin();   --> Returns -2.
+class MinStack
+{
+  private:
+    stack<int> _items;
+    stack<int> _mins;
+
+  public:
+    // initialize your data structure here.
+    MinStack() {}
+
+    void push(int x)
+    {
+        _items.push(x);
+        if (!_mins.empty())
+            x = min(_mins.top(), x);
+        _mins.push(x);
+    }
+
+    void pop()
+    {
+        _items.pop();
+        _mins.pop();
+    }
+
+    int top() { return _items.top(); }
+
+    int getMin() { return _mins.top(); }
+};
 
 struct ListNode
 {
