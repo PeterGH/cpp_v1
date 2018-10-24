@@ -479,7 +479,281 @@ static void next2(vector<int> &nums)
     }
 }
 
+// 46. Permutations
+// Given a collection of distinct numbers, return all possible permutations.
+// For example,
+//   [1, 2, 3] have the following permutations :
+// [
+//   [1, 2, 3],
+//   [1, 3, 2],
+//   [2, 1, 3],
+//   [2, 3, 1],
+//   [3, 1, 2],
+//   [3, 2, 1]
+// ]
+// @array, @permutation, @recurse
+static vector<vector<int>> permuteDistinct(vector<int> &nums)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)>
+        solve = [&](size_t i, vector<int> &n) {
+            if (i == nums.size())
+            {
+                result.push_back(n);
+                return;
+            }
+            for (size_t j = i; j < nums.size(); j++)
+            {
+                vector<int> n1(n);
+                swap(n1[i], n1[j]);
+                solve(i + 1, n1);
+            }
+        };
+    solve(0, nums);
+    return result;
+}
+// @array, @permutation, @recurse
+static vector<vector<int>> permuteDistinct2(vector<int> &nums)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)>
+        solve = [&](size_t i, vector<int> &n) {
+            if (i == nums.size())
+            {
+                result.push_back(n);
+                return;
+            }
+            for (size_t j = i; j < nums.size(); j++)
+            {
+                vector<int> n1(n);
+                if (j > i)
+                {
+                    // Erase and insert, which effectively push m[i] one more positin to the right.
+                    // This way keeps the lexicographical order.
+                    int t = n1[j];
+                    n1.erase(n1.begin() + j);
+                    n1.insert(n1.begin() + i, t);
+                }
+                solve(i + 1, n1);
+            }
+        };
+    solve(0, nums);
+    return result;
+}
+
+// 47. Permutations II
+// Given a collection of numbers that might contain duplicates, return all possible unique permutations.
+// For example,
+// [1, 1, 2] have the following unique permutations :
+// [
+//   [1, 1, 2],
+//   [1, 2, 1],
+//   [2, 1, 1]
+// ]
+// @array, @permutation, @recurse
+static vector<vector<int>> permuteUnique(vector<int> &nums)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)>
+        solve = [&](size_t i, vector<int> &n) {
+            if (i == nums.size())
+            {
+                result.push_back(n);
+                return;
+            }
+            set<int> visited = {};
+            for (size_t j = i; j < nums.size(); j++)
+            {
+                if (visited.find(n[j]) == visited.end())
+                {
+                    vector<int> n1(n);
+                    swap(n1[i], n1[j]);
+                    solve(i + 1, n1);
+                    visited.insert(n[j]);
+                }
+            }
+        };
+    solve(0, nums);
+    return result;
+}
 } // namespace Permutation
+
+namespace Combination
+{
+// 39. Combination Sum
+// Given a set of candidate numbers (C) (without duplicates) and a
+// target number (T), find all unique combinations in C where the
+// candidate numbers sums to T. The same repeated number may be chosen
+// from C unlimited number of times.
+// Note:
+// All numbers (including target) will be positive integers.
+// The solution set must not contain duplicate combinations.
+// For example, given candidate set [2, 3, 6, 7] and target 7,
+// A solution set is :
+// [
+//    [7],
+//    [2, 2, 3]
+// ]
+// @array, @combination, @recurse
+static vector<vector<int>> combinationSumReuse(vector<int> &candidates, int target)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, int, vector<int> &)>
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size())
+                return;
+            if (candidates[i] <= t)
+            {
+                vector<int> c1(c);
+                c1.push_back(candidates[i]);
+                if (candidates[i] == t)
+                    result.push_back(c1);
+                else
+                    solve(i, t - candidates[i], c1);
+            }
+            solve(i + 1, t, c);
+        };
+    vector<int> s;
+    solve(0, target, s);
+    return result;
+}
+// @array, @combination, @recurse
+static vector<vector<int>> combinationSumReuse2(vector<int> &candidates, int target)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    sort(candidates.begin(), candidates.end());
+    function<void(int, int, vector<int> &)>
+        solve = [&](int i, int t, vector<int> &s) {
+            for (int j = i; j < (int)candidates.size(); j++)
+            {
+                if (candidates[j] > t)
+                    break;
+                vector<int> r(s);
+                r.push_back(candidates[j]);
+                if (candidates[j] == t)
+                {
+                    result.push_back(r);
+                    break;
+                }
+                solve(j, t - candidates[j], r);
+            }
+        };
+    vector<int> s;
+    solve(0, target, s);
+    return result;
+}
+// @array, @combination, @recurse, @dynamicprogramming
+static vector<vector<int>> combinationSumReuse3(vector<int> &candidates, int target)
+{
+    sort(candidates.begin(), candidates.end());
+    map<pair<int, int>, vector<vector<int>>> m;
+    function<void(int, int)> solve = [&](int i, int t) {
+        pair<int, int> p = make_pair(i, t);
+        if (m.find(p) != m.end())
+            return;
+        m[p] = vector<vector<int>>{};
+        for (int j = i; j < (int)candidates.size(); j++)
+        {
+            if (candidates[j] > t)
+                break;
+            if (candidates[j] == t)
+            {
+                m[p].push_back(vector<int>{candidates[j]});
+                break;
+            }
+            int d = t - candidates[j];
+            solve(j, d);
+            pair<int, int> p1 = make_pair(j, d);
+            for_each(m[p1].begin(), m[p1].end(), [&](vector<int> &s) {
+                vector<int> r(s);
+                r.insert(r.begin(), candidates[j]);
+                m[p].push_back(r);
+            });
+        }
+    };
+    solve(0, target);
+    return m[make_pair(0, target)];
+}
+
+// 40. Combination Sum II
+// Given a collection of candidate numbers (C) and a target number (T),
+// find all unique combinations in C where the candidate numbers sums
+// to T. Each number in C may only be used once in the combination.
+// Note:
+// All numbers (including target) will be positive integers.
+// The solution set must not contain duplicate combinations.
+// For example, given candidate set[10, 1, 2, 7, 6, 1, 5] and target 8,
+// A solution set is :
+// [
+//    [1, 7],
+//    [1, 2, 5],
+//    [2, 6],
+//    [1, 1, 6]
+// ]
+// @array, @combination, @recurse
+static vector<vector<int>> combinationSumNoReuse(vector<int> &candidates, int target)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    // Sort so we can eliminate duplicate solutions later
+    std::sort(candidates.begin(), candidates.end());
+    function<void(size_t, int, vector<int> &)>
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size() || candidates[i] > t)
+                return;
+            vector<int> c1(c);
+            c1.push_back(candidates[i]);
+            if (candidates[i] == t)
+            {
+                result.push_back(c1);
+                return;
+            }
+            solve(i + 1, t - candidates[i], c1);
+            while (i + 1 < candidates.size() && candidates[i] == candidates[i + 1])
+            {
+                // This is needed to eliminate duplicate solutions
+                i++;
+            }
+            solve(i + 1, t, c);
+        };
+    vector<int> s;
+    solve(0, target, s);
+    return result;
+}
+// @array, @combination, @recurse
+static vector<vector<int>> combinationSumNoReuse2(vector<int> &candidates, int target)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    // Sort so we can eliminate duplicate solutions later
+    std::sort(candidates.begin(), candidates.end());
+    function<void(size_t, int, vector<int> &)>
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size() || candidates[i] > t)
+                return;
+            size_t j = i;
+            while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                j++;
+            int s = 0;
+            for (size_t k = i; k <= j; k++)
+            {
+                s += candidates[k];
+                if (s > t)
+                    break;
+                vector<int> c1(c);
+                c1.insert(c1.end(), k - i + 1, candidates[i]);
+                if (s == t)
+                {
+                    result.push_back(c1);
+                    break;
+                }
+                solve(j + 1, t - s, c1);
+            }
+            solve(j + 1, t, c);
+        };
+    vector<int> s;
+    solve(0, target, s);
+    return result;
+}
+} // namespace Combination
 
 namespace LengthOfLongestSubstring
 {

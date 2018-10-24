@@ -4,6 +4,7 @@
 #include "LeetCode.h"
 #include "Random.h"
 #include "Test.h"
+#include "Util.h"
 
 using namespace Test;
 
@@ -199,6 +200,126 @@ void LeetCodeTest::Init(void)
                 ASSERT1(v[i] == v2[i]);
                 ASSERT1(v[i] == v3[i]);
             }
+        }
+    });
+
+    Add("Permutation", [&]() {
+        auto check = [&](vector<int> &v) {
+            sort(v.begin(), v.end());
+            Logger() << v;
+            vector<vector<int>> p = {v};
+            while (std::next_permutation(v.begin(), v.end()))
+                p.push_back(vector<int>(v));
+            Logger() << p;
+            Util::Sort(p);
+            vector<int> v2(v);
+            vector<vector<int>> p2 = LeetCode::Permutation::permuteDistinct(v2);
+            Logger() << p2;
+            Util::Sort(p2);
+            vector<int> v3(v);
+            vector<vector<int>> p3 = LeetCode::Permutation::permuteDistinct2(v3);
+            Logger() << p3;
+            Util::Sort(p3);
+            vector<int> v4(v);
+            vector<vector<int>> p4 = LeetCode::Permutation::permuteUnique(v4);
+            Logger() << p4;
+            Util::Sort(p4);
+            ASSERT1(p.size() == p2.size());
+            ASSERT1(p.size() == p3.size());
+            ASSERT1(p.size() == p4.size());
+            for (size_t i = 0; i < p.size(); i++)
+            {
+                ASSERT1(0 == Util::Compare(p[i], p2[i]));
+                ASSERT1(0 == Util::Compare(p[i], p3[i]));
+                ASSERT1(0 == Util::Compare(p[i], p4[i]));
+            }
+        };
+        {
+            vector<int> v = {0, 1, 2, 3, 4};
+            check(v);
+        }
+        {
+            vector<int> v = {1, 2, 3, 4};
+            check(v);
+        }
+    });
+
+    Add("CombinationSumReuse", [&]() {
+        auto check = [&](vector<int> &v, int t) {
+            Logger() << v << "Target " << t << endl;
+            vector<int> v1(v);
+            vector<int> v2(v);
+            vector<int> v3(v);
+            auto c1 = LeetCode::Combination::combinationSumReuse(v1, t);
+            auto c2 = LeetCode::Combination::combinationSumReuse2(v2, t);
+            auto c3 = LeetCode::Combination::combinationSumReuse3(v3, t);
+            Util::SortGrid(c1);
+            Util::SortGrid(c2);
+            Util::SortGrid(c3);
+            Logger() << c1;
+            ASSERT1(c1.size() == c2.size());
+            ASSERT1(c1.size() == c3.size());
+            for (size_t i = 0; i < c1.size(); i++)
+            {
+                ASSERT1(c1[i].size() == c2[i].size());
+                ASSERT1(c1[i].size() == c3[i].size());
+                for (size_t j = 0; j < c1[i].size(); j++)
+                {
+                    ASSERT1(c1[i][j] == c2[i][j]);
+                    ASSERT1(c1[i][j] == c3[i][j]);
+                }
+            }
+        };
+        for (int i = 0; i < 20; i++)
+        {
+            vector<int> input = Util::IncreasingVector(Random::Int(10, 1), 2);
+            Util::Shuffle(input);
+            int t = 0;
+            int c = 1 + (input.size() >> 2);
+            for (int j = 0; j < c; j++)
+            {
+                t += input[Random::Int(input.size() - 1)];
+            }
+            check(input, t);
+        }
+        {
+            //vector<int> v = { 6, 11, 5, 3, 2, 8, 7, 4, 10, 9 };
+            vector<int> v = {6, 7, 5};
+            check(v, 24);
+        }
+        {
+            vector<int> v = {7, 10};
+            check(v, 24);
+        }
+        {
+            vector<int> v = {6, 11, 5, 3, 2, 8, 7, 4, 10, 9};
+            check(v, 24);
+        }
+    });
+
+    Add("CombinationSumNoReuse", [&]() {
+        auto check = [&](vector<int> &v, int t) {
+            Logger() << v << "Target " << t << endl;
+            vector<int> v1(v);
+            vector<int> v2(v);
+            auto c1 = LeetCode::Combination::combinationSumNoReuse(v1, t);
+            auto c2 = LeetCode::Combination::combinationSumNoReuse2(v2, t);
+            Util::SortGrid(c1);
+            Util::SortGrid(c2);
+            Logger() << c1 << c2;
+            ASSERT1(c1.size() == c2.size());
+            for (size_t i = 0; i < c1.size(); i++)
+            {
+                ASSERT1(c1[i].size() == c2[i].size());
+                for (size_t j = 0; j < c1[i].size(); j++)
+                {
+                    ASSERT1(c1[i][j] == c2[i][j]);
+                }
+            }
+        };
+        {
+            vector<int> v = {10, 1, 2, 7, 6, 1, 5};
+            check(v, 8);
         }
     });
 }
