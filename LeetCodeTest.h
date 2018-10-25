@@ -322,5 +322,86 @@ void LeetCodeTest::Init(void)
             check(v, 8);
         }
     });
+
+    Add("RemoveDuplicates", [&]() {
+        auto check = [&](vector<int> &v) {
+            Logger() << v;
+            set<int> s;
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                s.insert(v[i]);
+            }
+            size_t len = LeetCode::removeDuplicates(v);
+            Logger() << v;
+            ASSERT1(len == s.size());
+            for (size_t i = 0; i < len; i++)
+            {
+                ASSERT1(v[i] == *s.begin());
+                s.erase(s.begin());
+            }
+        };
+        {
+            vector<int> v = {0, 1, 2, 3, 4, 5};
+            check(v);
+        }
+        {
+            vector<int> v = {0, 0, 0};
+            check(v);
+        }
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                vector<int> input = Random::Vector(Random::Int(50, 1), 10, -10);
+                sort(input.begin(), input.end());
+                int length = (int)input.size();
+                Logger().WriteInformation("Run %d: %d elements\n", i, length);
+                check(input);
+            }
+        }
+    });
+
+    Add("RemoveElement", [&]() {
+        auto check = [&](vector<int> &v, int e) {
+            Logger() << v << "Removing " << e << endl;
+            vector<int> s;
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                if (v[i] != e)
+                    s.push_back(v[i]);
+            }
+            vector<int> v2(v);
+
+            size_t len = LeetCode::removeElementStable(v, e);
+            Logger() << v << "Length " << len << endl;
+            size_t len2 = LeetCode::removeElementUnstable(v2, e);
+            Logger() << v2 << "Length " << len2 << endl;
+            ASSERT1(len == s.size());
+            ASSERT1(len2 == s.size());
+
+            sort(v.begin(), v.begin() + len);
+            sort(v2.begin(), v2.begin() + len2);
+            sort(s.begin(), s.end());
+            for (size_t i = 0; i < len; i++)
+            {
+                ASSERT1(v[i] == s[i]);
+                ASSERT1(v2[i] == s[i]);
+            }
+        };
+        {
+            vector<int> v = {0, 1, 2, 3, 4, 5};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {0, 0, 0};
+            check(v, 0);
+        }
+        for (int i = 0; i < 20; i++)
+        {
+            vector<int> input = Random::Vector(Random::Int(50, 1), 10, -10);
+            int length = (int)input.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            check(input, Random::Int(10, -10));
+        }
+    });
 }
 #endif

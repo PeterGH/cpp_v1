@@ -397,6 +397,112 @@ static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
         return search(nums2, nums1);
 }
 
+// 26. Remove Duplicates from Sorted Array
+// Given a sorted array, remove the duplicates in place such that each
+// element appear only once and return the new length.
+// Do not allocate extra space for another array, you must do this in
+// place with constant memory. For example,
+// Given input array nums = [1, 1, 2],
+// Your function should return length = 2, with the first two elements
+// of nums being 1 and 2 respectively. It does not matter what you leave
+// beyond the new length.
+// @array, @linear
+static size_t removeDuplicates(vector<int> &nums)
+{
+    if (nums.empty())
+        return 0;
+    size_t i = 0;
+    for (size_t j = 1; j < nums.size(); j++)
+    {
+        // i increases only when j should be kept
+        if (nums[j - 1] != nums[j] && (++i) != j)
+            nums[i] = nums[j];
+    }
+    return i + 1;
+}
+
+// 27. Remove Element
+// Given an array and a value, remove all instances of that value in
+// place and return the new length. Do not allocate extra space for
+// another array, you must do this in place with constant memory.
+// The order of elements cannot be changed. It does not matter what you
+// leave beyond the new length. Example:
+// Given input array nums = [3, 2, 2, 3], val = 3
+// Your function should return length = 2, with the first two elements
+// of nums being 2.
+// @array, @linear
+static size_t removeElementStable(vector<int> &nums, int val)
+{
+    int i = -1;
+    for (int j = 0; j < (int)nums.size(); j++)
+    {
+        // i increases only when j should be kept
+        if (nums[j] != val && (++i) != j)
+            nums[i] = nums[j];
+    }
+    return i + 1;
+}
+
+// Given an array and a value, remove all instances of that value in
+// place and return the new length. Do not allocate extra space for
+// another array, you must do this in place with constant memory.
+// The order of elements can be changed. It does not matter what you
+// leave beyond the new length. Example:
+// Given input array nums = [3, 2, 2, 3], val = 3
+// Your function should return length = 2, with the first two elements
+// of nums being 2.
+// @array, @linear
+static size_t removeElementUnstable(vector<int> &nums, int val)
+{
+    int i = 0;
+    int n = nums.size();
+    while (i < n)
+    {
+        if (nums[i] == val)
+            swap(nums[i], nums[--n]);
+        else
+            i++;
+    }
+    return n;
+}
+
+// 33. Search in Rotated Sorted Array
+// Suppose an array sorted in ascending order is rotated at some pivot
+// unknown to you beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+// You are given a target value to search. If found in the array return
+// its index, otherwise return -1. You may assume no duplicate exists in the array.
+// @array, @binarysearch
+static int search(vector<int> &nums, int target)
+{
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r)
+    {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return m;
+        else if (nums[m] < target)
+        {
+            if (nums[0] < nums[m])
+                l = m + 1;
+            else if (target <= nums[r])
+                l = m + 1;
+            else
+                r = m - 1;
+        }
+        else
+        {
+            if (nums[0] > nums[m])
+                r = m - 1;
+            else if (nums[l] <= target)
+                r = m - 1;
+            else
+                l = m + 1;
+        }
+    }
+    return -1;
+}
+
 namespace Permutation
 {
 // 31. Next Permutation
