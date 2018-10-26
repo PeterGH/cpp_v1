@@ -503,6 +503,283 @@ static int search(vector<int> &nums, int target)
     return -1;
 }
 
+// 34. Search for a Range
+// Given an array of integers sorted in ascending order,
+// find the starting and ending position of a given target value.
+// Your algorithm's runtime complexity must be in the order of O(log n).
+// If the target is not found in the array, return [-1, -1].
+// For example,
+// Given[5, 7, 7, 8, 8, 10] and target value 8,
+// return[3, 4].
+// @array, @binarysearch
+static vector<int> searchRange(vector<int> &nums, int target)
+{
+    if (nums.empty())
+        return vector<int>{-1, -1};
+    int l = 0;
+    int r = nums.size() - 1;
+    int m = -1;
+    while (l <= r)
+    {
+        m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            break;
+        if (nums[m] < target)
+            l = m + 1;
+        else
+            r = m - 1;
+    }
+    if (l > r)
+        return vector<int>{-1, -1};
+    int b = m;
+    int n;
+    if (l < m)
+    {
+        n = m - 1;
+        while (l <= n)
+        {
+            b = l + ((n - l) >> 1);
+            if (nums[b] == target)
+            {
+                if (b == 0 || nums[b - 1] < target)
+                    break;
+                else
+                    n = b - 1;
+            }
+            else
+            {
+                if (nums[b + 1] == target)
+                {
+                    b++;
+                    break;
+                }
+                else
+                    l = b + 1;
+            }
+        }
+        if (l > n)
+            b = -1;
+    }
+    int e = m;
+    if (m < r)
+    {
+        n = m + 1;
+        while (n <= r)
+        {
+            e = n + ((r - n) >> 1);
+            if (nums[e] == target)
+            {
+                if (e == (int)nums.size() - 1 || nums[e + 1] > target)
+                    break;
+                else
+                    n = e + 1;
+            }
+            else
+            {
+                if (nums[e - 1] == target)
+                {
+                    e--;
+                    break;
+                }
+                else
+                    r = e - 1;
+            }
+        }
+        if (n > r)
+            e = -1;
+    }
+    return vector<int>{b, e};
+}
+// @array, @binarysearch
+static vector<int> searchRange2(vector<int> &nums, int target)
+{
+    int b = -1;
+    int e = -1;
+    bool foundBegin = false;
+    bool foundEnd = false;
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r)
+    {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] < target)
+            l = m + 1;
+        else if (target < nums[m])
+            r = m - 1;
+        else if (!foundBegin)
+        {
+            if (l == m)
+            {
+                foundBegin = true;
+                b = m;
+                l = b;
+                r = nums.size() - 1;
+            }
+            else
+                r = m;
+        }
+        else if (!foundEnd)
+        {
+            if (l < m)
+                l = m;
+            else
+            {
+                foundEnd = true;
+                e = m == r ? m : (nums[r] == target ? r : m);
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+    return vector<int>{b, e};
+}
+
+// 35. Search Insert Position
+// Given a sorted array and a target value, return the index if the
+// target is found. If not, return the index where it would be if it
+// were inserted in order. You may assume no duplicates in the array.
+// Here are few examples.
+// [1, 3, 5, 6], 5 -> 2
+// [1, 3, 5, 6], 2 -> 1
+// [1, 3, 5, 6], 7 -> 4
+// [1, 3, 5, 6], 0 -> 0
+// @array, @binarysearch
+static int searchInsert(vector<int> &nums, int target)
+{
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r)
+    {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return m;
+        if (nums[m] < target)
+        {
+            if (m == r || nums[m + 1] > target)
+                return m + 1;
+            else
+                l = m + 1;
+        }
+        else
+        {
+            if (m == l || nums[m - 1] < target)
+                return m;
+            else
+                r = m - 1;
+        }
+    }
+    return -1;
+}
+
+// 53. Maximum Subarray
+// Find the contiguous subarray within an array (containing at least one number)
+// which has the largest sum.
+// For example, given the array[-2, 1, -3, 4, -1, 2, 1, -5, 4],
+// the contiguous subarray[4, -1, 2, 1] has the largest sum = 6.
+// @array, @linear
+static int maxSubArray(vector<int> &nums)
+{
+    long long minSum = 0;
+    long long sum = 0;
+    long long delta = INT_MIN;
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        sum += nums[i];
+        if (sum - minSum >= delta)
+            delta = sum - minSum;
+        if (sum < minSum)
+            minSum = sum;
+    }
+    return (int)delta;
+}
+// @array, @linear
+static int maxSubArray2(vector<int> &nums, int &begin, int &end)
+{
+    begin = -1;
+    end = -1;
+    long long delta = INT_MIN;
+
+    int minIndex = -1;
+    long long minSum = 0; // sum[0..minIndex]
+    long long sum = 0;    // sum[0..i]
+
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        sum += nums[i];
+        long long d = sum - minSum;
+        if (d > delta)
+        {
+            delta = d;
+            begin = minIndex + 1;
+            end = i;
+        }
+        if (d <= 0)
+        {
+            minSum = sum;
+            minIndex = i;
+        }
+    }
+    return (int)delta;
+}
+// @array, @linear
+static int maxSubArray3(vector<int> &nums, int &begin, int &end)
+{
+    begin = -1;
+    end = -1;
+    long long delta = INT_MIN;
+
+    if (nums.empty())
+        return (int)delta;
+
+    // Track the last maximum sum so far
+    begin = 0;
+    end = 0;
+    delta = 0;
+
+    // Track the current streak
+    int l = 0;   // Beginning
+    int c = 0;   // Cumulative sum up to current element
+    int max = 0; // The index of the maximum element seen so far
+
+    for (int i = 0; i < (int)nums.size(); i++)
+    {
+        c += nums[i];
+
+        if (c > delta)
+        {
+            // Current element is positive and the current sum is larger than the last one.
+            // Update the last seen maximum sum
+            begin = l;
+            end = i;
+            delta = c;
+        }
+        else if (c <= 0)
+        {
+            // Current element is negative and everything cancel out
+            // Reset and start from the next element
+            l = i + 1;
+            c = 0;
+        }
+
+        // Record the max element so far
+        if (nums[i] > nums[max])
+            max = i;
+    }
+
+    if (delta <= 0)
+    {
+        // All elements are zero or negative
+        // Return the maximum element
+        begin = max;
+        end = max;
+        delta = nums[max];
+    }
+
+    return (int)delta;
+}
+
 namespace Permutation
 {
 // 31. Next Permutation

@@ -403,5 +403,202 @@ void LeetCodeTest::Init(void)
             check(input, Random::Int(10, -10));
         }
     });
+
+    Add("SearchRange", [&]() {
+        auto check = [&](vector<int> &v, int e) {
+            Logger() << v;
+            Logger() << "Range " << e << ": ";
+            vector<int> p = LeetCode::searchRange(v, e);
+            vector<int> p2 = LeetCode::searchRange2(v, e);
+            Logger() << "[" << p[0] << ", " << p[1] << "], [" << p2[0] << ", " << p2[1] << "]" << endl;
+            ASSERT1(p[0] == p2[0]);
+            ASSERT1(p[1] == p2[1]);
+            if (p[0] > 0)
+            {
+                ASSERT1(v[p[0] - 1] < v[p[0]]);
+                ASSERT1(v[p[0]] == e);
+            }
+            if (0 <= p[1] && p[1] < (int)v.size() - 1)
+            {
+                ASSERT1(v[p[1]] < v[p[1] + 1]);
+                ASSERT1(v[p[1]] == e);
+            }
+        };
+        {
+            vector<int> v = {0};
+            check(v, 0);
+            check(v, 1);
+        }
+        {
+            vector<int> v = {1, 1};
+            check(v, 1);
+            check(v, 2);
+        }
+        {
+            vector<int> v = {2, 3};
+            check(v, 1);
+            check(v, 2);
+            check(v, 3);
+            check(v, 4);
+        }
+        for (int i = 0; i < 100; i++)
+        {
+            vector<int> input = Random::Vector(Random::Int(100, 1), 5, -5);
+            sort(input.begin(), input.end());
+            check(input, Random::Int(6, -6));
+        }
+    });
+
+    Add("MaxSubarray", [&]() {
+        auto check = [&](vector<int> &a, int el, int er, int es) -> void {
+            Logger() << a;
+            int sum = LeetCode::maxSubArray(a);
+            int l2, r2;
+            int sum2 = LeetCode::maxSubArray2(a, l2, r2);
+            Logger().WriteInformation("a[%d..%d] = %d\n", l2, r2, sum2);
+            int l3, r3;
+            int sum3 = LeetCode::maxSubArray3(a, l3, r3);
+            Logger().WriteInformation("a[%d..%d] = %d\n", l3, r3, sum3);
+            ASSERT1(es == sum);
+            ASSERT1(el == l2);
+            ASSERT1(er == r2);
+            ASSERT1(es == sum2);
+            ASSERT1(el == l3);
+            ASSERT1(er == r3);
+            ASSERT1(es == sum3);
+        };
+        {
+            vector<int> A = {13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7};
+            check(A, 7, 10, 43);
+        }
+        {
+            vector<int> A = {13};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3, -25};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20, -3};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20, -3, -16, -23, 18};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, 3, 25, 20, 3, 16, 23, 18, 20, 7, 12, 5, 22, 15, 4, 7};
+            check(A, 0, (int)A.size() - 1, 213);
+        }
+        {
+            vector<int> A = {13, 3};
+            check(A, 0, 1, 16);
+        }
+        {
+            vector<int> A = {13, 3, 25};
+            check(A, 0, 2, 41);
+        }
+        {
+            vector<int> A = {-13, -3, -25, -20, -3, -16, -23, -18, -20, -7, -12, -5, -22, -15, -4, -7};
+            check(A, 1, 1, -3);
+        }
+        {
+            vector<int> A = {-13};
+            check(A, 0, 0, -13);
+        }
+        {
+            vector<int> A = {-13, -3};
+            check(A, 1, 1, -3);
+        }
+        {
+            vector<int> A = {0, 0, -25, -20, -3, -16, -23, -18, -20, -7, -12, -5, -22, -15, -4, -7};
+            check(A, 0, 0, 0);
+        }
+        {
+            vector<int> A = {0};
+            check(A, 0, 0, 0);
+        }
+        {
+            vector<int> A = {0, 0, 25, 20, 3, 16, 23, 18, 20, 7, 12, 5, 22, 15, 0, 0};
+            check(A, 2, 13, 186);
+        }
+        {
+            vector<int> A = {-25, -20, -3, 0, 0, -16, -23, -18, -20, -7, -12, -5, -22, -15, -4, -7};
+            check(A, 3, 3, 0);
+        }
+        {
+            vector<int> A = {-25, -20, -3, 0, 0};
+            check(A, 3, 3, 0);
+        }
+        {
+            vector<int> A = {1, 1, 1, -1, -1, -1, -1, -18, -20, -7, -12, -5, -22, -15, -4, -7};
+            check(A, 0, 2, 3);
+        }
+        {
+            vector<int> A = {1, 1, 1, -1, -1, -1};
+            check(A, 0, 2, 3);
+        }
+        {
+            vector<int> A = {1, 1, 1, -1, -1, -1, -1, -18, -20, -7, -12, -5, -22, -15, -4, 7};
+            check(A, (int)A.size() - 1, (int)A.size() - 1, 7);
+        }
+        {
+            int d = RAND_MAX >> 1;
+            for (int i = 0; i < 1000; i++)
+            {
+                vector<int> input;
+                int length = 1 + (rand() % 100);
+                for (int j = 0; j < length; j++)
+                {
+                    input.push_back(rand() - d);
+                }
+                Logger() << input;
+                int sum = LeetCode::maxSubArray(input);
+                Logger().WriteInformation("MaxSubArraySum = %d\n", sum);
+                int l2, r2;
+                int sum2 = LeetCode::maxSubArray2(input, l2, r2);
+                Logger().WriteInformation("a[%d..%d] = %d\n", l2, r2, sum2);
+                int l3, r3;
+                int sum3 = LeetCode::maxSubArray3(input, l3, r3);
+                Logger().WriteInformation("a[%d..%d] = %d\n", l3, r3, sum3);
+                ASSERT1(l2 == l3);
+                ASSERT1(r2 == r3);
+                ASSERT1(sum == sum2);
+                ASSERT1(sum == sum3);
+            }
+        }
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                vector<int> input;
+                int length = 1 + (rand() % 100);
+                for (int j = 0; j < length; j++)
+                {
+                    input.push_back(rand() % 20 - 10);
+                }
+                Logger() << input;
+                int sum = LeetCode::maxSubArray(input);
+                int l2, r2;
+                int sum2 = LeetCode::maxSubArray2(input, l2, r2);
+                Logger().WriteInformation("a[%d..%d] = %d\n", l2, r2, sum2);
+                int l3, r3;
+                int sum3 = LeetCode::maxSubArray3(input, l3, r3);
+                Logger().WriteInformation("a[%d..%d] = %d\n", l3, r3, sum3);
+                ASSERT1(l2 == l3);
+                ASSERT1(r2 == r3);
+                ASSERT1(sum == sum2);
+                ASSERT1(sum == sum3);
+            }
+        }
+    });
 }
 #endif
