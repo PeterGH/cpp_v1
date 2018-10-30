@@ -692,7 +692,7 @@ static int maxSubArray(vector<int> &nums)
         if (sum < minSum)
             minSum = sum;
     }
-    return (int)delta;
+    return (int)delta; // may overflow
 }
 // @array, @linear
 static int maxSubArray2(vector<int> &nums, int &begin, int &end)
@@ -721,7 +721,7 @@ static int maxSubArray2(vector<int> &nums, int &begin, int &end)
             minIndex = i;
         }
     }
-    return (int)delta;
+    return (int)delta; // may overflow
 }
 // @array, @linear
 static int maxSubArray3(vector<int> &nums, int &begin, int &end)
@@ -740,7 +740,7 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
 
     // Track the current streak
     int l = 0;   // Beginning
-    int c = 0;   // Cumulative sum up to current element
+    long long c = 0;   // Cumulative sum up to current element
     int max = 0; // The index of the maximum element seen so far
 
     for (int i = 0; i < (int)nums.size(); i++)
