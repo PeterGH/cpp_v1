@@ -604,5 +604,191 @@ void LeetCodeTest::Init(void)
             }
         }
     });
+
+    Add("JumpGame", [&]() {
+        auto check = [&](vector<int> a) {
+            Logger() << a;
+            bool c = LeetCode::canJump(a);
+            bool c2 = LeetCode::canJump2(a);
+            Logger().WriteInformation("Can %sjump\n", c ? "" : "not ");
+            Logger().WriteInformation("Can %sjump\n", c2 ? "" : "not ");
+            ASSERT1(c == c2);
+        };
+        {
+            vector<int> a = {0, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 3, 1, 1, 4};
+            check(a);
+        }
+        {
+            vector<int> a = {3, 2, 1, 0, 4};
+            check(a);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> a = Random::Vector(Random::Int(100, 1), 10);
+                check(a);
+            }
+        }
+    });
+
+    Add("LengthOfLastWord", [&]() {
+        auto check = [&](const string &s, int el = -1) {
+            Logger() << "\"" << s << "\"" << endl;
+            int l1 = LeetCode::lengthOfLastWord(s);
+            int l2 = LeetCode::lengthOfLastWord2(s);
+            Logger() << "LengthOfLastWord: " << l1 << (l1 == l2 ? " == " : " != ") << l2 << endl;
+            if (el == -1)
+                ASSERT1(l1 == l2);
+            else
+            {
+                ASSERT1(l1 == el);
+                ASSERT1(l2 == el);
+            }
+        };
+        {
+            check("", 0);
+            check("a", 1);
+            check(" ", 0);
+            check("  ", 0);
+            check("ababa", 5);
+            check("a a", 1);
+            check("a  a", 1);
+            check("a    a", 1);
+            check("a a sv", 2);
+            check("aa asfd", 4);
+            check("   aa", 2);
+            check("  a", 1);
+            check(" aas", 3);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                string s = Random::String(Random::Int(100, 0));
+                check(s);
+            }
+        }
+    });
+
+    Add("SpiralMatrix", [&]() {
+        auto check = [&](vector<vector<int>> m) {
+            Logger() << m;
+            vector<int> o = LeetCode::SpiralMatrix::spiralOrder(m);
+            vector<int> o2 = LeetCode::SpiralMatrix::spiralOrder2(m);
+            Logger() << o << o2;
+            ASSERT1(o.size() == o2.size());
+            for (int i = 0; i < (int)o.size(); i++) {
+                ASSERT1(o[i] == i);
+                ASSERT1(o2[i] == i);
+            }
+        };
+        {
+            vector<vector<int>> m = {
+                { 0 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1, 2 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0 },
+                { 1 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0 },
+                { 1 },
+                { 2 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1 },
+                { 3, 2 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1, 2 },
+                { 5, 4, 3 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1 },
+                { 5, 2 },
+                { 4, 3 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1, 2 },
+                { 7, 8, 3 },
+                { 6, 5, 4 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1,  2,  3 },
+                { 9, 10, 11, 4 },
+                { 8, 7,  6,  5 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0, 1,  2 },
+                { 9, 10, 3 },
+                { 8, 11, 4 },
+                { 7, 6,  5 }
+            };
+            check(m);
+        }
+        {
+            vector<vector<int>> m = {
+                { 0,  1,  2,  3 },
+                { 11, 12, 13, 4 },
+                { 10, 15, 14, 5 },
+                { 9,  8,  7,  6 }
+            };
+            check(m);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<vector<int>> m = Random::Grid(Random::Int(50, 1), Random::Int(50, 1));
+                Logger() << m;
+                vector<int> o = LeetCode::SpiralMatrix::spiralOrder(m);
+                vector<int> o2 = LeetCode::SpiralMatrix::spiralOrder2(m);
+                ASSERT1(o.size() == o2.size());
+                for (size_t j = 0; j < o.size(); j++)
+                {
+                    ASSERT1(o[j] == o2[j]);
+                };
+            }
+        }
+    });
+
 }
 #endif

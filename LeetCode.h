@@ -739,9 +739,9 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
     delta = 0;
 
     // Track the current streak
-    int l = 0;   // Beginning
-    long long c = 0;   // Cumulative sum up to current element
-    int max = 0; // The index of the maximum element seen so far
+    int l = 0;       // Beginning
+    long long c = 0; // Cumulative sum up to current element
+    int max = 0;     // The index of the maximum element seen so far
 
     for (int i = 0; i < (int)nums.size(); i++)
     {
@@ -778,6 +778,86 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
     }
 
     return (int)delta;
+}
+
+// 55. Jump Game
+// Given an array of non-negative integers, you are initially
+// positioned at the first index of the array.
+// Each element in the array represents your maximum jump length
+// at that position.
+// Determine if you are able to reach the last index.
+// For example :
+// A = [2, 3, 1, 1, 4], return true.
+// A = [3, 2, 1, 0, 4], return false.
+// @array, @linear
+static bool canJump(vector<int> &nums)
+{
+    if (nums.empty())
+        return false;
+    int index = nums.size() - 1;
+    for (int i = nums.size() - 2; i >= 0; i--)
+    {
+        if (i + nums[i] >= index)
+            index = i;
+    }
+    return index == 0;
+}
+// @array, @linear
+static bool canJump2(vector<int> &nums)
+{
+    if (nums.empty())
+        return false;
+    size_t index = 0;
+    size_t i = 0;
+    while (i < nums.size() && i <= index)
+    {
+        index = max(index, i + nums[i]);
+        i++;
+    }
+    return index >= nums.size() - 1;
+}
+
+// 56. Merge Intervals
+// Given a collection of intervals, merge all overlapping intervals.
+// For example,
+// Given[1, 3], [2, 6], [8, 10], [15, 18],
+// return[1, 6], [8, 10], [15, 18].
+struct Interval
+{
+    int start;
+    int end;
+    Interval() : start(0), end(0) {}
+    Interval(int s, int e) : start(s), end(e) {}
+};
+// @array, @linear
+static vector<Interval> merge(vector<Interval> &intervals)
+{
+    function<bool(const Interval &, const Interval &)>
+        less = [&](const Interval &first, const Interval &second) -> bool {
+        if (first.start == second.start)
+            return first.end < second.end;
+        return first.start < second.start;
+    };
+    vector<Interval> result = vector<Interval>{};
+    if (intervals.size() == 0)
+        return result;
+    sort(intervals.begin(), intervals.end(), less);
+    Interval v = intervals[0];
+    for (size_t i = 1; i < intervals.size(); i++)
+    {
+        if (v.start <= intervals[i].end && intervals[i].start <= v.end)
+        {
+            v.start = min(v.start, intervals[i].start);
+            v.end = max(v.end, intervals[i].end);
+        }
+        else
+        {
+            result.push_back(v);
+            v = intervals[i];
+        }
+    }
+    result.push_back(v);
+    return result;
 }
 
 namespace Permutation
@@ -1352,6 +1432,53 @@ static string convert(string s, int numRows)
     return output;
 }
 
+// 58. Length of Last Word
+// Given a string s consists of upper/lower-case alphabets and
+// empty space characters ' ',
+// return the length of last word in the string.
+// If the last word does not exist, return 0.
+// Note: A word is defined as a character sequence consists of
+// non-space characters only.
+// For example,
+// Given s = "Hello World",
+// return 5.
+// @string
+static int lengthOfLastWord(string s)
+{
+    int length = 0;
+    size_t i = 0;
+    while (i < s.size())
+    {
+        if (s[i] != ' ')
+        {
+            size_t j = 0;
+            while ((i + j) < s.size() && s[i + j] != ' ')
+                j++;
+            length = j;
+            i += j;
+        }
+        else
+        {
+            i++;
+        }
+    }
+    return length;
+}
+// @string
+static int lengthOfLastWord2(string s)
+{
+    int length = 0;
+    int i = s.size() - 1;
+    while (i >= 0 && s[i] == ' ')
+        i--;
+    while (i >= 0 && s[i] != ' ')
+    {
+        length++;
+        i--;
+    }
+    return length;
+}
+
 // 7. Reverse Integer
 // 123 => 321
 // -123 => -321
@@ -1481,6 +1608,156 @@ static bool isPalindrome(int x)
     }
     return true;
 }
+
+class SpiralMatrix
+{
+  public:
+    // 54. Spiral Matrix
+    // Given a matrix of m x n elements (m rows, n columns),
+    // return all elements of the matrix in spiral order.
+    // For example,
+    // Given the following matrix :
+    // [
+    //   [1, 2, 3],
+    //   [4, 5, 6],
+    //   [7, 8, 9]
+    // ]
+    // You should return[1, 2, 3, 6, 9, 8, 7, 4, 5].
+    static vector<int> spiralOrder(vector<vector<int>> &matrix)
+    {
+        vector<int> result = vector<int>{};
+        if (matrix.empty() || matrix[0].empty())
+            return result;
+        int h = matrix[0].size();
+        int v = matrix.size();
+        int i = 0;
+        int j = -1;
+        int k;
+        while (h > 0 && v > 0)
+        {
+            for (k = j + 1; k <= j + h; k++)
+                result.push_back(matrix[i][k]);
+            v--;
+            j = k - 1;
+            if (v == 0)
+                break;
+            for (k = i + 1; k <= i + v; k++)
+                result.push_back(matrix[k][j]);
+            h--;
+            i = k - 1;
+            if (h == 0)
+                break;
+            for (k = j - 1; k >= j - h; k--)
+                result.push_back(matrix[i][k]);
+            v--;
+            j = k + 1;
+            if (v == 0)
+                break;
+            for (k = i - 1; k >= i - v; k--)
+                result.push_back(matrix[k][j]);
+            h--;
+            i = k + 1;
+            if (h == 0)
+                break;
+        }
+        return result;
+    }
+    static vector<int> spiralOrder2(vector<vector<int>> &matrix)
+    {
+        vector<int> result = vector<int>{};
+        if (matrix.empty() || matrix[0].empty())
+            return result;
+        function<void(int, int, int, int)>
+            solve = [&](int i, int j, int m, int n) {
+                for (int k = 0; k < n; k++)
+                    result.push_back(matrix[i][j + k]);
+                if (m == 1)
+                    return;
+                for (int k = 1; k < m; k++)
+                    result.push_back(matrix[i + k][j + n - 1]);
+                if (n == 1)
+                    return;
+                for (int k = 1; k < n; k++)
+                    result.push_back(matrix[i + m - 1][j + n - 1 - k]);
+                for (int k = 1; k < m - 1; k++)
+                    result.push_back(matrix[i + m - 1 - k][j]);
+            };
+        int m = matrix.size();
+        int n = matrix[0].size();
+        int i = 0;
+        int j = 0;
+        while (m > 0 && n > 0)
+        {
+            solve(i, j, m, n);
+            i++;
+            j++;
+            m -= 2;
+            n -= 2;
+        }
+        return result;
+    }
+
+    // 59. Spiral Matrix II
+    // Given an integer n, generate a square matrix filled with elements
+    // from 1 to n^2 in spiral order.
+    // For example,
+    // Given n = 3,
+    // You should return the following matrix :
+    // [
+    //   [1, 2, 3],
+    //   [8, 9, 4],
+    //   [7, 6, 5]
+    // ]
+    // @grid
+    static vector<vector<int>> generateMatrix(int n)
+    {
+        if (n <= 0)
+            return vector<vector<int>>{};
+        vector<vector<int>> matrix(n, vector<int>(n, 0));
+        int h = n; // horizontal steps
+        int v = n; // vertical steps
+        int i = 0;
+        int j = -1;
+        int e = 1; // element value
+        int k;
+        while (h >= 0 || v >= 0)
+        {
+            for (k = j + 1; k <= j + h; k++)
+            {
+                matrix[i][k] = e++;
+            }
+            v--;
+            j = k - 1;
+            if (v == 0)
+                break;
+            for (k = i + 1; k <= i + v; k++)
+            {
+                matrix[k][j] = e++;
+            }
+            h--;
+            i = k - 1;
+            if (h == 0)
+                break;
+            for (k = j - 1; k >= j - h; k--)
+            {
+                matrix[i][k] = e++;
+            }
+            v--;
+            j = k + 1;
+            if (v == 0)
+                break;
+            for (k = i - 1; k >= i - v; k--)
+            {
+                matrix[k][j] = e++;
+            }
+            h--;
+            i = k + 1;
+            if (h == 0)
+                break;
+        }
+        return matrix;
+    }
+};
 
 // 155. Min Stack
 // Design a stack that supports push, pop, top, and retrieving

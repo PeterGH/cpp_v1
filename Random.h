@@ -23,6 +23,37 @@ class Random
         std::generate(result.begin(), result.end(), [&]() { return Int(max, min); });
         return result;
     }
+
+    static vector<vector<int>> Grid(size_t m, size_t n, int max = RAND_MAX, int min = 0)
+    {
+        vector<vector<int>> result(m, vector<int>(n));
+        for (size_t i = 0; i < m; i++)
+        {
+            std::generate(result[i].begin(), result[i].end(), [&]() { return Int(max, min); });
+        }
+        return result;
+    }
+
+    template <class T>
+    static basic_string<T> String(size_t length, const basic_string<T> &alphabet)
+    {
+        basic_string<T> output;
+        size_t len = alphabet.length();
+        if (len == 0)
+            return output;
+        for (size_t i = 0; i < length; i++)
+        {
+            T c = alphabet[rand() % len];
+            output.append(1, c);
+        }
+        return output;
+    }
+
+    static string String(size_t length)
+    {
+        static string alphabet = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        return String(length, alphabet);
+    }
 };
 } // namespace Test
 
