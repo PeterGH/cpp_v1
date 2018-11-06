@@ -817,6 +817,39 @@ static bool canJump2(vector<int> &nums)
     return index >= nums.size() - 1;
 }
 
+// 66. Plus One
+// Given a non-negative integer represented as a non-empty array
+// of digits, plus one to the integer.
+// You may assume the integer do not contain any leading zero,
+// except the number 0 itself.
+// The digits are stored such that the most significant digit is
+// at the head of the list.
+// @array, @linear
+static vector<int> plusOne(vector<int> &digits)
+{
+    vector<int> result(digits);
+    int c = 1;
+    for (int i = result.size() - 1; i >= 0; i--)
+    {
+        result[i] += c;
+        if (result[i] >= 10)
+        {
+            c = 1;
+            result[i] -= 10;
+        }
+        else
+        {
+            c = 0;
+            break;
+        }
+    }
+    if (c == 1)
+    {
+        result.insert(result.begin(), c);
+    }
+    return result;
+}
+
 // 56. Merge Intervals
 // Given a collection of intervals, merge all overlapping intervals.
 // For example,
@@ -1039,6 +1072,50 @@ static vector<vector<int>> permuteUnique(vector<int> &nums)
     solve(0, nums);
     return result;
 }
+
+// 60. Permutation Sequence
+// The set [1,2,3,...,n] contains a total of n! unique permutations.
+// By listing and labeling all of the permutations in order,
+// We get the following sequence(ie, for n = 3) :
+// "123"
+// "132"
+// "213"
+// "231"
+// "312"
+// "321"
+// Given n and k, return the k-th permutation sequence.
+// Note: Given n will be between 1 and 9 inclusive.
+static string getPermutation(int n, int k)
+{
+    if (n <= 0 || k <= 0)
+        return string();
+    int m = 1;
+    string p;
+    for (int i = 1; i <= n; i++)
+    {
+        m *= i;
+        p.append(1, '0' + i);
+    }
+    vector<int> indices = vector<int>{};
+    for (int i = n; i >= 1; i--)
+    {
+        m = m / i;
+        indices.push_back(((k - 1) / m + 1));
+        k = ((k - 1) % m) + 1;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (indices[i] > 1)
+        {
+            int j = i + indices[i] - 1;
+            char c = p[j];
+            p.erase(j, 1);
+            p.insert(i, 1, c);
+        }
+    }
+    return p;
+}
+
 } // namespace Permutation
 
 namespace Combination
@@ -1609,6 +1686,47 @@ static bool isPalindrome(int x)
     return true;
 }
 
+// 67. Add Binary
+// Given two binary strings, return their sum (also a binary string).
+// For example,
+// a = "11"
+// b = "1"
+// Return "100"
+static string addBinary(string a, string b)
+{
+    string result;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+    int c = 0;
+    int d = 0;
+    while (i >= 0 || j >= 0)
+    {
+        if (i >= 0 && j >= 0)
+        {
+            d = c + (a[i--] - '0') + (b[j--] - '0');
+        }
+        else if (i >= 0)
+        {
+            d = c + (a[i--] - '0');
+        }
+        else
+        {
+            d = c + (b[j--] - '0');
+        }
+        if (d == 2 || d == 3)
+            c = 1;
+        else
+            c = 0;
+        d %= 2;
+        result.insert(result.begin(), 1, d + '0');
+    }
+    if (c == 1)
+    {
+        result.insert(result.begin(), 1, c + '0');
+    }
+    return result;
+}
+
 class SpiralMatrix
 {
   public:
@@ -1758,6 +1876,67 @@ class SpiralMatrix
         return matrix;
     }
 };
+
+// 62. Unique Paths
+// A robot is located at the top-left corner of a m x n grid
+// (marked 'Start' in the diagram below).
+// The robot can only move either down or right at any point in time.
+// The robot is trying to reach the bottom-right corner of the grid
+// (marked 'Finish' in the diagram below).
+// How many possible unique paths are there?
+// Note: m and n will be at most 100.
+// @grid, @dynamicprogramming
+static int uniquePaths(int m, int n)
+{
+    if (m <= 0 || n <= 0)
+        return 0;
+    vector<vector<int>> grid(m, vector<int>(n, 0));
+    for (int j = n - 1; j >= 0; j--)
+    {
+        grid[m - 1][j] = 1;
+    }
+    for (int i = m - 2; i >= 0; i--)
+    {
+        grid[i][n - 1] = 1;
+        for (int j = n - 2; j >= 0; j--)
+        {
+            grid[i][j] = grid[i + 1][j] + grid[i][j + 1];
+        }
+    }
+    return grid[0][0];
+}
+
+// 64. Minimum Path Sum
+// Given a m x n grid filled with non-negative numbers,
+// find a path from top left to bottom right which minimizes
+// the sum of all numbers along its path.
+// Note: You can only move either down or right at any point in time.
+// Note: Greedy search does not work here. e.g.,
+// [[1, 3,   0]
+//  [2, 100, 0]
+//  [1, 1,   1]]
+// @grid, @dynamicprogramming
+static int minPathSum(vector<vector<int>> &grid)
+{
+    if (grid.size() == 0 || grid[0].size() == 0)
+        return 0;
+    size_t m = grid.size();
+    size_t n = grid[0].size();
+    vector<vector<int>> sum(grid);
+    for (size_t j = 1; j < n; j++)
+    {
+        sum[0][j] += sum[0][j - 1];
+    }
+    for (size_t i = 1; i < m; i++)
+    {
+        sum[i][0] += sum[i - 1][0];
+        for (size_t j = 1; j < n; j++)
+        {
+            sum[i][j] += min(sum[i][j - 1], sum[i - 1][j]);
+        }
+    }
+    return sum[m - 1][n - 1];
+}
 
 // 155. Min Stack
 // Design a stack that supports push, pop, top, and retrieving
