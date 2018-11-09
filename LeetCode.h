@@ -817,6 +817,30 @@ static bool canJump2(vector<int> &nums)
     return index >= nums.size() - 1;
 }
 
+// 70. Climbing Stairs
+// You are climbing a stair case. It takes n steps to reach to the top.
+// Each time you can either climb 1 or 2 steps.In how many distinct ways can you climb to the top?
+// Note : Given n will be a positive integer.
+// C[n] = C[n - 1] + C[n - 2]
+// @array, @dynamicprogramming
+static int climbStairs(int n)
+{
+    if (n == 1)
+        return 1;
+    if (n == 2)
+        return 2;
+    int a = 1;
+    int b = 2;
+    int c;
+    for (int i = 3; i <= n; i++)
+    {
+        c = b + a;
+        a = b;
+        b = c;
+    }
+    return c;
+}
+
 // 66. Plus One
 // Given a non-negative integer represented as a non-empty array
 // of digits, plus one to the integer.
@@ -1658,6 +1682,95 @@ static int solve2(string str)
     return negative ? -r : r;
 }
 } // namespace AToI
+
+// 71. Simplify Path
+// Given an absolute path for a file (Unix-style), simplify it.
+// For example,
+// path = "/home/", => "/home"
+// path = "/a/./b/../../c/", => "/c"
+// Corner Cases:
+// Did you consider the case where path = "/../"?
+// In this case, you should return "/".
+// Another corner case is the path might contain multiple slashes '/' together, such as "/home//foo/".
+// In this case, you should ignore redundant slashes and return "/home/foo".
+// @string, @linear
+static string simplifyPath(string path)
+{
+    int len = path.length();
+    if (len == 0 || path[0] != '/')
+        return path;
+    int i = -1;
+    int j = 0;
+    while (j < len)
+    {
+        if (path[j] == '/')
+        {
+            while (j < len && path[j] == '/')
+                j++;
+            if (j == len)
+                break; // ////
+            if (path[j] == '.')
+            {
+                if (j + 1 == len)
+                {
+                    break; // /.
+                }
+                else if (path[j + 1] == '/')
+                { // /./
+                    j = j + 1;
+                    continue;
+                }
+                else if (path[j + 1] == '.')
+                {
+                    if (j + 2 == len)
+                    { // /..
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                        if (i > 0)
+                            i--;
+                        break;
+                    }
+                    else if (path[j + 2] == '/')
+                    { //  /../
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                        if (i > 0)
+                            i--;
+                        j = j + 2;
+                        continue;
+                    }
+                }
+            }
+            if (i == -1 || path[i] != '/')
+            {
+                i++;
+                path[i] = '/';
+            }
+            if (i + 1 < j)
+            {
+                while (j < len && path[j] != '/')
+                {
+                    i++;
+                    path[i] = path[j++];
+                }
+            }
+            else
+            {
+                while (j < len && path[j] != '/')
+                    j++;
+                i = j - 1;
+            }
+        }
+        else
+        {
+            j++;
+        }
+    }
+    if (i == -1)
+        return string("/");
+    else
+        return path.substr(0, i + 1);
+}
 
 // 9. Palindrome Number
 // Determine whether an integer is a palindrome. Do this without extra space.
