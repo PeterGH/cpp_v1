@@ -1587,6 +1587,49 @@ static vector<vector<int>> subsets(vector<int> &nums)
     return result;
 }
 
+// 90. Subsets II
+// Given a collection of integers that might contain duplicates,
+// nums, return all possible subsets.
+// Note: The solution set must not contain duplicate subsets.
+// For example,
+// If nums = [1, 2, 2], a solution is :
+// [
+//   [2],
+//   [1],
+//   [1, 2, 2],
+//   [2, 2],
+//   [1, 2],
+//   []
+// ]
+static vector<vector<int>> subsetsWithDup(vector<int> &nums)
+{
+    vector<vector<int>> result = vector<vector<int>>{vector<int>{}};
+    if (nums.size() == 0)
+        return result;
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    while (i < nums.size())
+    {
+        size_t j = i;
+        while (j + 1 < nums.size() && nums[j] == nums[j + 1])
+            j++;
+        vector<int> c;
+        size_t n = result.size();
+        for (size_t k = i; k <= j; k++)
+        {
+            c.push_back(nums[k]);
+            for (size_t l = 0; l < n; l++)
+            {
+                vector<int> e(result[l]);
+                e.insert(e.end(), c.begin(), c.end());
+                result.push_back(e);
+            }
+        }
+        i = j + 1;
+    }
+    return result;
+}
+
 } // namespace Combination
 
 namespace LengthOfLongestSubstring
@@ -2067,6 +2110,39 @@ static bool isPalindrome(int x)
         d /= 100;
     }
     return true;
+}
+
+// 89. Gray Code
+// The gray code is a binary numeral system where two successive values differ in only one bit.
+// Given a non-negative integer n representing the total number of bits in the code,
+// print the sequence of gray code. A gray code sequence must begin with 0.
+// For example, given n = 2, return [0, 1, 3, 2]. Its gray code sequence is:
+// 00 - 0
+// 01 - 1
+// 11 - 3
+// 10 - 2
+// Note :
+// For a given n, a gray code sequence is not uniquely defined.
+// For example, [0, 2, 3, 1] is also a valid gray code sequence
+// according to the above definition.
+// For now, the judge is able to judge based on one instance of
+// gray code sequence. Sorry about that.
+static vector<int> grayCode(int n)
+{
+    vector<int> gray = {0};
+    int b = 0x1;
+    for (int i = 0; i < n; i++)
+    {
+        int m = gray.size();
+        for (int j = m - 1; j >= 0; j--)
+        {
+            int c = gray[j];
+            c |= b;
+            gray.push_back(c);
+        }
+        b = (b << 1);
+    }
+    return gray;
 }
 
 // 67. Add Binary
