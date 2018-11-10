@@ -421,6 +421,63 @@ static size_t removeDuplicates(vector<int> &nums)
     return i + 1;
 }
 
+// 80. Remove Duplicates from Sorted Array II
+// Follow up for "Remove Duplicates":
+// What if duplicates are allowed at most twice?
+// For example,
+// Given sorted array nums = [1, 1, 1, 2, 2, 3],
+// Your function should return length = 5, with the first five elements of nums
+// being 1, 1, 2, 2 and 3. It doesn't matter what you leave beyond the new length.
+// @array, @linear
+static int removeDuplicates2(vector<int> &nums)
+{
+    int i = -1;
+    int j = 0;
+    while (j < (int)nums.size())
+    {
+        if (0 <= j - 1 && nums[j] == nums[j - 1])
+        {
+            j++;
+            continue;
+        }
+        i++;
+        if (i < j)
+            nums[i] = nums[j];
+        if (j + 1 < (int)nums.size() && nums[j] == nums[j + 1])
+        {
+            i++;
+            if (i < j + 1)
+                nums[i] = nums[j + 1];
+            j += 2;
+        }
+        else
+        {
+            j++;
+        }
+    }
+    return i + 1;
+}
+// This is wrong. For input [1, 1, 1, 2, 2, 3], output is [1, 1, 2, 3]
+static int removeDuplicates2_1(vector<int> &nums)
+{
+    if (nums.size() < 3)
+        return nums.size();
+    int i = 1;
+    for (int j = 2; j < (int)nums.size(); j++)
+    {
+        if (nums[j] == nums[j - 1] && nums[j] == nums[j - 2])
+        {
+            continue;
+        }
+        i++;
+        if (i < j)
+        {
+            nums[i] = nums[j];
+        }
+    }
+    return i + 1;
+}
+
 // 27. Remove Element
 // Given an array and a value, remove all instances of that value in
 // place and return the new length. Do not allocate extra space for
@@ -501,6 +558,47 @@ static int search(vector<int> &nums, int target)
         }
     }
     return -1;
+}
+
+// 81. Search in Rotated Sorted Array II
+// Follow up for "Search in Rotated Sorted Array":
+// What if duplicates are allowed ?
+// Would this affect the run - time complexity? How and why?
+// Suppose an array sorted in ascending order is rotated at
+// some pivot unknown to you beforehand.
+// (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+// Write a function to determine if a given target is in the array.
+// The array may contain duplicates.
+static bool search2(vector<int> &nums, int target)
+{
+    if (nums.size() == 0)
+        return false;
+    function<bool(int, int)>
+        search = [&](int l, int r) -> bool {
+        if (l > r)
+            return false;
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return true;
+        if (nums[m] < target)
+        {
+            if (nums[0] < nums[m])
+                return search(m + 1, r);
+            if (target < nums[r])
+                return search(m + 1, r);
+        }
+        else
+        {
+            if (nums[l] < target)
+                return search(l, m - 1);
+            if (nums[m] < nums[nums.size() - 1])
+                return search(l, m - 1);
+        }
+        if (search(l, m - 1))
+            return true;
+        return search(m + 1, r);
+    };
+    return search(0, nums.size() - 1);
 }
 
 // 34. Search for a Range
@@ -872,6 +970,55 @@ static vector<int> plusOne(vector<int> &digits)
         result.insert(result.begin(), c);
     }
     return result;
+}
+
+// 75. Sort Colors
+// Given an array with n objects colored red, white or blue,
+// sort them so that objects of the same color are adjacent,
+// with the colors in the order red, white and blue.
+// Here, we will use the integers 0, 1, and 2 to represent the
+// color red, white, and blue respectively.
+// Note:
+// You are not suppose to use the library's sort function for
+// this problem.
+static void sortColors(vector<int> &nums)
+{
+    if (nums.size() == 0)
+        return;
+    int i = -1;
+    int j = 0;
+    int k = nums.size();
+    while (j < k)
+    {
+        if (nums[j] == 0)
+        {
+            if (i < j)
+            {
+                i++;
+                swap(nums[i], nums[j]);
+            }
+            else
+            {
+                j++;
+            }
+        }
+        else if (nums[j] == 2)
+        {
+            if (j < k)
+            {
+                k--;
+                swap(nums[j], nums[k]);
+            }
+            else
+            {
+                j++;
+            }
+        }
+        else
+        {
+            j++;
+        }
+    }
 }
 
 // 56. Merge Intervals
@@ -1317,6 +1464,76 @@ static vector<vector<int>> combinationSumNoReuse2(vector<int> &candidates, int t
     solve(0, target, s);
     return result;
 }
+
+// 77. Combinations
+// Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
+// For example,
+// If n = 4 and k = 2, a solution is :
+// [
+//   [2, 4],
+//   [3, 4],
+//   [2, 3],
+//   [1, 2],
+//   [1, 3],
+//   [1, 4],
+// ]
+// @combination, @recurse
+static vector<vector<int>> combine(int n, int k)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    if (k <= 0 || n <= 0 || k > n)
+        return result;
+    function<void(int, int, vector<int> &)>
+        select = [&](int i, int l, vector<int> &c) {
+            if (l == 0)
+            {
+                result.push_back(c);
+                return;
+            }
+            for (int j = i; j <= n; j++)
+            {
+                vector<int> c1(c);
+                c1.push_back(j);
+                select(j + 1, l - 1, c1);
+            }
+        };
+    vector<int> c = vector<int>{};
+    select(1, k, c);
+    return result;
+}
+
+// 78. Subsets
+// Given a set of distinct integers, nums, return all possible subsets.
+// Note: The solution set must not contain duplicate subsets.
+// For example,
+// If nums = [1, 2, 3], a solution is :
+// [
+//   [3],
+//   [1],
+//   [2],
+//   [1, 2, 3],
+//   [1, 3],
+//   [2, 3],
+//   [1, 2],
+//   []
+// ]
+static vector<vector<int>> subsets(vector<int> &nums)
+{
+    vector<vector<int>> result = vector<vector<int>>{};
+    result.push_back(vector<int>{});
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        size_t n = result.size();
+        for (size_t j = 0; j < n; j++)
+        {
+            vector<int> e(result[j]);
+            e.push_back(nums[i]);
+            result.push_back(e);
+        }
+    }
+    return result;
+}
+
 } // namespace Combination
 
 namespace LengthOfLongestSubstring
@@ -2049,6 +2266,114 @@ static int minPathSum(vector<vector<int>> &grid)
         }
     }
     return sum[m - 1][n - 1];
+}
+
+// 74. Search a 2D Matrix
+// Write an efficient algorithm that searches for a value in an m x n matrix.
+// This matrix has the following properties :
+// Integers in each row are sorted from left to right.
+// The first integer of each row is greater than the last integer of the previous row.
+// For example,
+// Consider the following matrix :
+// [
+//   [1, 3, 5, 7],
+//   [10, 11, 16, 20],
+//   [23, 30, 34, 50]
+// ]
+// Given target = 3, return true.
+// @grid, @linear
+static bool searchMatrix(vector<vector<int>> &matrix, int target)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return false;
+    int m = matrix.size();
+    int n = matrix[0].size();
+    int i = 0;
+    int j = n - 1;
+    while (i < m && j >= 0)
+    {
+        if (matrix[i][j] == target)
+            return true;
+        else if (matrix[i][j] < target)
+        {
+            i++;
+        }
+        else
+        {
+            j--;
+        }
+    }
+    return false;
+}
+
+// 79. Word Search
+// Given a 2D board and a word, find if the word exists in the grid.
+// The word can be constructed from letters of sequentially adjacent
+// cell,
+// where "adjacent" cells are those horizontally or vertically
+// neighboring.
+// The same letter cell may not be used more than once.
+// For example,
+// Given board =
+// [
+//   ['A', 'B', 'C', 'E'],
+//   ['S', 'F', 'C', 'S'],
+//   ['A', 'D', 'E', 'E']
+// ]
+// word = "ABCCED", ->returns true,
+// word = "SEE", ->returns true,
+// word = "ABCB", ->returns false.
+// @grid, @bfs
+static bool exist(vector<vector<char>> &board, string word)
+{
+    if (board.size() == 0 || board[0].size() == 0)
+        return false;
+    int m = board.size();
+    int n = board[0].size();
+    int l = word.size();
+    function<bool(pair<int, int> &, int, set<pair<int, int>> &)>
+        search = [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
+        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n || i < 0 || i >= l || board[p.first][p.second] != word[i] || v.find(p) != v.end())
+        {
+            return false;
+        }
+        if (i == l - 1)
+            return true;
+        v.insert(p);
+        pair<int, int> p1 = make_pair(p.first, p.second - 1);
+        if (search(p1, i + 1, v))
+        {
+            return true;
+        }
+        p1 = make_pair(p.first, p.second + 1);
+        if (search(p1, i + 1, v))
+        {
+            return true;
+        }
+        p1 = make_pair(p.first - 1, p.second);
+        if (search(p1, i + 1, v))
+        {
+            return true;
+        }
+        p1 = make_pair(p.first + 1, p.second);
+        if (search(p1, i + 1, v))
+        {
+            return true;
+        }
+        v.erase(p);
+        return false;
+    };
+    for (int j = 0; j < m; j++)
+    {
+        for (int k = 0; k < n; k++)
+        {
+            pair<int, int> point = make_pair(j, k);
+            set<pair<int, int>> visited = set<pair<int, int>>{};
+            if (search(point, 0, visited))
+                return true;
+        }
+    }
+    return false;
 }
 
 // 155. Min Stack
