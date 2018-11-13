@@ -824,6 +824,66 @@ static int searchInsert(vector<int> &nums, int target)
     return -1;
 }
 
+// 121. Best Time to Buy and Sell Stock
+// Say you have an array for which the i-th element is the price
+// of a given stock on day i.
+// If you were only permitted to complete at most one transaction
+// (ie, buy one and sell one share
+// of the stock), design an algorithm to find the maximum profit.
+// Example 1:
+// Input: [7, 1, 5, 3, 6, 4]
+// Output : 5
+// max.difference = 6 - 1 = 5 (not 7 - 1 = 6, as selling price needs
+// to be larger than buying price)
+// Example 2 :
+// Input : [7, 6, 4, 3, 1]
+// Output : 0
+// In this case, no transaction is done, i.e.max profit = 0.
+static int maxProfit(vector<int> &prices)
+{
+    if (prices.empty())
+        return 0;
+    int min = prices[0];
+    int profit = 0;
+    for (size_t i = 1; i < prices.size(); i++)
+    {
+        if (prices[i] - min > profit)
+        {
+            profit = prices[i] - min;
+        }
+        else if (prices[i] < min)
+        {
+            min = prices[i];
+        }
+    }
+    return profit;
+}
+
+// 122. Best Time to Buy and Sell Stock II
+// Say you have an array for which the ith element is the price of
+// a given
+// stock on day i. Design an algorithm to find the maximum profit.
+// You may complete as many transactions as you like (ie, buy one
+// and sell
+// one share of the stock multiple times). However, you may not engage
+// in
+// multiple transactions at the same time (ie, you must sell the stock
+// before you buy again).
+static int maxProfit2(vector<int> &prices)
+{
+    if (prices.empty())
+        return 0;
+    int profit = 0;
+    for (size_t i = 1; i < prices.size(); i++)
+    {
+        if (prices[i] > prices[i - 1])
+        {
+            profit += (prices[i] - prices[i - 1]);
+        }
+    }
+    return profit;
+}
+
 // 53. Maximum Subarray
 // Find the contiguous subarray within an array (containing at least one number)
 // which has the largest sum.
@@ -2085,6 +2145,127 @@ static string simplifyPath(string path)
         return path.substr(0, i + 1);
 }
 
+// 91. Decode Ways
+// A message containing letters from A-Z is being encoded to numbers
+// using the following mapping:
+// 'A' -> 1
+// 'B' -> 2
+// ...
+// 'Z' -> 26
+// Given an encoded message containing digits, determine the total
+// number of ways to decode it.
+// For example,
+// Given encoded message "12", it could be decoded as "AB" (1 2) or
+// "L" (12).
+// The number of ways decoding "12" is 2.
+// @string, @dynamicprogramming
+// Another solution is to compute from the beginning towards the end.
+static int numDecodings(string s)
+{
+    if (s.length() == 0)
+        return 0;
+    int n;
+    function<int(int)>
+        solve = [&](int i) -> int {
+        if (i == s.length())
+            return 0;
+        if (i == s.length() - 1)
+        {
+            if (s[i] == '0')
+                return 0;
+            else
+                return 1;
+        }
+        switch (s[i])
+        {
+        case '0':
+            return 0;
+        case '1':
+            if (s[i + 1] == '0')
+            {
+                if (s[i + 2] == '0')
+                    return 0;
+                else
+                    return solve(i + 2);
+            }
+            else
+            {
+                if (s[i + 2] == '0')
+                    return solve(i + 1);
+                else
+                    return solve(i + 1) + solve(i + 2);
+            }
+        case '2':
+            if (s[i + 1] == '0')
+            {
+                if (s[i + 2] == '0')
+                    return 0;
+                else
+                    return solve(i + 2);
+            }
+            else if ('1' <= s[i + 1] && s[i + 1] <= '6')
+            {
+                n = solve(i + 2);
+                if (n == 0)
+                    n++;
+                return solve(i + 1) + n;
+            }
+            else
+            {
+                return solve(i + 1);
+            }
+        default:
+            return solve(i + 1);
+        }
+    };
+    return solve(0);
+}
+
+// 93. Restore IP Addresses
+// Given a string containing only digits, restore it by returning
+// all possible valid IP address combinations.
+// For example :
+// Given "25525511135",
+// return["255.255.11.135", "255.255.111.35"]. (Order does not matter)
+// @string, @recurse
+static vector<string> restoreIpAddresses(string s)
+{
+    vector<string> result;
+    function<void(int, int, string &)>
+        solve = [&](int i, int j, string &p) {
+            if (i > 4)
+            {
+                if (j == s.length())
+                {
+                    p.pop_back();
+                    result.push_back(p);
+                }
+                return;
+            }
+            if (j == s.length())
+                return;
+            string p1(p);
+            solve(i + 1, j + 1, p1.append(1, s[j]).append(1, '.'));
+            if (j + 1 == s.length() || s[j] == '0')
+                return;
+            string p2(p);
+            solve(i + 1, j + 2, p2.append(s.substr(j, 2)).append(1, '.'));
+            if (j + 2 == s.length())
+                return;
+            int c = s[j] - '0';
+            c = 10 * c + s[j + 1] - '0';
+            c = 10 * c + s[j + 2] - '0';
+            if (c <= 255)
+            {
+                string p3(p);
+                solve(i + 1, j + 3, p3.append(s.substr(j, 3)).append(1, '.'));
+            }
+        };
+    string prefix;
+    solve(1, 0, prefix);
+    return result;
+}
+
 // 9. Palindrome Number
 // Determine whether an integer is a palindrome. Do this without extra space.
 static bool isPalindrome(int x)
@@ -2503,6 +2684,93 @@ static bool exist(vector<vector<char>> &board, string word)
         }
     }
     return false;
+}
+
+// 118. Pascal's Triangle
+// Given numRows, generate the first numRows of Pascal's triangle.
+// For example, given numRows = 5,
+// Return
+// [
+//      [1],
+//     [1, 1],
+//    [1, 2, 1],
+//   [1, 3, 3, 1],
+//  [1, 4, 6, 4, 1]
+// ]
+static vector<vector<int>> generate(int numRows)
+{
+    vector<vector<int>> result;
+    if (numRows <= 0)
+        return result;
+    vector<int> row;
+    for (int i = 0; i < numRows; i++)
+    {
+        row.push_back(1);
+        for (int j = row.size() - 2; j > 0; j--)
+        {
+            row[j] += row[j - 1];
+        }
+        result.push_back(row);
+        row = vector<int>(row);
+    }
+    return result;
+}
+
+// 119. Pascal's Triangle II
+// Given an index k, return the kth row of the Pascal's triangle.
+// For example, given k = 3,
+// Return[1, 3, 3, 1].
+// Note:
+// Could you optimize your algorithm to use only O(k) extra space ?
+static vector<int> getRow(int rowIndex)
+{
+    vector<int> row;
+    for (int k = 0; k <= rowIndex; k++)
+    {
+        row.push_back(1);
+        for (int i = row.size() - 2; i > 0; i--)
+        {
+            row[i] += row[i - 1];
+        }
+    }
+    return row;
+}
+
+// 120. Triangle
+// Given a triangle, find the minimum path sum from top to bottom.
+// Each step you may move to adjacent numbers on the row below.
+// For example, given the following triangle
+// [
+//     [2],
+//    [3, 4],
+//   [6, 5, 7],
+//  [4, 1, 8, 3]
+// ]
+// The minimum path sum from top to bottom is 11
+// (i.e., 2 + 3 + 5 + 1 = 11).
+// Note:
+// Bonus point if you are able to do this using only O(n) extra space,
+// where n is the total number of rows in the triangle.
+static int minimumTotal(vector<vector<int>> &triangle)
+{
+    vector<int> row(triangle[0]);
+    for (size_t i = 1; i < triangle.size(); i++)
+    {
+        size_t n = triangle[i].size();
+        row.push_back(row[n - 2] + triangle[i][n - 1]);
+        for (int j = n - 2; j > 0; j--)
+        {
+            row[j] = triangle[i][j] + min(row[j - 1], row[j]);
+        }
+        row[0] += triangle[i][0];
+    }
+    int min = row[0];
+    for (size_t i = 1; i < row.size(); i++)
+    {
+        if (row[i] < min)
+            min = row[i];
+    }
+    return min;
 }
 
 // 155. Min Stack
