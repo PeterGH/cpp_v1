@@ -680,98 +680,87 @@ void LeetCodeTest::Init(void)
             vector<int> o2 = LeetCode::SpiralMatrix::spiralOrder2(m);
             Logger() << o << o2;
             ASSERT1(o.size() == o2.size());
-            for (int i = 0; i < (int)o.size(); i++) {
+            for (int i = 0; i < (int)o.size(); i++)
+            {
                 ASSERT1(o[i] == i);
                 ASSERT1(o2[i] == i);
             }
         };
         {
             vector<vector<int>> m = {
-                { 0 }
-            };
+                {0}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1 }
-            };
+                {0, 1}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1, 2 }
-            };
+                {0, 1, 2}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0 },
-                { 1 }
-            };
+                {0},
+                {1}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0 },
-                { 1 },
-                { 2 }
-            };
+                {0},
+                {1},
+                {2}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1 },
-                { 3, 2 }
-            };
+                {0, 1},
+                {3, 2}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1, 2 },
-                { 5, 4, 3 }
-            };
+                {0, 1, 2},
+                {5, 4, 3}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1 },
-                { 5, 2 },
-                { 4, 3 }
-            };
+                {0, 1},
+                {5, 2},
+                {4, 3}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1, 2 },
-                { 7, 8, 3 },
-                { 6, 5, 4 }
-            };
+                {0, 1, 2},
+                {7, 8, 3},
+                {6, 5, 4}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1,  2,  3 },
-                { 9, 10, 11, 4 },
-                { 8, 7,  6,  5 }
-            };
+                {0, 1, 2, 3},
+                {9, 10, 11, 4},
+                {8, 7, 6, 5}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0, 1,  2 },
-                { 9, 10, 3 },
-                { 8, 11, 4 },
-                { 7, 6,  5 }
-            };
+                {0, 1, 2},
+                {9, 10, 3},
+                {8, 11, 4},
+                {7, 6, 5}};
             check(m);
         }
         {
             vector<vector<int>> m = {
-                { 0,  1,  2,  3 },
-                { 11, 12, 13, 4 },
-                { 10, 15, 14, 5 },
-                { 9,  8,  7,  6 }
-            };
+                {0, 1, 2, 3},
+                {11, 12, 13, 4},
+                {10, 15, 14, 5},
+                {9, 8, 7, 6}};
             check(m);
         }
         {
@@ -790,5 +779,15 @@ void LeetCodeTest::Init(void)
         }
     });
 
+    Add("UniquePathsII", [&]() {
+        auto test = [&](vector<vector<int>> &grid, int expected) {
+            int count = LeetCode::uniquePathsWithObstacles(grid);
+            Logger() << "Unique paths: " << count << "\n";
+            ASSERT1(count == expected);
+        };
+
+        vector<vector<int>> grid = {{0, 0}, {0, 0}};
+        test(grid, 2);
+    });
 }
 #endif

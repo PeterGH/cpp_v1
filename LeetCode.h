@@ -824,6 +824,58 @@ static int searchInsert(vector<int> &nums, int target)
     return -1;
 }
 
+// 162. Find Peak Element
+// A peak element is an element that is greater than its neighbors.
+// Given an input array where num[i] != num[i + 1], find a peak element
+// and return its index.
+// The array may contain multiple peaks, in that case return the index
+// to any one of the peaks is fine.
+// You may imagine that num[-1] = num[n] = negative infinity.
+// For example, in array[1, 2, 3, 1], 3 is a peak element and your function
+// should return the index number 2.
+// Note: Your solution should be in logarithmic complexity.
+// @array, @binarysearch
+static int findPeakElement(vector<int> &nums)
+{
+    int l = 0;
+    int h = nums.size() - 1;
+    int m;
+    while (l <= h)
+    {
+        m = l + ((h - l) >> 1);
+        if (m == h)
+        {
+            return m;
+        }
+        else if (l == m)
+        {
+            if (nums[m] <= nums[m + 1])
+            {
+                l = m + 1;
+            }
+            else
+            {
+                return m;
+            }
+        }
+        else
+        {
+            if (nums[m - 1] < nums[m] && nums[m] > nums[m + 1])
+            {
+                return m;
+            }
+            else if (nums[m - 1] <= nums[m + 1])
+            {
+                l = m + 1;
+            }
+            else
+            {
+                h = m - 1;
+            }
+        }
+    }
+}
+
 // 121. Best Time to Buy and Sell Stock
 // Say you have an array for which the i-th element is the price
 // of a given stock on day i.
@@ -882,6 +934,31 @@ static int maxProfit2(vector<int> &prices)
         }
     }
     return profit;
+}
+
+// 169. Majority Element
+// Given an array of size n, find the majority element. The majority
+// element is the element that appears more than ⌊ n/2 ⌋ times.
+// You may assume that the array is non-empty and the majority element
+// always exist in the array.
+static int majorityElement(vector<int> &nums)
+{
+    map<int, int> m;
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        if (m.find(nums[i]) == m.end())
+        {
+            m[nums[i]] = 1;
+        }
+        else
+        {
+            m[nums[i]]++;
+        }
+        if (m[nums[i]] > (int)nums.size() / 2)
+        {
+            return nums[i];
+        }
+    }
 }
 
 // 53. Maximum Subarray
@@ -1050,6 +1127,29 @@ static int climbStairs(int n)
         b = c;
     }
     return c;
+}
+
+// 198. House Robber
+// You are a professional robber planning to rob houses along a street.
+// Each house has a certain amount of money stashed, the only constraint
+// stopping you from robbing each of them is that adjacent houses have
+// security system connected and it will automatically contact the police
+// if two adjacent houses were broken into on the same night.
+// Given a list of non-negative integers representing the amount of money
+// of each house, determine the maximum amount of money you can rob tonight
+// without alerting the police.
+static int rob(vector<int> &nums)
+{
+    int a = 0; // max at i - 2
+    int b = 0; // max at i - 1
+    int c;     // max at i
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        c = max(a + nums[i], b);
+        a = b;
+        b = c;
+    }
+    return b;
 }
 
 // 66. Plus One
@@ -1401,6 +1501,47 @@ static string getPermutation(int n, int k)
 }
 
 } // namespace Permutation
+
+// 189. Rotate Array
+// Rotate an array of n elements to the right by k steps.
+// For example, with n = 7 and k = 3, the array[1, 2, 3, 4, 5, 6, 7]
+// is rotated to[5, 6, 7, 1, 2, 3, 4].
+// Note: Try to come up as many solutions as you can, there are at least
+// 3 different ways to solve this problem.
+// Hint: Could you do it in-place with O(1) extra space?
+static void rotate(vector<int> &nums, int k)
+{
+    if (nums.empty())
+        return;
+    k %= nums.size();
+    if (k == 0)
+        return;
+    function<void(int, int)>
+        swapRange = [&](int i, int j) {
+            while (i < j)
+            {
+                swap(nums[i++], nums[j--]);
+            }
+        };
+    swapRange(0, nums.size() - 1);
+    swapRange(0, k - 1);
+    swapRange(k, nums.size() - 1);
+}
+// This one works only if n and k are co-prime
+static void rotate2(vector<int> &nums, int k)
+{
+    if (nums.empty())
+        return;
+    k %= nums.size();
+    if (k == 0)
+        return;
+    size_t i = 0;
+    do
+    {
+        i = (i + k) % nums.size();
+        swap(nums[0], nums[i]);
+    } while (i != 0);
+}
 
 namespace Combination
 {
@@ -1880,6 +2021,62 @@ static string solve3(string s)
     return s.substr((mi - ml) >> 1, ml);
 }
 } // namespace LongestPalindrome
+
+// 125. Valid Palindrome
+// Given a string, determine if it is a palindrome,
+// considering only alphanumeric
+// characters and ignoring cases.
+// For example,
+// "A man, a plan, a canal: Panama" is a palindrome.
+// "race a car" is not a palindrome.
+// Note:
+// Have you consider that the string might be empty?
+// This is a good question to ask during an interview.
+// For the purpose of this problem, we define empty string
+// as valid palindrome.
+static bool isPalindrome(string s)
+{
+    function<bool(char)>
+        isDigit = [&](char c) -> bool {
+        return '0' <= c && c <= '9';
+    };
+    function<bool(char)>
+        isLower = [&](char c) -> bool {
+        return 'a' <= c && c <= 'z';
+    };
+    function<bool(char)>
+        isUpper = [&](char c) -> bool {
+        return 'A' <= c && c <= 'Z';
+    };
+    int i = 0;
+    int j = s.size() - 1;
+    while (i < j)
+    {
+        char a = s[i];
+        if (!isDigit(a) && !isLower(a) && !isUpper(a))
+        {
+            i++;
+            continue;
+        }
+        char b = s[j];
+        if (!isDigit(b) && !isLower(b) && !isUpper(b))
+        {
+            j--;
+            continue;
+        }
+        if (isDigit(a) != isDigit(b))
+            return false;
+        if (isDigit(a) && a != b)
+            return false;
+        if (isLower(a) && a - 'a' != b - 'a' && a - 'a' != b - 'A')
+            return false;
+        if (isUpper(a) && a - 'A' != b - 'a' && a - 'A' != b - 'A')
+            return false;
+        i++;
+        j--;
+    }
+    return true;
+}
 
 // 6. ZigZag Conversion
 // "PAYPALISHIRING"
@@ -2546,6 +2743,45 @@ static int uniquePaths(int m, int n)
     return grid[0][0];
 }
 
+// 63. Unique Paths II
+// Follow up for "Unique Paths":
+// Now consider if some obstacles are added to the grids.
+// How many unique paths would there be ?
+// An obstacle and empty space is marked as 1 and 0 respectively
+// in the grid.
+// For example,
+// There is one obstacle in the middle of a 3x3 grid as
+// illustrated below.
+// [
+//   [0, 0, 0],
+//   [0, 1, 0],
+//   [0, 0, 0]
+// ]
+// The total number of unique paths is 2.
+// Note: m and n will be at most 100.
+static int uniquePathsWithObstacles(vector<vector<int>> &obstacleGrid)
+{
+    int m = obstacleGrid.size();
+    int n = obstacleGrid[0].size();
+    if (m == 0 || n == 0)
+        return 0;
+    vector<vector<int>> grid(obstacleGrid);
+    grid[m - 1][n - 1] = (obstacleGrid[m - 1][n - 1] == 0) ? 1 : 0;
+    for (int j = n - 2; j >= 0; j--)
+    {
+        grid[m - 1][j] = (obstacleGrid[m - 1][j] == 0) ? grid[m - 1][j + 1] : 0;
+    }
+    for (int i = m - 2; i >= 0; i--)
+    {
+        grid[i][n - 1] = (obstacleGrid[i][n - 1] == 0) ? grid[i + 1][n - 1] : 0;
+        for (int j = n - 2; j >= 0; j--)
+        {
+            grid[i][j] = (obstacleGrid[i][j] == 0) ? (grid[i + 1][j] + grid[i][j + 1]) : 0;
+        }
+    }
+    return grid[0][0];
+}
+
 // 64. Minimum Path Sum
 // Given a m x n grid filled with non-negative numbers,
 // find a path from top left to bottom right which minimizes
@@ -2684,6 +2920,134 @@ static bool exist(vector<vector<char>> &board, string word)
         }
     }
     return false;
+}
+
+// 36. Valid Sudoku
+// Determine if a Sudoku is valid, according to: Sudoku Puzzles
+// The Rules. The Sudoku board could be partially filled, where empty
+// cells are filled with the character '.'.
+// A partially filled sudoku which is valid.
+// Note: A valid Sudoku board (partially filled) is not necessarily
+// solvable. Only the filled cells need to be validated.
+static bool isValidSudoku(vector<vector<char>> &board)
+{
+    map<size_t, set<char>> rows;
+    map<size_t, set<char>> cols;
+    map<size_t, set<char>> grids;
+    for (size_t i = 0; i < board.size(); i++)
+    {
+        if (rows.find(i) == rows.end())
+            rows[i] = set<char>{};
+        for (size_t j = 0; j < board[i].size(); j++)
+        {
+            if (i == 0 && cols.find(j) == cols.end())
+                cols[j] = set<char>();
+            if (i % 3 == 0 && j % 3 == 0 && grids.find(i * 3 + j) == grids.end())
+            {
+                grids[i * 3 + j] = set<char>{};
+            }
+            if (board[i][j] != '.')
+            { // A real check may be against '0'-'9'
+                if (rows[i].find(board[i][j]) != rows[i].end())
+                    return false;
+                rows[i].insert(board[i][j]);
+                if (cols[j].find(board[i][j]) != cols[j].end())
+                    return false;
+                cols[j].insert(board[i][j]);
+                auto k = (i / 3) * 3 + (j / 3);
+                if (grids[k].find(board[i][j]) != grids[k].end())
+                    return false;
+                grids[k].insert(board[i][j]);
+            }
+        }
+    }
+    return true;
+}
+
+// 48. Rotate Image
+// You are given an n x n 2D matrix representing an image.
+// Rotate the image by 90 degrees(clockwise).
+// 0 1        3 0
+// 3 2        2 1
+static void rotate(vector<vector<int>> &matrix)
+{
+    int d = matrix.size();
+    for (int i = 0; i < d - 1; i++)
+    {
+        for (int j = 0; j < d - i - 1; j++)
+        {
+            swap(matrix[i][j], matrix[d - j - 1][d - i - 1]);
+        }
+    }
+    for (int i = 0; i < (d >> 1); i++)
+    {
+        for (int j = 0; j < d; j++)
+        {
+            swap(matrix[i][j], matrix[d - i - 1][j]);
+        }
+    }
+}
+
+// 73. Set Matrix Zeroes
+// Given a m x n matrix, if an element is 0, set its entire row and
+// column to 0. Do it in place.
+static void setZeroes(vector<vector<int>> &matrix)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return;
+    size_t m = matrix.size();
+    size_t n = matrix[0].size();
+    bool zeroFirstColumn = false;
+    bool zeroFirstRow = false;
+    for (size_t i = 0; i < m; i++)
+    {
+        for (size_t j = 0; j < n; j++)
+        {
+            if (matrix[i][j] == 0)
+            {
+                if (i == 0)
+                    zeroFirstRow = true;
+                if (j == 0)
+                    zeroFirstColumn = true;
+                matrix[i][0] = 0;
+                matrix[0][j] = 0;
+            }
+        }
+    }
+    for (size_t i = 1; i < m; i++)
+    {
+        if (matrix[i][0] == 0)
+        {
+            for (size_t j = 1; j < n; j++)
+            {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+    for (size_t j = 1; j < n; j++)
+    {
+        if (matrix[0][j] == 0)
+        {
+            for (size_t i = 1; i < m; i++)
+            {
+                matrix[i][j] = 0;
+            }
+        }
+    }
+    if (zeroFirstColumn)
+    {
+        for (size_t i = 1; i < m; i++)
+        {
+            matrix[i][0] = 0;
+        }
+    }
+    if (zeroFirstRow)
+    {
+        for (size_t j = 1; j < n; j++)
+        {
+            matrix[0][j] = 0;
+        }
+    }
 }
 
 // 118. Pascal's Triangle
