@@ -2078,6 +2078,52 @@ static bool isPalindrome(string s)
     return true;
 }
 
+// 131. Palindrome Partitioning
+// Given a string s, partition s such that every substring of
+// the partition is a palindrome.
+// Return all possible palindrome partitioning of s.
+// For example, given s = "aab",
+// Return
+// [
+//  ["aa", "b"],
+//  ["a", "a", "b"]
+// ]
+static vector<vector<string>> partition(string s)
+{
+    vector<vector<string>> result;
+    if (s.empty())
+        return result;
+    function<bool(size_t, size_t)>
+        isPalindrome = [&](size_t i, size_t j) -> bool {
+        while (i < j)
+        {
+            if (s[i++] != s[j--])
+                return false;
+        }
+        return true;
+    };
+    function<void(size_t, vector<string> &)>
+        solve = [&](size_t i, vector<string> &p) {
+            if (i == s.length())
+            {
+                result.push_back(p);
+                return;
+            }
+            for (size_t j = i; j < s.length(); j++)
+            {
+                if (isPalindrome(i, j))
+                {
+                    vector<string> p2(p);
+                    p2.push_back(s.substr(i, j - i + 1));
+                    solve(j + 1, p2);
+                }
+            }
+        };
+    vector<string> r;
+    solve(0, r);
+    return result;
+}
+
 // 6. ZigZag Conversion
 // "PAYPALISHIRING"
 // P   A   H   N
@@ -3050,6 +3096,137 @@ static void setZeroes(vector<vector<int>> &matrix)
     }
 }
 
+// 130. Surrounded Regions
+// Given a 2D board containing 'X' and 'O' (the letter O), capture all
+// regions surrounded by 'X'. A region is captured by flipping all 'O's
+// into 'X's in that surrounded region.
+// For example,
+//    X X X X
+//    X O O X
+//    X X O X
+//    X O X X
+// After running your function, the board should be :
+//    X X X X
+//    X X X X
+//    X X X X
+//    X O X X
+static void solve(vector<vector<char>> &board)
+{
+    size_t m = board.size();
+    if (m == 0)
+        return;
+    size_t n = board[0].size();
+    if (n == 0)
+        return;
+    function<void(size_t, size_t)>
+        mark = [&](size_t x, size_t y) {
+            if (board[x][y] != 'O')
+                return;
+            board[x][y] = 'Y';
+            if (0 < x)
+                mark(x - 1, y);
+            if (y < n - 1)
+                mark(x, y + 1);
+            if (x < m - 1)
+                mark(x + 1, y);
+            if (0 < y)
+                mark(x, y - 1);
+        };
+    for (size_t i = 0; i < n; i++)
+    {
+        if (board[0][i] == 'O')
+            mark(0, i);
+        if (m > 1 && board[m - 1][i] == 'O')
+            mark(m - 1, i);
+    }
+    for (size_t i = 0; i < m; i++)
+    {
+        if (board[i][0] == 'O')
+            mark(i, 0);
+        if (n > 1 && board[i][n - 1] == 'O')
+            mark(i, n - 1);
+    }
+    for (size_t i = 0; i < m; i++)
+    {
+        for (size_t j = 0; j < n; j++)
+        {
+            if (board[i][j] == 'O')
+            {
+                board[i][j] = 'X';
+            }
+            else if (board[i][j] == 'Y')
+            {
+                board[i][j] = 'O';
+            }
+        }
+    }
+}
+
+// 200. Number of Islands
+// Given a 2d grid map of '1's (land) and '0's (water), count the number
+// of islands. An island is surrounded by water and is formed by connecting
+// adjacent lands horizontally or vertically. You may assume all four
+// edges of the grid are all surrounded by water.
+// Example 1:
+//  11110
+//  11010
+//  11000
+//  00000
+// Answer: 1
+// Example 2:
+//  11000
+//  11000
+//  00100
+//  00011
+// Answer: 3
+static int numIslands(vector<vector<char>> &grid)
+{
+    int m = grid.size();
+    if (m == 0)
+        return 0;
+    int n = grid[0].size();
+    if (n == 0)
+        return 0;
+    function<void(int, int)>
+        visit = [&](int i, int j) {
+            if (grid[i][j] == '1')
+            {
+                grid[i][j] = '2';
+                if (i > 0)
+                    visit(i - 1, j);
+                if (j < n - 1)
+                    visit(i, j + 1);
+                if (i < m - 1)
+                    visit(i + 1, j);
+                if (j > 0)
+                    visit(i, j - 1);
+            }
+        };
+    int c = 0;
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (grid[i][j] == '1')
+            {
+                c++;
+                visit(i, j);
+            }
+        }
+    }
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            if (grid[i][j] != '0')
+            {
+                grid[i][j] = '1';
+            }
+        }
+    }
+    return c;
+}
+
 // 118. Pascal's Triangle
 // Given numRows, generate the first numRows of Pascal's triangle.
 // For example, given numRows = 5,
@@ -3239,6 +3416,59 @@ static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
     }
     return l;
 }
+
+// 133. Clone Graph
+// Clone an undirected graph. Each node in the graph contains a
+// label and a list of its neighbors.
+// OJ's undirected graph serialization:
+// Nodes are labeled uniquely.
+// We use # as a separator for each node, and , as a separator for
+// node label and each neighbor of the node.
+// As an example, consider the serialized graph { 0,1,2#1,2#2,2 }.
+// The graph has a total of three nodes, and therefore contains
+// three parts as separated by #.
+// First node is labeled as 0. Connect node 0 to both nodes 1 and 2.
+// Second node is labeled as 1. Connect node 1 to node 2.
+// Third node is labeled as 2. Connect node 2 to node 2 (itself),
+// thus forming a self - cycle.
+// Visually, the graph looks like the following :
+//    1
+//   /  \
+//  /    \
+// 0 -- - 2
+//       / \
+//       \_/
+struct UndirectedGraphNode
+{
+    int label;
+    vector<UndirectedGraphNode *> neighbors;
+    UndirectedGraphNode(int x) : label(x){};
+};
+static UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node)
+{
+    map<int, UndirectedGraphNode *> cloned;
+    function<UndirectedGraphNode *(UndirectedGraphNode *)>
+        clone = [&](UndirectedGraphNode *n) -> UndirectedGraphNode * {
+        if (node == nullptr)
+            return nullptr;
+        if (cloned.find(n->label) != cloned.end())
+            return cloned[n->label];
+        UndirectedGraphNode *copy = new UndirectedGraphNode(n->label);
+        cloned[n->label] = copy;
+        for (size_t i = 0; i < n->neighbors.size(); i++)
+        {
+            int label = n->neighbors[i]->label;
+            if (cloned.find(label) == cloned.end())
+            {
+                cloned[label] = clone(n->neighbors[i]);
+            }
+            copy->neighbors.push_back(cloned[label]);
+        }
+        return copy;
+    };
+    return clone(node);
+}
+
 } // namespace LeetCode
 } // namespace Test
 
