@@ -874,6 +874,7 @@ static int findPeakElement(vector<int> &nums)
             }
         }
     }
+    throw AssertError("No result");
 }
 
 // 121. Best Time to Buy and Sell Stock
@@ -959,6 +960,7 @@ static int majorityElement(vector<int> &nums)
             return nums[i];
         }
     }
+    throw AssertError("No result");
 }
 
 // 53. Maximum Subarray
@@ -2410,9 +2412,9 @@ static int numDecodings(string s)
     int n;
     function<int(int)>
         solve = [&](int i) -> int {
-        if (i == s.length())
+        if (i == (int)s.length())
             return 0;
-        if (i == s.length() - 1)
+        if (i == (int)s.length() - 1)
         {
             if (s[i] == '0')
                 return 0;
@@ -2478,22 +2480,22 @@ static vector<string> restoreIpAddresses(string s)
         solve = [&](int i, int j, string &p) {
             if (i > 4)
             {
-                if (j == s.length())
+                if (j == (int)s.length())
                 {
                     p.pop_back();
                     result.push_back(p);
                 }
                 return;
             }
-            if (j == s.length())
+            if (j == (int)s.length())
                 return;
             string p1(p);
             solve(i + 1, j + 1, p1.append(1, s[j]).append(1, '.'));
-            if (j + 1 == s.length() || s[j] == '0')
+            if (j + 1 == (int)s.length() || s[j] == '0')
                 return;
             string p2(p);
             solve(i + 1, j + 2, p2.append(s.substr(j, 2)).append(1, '.'));
-            if (j + 2 == s.length())
+            if (j + 2 == (int)s.length())
                 return;
             int c = s[j] - '0';
             c = 10 * c + s[j + 1] - '0';

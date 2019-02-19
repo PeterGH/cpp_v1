@@ -1,4 +1,4 @@
-CXXFLAGS = -g -Wall -Wno-unused-function
+CXXFLAGS = -g -Wall -Wno-unused-function -Wno-comment
 DEPS = Argument.h LeetCode.h Log.h Random.h Test.h Util.h ArgumentTest.h LeetCodeTest.h LogTest.h
 OBJS = main.o
 TARGET = test
