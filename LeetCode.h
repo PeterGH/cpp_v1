@@ -446,7 +446,7 @@ static void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
             i++;
         }
     }
-    while (it1 != nums1.end())
+    while (it1 != nums1.end()) // Why need this?
         it1 = nums1.erase(it1);
 }
 
@@ -1140,6 +1140,7 @@ static int climbStairs(int n)
 // Given a list of non-negative integers representing the amount of money
 // of each house, determine the maximum amount of money you can rob tonight
 // without alerting the police.
+// [Why not just count the odd houses and the even houses? Doesn't work, e.g. [3, 1, 1, 3]]
 static int rob(vector<int> &nums)
 {
     int a = 0; // max at i - 2
@@ -1662,6 +1663,7 @@ static vector<vector<int>> combinationSumNoReuse(vector<int> &candidates, int ta
 {
     vector<vector<int>> result = vector<vector<int>>{};
     // Sort so we can eliminate duplicate solutions later
+    // [Can we not use sort? Instead using a set of <i,t> pairs to track the visited?]
     std::sort(candidates.begin(), candidates.end());
     function<void(size_t, int, vector<int> &)>
         solve = [&](size_t i, int t, vector<int> &c) {
