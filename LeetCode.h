@@ -1155,6 +1155,42 @@ static int rob(vector<int> &nums)
     return b;
 }
 
+// 134. Gas Station
+// There are N gas stations along a circular route, where the amount of
+// gas at station i is gas[i]. You have a car with an unlimited gas tank
+// and it costs cost[i] of gas to travel from station i to its next
+// station(i + 1). You begin the journey with an empty tank at one of
+// the gas stations. Return the starting gas station's index if you can
+// travel around the circuit once, otherwise return -1.
+// Note: The solution is guaranteed to be unique.
+static int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+    size_t s = 0;
+    while (s < gas.size()) {
+        size_t i = s;
+        int t = 0;
+        size_t j;
+        while (t >= 0 && (i - s) < gas.size()) {
+            j = (i++) % gas.size();
+            t += (gas[j] - cost[j]);
+        }
+        if (t >= 0) return s;
+        s = i;
+    }
+    return -1;
+}
+
+// 136. Single Number
+// Given an array of integers, every element appears twice except for
+// one. Find that single one. Note: Your algorithm should have a linear
+// runtime complexity.Could you implement it without using extra memory?
+static int singleNumber(vector<int>& nums) {
+    int n = 0;
+    for_each(nums.begin(), nums.end(), [&](int e) {
+        n ^= e;
+    });
+    return n;
+}
+
 // 66. Plus One
 // Given a non-negative integer represented as a non-empty array
 // of digits, plus one to the integer.
