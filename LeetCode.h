@@ -654,6 +654,44 @@ static bool search2(vector<int> &nums, int target)
     return search(0, nums.size() - 1);
 }
 
+// 153. Find Minimum in Rotated Sorted Array
+// Suppose an array sorted in ascending order is rotated at some
+// pivot unknown to you beforehand. (i.e., 0 1 2 4 5 6 7 might become
+// 4 5 6 7 0 1 2). Find the minimum element.
+// You may assume no duplicate exists in the array.
+static int findMin(vector<int>& nums)
+{
+    int l = 0;
+    int h = nums.size() - 1;
+    int m;
+    while (l <= h) {
+        m = l + ((h - l) >> 1);
+        if (nums[l] < nums[m]) {
+            if (nums[m] < nums[h]) {
+                h = m - 1;
+            }
+            else {
+                l = m + 1;
+            }
+        }
+        else if (nums[l] > nums[m]) {
+            h = m;
+        }
+        else {
+            if (nums[m] < nums[h]) {
+                h = m;
+            }
+            else if (nums[m] > nums[h]) {
+                l = m + 1;
+            }
+            else {
+                break;
+            }
+        }
+    }
+    return nums[m];
+}
+
 // 34. Search for a Range
 // Given an array of integers sorted in ascending order,
 // find the starting and ending position of a given target value.
@@ -1069,6 +1107,54 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
 
     return (int)delta;
 }
+
+// 152. Maximum Product Subarray
+// Find the contiguous subarray within an array (containing at least
+// one number) which has the largest product.
+// For example, given the array[2, 3, -2, 4],
+// the contiguous subarray[2, 3] has the largest product = 6.
+static int maxProduct(vector<int>& nums)
+{
+    long long maxProd = LLONG_MIN;
+    vector<long long> product(nums.begin(), nums.end());
+    for (size_t l = 1; l <= nums.size(); l++) {
+        for (size_t i = 0; i <= nums.size() - l; i++) {
+            if (l > 1) {
+                product[i] *= nums[i + l - 1];
+            }
+            maxProd = max(product[i], maxProd);
+        }
+    }
+    return (int)maxProd;
+}
+static int maxProduct2(vector<int>& nums)
+{
+    long long maxNegative = LLONG_MIN;
+    long long maxProd = LLONG_MIN;
+    long long prod = 1;
+    for (size_t i = 0; i < nums.size(); i++) {
+        prod *= nums[i];
+        if (prod < 0) {
+            if (maxNegative == LLONG_MIN) {
+                maxProd = max(maxProd, prod);
+            }
+            else {
+                maxProd = max(maxProd, prod / maxNegative);
+            }
+            maxNegative = max(maxNegative, prod);
+        }
+        else if (prod > 0) {
+            maxProd = max(maxProd, prod);
+        }
+        else {
+            maxProd = max(maxProd, prod);
+            maxNegative = LLONG_MIN;
+            prod = 1;
+        }
+    }
+    return (int)maxProd;
+}
+
 
 // 55. Jump Game
 // Given an array of non-negative integers, you are initially
@@ -1873,6 +1959,48 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 
 } // namespace Combination
 
+// 150. Evaluate Reverse Polish Notation
+// Evaluate the value of an arithmetic expression in Reverse Polish
+// Notation. Valid operators are + , -, *, /. Each operand may be an
+// integer or another expression. Some examples :
+// ["2", "1", "+", "3", "*"] -> ((2 + 1) * 3) -> 9
+// ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
+static int evalRPN(vector<string>& tokens)
+{
+    int n1;
+    int n2;
+    stack<int> nums;
+    function<void(int &, int &)>
+    pop = [&](int & m1, int & m2) {
+        m2 = nums.top();
+        nums.pop();
+        m1 = nums.top();
+        nums.pop();
+    };
+    for (size_t i = 0; i < tokens.size(); i++) {
+        if (tokens[i].compare("+") == 0) {
+            pop(n1, n2);
+            nums.push(n1 + n2);
+        }
+        else if (tokens[i].compare("-") == 0) {
+            pop(n1, n2);
+            nums.push(n1 - n2);
+        }
+        else if (tokens[i].compare("*") == 0) {
+            pop(n1, n2);
+            nums.push(n1 * n2);
+        }
+        else if (tokens[i].compare("/") == 0) {
+            pop(n1, n2);
+            nums.push(n1 / n2);
+        }
+        else {
+            nums.push(atoi(tokens[i].c_str()));
+        }
+    }
+    return nums.top();
+}
+
 namespace LengthOfLongestSubstring
 {
 // 3. Longest Substring Without Repeating Characters
@@ -2162,6 +2290,54 @@ static vector<vector<string>> partition(string s)
     vector<string> r;
     solve(0, r);
     return result;
+}
+
+// 139. Word Break
+// Given a non-empty string s and a dictionary wordDict containing a
+// list of non-empty words, determine if s can be segmented into a
+// space-separated sequence of one or more dictionary words.
+// You may assume the dictionary does not contain duplicate words.
+// For example, given s = "leetcode", dict = ["leet", "code"]. Return
+// true because "leetcode" can be segmented as "leet code". Note: Each
+// word in the dictionary can be used more than once.
+// UPDATE(2017 / 1 / 4): The wordDict parameter had been changed to a
+// list of strings(instead of a set of strings). Please reload the code
+// definition to get the latest changes.
+static bool wordBreak(string s, vector<string>& wordDict)
+{
+    if (wordDict.empty()) return false;
+    size_t minLength = wordDict[0].size();
+    size_t maxLength = wordDict[0].size();
+    for (size_t i = 1; i < wordDict.size(); i++) {
+        if (wordDict[i].size() < minLength) minLength = wordDict[i].size();
+        if (wordDict[i].size() > maxLength) maxLength = wordDict[i].size();
+    }
+    map<size_t, bool> breakable;
+    function<bool(size_t)>
+    solve = [&](size_t i) -> bool
+    {
+        if (breakable.find(i) != breakable.end()) return breakable[i];
+        breakable[i] = false;
+        if (i == s.size()) {
+            breakable[i] = true;
+        }
+        else {
+            for (size_t j = minLength; j <= min(maxLength, s.size() - i); j++) {
+                auto it = find(wordDict.begin(), wordDict.end(), s.substr(i, j));
+                if (it != wordDict.end()) {
+                    if (breakable.find(i + j) == breakable.end()) {
+                        breakable[i + j] = solve(i + j);
+                    }
+                    if (breakable[i + j]) {
+                        breakable[i] = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return breakable[i];
+    };
+    return solve(0);
 }
 
 // 6. ZigZag Conversion
@@ -3509,6 +3685,37 @@ static UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node)
     return clone(node);
 }
 
+struct RandomListNode
+{
+    int label;
+    RandomListNode *next, *random;
+    RandomListNode(int x) : label(x), next(nullptr), random(nullptr) {}
+};
+// 138. Copy List with Random Pointer
+// A linked list is given such that each node contains an additional
+// random pointer which could point to any node in the list or null.
+// Return a deep copy of the list.
+static RandomListNode *copyRandomList(RandomListNode *head)
+{
+    map<RandomListNode *, RandomListNode *> copied;
+    function<RandomListNode * (RandomListNode *)>
+    copy = [&](RandomListNode * node) -> RandomListNode *
+    {
+        if (node == nullptr) return nullptr;
+        RandomListNode * c = new RandomListNode(node->label);
+        copied[node] = c;
+        if (copied.find(node->next) == copied.end()) {
+            copied[node->next] = copy(node->next);
+        }
+        c->next = copied[node->next];
+        if (copied.find(node->random) == copied.end()) {
+            copied[node->random] = copy(node->random);
+        }
+        c->random = copied[node->random];
+        return c;
+    };
+    return copy(head);
+}
 } // namespace LeetCode
 } // namespace Test
 
