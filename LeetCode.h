@@ -399,12 +399,9 @@ static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
 
 // 88. Merge Sorted Array
 // Given two sorted integer arrays nums1 and nums2, merge nums2 into
-// nums1 as one sorted array.
-// Note:
-// You may assume that nums1 has enough space(size that is greater
-// or equal to m + n)
-// to hold additional elements from nums2. The number of elements
-// initialized in nums1 and nums2
+// nums1 as one sorted array. Note: You may assume that nums1 has enough
+// space(size that is greater or equal to m + n) to hold additional elements
+// from nums2. The number of elements initialized in nums1 and nums2
 // are m and n respectively.
 // @array, @merge
 // Another solution: shift elements in nums1 to the end, and then merge
@@ -452,13 +449,11 @@ static void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
 
 // 26. Remove Duplicates from Sorted Array
 // Given a sorted array, remove the duplicates in place such that each
-// element appear only once and return the new length.
-// Do not allocate extra space for another array, you must do this in
-// place with constant memory. For example,
-// Given input array nums = [1, 1, 2],
-// Your function should return length = 2, with the first two elements
-// of nums being 1 and 2 respectively. It does not matter what you leave
-// beyond the new length.
+// element appear only once and return the new length. Do not allocate extra
+// space for another array, you must do this in place with constant memory.
+// For example, Given input array nums = [1, 1, 2], Your function should return
+// length = 2, with the first two elements of nums being 1 and 2 respectively.
+// It does not matter what you leave beyond the new length.
 // @array, @linear
 static size_t removeDuplicates(vector<int> &nums)
 {
@@ -475,11 +470,9 @@ static size_t removeDuplicates(vector<int> &nums)
 }
 
 // 80. Remove Duplicates from Sorted Array II
-// Follow up for "Remove Duplicates":
-// What if duplicates are allowed at most twice?
-// For example,
-// Given sorted array nums = [1, 1, 1, 2, 2, 3],
-// Your function should return length = 5, with the first five elements of nums
+// Follow up for "Remove Duplicates": What if duplicates are allowed at most
+// twice? For example, Given sorted array nums = [1, 1, 1, 2, 2, 3], Your
+// function should return length = 5, with the first five elements of nums
 // being 1, 1, 2, 2 and 3. It doesn't matter what you leave beyond the new length.
 // @array, @linear
 static int removeDuplicates2(vector<int> &nums)
@@ -488,16 +481,19 @@ static int removeDuplicates2(vector<int> &nums)
     int j = 0;
     while (j < (int)nums.size())
     {
+        // Find the first instance of next number (at j)
         if (0 <= j - 1 && nums[j] == nums[j - 1])
         {
             j++;
             continue;
         }
+        // Move nums[j] ahead
         i++;
         if (i < j)
             nums[i] = nums[j];
         if (j + 1 < (int)nums.size() && nums[j] == nums[j + 1])
         {
+            // Move the second instance of next number (at j + 1) ahead
             i++;
             if (i < j + 1)
                 nums[i] = nums[j + 1];
@@ -505,6 +501,7 @@ static int removeDuplicates2(vector<int> &nums)
         }
         else
         {
+            // next number has only one instance
             j++;
         }
     }
@@ -536,10 +533,9 @@ static int removeDuplicates2_1(vector<int> &nums)
 // place and return the new length. Do not allocate extra space for
 // another array, you must do this in place with constant memory.
 // The order of elements cannot be changed. It does not matter what you
-// leave beyond the new length. Example:
-// Given input array nums = [3, 2, 2, 3], val = 3
-// Your function should return length = 2, with the first two elements
-// of nums being 2.
+// leave beyond the new length. Example: Given input array nums = [3, 2, 2, 3],
+// val = 3. Your function should return length = 2, with the first two
+// elements of nums being 2.
 // @array, @linear
 static size_t removeElementStable(vector<int> &nums, int val)
 {
@@ -552,14 +548,12 @@ static size_t removeElementStable(vector<int> &nums, int val)
     }
     return i + 1;
 }
-
 // Given an array and a value, remove all instances of that value in
 // place and return the new length. Do not allocate extra space for
 // another array, you must do this in place with constant memory.
 // The order of elements can be changed. It does not matter what you
-// leave beyond the new length. Example:
-// Given input array nums = [3, 2, 2, 3], val = 3
-// Your function should return length = 2, with the first two elements
+// leave beyond the new length. Example: Given input array nums = [3, 2, 2, 3],
+// val = 3. Your function should return length = 2, with the first two elements
 // of nums being 2.
 // @array, @linear
 static size_t removeElementUnstable(vector<int> &nums, int val)
@@ -614,14 +608,11 @@ static int search(vector<int> &nums, int target)
 }
 
 // 81. Search in Rotated Sorted Array II
-// Follow up for "Search in Rotated Sorted Array":
-// What if duplicates are allowed ?
-// Would this affect the run - time complexity? How and why?
-// Suppose an array sorted in ascending order is rotated at
-// some pivot unknown to you beforehand.
-// (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
-// Write a function to determine if a given target is in the array.
-// The array may contain duplicates.
+// Follow up for "Search in Rotated Sorted Array": What if duplicates are allowed?
+// Would this affect the run - time complexity? How and why? Suppose an array
+// sorted in ascending order is rotated at some pivot unknown to you beforehand.
+// (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Write a function to
+// determine if a given target is in the array. The array may contain duplicates.
 static bool search2(vector<int> &nums, int target)
 {
     if (nums.size() == 0)
@@ -655,10 +646,9 @@ static bool search2(vector<int> &nums, int target)
 }
 
 // 153. Find Minimum in Rotated Sorted Array
-// Suppose an array sorted in ascending order is rotated at some
-// pivot unknown to you beforehand. (i.e., 0 1 2 4 5 6 7 might become
-// 4 5 6 7 0 1 2). Find the minimum element.
-// You may assume no duplicate exists in the array.
+// Suppose an array sorted in ascending order is rotated at some pivot unknown
+// to you beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find
+// the minimum element. You may assume no duplicate exists in the array.
 static int findMin(vector<int>& nums)
 {
     int l = 0;
@@ -865,12 +855,10 @@ static int searchInsert(vector<int> &nums, int target)
 // 162. Find Peak Element
 // A peak element is an element that is greater than its neighbors.
 // Given an input array where num[i] != num[i + 1], find a peak element
-// and return its index.
-// The array may contain multiple peaks, in that case return the index
-// to any one of the peaks is fine.
-// You may imagine that num[-1] = num[n] = negative infinity.
-// For example, in array[1, 2, 3, 1], 3 is a peak element and your function
-// should return the index number 2.
+// and return its index. The array may contain multiple peaks, in that case
+// return the index to any one of the peaks is fine. You may imagine that
+// num[-1] = num[n] = negative infinity. For example, in array[1, 2, 3, 1],
+// 3 is a peak element and your function should return the index number 2.
 // Note: Your solution should be in logarithmic complexity.
 // @array, @binarysearch
 static int findPeakElement(vector<int> &nums)
@@ -916,20 +904,13 @@ static int findPeakElement(vector<int> &nums)
 }
 
 // 121. Best Time to Buy and Sell Stock
-// Say you have an array for which the i-th element is the price
-// of a given stock on day i.
-// If you were only permitted to complete at most one transaction
-// (ie, buy one and sell one share
-// of the stock), design an algorithm to find the maximum profit.
-// Example 1:
-// Input: [7, 1, 5, 3, 6, 4]
-// Output : 5
-// max.difference = 6 - 1 = 5 (not 7 - 1 = 6, as selling price needs
-// to be larger than buying price)
-// Example 2 :
-// Input : [7, 6, 4, 3, 1]
-// Output : 0
-// In this case, no transaction is done, i.e.max profit = 0.
+// Say you have an array for which the i-th element is the price of a given
+// stock on day i. If you were only permitted to complete at most one
+// transaction (ie, buy one and sell one share of the stock), design an
+// algorithm to find the maximum profit. Example 1: Input: [7, 1, 5, 3, 6, 4],
+// Output : 5, max.difference = 6 - 1 = 5 (not 7 - 1 = 6, as selling price needs
+// to be larger than buying price) Example 2 : Input : [7, 6, 4, 3, 1],
+// Output : 0, In this case, no transaction is done, i.e.max profit = 0.
 static int maxProfit(vector<int> &prices)
 {
     if (prices.empty())
@@ -951,15 +932,12 @@ static int maxProfit(vector<int> &prices)
 }
 
 // 122. Best Time to Buy and Sell Stock II
-// Say you have an array for which the ith element is the price of
-// a given
-// stock on day i. Design an algorithm to find the maximum profit.
-// You may complete as many transactions as you like (ie, buy one
-// and sell
-// one share of the stock multiple times). However, you may not engage
-// in
-// multiple transactions at the same time (ie, you must sell the stock
-// before you buy again).
+// Say you have an array for which the ith element is the price of a given
+// stock on day i. Design an algorithm to find the maximum profit. You may
+// complete as many transactions as you like (ie, buy one and sell one share
+// of the stock multiple times). However, you may not engage in multiple
+// transactions at the same time (ie, you must sell the stock before you buy
+// again).
 static int maxProfit2(vector<int> &prices)
 {
     if (prices.empty())
@@ -976,10 +954,9 @@ static int maxProfit2(vector<int> &prices)
 }
 
 // 169. Majority Element
-// Given an array of size n, find the majority element. The majority
-// element is the element that appears more than ⌊ n/2 ⌋ times.
-// You may assume that the array is non-empty and the majority element
-// always exist in the array.
+// Given an array of size n, find the majority element. The majority element is
+// the element that appears more than ⌊ n/2 ⌋ times. You may assume that the
+// array is non-empty and the majority element always exist in the array.
 static int majorityElement(vector<int> &nums)
 {
     map<int, int> m;
@@ -1003,12 +980,13 @@ static int majorityElement(vector<int> &nums)
 
 // 53. Maximum Subarray
 // Find the contiguous subarray within an array (containing at least one number)
-// which has the largest sum.
-// For example, given the array[-2, 1, -3, 4, -1, 2, 1, -5, 4],
-// the contiguous subarray[4, -1, 2, 1] has the largest sum = 6.
+// which has the largest sum. For example, given the array [-2, 1, -3, 4, -1, 2,
+// 1, -5, 4], the contiguous subarray[4, -1, 2, 1] has the largest sum = 6.
 // @array, @linear
 static int maxSubArray(vector<int> &nums)
 {
+    // Another option could be to init minSum and sum to nums[0]
+    // and loop start at 1
     long long minSum = 0;
     long long sum = 0;
     long long delta = INT_MIN;
@@ -1109,9 +1087,8 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
 }
 
 // 152. Maximum Product Subarray
-// Find the contiguous subarray within an array (containing at least
-// one number) which has the largest product.
-// For example, given the array[2, 3, -2, 4],
+// Find the contiguous subarray within an array (containing at least one number)
+// which has the largest product. For example, given the array[2, 3, -2, 4],
 // the contiguous subarray[2, 3] has the largest product = 6.
 static int maxProduct(vector<int>& nums)
 {
@@ -1157,13 +1134,10 @@ static int maxProduct2(vector<int>& nums)
 
 
 // 55. Jump Game
-// Given an array of non-negative integers, you are initially
-// positioned at the first index of the array.
-// Each element in the array represents your maximum jump length
-// at that position.
-// Determine if you are able to reach the last index.
-// For example :
-// A = [2, 3, 1, 1, 4], return true.
+// Given an array of non-negative integers, you are initially positioned at
+// the first index of the array. Each element in the array represents your
+// maximum jump length at that position. Determine if you are able to reach
+// the last index. For example : A = [2, 3, 1, 1, 4], return true.
 // A = [3, 2, 1, 0, 4], return false.
 // @array, @linear
 static bool canJump(vector<int> &nums)
@@ -1194,10 +1168,12 @@ static bool canJump2(vector<int> &nums)
 }
 
 // 70. Climbing Stairs
-// You are climbing a stair case. It takes n steps to reach to the top.
-// Each time you can either climb 1 or 2 steps.In how many distinct ways can you climb to the top?
-// Note : Given n will be a positive integer.
+// You are climbing a stair case. It takes n steps to reach to the top. Each
+// time you can either climb 1 or 2 steps. In how many distinct ways can you
+// climb to the top? Note : Given n will be a positive integer.
 // C[n] = C[n - 1] + C[n - 2]
+// Another option is C[i] = C[i + 1] + C[i + 2], where C[n] = 0, C[n - 1] = 1,
+// C[n - 2] = 2, C[n - 3] = 3, ..., C[1] = ?
 // @array, @dynamicprogramming
 static int climbStairs(int n)
 {
@@ -1218,15 +1194,15 @@ static int climbStairs(int n)
 }
 
 // 198. House Robber
-// You are a professional robber planning to rob houses along a street.
-// Each house has a certain amount of money stashed, the only constraint
-// stopping you from robbing each of them is that adjacent houses have
-// security system connected and it will automatically contact the police
-// if two adjacent houses were broken into on the same night.
-// Given a list of non-negative integers representing the amount of money
-// of each house, determine the maximum amount of money you can rob tonight
-// without alerting the police.
-// [Why not just count the odd houses and the even houses? Doesn't work, e.g. [3, 1, 1, 3]]
+// You are a professional robber planning to rob houses along a street. Each
+// house has a certain amount of money stashed, the only constraint stopping
+// you from robbing each of them is that adjacent houses have security system
+// connected and it will automatically contact the police if two adjacent houses
+// were broken into on the same night. Given a list of non-negative integers
+// representing the amount of money of each house, determine the maximum amount
+// of money you can rob tonight without alerting the police.
+// [Why not just count the odd houses and the even houses?
+// Doesn't work, e.g. [3, 1, 1, 3]]
 static int rob(vector<int> &nums)
 {
     int a = 0; // max at i - 2
@@ -1242,13 +1218,12 @@ static int rob(vector<int> &nums)
 }
 
 // 134. Gas Station
-// There are N gas stations along a circular route, where the amount of
-// gas at station i is gas[i]. You have a car with an unlimited gas tank
-// and it costs cost[i] of gas to travel from station i to its next
-// station(i + 1). You begin the journey with an empty tank at one of
-// the gas stations. Return the starting gas station's index if you can
-// travel around the circuit once, otherwise return -1.
-// Note: The solution is guaranteed to be unique.
+// There are N gas stations along a circular route, where the amount of gas at
+// station i is gas[i]. You have a car with an unlimited gas tank and it costs
+// cost[i] of gas to travel from station i to its next station(i + 1). You begin
+// the journey with an empty tank at one of the gas stations. Return the starting
+// gas station's index if you can travel around the circuit once, otherwise
+// return -1. Note: The solution is guaranteed to be unique.
 static int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
     size_t s = 0;
     while (s < gas.size()) {
@@ -1266,9 +1241,9 @@ static int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
 }
 
 // 136. Single Number
-// Given an array of integers, every element appears twice except for
-// one. Find that single one. Note: Your algorithm should have a linear
-// runtime complexity.Could you implement it without using extra memory?
+// Given an array of integers, every element appears twice except for one.
+// Find that single one. Note: Your algorithm should have a linear runtime
+// complexity. Could you implement it without using extra memory?
 static int singleNumber(vector<int>& nums) {
     int n = 0;
     for_each(nums.begin(), nums.end(), [&](int e) {
@@ -1278,12 +1253,10 @@ static int singleNumber(vector<int>& nums) {
 }
 
 // 66. Plus One
-// Given a non-negative integer represented as a non-empty array
-// of digits, plus one to the integer.
-// You may assume the integer do not contain any leading zero,
-// except the number 0 itself.
-// The digits are stored such that the most significant digit is
-// at the head of the list.
+// Given a non-negative integer represented as a non-empty array of digits,
+// plus one to the integer. You may assume the integer do not contain any
+// leading zero, except the number 0 itself. The digits are stored such that
+// the most significant digit is at the head of the list.
 // @array, @linear
 static vector<int> plusOne(vector<int> &digits)
 {
@@ -1311,14 +1284,11 @@ static vector<int> plusOne(vector<int> &digits)
 }
 
 // 75. Sort Colors
-// Given an array with n objects colored red, white or blue,
-// sort them so that objects of the same color are adjacent,
-// with the colors in the order red, white and blue.
-// Here, we will use the integers 0, 1, and 2 to represent the
-// color red, white, and blue respectively.
-// Note:
-// You are not suppose to use the library's sort function for
-// this problem.
+// Given an array with n objects colored red, white or blue, sort them so that
+// objects of the same color are adjacent, with the colors in the order red,
+// white and blue. Here, we will use the integers 0, 1, and 2 to represent the
+// color red, white, and blue respectively. Note: You are not suppose to use
+// the library's sort function for this problem.
 static void sortColors(vector<int> &nums)
 {
     if (nums.size() == 0)
@@ -1360,10 +1330,8 @@ static void sortColors(vector<int> &nums)
 }
 
 // 56. Merge Intervals
-// Given a collection of intervals, merge all overlapping intervals.
-// For example,
-// Given[1, 3], [2, 6], [8, 10], [15, 18],
-// return[1, 6], [8, 10], [15, 18].
+// Given a collection of intervals, merge all overlapping intervals. For example,
+// Given[1, 3], [2, 6], [8, 10], [15, 18], return[1, 6], [8, 10], [15, 18].
 struct Interval
 {
     int start;
@@ -1405,13 +1373,12 @@ static vector<Interval> merge(vector<Interval> &intervals)
 namespace Permutation
 {
 // 31. Next Permutation
-// Implement next permutation, which rearranges numbers into
-// the lexicographically next greater permutation of numbers.
-// If such arrangement is not possible, it must rearrange it
-// as the lowest possible order(ie, sorted in ascending order).
-// The replacement must be in-place, do not allocate extra memory.
-// Here are some examples. Inputs are in the left-hand column
-// and its corresponding outputs are in the right-hand column.
+// Implement next permutation, which rearranges numbers into the lexicographically
+// next greater permutation of numbers. If such arrangement is not possible, it
+// must rearrange it as the lowest possible order (ie, sorted in ascending order).
+// The replacement must be in-place, do not allocate extra memory. Here are some
+// examples. Inputs are in the left-hand column and its corresponding outputs are
+// in the right-hand column.
 // 1, 2, 3 -> 1, 3, 2
 // 3, 2, 1 -> 1, 2, 3
 // 1, 1, 5 -> 1, 5, 1
@@ -1436,7 +1403,6 @@ static void next(vector<int> &nums)
             swap(nums[i - 1], nums[j]);
     }
 }
-
 // @array, @permutation, @binarysearch
 static void next2(vector<int> &nums)
 {
@@ -1486,16 +1452,13 @@ static void next2(vector<int> &nums)
 
 // 46. Permutations
 // Given a collection of distinct numbers, return all possible permutations.
-// For example,
-//   [1, 2, 3] have the following permutations :
-// [
-//   [1, 2, 3],
-//   [1, 3, 2],
-//   [2, 1, 3],
-//   [2, 3, 1],
-//   [3, 1, 2],
-//   [3, 2, 1]
-// ]
+// For example, [1, 2, 3] have the following permutations :
+// [[1, 2, 3],
+//  [1, 3, 2],
+//  [2, 1, 3],
+//  [2, 3, 1],
+//  [3, 1, 2],
+//  [3, 2, 1]]
 // @array, @permutation, @recurse
 static vector<vector<int>> permuteDistinct(vector<int> &nums)
 {
@@ -1533,8 +1496,9 @@ static vector<vector<int>> permuteDistinct2(vector<int> &nums)
                 vector<int> n1(n);
                 if (j > i)
                 {
-                    // Erase and insert, which effectively push m[i] one more positin to the right.
-                    // This way keeps the lexicographical order.
+                    // Erase and insert, which effectively push ns[i] one more
+                    // positin to the right. This way keeps the lexicographical
+                    // order.
                     int t = n1[j];
                     n1.erase(n1.begin() + j);
                     n1.insert(n1.begin() + i, t);
@@ -1547,14 +1511,12 @@ static vector<vector<int>> permuteDistinct2(vector<int> &nums)
 }
 
 // 47. Permutations II
-// Given a collection of numbers that might contain duplicates, return all possible unique permutations.
-// For example,
+// Given a collection of numbers that might contain duplicates, return all
+// possible unique permutations. For example,
 // [1, 1, 2] have the following unique permutations :
-// [
-//   [1, 1, 2],
-//   [1, 2, 1],
-//   [2, 1, 1]
-// ]
+// [[1, 1, 2],
+//  [1, 2, 1],
+//  [2, 1, 1]]
 // @array, @permutation, @recurse
 static vector<vector<int>> permuteUnique(vector<int> &nums)
 {
@@ -1583,9 +1545,9 @@ static vector<vector<int>> permuteUnique(vector<int> &nums)
 }
 
 // 60. Permutation Sequence
-// The set [1,2,3,...,n] contains a total of n! unique permutations.
-// By listing and labeling all of the permutations in order,
-// We get the following sequence(ie, for n = 3) :
+// The set [1,2,3,...,n] contains a total of n! unique permutations. By listing
+// and labeling all of the permutations in order, We get the following sequence
+// (ie, for n = 3) :
 // "123"
 // "132"
 // "213"
@@ -1628,11 +1590,10 @@ static string getPermutation(int n, int k)
 } // namespace Permutation
 
 // 189. Rotate Array
-// Rotate an array of n elements to the right by k steps.
-// For example, with n = 7 and k = 3, the array[1, 2, 3, 4, 5, 6, 7]
-// is rotated to[5, 6, 7, 1, 2, 3, 4].
-// Note: Try to come up as many solutions as you can, there are at least
-// 3 different ways to solve this problem.
+// Rotate an array of n elements to the right by k steps. For example, with
+// n = 7 and k = 3, the array[1, 2, 3, 4, 5, 6, 7] is rotated to
+// [5, 6, 7, 1, 2, 3, 4]. Note: Try to come up as many solutions as you can,
+// there are at least 3 different ways to solve this problem.
 // Hint: Could you do it in-place with O(1) extra space?
 static void rotate(vector<int> &nums, int k)
 {
@@ -1642,12 +1603,12 @@ static void rotate(vector<int> &nums, int k)
     if (k == 0)
         return;
     function<void(int, int)>
-        swapRange = [&](int i, int j) {
-            while (i < j)
-            {
-                swap(nums[i++], nums[j--]);
-            }
-        };
+    swapRange = [&](int i, int j) {
+        while (i < j)
+        {
+            swap(nums[i++], nums[j--]);
+        }
+    };
     swapRange(0, nums.size() - 1);
     swapRange(0, k - 1);
     swapRange(k, nums.size() - 1);
@@ -1671,38 +1632,33 @@ static void rotate2(vector<int> &nums, int k)
 namespace Combination
 {
 // 39. Combination Sum
-// Given a set of candidate numbers (C) (without duplicates) and a
-// target number (T), find all unique combinations in C where the
-// candidate numbers sums to T. The same repeated number may be chosen
-// from C unlimited number of times.
-// Note:
-// All numbers (including target) will be positive integers.
-// The solution set must not contain duplicate combinations.
-// For example, given candidate set [2, 3, 6, 7] and target 7,
-// A solution set is :
-// [
-//    [7],
-//    [2, 2, 3]
-// ]
+// Given a set of candidate numbers (C) (without duplicates) and a target number
+// (T), find all unique combinations in C where the candidate numbers sums to T.
+// The same repeated number may be chosen from C unlimited number of times.
+// Note: All numbers (including target) will be positive integers. The solution
+// set must not contain duplicate combinations. For example, given candidate set
+// [2, 3, 6, 7] and target 7, A solution set is:
+// [[7],
+//  [2, 2, 3]]
 // @array, @combination, @recurse
 static vector<vector<int>> combinationSumReuse(vector<int> &candidates, int target)
 {
     vector<vector<int>> result = vector<vector<int>>{};
     function<void(size_t, int, vector<int> &)>
-        solve = [&](size_t i, int t, vector<int> &c) {
-            if (i >= candidates.size())
-                return;
-            if (candidates[i] <= t)
-            {
-                vector<int> c1(c);
-                c1.push_back(candidates[i]);
-                if (candidates[i] == t)
-                    result.push_back(c1);
-                else
-                    solve(i, t - candidates[i], c1);
-            }
-            solve(i + 1, t, c);
-        };
+    solve = [&](size_t i, int t, vector<int> &c) {
+        if (i >= candidates.size())
+            return;
+        if (candidates[i] <= t)
+        {
+            vector<int> c1(c);
+            c1.push_back(candidates[i]);
+            if (candidates[i] == t)
+                result.push_back(c1);
+            else
+                solve(i, t - candidates[i], c1);
+        }
+        solve(i + 1, t, c);
+    };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1713,21 +1669,21 @@ static vector<vector<int>> combinationSumReuse2(vector<int> &candidates, int tar
     vector<vector<int>> result = vector<vector<int>>{};
     sort(candidates.begin(), candidates.end());
     function<void(int, int, vector<int> &)>
-        solve = [&](int i, int t, vector<int> &s) {
-            for (int j = i; j < (int)candidates.size(); j++)
+    solve = [&](int i, int t, vector<int> &s) {
+        for (int j = i; j < (int)candidates.size(); j++)
+        {
+            if (candidates[j] > t)
+                break;
+            vector<int> r(s);
+            r.push_back(candidates[j]);
+            if (candidates[j] == t)
             {
-                if (candidates[j] > t)
-                    break;
-                vector<int> r(s);
-                r.push_back(candidates[j]);
-                if (candidates[j] == t)
-                {
-                    result.push_back(r);
-                    break;
-                }
-                solve(j, t - candidates[j], r);
+                result.push_back(r);
+                break;
             }
-        };
+            solve(j, t - candidates[j], r);
+        }
+    };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1766,20 +1722,16 @@ static vector<vector<int>> combinationSumReuse3(vector<int> &candidates, int tar
 }
 
 // 40. Combination Sum II
-// Given a collection of candidate numbers (C) and a target number (T),
-// find all unique combinations in C where the candidate numbers sums
-// to T. Each number in C may only be used once in the combination.
-// Note:
-// All numbers (including target) will be positive integers.
-// The solution set must not contain duplicate combinations.
-// For example, given candidate set[10, 1, 2, 7, 6, 1, 5] and target 8,
-// A solution set is :
-// [
-//    [1, 7],
-//    [1, 2, 5],
-//    [2, 6],
-//    [1, 1, 6]
-// ]
+// Given a collection of candidate numbers (C) and a target number (T), find
+// all unique combinations in C where the candidate numbers sums to T. Each
+// number in C may only be used once in the combination. Note: All numbers
+// (including target) will be positive integers. The solution set must not
+// contain duplicate combinations. For example, given candidate set
+// [10, 1, 2, 7, 6, 1, 5] and target 8, A solution set is:
+// [[1, 7],
+//  [1, 2, 5],
+//  [2, 6],
+//  [1, 1, 6]]
 // @array, @combination, @recurse
 static vector<vector<int>> combinationSumNoReuse(vector<int> &candidates, int target)
 {
@@ -1788,24 +1740,24 @@ static vector<vector<int>> combinationSumNoReuse(vector<int> &candidates, int ta
     // [Can we not use sort? Instead using a set of <i,t> pairs to track the visited?]
     std::sort(candidates.begin(), candidates.end());
     function<void(size_t, int, vector<int> &)>
-        solve = [&](size_t i, int t, vector<int> &c) {
-            if (i >= candidates.size() || candidates[i] > t)
-                return;
-            vector<int> c1(c);
-            c1.push_back(candidates[i]);
-            if (candidates[i] == t)
-            {
-                result.push_back(c1);
-                return;
-            }
-            solve(i + 1, t - candidates[i], c1);
-            while (i + 1 < candidates.size() && candidates[i] == candidates[i + 1])
-            {
-                // This is needed to eliminate duplicate solutions
-                i++;
-            }
-            solve(i + 1, t, c);
-        };
+    solve = [&](size_t i, int t, vector<int> &c) {
+        if (i >= candidates.size() || candidates[i] > t)
+            return;
+        vector<int> c1(c);
+        c1.push_back(candidates[i]);
+        if (candidates[i] == t)
+        {
+            result.push_back(c1);
+            return;
+        }
+        solve(i + 1, t - candidates[i], c1);
+        while (i + 1 < candidates.size() && candidates[i] == candidates[i + 1])
+        {
+            // This is needed to eliminate duplicate solutions
+            i++;
+        }
+        solve(i + 1, t, c);
+    };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1817,46 +1769,43 @@ static vector<vector<int>> combinationSumNoReuse2(vector<int> &candidates, int t
     // Sort so we can eliminate duplicate solutions later
     std::sort(candidates.begin(), candidates.end());
     function<void(size_t, int, vector<int> &)>
-        solve = [&](size_t i, int t, vector<int> &c) {
-            if (i >= candidates.size() || candidates[i] > t)
-                return;
-            size_t j = i;
-            while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
-                j++;
-            int s = 0;
-            for (size_t k = i; k <= j; k++)
+    solve = [&](size_t i, int t, vector<int> &c) {
+        if (i >= candidates.size() || candidates[i] > t)
+            return;
+        size_t j = i;
+        while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+            j++;
+        int s = 0;
+        for (size_t k = i; k <= j; k++)
+        {
+            s += candidates[k];
+            if (s > t)
+                break;
+            vector<int> c1(c);
+            c1.insert(c1.end(), k - i + 1, candidates[i]);
+            if (s == t)
             {
-                s += candidates[k];
-                if (s > t)
-                    break;
-                vector<int> c1(c);
-                c1.insert(c1.end(), k - i + 1, candidates[i]);
-                if (s == t)
-                {
-                    result.push_back(c1);
-                    break;
-                }
-                solve(j + 1, t - s, c1);
+                result.push_back(c1);
+                break;
             }
-            solve(j + 1, t, c);
-        };
+            solve(j + 1, t - s, c1);
+        }
+        solve(j + 1, t, c);
+    };
     vector<int> s;
     solve(0, target, s);
     return result;
 }
 
 // 77. Combinations
-// Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
-// For example,
-// If n = 4 and k = 2, a solution is :
-// [
-//   [2, 4],
-//   [3, 4],
-//   [2, 3],
-//   [1, 2],
-//   [1, 3],
-//   [1, 4],
-// ]
+// Given two integers n and k, return all possible combinations of k numbers out
+// of 1 ... n. For example, If n = 4 and k = 2, a solution is:
+// [[2, 4],
+//  [3, 4],
+//  [2, 3],
+//  [1, 2],
+//  [1, 3],
+//  [1, 4]]
 // @combination, @recurse
 static vector<vector<int>> combine(int n, int k)
 {
@@ -1864,39 +1813,36 @@ static vector<vector<int>> combine(int n, int k)
     if (k <= 0 || n <= 0 || k > n)
         return result;
     function<void(int, int, vector<int> &)>
-        select = [&](int i, int l, vector<int> &c) {
-            if (l == 0)
-            {
-                result.push_back(c);
-                return;
-            }
-            for (int j = i; j <= n; j++)
-            {
-                vector<int> c1(c);
-                c1.push_back(j);
-                select(j + 1, l - 1, c1);
-            }
-        };
+    select = [&](int i, int l, vector<int> &c) {
+        if (l == 0)
+        {
+            result.push_back(c);
+            return;
+        }
+        for (int j = i; j <= n; j++)
+        {
+            vector<int> c1(c);
+            c1.push_back(j);
+            select(j + 1, l - 1, c1);
+        }
+    };
     vector<int> c = vector<int>{};
     select(1, k, c);
     return result;
 }
 
 // 78. Subsets
-// Given a set of distinct integers, nums, return all possible subsets.
-// Note: The solution set must not contain duplicate subsets.
-// For example,
-// If nums = [1, 2, 3], a solution is :
-// [
-//   [3],
-//   [1],
-//   [2],
-//   [1, 2, 3],
-//   [1, 3],
-//   [2, 3],
-//   [1, 2],
-//   []
-// ]
+// Given a set of distinct integers, nums, return all possible subsets. Note:
+// The solution set must not contain duplicate subsets. For example,
+// If nums = [1, 2, 3], a solution is:
+// [[3],
+//  [1],
+//  [2],
+//  [1, 2, 3],
+//  [1, 3],
+//  [2, 3],
+//  [1, 2],
+//  []]
 static vector<vector<int>> subsets(vector<int> &nums)
 {
     vector<vector<int>> result = vector<vector<int>>{};
@@ -1915,19 +1861,15 @@ static vector<vector<int>> subsets(vector<int> &nums)
 }
 
 // 90. Subsets II
-// Given a collection of integers that might contain duplicates,
-// nums, return all possible subsets.
-// Note: The solution set must not contain duplicate subsets.
-// For example,
-// If nums = [1, 2, 2], a solution is :
-// [
-//   [2],
-//   [1],
-//   [1, 2, 2],
-//   [2, 2],
-//   [1, 2],
-//   []
-// ]
+// Given a collection of integers that might contain duplicates, nums, return
+// all possible subsets. Note: The solution set must not contain duplicate
+// subsets. For example, If nums = [1, 2, 2], a solution is:
+// [[2],
+//  [1],
+//  [1, 2, 2],
+//  [2, 2],
+//  [1, 2],
+//  []]
 static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 {
     vector<vector<int>> result = vector<vector<int>>{vector<int>{}};
@@ -1960,9 +1902,9 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 } // namespace Combination
 
 // 150. Evaluate Reverse Polish Notation
-// Evaluate the value of an arithmetic expression in Reverse Polish
-// Notation. Valid operators are + , -, *, /. Each operand may be an
-// integer or another expression. Some examples :
+// Evaluate the value of an arithmetic expression in Reverse Polish Notation.
+// Valid operators are + , -, *, /. Each operand may be an integer or another
+// expression. Some examples :
 // ["2", "1", "+", "3", "*"] -> ((2 + 1) * 3) -> 9
 // ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
 static int evalRPN(vector<string>& tokens)
@@ -2004,7 +1946,8 @@ static int evalRPN(vector<string>& tokens)
 namespace LengthOfLongestSubstring
 {
 // 3. Longest Substring Without Repeating Characters
-// Given a string, find the length of the longest substring without repeating characters.
+// Given a string, find the length of the longest substring without repeating
+// characters.
 // "abcabcbb" -> "abc"
 // "bbbbb" -> "b"
 // "pwwkew" -> "wke"
@@ -2191,29 +2134,24 @@ static string solve3(string s)
 } // namespace LongestPalindrome
 
 // 125. Valid Palindrome
-// Given a string, determine if it is a palindrome,
-// considering only alphanumeric
-// characters and ignoring cases.
-// For example,
-// "A man, a plan, a canal: Panama" is a palindrome.
-// "race a car" is not a palindrome.
-// Note:
-// Have you consider that the string might be empty?
-// This is a good question to ask during an interview.
-// For the purpose of this problem, we define empty string
-// as valid palindrome.
+// Given a string, determine if it is a palindrome, considering only alphanumeric
+// characters and ignoring cases. For example, "A man, a plan, a canal: Panama"
+// is a palindrome. "race a car" is not a palindrome. Note: Have you consider
+// that the string might be empty? This is a good question to ask during an
+// interview. For the purpose of this problem, we define empty string as valid
+// palindrome.
 static bool isPalindrome(string s)
 {
     function<bool(char)>
-        isDigit = [&](char c) -> bool {
+    isDigit = [&](char c) -> bool {
         return '0' <= c && c <= '9';
     };
     function<bool(char)>
-        isLower = [&](char c) -> bool {
+    isLower = [&](char c) -> bool {
         return 'a' <= c && c <= 'z';
     };
     function<bool(char)>
-        isUpper = [&](char c) -> bool {
+    isUpper = [&](char c) -> bool {
         return 'A' <= c && c <= 'Z';
     };
     int i = 0;
@@ -2247,22 +2185,18 @@ static bool isPalindrome(string s)
 }
 
 // 131. Palindrome Partitioning
-// Given a string s, partition s such that every substring of
-// the partition is a palindrome.
-// Return all possible palindrome partitioning of s.
-// For example, given s = "aab",
-// Return
-// [
-//  ["aa", "b"],
-//  ["a", "a", "b"]
-// ]
+// Given a string s, partition s such that every substring of the partition is
+// a palindrome. Return all possible palindrome partitioning of s. For example,
+// given s = "aab", Return
+// [["aa", "b"],
+//  ["a", "a", "b"]]
 static vector<vector<string>> partition(string s)
 {
     vector<vector<string>> result;
     if (s.empty())
         return result;
     function<bool(size_t, size_t)>
-        isPalindrome = [&](size_t i, size_t j) -> bool {
+    isPalindrome = [&](size_t i, size_t j) -> bool {
         while (i < j)
         {
             if (s[i++] != s[j--])
@@ -2271,38 +2205,37 @@ static vector<vector<string>> partition(string s)
         return true;
     };
     function<void(size_t, vector<string> &)>
-        solve = [&](size_t i, vector<string> &p) {
-            if (i == s.length())
+    solve = [&](size_t i, vector<string> &p) {
+        if (i == s.length())
+        {
+            result.push_back(p);
+            return;
+        }
+        for (size_t j = i; j < s.length(); j++)
+        {
+            if (isPalindrome(i, j))
             {
-                result.push_back(p);
-                return;
+                vector<string> p2(p);
+                p2.push_back(s.substr(i, j - i + 1));
+                solve(j + 1, p2);
             }
-            for (size_t j = i; j < s.length(); j++)
-            {
-                if (isPalindrome(i, j))
-                {
-                    vector<string> p2(p);
-                    p2.push_back(s.substr(i, j - i + 1));
-                    solve(j + 1, p2);
-                }
-            }
-        };
+        }
+    };
     vector<string> r;
     solve(0, r);
     return result;
 }
 
 // 139. Word Break
-// Given a non-empty string s and a dictionary wordDict containing a
-// list of non-empty words, determine if s can be segmented into a
-// space-separated sequence of one or more dictionary words.
-// You may assume the dictionary does not contain duplicate words.
-// For example, given s = "leetcode", dict = ["leet", "code"]. Return
-// true because "leetcode" can be segmented as "leet code". Note: Each
-// word in the dictionary can be used more than once.
-// UPDATE(2017 / 1 / 4): The wordDict parameter had been changed to a
-// list of strings(instead of a set of strings). Please reload the code
-// definition to get the latest changes.
+// Given a non-empty string s and a dictionary wordDict containing a list of
+// non-empty words, determine if s can be segmented into a space-separated
+// sequence of one or more dictionary words. You may assume the dictionary does
+// not contain duplicate words. For example, given s = "leetcode",
+// dict = ["leet", "code"]. Return true because "leetcode" can be segmented as
+// "leet code". Note: Each word in the dictionary can be used more than once.
+// UPDATE(2017 / 1 / 4): The wordDict parameter had been changed to a list of
+// strings(instead of a set of strings). Please reload the code definition to
+// get the latest changes.
 static bool wordBreak(string s, vector<string>& wordDict)
 {
     if (wordDict.empty()) return false;
@@ -2366,15 +2299,11 @@ static string convert(string s, int numRows)
 }
 
 // 58. Length of Last Word
-// Given a string s consists of upper/lower-case alphabets and
-// empty space characters ' ',
-// return the length of last word in the string.
-// If the last word does not exist, return 0.
-// Note: A word is defined as a character sequence consists of
-// non-space characters only.
-// For example,
-// Given s = "Hello World",
-// return 5.
+// Given a string s consists of upper/lower-case alphabets and empty space
+// characters ' ', return the length of last word in the string. If the last
+// word does not exist, return 0. Note: A word is defined as a character
+// sequence consists of non-space characters only. For example, Given
+// s = "Hello World", return 5.
 // @string
 static int lengthOfLastWord(string s)
 {
