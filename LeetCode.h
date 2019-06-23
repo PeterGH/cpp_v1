@@ -2399,7 +2399,6 @@ static int solve1(string str)
         {
             if (!foundStart)
                 foundStart = true;
-
             r = r * 10 + c - '0';
             if (negative && -r <= INT_MIN)
                 return INT_MIN;
@@ -2445,15 +2444,13 @@ static int solve2(string str)
 } // namespace AToI
 
 // 71. Simplify Path
-// Given an absolute path for a file (Unix-style), simplify it.
-// For example,
+// Given an absolute path for a file (Unix-style), simplify it. For example,
 // path = "/home/", => "/home"
 // path = "/a/./b/../../c/", => "/c"
-// Corner Cases:
-// Did you consider the case where path = "/../"?
-// In this case, you should return "/".
-// Another corner case is the path might contain multiple slashes '/' together, such as "/home//foo/".
-// In this case, you should ignore redundant slashes and return "/home/foo".
+// Corner Cases: Did you consider the case where path = "/../"? In this case,
+// you should return "/". Another corner case is the path might contain
+// multiple slashes // '/' together, such as "/home//foo/". In this case,
+// you should ignore redundant slashes and return "/home/foo".
 // @string, @linear
 static string simplifyPath(string path)
 {
@@ -2541,10 +2538,8 @@ static string simplifyPath(string path)
 // ...
 // 'Z' -> 26
 // Given an encoded message containing digits, determine the total
-// number of ways to decode it.
-// For example,
-// Given encoded message "12", it could be decoded as "AB" (1 2) or
-// "L" (12).
+// number of ways to decode it. For example, Given encoded message "12",
+// it could be decoded as "AB" (1 2) or "L" (12).
 // The number of ways decoding "12" is 2.
 // @string, @dynamicprogramming
 // Another solution is to compute from the beginning towards the end.
@@ -2671,7 +2666,7 @@ static bool isPalindrome(int x)
     int r = 0;
     while (y > 0)
     {
-        l = y >= d ? (y / d) : 0;
+        l = y >= d ? (y / d) : 0; // what if just l = y / d ?
         r = y % 10;
         if (l != r)
             return false;
@@ -2682,19 +2677,19 @@ static bool isPalindrome(int x)
 }
 
 // 89. Gray Code
-// The gray code is a binary numeral system where two successive values differ in only one bit.
-// Given a non-negative integer n representing the total number of bits in the code,
-// print the sequence of gray code. A gray code sequence must begin with 0.
-// For example, given n = 2, return [0, 1, 3, 2]. Its gray code sequence is:
+// The gray code is a binary numeral system where two successive values differ
+// in only one bit. Given a non-negative integer n representing the total
+// number of bits in the code, print the sequence of gray code. A gray code
+// sequence must begin with 0. For example, given n = 2, return [0, 1, 3, 2].
+// Its gray code sequence is:
 // 00 - 0
 // 01 - 1
 // 11 - 3
 // 10 - 2
 // Note :
-// For a given n, a gray code sequence is not uniquely defined.
-// For example, [0, 2, 3, 1] is also a valid gray code sequence
-// according to the above definition.
-// For now, the judge is able to judge based on one instance of
+// For a given n, a gray code sequence is not uniquely defined. For example,
+// [0, 2, 3, 1] is also a valid gray code sequence according to the above
+// definition. For now, the judge is able to judge based on one instance of
 // gray code sequence. Sorry about that.
 static vector<int> grayCode(int n)
 {
@@ -2759,16 +2754,15 @@ class SpiralMatrix
 {
   public:
     // 54. Spiral Matrix
-    // Given a matrix of m x n elements (m rows, n columns),
-    // return all elements of the matrix in spiral order.
-    // For example,
+    // Given a matrix of m x n elements (m rows, n columns), return all
+    // elements of the matrix in spiral order. For example,
     // Given the following matrix :
     // [
     //   [1, 2, 3],
     //   [4, 5, 6],
     //   [7, 8, 9]
     // ]
-    // You should return[1, 2, 3, 6, 9, 8, 7, 4, 5].
+    // You should return [1, 2, 3, 6, 9, 8, 7, 4, 5].
     static vector<int> spiralOrder(vector<vector<int>> &matrix)
     {
         vector<int> result = vector<int>{};
@@ -2906,14 +2900,13 @@ class SpiralMatrix
 };
 
 // 62. Unique Paths
-// A robot is located at the top-left corner of a m x n grid
-// (marked 'Start' in the diagram below).
-// The robot can only move either down or right at any point in time.
-// The robot is trying to reach the bottom-right corner of the grid
-// (marked 'Finish' in the diagram below).
-// How many possible unique paths are there?
-// Note: m and n will be at most 100.
+// A robot is located at the top-left corner of a m x n grid (marked 'Start'
+// in the diagram below). The robot can only move either down or right at any
+// point in time. The robot is trying to reach the bottom-right corner of the
+// grid (marked 'Finish' in the diagram below). How many possible unique paths
+// are there? Note: m and n will be at most 100.
 // @grid, @dynamicprogramming
+// Can solve by using one array.
 static int uniquePaths(int m, int n)
 {
     if (m <= 0 || n <= 0)
@@ -2935,14 +2928,10 @@ static int uniquePaths(int m, int n)
 }
 
 // 63. Unique Paths II
-// Follow up for "Unique Paths":
-// Now consider if some obstacles are added to the grids.
-// How many unique paths would there be ?
-// An obstacle and empty space is marked as 1 and 0 respectively
-// in the grid.
-// For example,
-// There is one obstacle in the middle of a 3x3 grid as
-// illustrated below.
+// Follow up for "Unique Paths": Now consider if some obstacles are added to
+// the grids. How many unique paths would there be? An obstacle and empty space
+// is marked as 1 and 0 respectively in the grid. For example, There is one
+// obstacle in the middle of a 3x3 grid as illustrated below.
 // [
 //   [0, 0, 0],
 //   [0, 1, 0],
@@ -2950,6 +2939,7 @@ static int uniquePaths(int m, int n)
 // ]
 // The total number of unique paths is 2.
 // Note: m and n will be at most 100.
+// Can solve by using one array.
 static int uniquePathsWithObstacles(vector<vector<int>> &obstacleGrid)
 {
     int m = obstacleGrid.size();
@@ -2974,15 +2964,15 @@ static int uniquePathsWithObstacles(vector<vector<int>> &obstacleGrid)
 }
 
 // 64. Minimum Path Sum
-// Given a m x n grid filled with non-negative numbers,
-// find a path from top left to bottom right which minimizes
-// the sum of all numbers along its path.
+// Given a m x n grid filled with non-negative numbers, find a path from top
+// left to bottom right which minimizes the sum of all numbers along its path.
 // Note: You can only move either down or right at any point in time.
 // Note: Greedy search does not work here. e.g.,
 // [[1, 3,   0]
 //  [2, 100, 0]
 //  [1, 1,   1]]
 // @grid, @dynamicprogramming
+// Can solve by using one array.
 static int minPathSum(vector<vector<int>> &grid)
 {
     if (grid.size() == 0 || grid[0].size() == 0)
@@ -3007,11 +2997,9 @@ static int minPathSum(vector<vector<int>> &grid)
 
 // 74. Search a 2D Matrix
 // Write an efficient algorithm that searches for a value in an m x n matrix.
-// This matrix has the following properties :
-// Integers in each row are sorted from left to right.
-// The first integer of each row is greater than the last integer of the previous row.
-// For example,
-// Consider the following matrix :
+// This matrix has the following properties: Integers in each row are sorted
+// from left to right. The first integer of each row is greater than the last
+// integer of the previous row. For example, Consider the following matrix:
 // [
 //   [1, 3, 5, 7],
 //   [10, 11, 16, 20],
@@ -3044,14 +3032,10 @@ static bool searchMatrix(vector<vector<int>> &matrix, int target)
 }
 
 // 79. Word Search
-// Given a 2D board and a word, find if the word exists in the grid.
-// The word can be constructed from letters of sequentially adjacent
-// cell,
-// where "adjacent" cells are those horizontally or vertically
-// neighboring.
-// The same letter cell may not be used more than once.
-// For example,
-// Given board =
+// Given a 2D board and a word, find if the word exists in the grid. The word
+// can be constructed from letters of sequentially adjacent cell, where "adjacent"
+// cells are those horizontally or vertically neighboring. The same letter cell
+// may not be used more than once. For example, Given board =
 // [
 //   ['A', 'B', 'C', 'E'],
 //   ['S', 'F', 'C', 'S'],
@@ -3070,7 +3054,9 @@ static bool exist(vector<vector<char>> &board, string word)
     int l = word.size();
     function<bool(pair<int, int> &, int, set<pair<int, int>> &)>
         search = [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
-        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n || i < 0 || i >= l || board[p.first][p.second] != word[i] || v.find(p) != v.end())
+        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n
+           || i < 0 || i >= l || board[p.first][p.second] != word[i]
+           || v.find(p) != v.end())
         {
             return false;
         }
@@ -3114,12 +3100,11 @@ static bool exist(vector<vector<char>> &board, string word)
 }
 
 // 36. Valid Sudoku
-// Determine if a Sudoku is valid, according to: Sudoku Puzzles
-// The Rules. The Sudoku board could be partially filled, where empty
-// cells are filled with the character '.'.
-// A partially filled sudoku which is valid.
-// Note: A valid Sudoku board (partially filled) is not necessarily
-// solvable. Only the filled cells need to be validated.
+// Determine if a Sudoku is valid, according to: Sudoku Puzzles The Rules.
+// The Sudoku board could be partially filled, where empty cells are filled with
+// the character '.'. A partially filled sudoku which is valid. Note: A valid
+// Sudoku board (partially filled) is not necessarily solvable. Only the filled
+// cells need to be validated.
 static bool isValidSudoku(vector<vector<char>> &board)
 {
     map<size_t, set<char>> rows;
@@ -3156,8 +3141,8 @@ static bool isValidSudoku(vector<vector<char>> &board)
 }
 
 // 48. Rotate Image
-// You are given an n x n 2D matrix representing an image.
-// Rotate the image by 90 degrees(clockwise).
+// You are given an n x n 2D matrix representing an image. Rotate the image by
+// 90 degrees(clockwise).
 // 0 1        3 0
 // 3 2        2 1
 static void rotate(vector<vector<int>> &matrix)
@@ -3180,8 +3165,8 @@ static void rotate(vector<vector<int>> &matrix)
 }
 
 // 73. Set Matrix Zeroes
-// Given a m x n matrix, if an element is 0, set its entire row and
-// column to 0. Do it in place.
+// Given a m x n matrix, if an element is 0, set its entire row and column to 0.
+// Do it in place.
 static void setZeroes(vector<vector<int>> &matrix)
 {
     if (matrix.size() == 0 || matrix[0].size() == 0)
@@ -3242,10 +3227,9 @@ static void setZeroes(vector<vector<int>> &matrix)
 }
 
 // 130. Surrounded Regions
-// Given a 2D board containing 'X' and 'O' (the letter O), capture all
-// regions surrounded by 'X'. A region is captured by flipping all 'O's
-// into 'X's in that surrounded region.
-// For example,
+// Given a 2D board containing 'X' and 'O' (the letter O), capture all regions
+// surrounded by 'X'. A region is captured by flipping all 'O's into 'X's in
+// that surrounded region. For example,
 //    X X X X
 //    X O O X
 //    X X O X
@@ -3308,11 +3292,10 @@ static void solve(vector<vector<char>> &board)
 }
 
 // 200. Number of Islands
-// Given a 2d grid map of '1's (land) and '0's (water), count the number
-// of islands. An island is surrounded by water and is formed by connecting
-// adjacent lands horizontally or vertically. You may assume all four
-// edges of the grid are all surrounded by water.
-// Example 1:
+// Given a 2d grid map of '1's (land) and '0's (water), count the number of
+// islands. An island is surrounded by water and is formed by connecting adjacent
+// lands horizontally or vertically. You may assume all four edges of the grid
+// are all surrounded by water. Example 1:
 //  11110
 //  11010
 //  11000
@@ -3373,9 +3356,8 @@ static int numIslands(vector<vector<char>> &grid)
 }
 
 // 118. Pascal's Triangle
-// Given numRows, generate the first numRows of Pascal's triangle.
-// For example, given numRows = 5,
-// Return
+// Given numRows, generate the first numRows of Pascal's triangle. For example,
+// given numRows = 5, Return
 // [
 //      [1],
 //     [1, 1],
@@ -3403,11 +3385,9 @@ static vector<vector<int>> generate(int numRows)
 }
 
 // 119. Pascal's Triangle II
-// Given an index k, return the kth row of the Pascal's triangle.
-// For example, given k = 3,
-// Return[1, 3, 3, 1].
-// Note:
-// Could you optimize your algorithm to use only O(k) extra space ?
+// Given an index k, return the kth row of the Pascal's triangle. For example,
+// given k = 3, Return [1, 3, 3, 1]. Note: Could you optimize your algorithm
+// to use only O(k) extra space ?
 static vector<int> getRow(int rowIndex)
 {
     vector<int> row;
@@ -3423,19 +3403,17 @@ static vector<int> getRow(int rowIndex)
 }
 
 // 120. Triangle
-// Given a triangle, find the minimum path sum from top to bottom.
-// Each step you may move to adjacent numbers on the row below.
-// For example, given the following triangle
+// Given a triangle, find the minimum path sum from top to bottom. Each step you
+// may move to adjacent numbers on the row below. For example, given the following
+// triangle
 // [
 //     [2],
 //    [3, 4],
 //   [6, 5, 7],
 //  [4, 1, 8, 3]
 // ]
-// The minimum path sum from top to bottom is 11
-// (i.e., 2 + 3 + 5 + 1 = 11).
-// Note:
-// Bonus point if you are able to do this using only O(n) extra space,
+// The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
+// Note: Bonus point if you are able to do this using only O(n) extra space,
 // where n is the total number of rows in the triangle.
 static int minimumTotal(vector<vector<int>> &triangle)
 {
@@ -3460,8 +3438,8 @@ static int minimumTotal(vector<vector<int>> &triangle)
 }
 
 // 155. Min Stack
-// Design a stack that supports push, pop, top, and retrieving
-// the minimum element in constant time.
+// Design a stack that supports push, pop, top, and retrieving the minimum
+// element in constant time.
 // push(x) --  Push element x onto stack.
 // pop()   --  Removes the element on top of the stack.
 // top()   --  Get the top element.
@@ -3512,10 +3490,10 @@ struct ListNode
 };
 
 // 2. Add Two Numbers
-// Given two non-empty linked lists representing two non-negative integers.
-// The digits are stored in reverse order (LSB is the head) and each node contain
-// a single digit. Add the two numbers and return a linked list.
-// The two numbers do not contain leading zero, except the number 0 itself.
+// Given two non-empty linked lists representing two non-negative integers. The
+// digits are stored in reverse order (LSB is the head) and each node contain a
+// single digit. Add the two numbers and return a linked list. The two numbers
+// do not contain leading zero, except the number 0 itself.
 // Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
 // Output: (7 -> 0 -> 8)
 // @list
@@ -3563,20 +3541,15 @@ static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
 }
 
 // 133. Clone Graph
-// Clone an undirected graph. Each node in the graph contains a
-// label and a list of its neighbors.
-// OJ's undirected graph serialization:
-// Nodes are labeled uniquely.
-// We use # as a separator for each node, and , as a separator for
-// node label and each neighbor of the node.
-// As an example, consider the serialized graph { 0,1,2#1,2#2,2 }.
-// The graph has a total of three nodes, and therefore contains
-// three parts as separated by #.
-// First node is labeled as 0. Connect node 0 to both nodes 1 and 2.
-// Second node is labeled as 1. Connect node 1 to node 2.
-// Third node is labeled as 2. Connect node 2 to node 2 (itself),
-// thus forming a self - cycle.
-// Visually, the graph looks like the following :
+// Clone an undirected graph. Each node in the graph contains a label and a list
+// of its neighbors. OJ's undirected graph serialization: Nodes are labeled uniquely.
+// We use # as a separator for each node, and , as a separator for node label and
+// each neighbor of the node. As an example, consider the serialized graph
+// { 0,1,2#1,2#2,2 }. The graph has a total of three nodes, and therefore contains
+// three parts as separated by #. First node is labeled as 0. Connect node 0 to
+// both nodes 1 and 2. Second node is labeled as 1. Connect node 1 to node 2.
+// Third node is labeled as 2. Connect node 2 to node 2 (itself), thus forming a
+// self-cycle. Visually, the graph looks like the following :
 //    1
 //   /  \
 //  /    \
@@ -3594,7 +3567,7 @@ static UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node)
     map<int, UndirectedGraphNode *> cloned;
     function<UndirectedGraphNode *(UndirectedGraphNode *)>
         clone = [&](UndirectedGraphNode *n) -> UndirectedGraphNode * {
-        if (node == nullptr)
+        if (n == nullptr)
             return nullptr;
         if (cloned.find(n->label) != cloned.end())
             return cloned[n->label];
@@ -3621,9 +3594,8 @@ struct RandomListNode
     RandomListNode(int x) : label(x), next(nullptr), random(nullptr) {}
 };
 // 138. Copy List with Random Pointer
-// A linked list is given such that each node contains an additional
-// random pointer which could point to any node in the list or null.
-// Return a deep copy of the list.
+// A linked list is given such that each node contains an additional random pointer
+// which could point to any node in the list or null. Return a deep copy of the list.
 static RandomListNode *copyRandomList(RandomListNode *head)
 {
     map<RandomListNode *, RandomListNode *> copied;
