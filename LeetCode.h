@@ -649,32 +649,41 @@ static bool search2(vector<int> &nums, int target)
 // Suppose an array sorted in ascending order is rotated at some pivot unknown
 // to you beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find
 // the minimum element. You may assume no duplicate exists in the array.
-static int findMin(vector<int>& nums)
+static int findMin(vector<int> &nums)
 {
     int l = 0;
     int h = nums.size() - 1;
     int m;
-    while (l <= h) {
+    while (l <= h)
+    {
         m = l + ((h - l) >> 1);
-        if (nums[l] < nums[m]) {
-            if (nums[m] < nums[h]) {
+        if (nums[l] < nums[m])
+        {
+            if (nums[m] < nums[h])
+            {
                 h = m - 1;
             }
-            else {
+            else
+            {
                 l = m + 1;
             }
         }
-        else if (nums[l] > nums[m]) {
+        else if (nums[l] > nums[m])
+        {
             h = m;
         }
-        else {
-            if (nums[m] < nums[h]) {
+        else
+        {
+            if (nums[m] < nums[h])
+            {
                 h = m;
             }
-            else if (nums[m] > nums[h]) {
+            else if (nums[m] > nums[h])
+            {
                 l = m + 1;
             }
-            else {
+            else
+            {
                 break;
             }
         }
@@ -1090,13 +1099,16 @@ static int maxSubArray3(vector<int> &nums, int &begin, int &end)
 // Find the contiguous subarray within an array (containing at least one number)
 // which has the largest product. For example, given the array[2, 3, -2, 4],
 // the contiguous subarray[2, 3] has the largest product = 6.
-static int maxProduct(vector<int>& nums)
+static int maxProduct(vector<int> &nums)
 {
     long long maxProd = LLONG_MIN;
     vector<long long> product(nums.begin(), nums.end());
-    for (size_t l = 1; l <= nums.size(); l++) {
-        for (size_t i = 0; i <= nums.size() - l; i++) {
-            if (l > 1) {
+    for (size_t l = 1; l <= nums.size(); l++)
+    {
+        for (size_t i = 0; i <= nums.size() - l; i++)
+        {
+            if (l > 1)
+            {
                 product[i] *= nums[i + l - 1];
             }
             maxProd = max(product[i], maxProd);
@@ -1104,26 +1116,32 @@ static int maxProduct(vector<int>& nums)
     }
     return (int)maxProd;
 }
-static int maxProduct2(vector<int>& nums)
+static int maxProduct2(vector<int> &nums)
 {
     long long maxNegative = LLONG_MIN;
     long long maxProd = LLONG_MIN;
     long long prod = 1;
-    for (size_t i = 0; i < nums.size(); i++) {
+    for (size_t i = 0; i < nums.size(); i++)
+    {
         prod *= nums[i];
-        if (prod < 0) {
-            if (maxNegative == LLONG_MIN) {
+        if (prod < 0)
+        {
+            if (maxNegative == LLONG_MIN)
+            {
                 maxProd = max(maxProd, prod);
             }
-            else {
+            else
+            {
                 maxProd = max(maxProd, prod / maxNegative);
             }
             maxNegative = max(maxNegative, prod);
         }
-        else if (prod > 0) {
+        else if (prod > 0)
+        {
             maxProd = max(maxProd, prod);
         }
-        else {
+        else
+        {
             maxProd = max(maxProd, prod);
             maxNegative = LLONG_MIN;
             prod = 1;
@@ -1131,7 +1149,6 @@ static int maxProduct2(vector<int>& nums)
     }
     return (int)maxProd;
 }
-
 
 // 55. Jump Game
 // Given an array of non-negative integers, you are initially positioned at
@@ -1224,17 +1241,21 @@ static int rob(vector<int> &nums)
 // the journey with an empty tank at one of the gas stations. Return the starting
 // gas station's index if you can travel around the circuit once, otherwise
 // return -1. Note: The solution is guaranteed to be unique.
-static int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+static int canCompleteCircuit(vector<int> &gas, vector<int> &cost)
+{
     size_t s = 0;
-    while (s < gas.size()) {
+    while (s < gas.size())
+    {
         size_t i = s;
         int t = 0;
         size_t j;
-        while (t >= 0 && (i - s) < gas.size()) {
+        while (t >= 0 && (i - s) < gas.size())
+        {
             j = (i++) % gas.size();
             t += (gas[j] - cost[j]);
         }
-        if (t >= 0) return s;
+        if (t >= 0)
+            return s;
         s = i;
     }
     return -1;
@@ -1244,7 +1265,8 @@ static int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
 // Given an array of integers, every element appears twice except for one.
 // Find that single one. Note: Your algorithm should have a linear runtime
 // complexity. Could you implement it without using extra memory?
-static int singleNumber(vector<int>& nums) {
+static int singleNumber(vector<int> &nums)
+{
     int n = 0;
     for_each(nums.begin(), nums.end(), [&](int e) {
         n ^= e;
@@ -1603,12 +1625,12 @@ static void rotate(vector<int> &nums, int k)
     if (k == 0)
         return;
     function<void(int, int)>
-    swapRange = [&](int i, int j) {
-        while (i < j)
-        {
-            swap(nums[i++], nums[j--]);
-        }
-    };
+        swapRange = [&](int i, int j) {
+            while (i < j)
+            {
+                swap(nums[i++], nums[j--]);
+            }
+        };
     swapRange(0, nums.size() - 1);
     swapRange(0, k - 1);
     swapRange(k, nums.size() - 1);
@@ -1645,20 +1667,20 @@ static vector<vector<int>> combinationSumReuse(vector<int> &candidates, int targ
 {
     vector<vector<int>> result = vector<vector<int>>{};
     function<void(size_t, int, vector<int> &)>
-    solve = [&](size_t i, int t, vector<int> &c) {
-        if (i >= candidates.size())
-            return;
-        if (candidates[i] <= t)
-        {
-            vector<int> c1(c);
-            c1.push_back(candidates[i]);
-            if (candidates[i] == t)
-                result.push_back(c1);
-            else
-                solve(i, t - candidates[i], c1);
-        }
-        solve(i + 1, t, c);
-    };
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size())
+                return;
+            if (candidates[i] <= t)
+            {
+                vector<int> c1(c);
+                c1.push_back(candidates[i]);
+                if (candidates[i] == t)
+                    result.push_back(c1);
+                else
+                    solve(i, t - candidates[i], c1);
+            }
+            solve(i + 1, t, c);
+        };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1669,21 +1691,21 @@ static vector<vector<int>> combinationSumReuse2(vector<int> &candidates, int tar
     vector<vector<int>> result = vector<vector<int>>{};
     sort(candidates.begin(), candidates.end());
     function<void(int, int, vector<int> &)>
-    solve = [&](int i, int t, vector<int> &s) {
-        for (int j = i; j < (int)candidates.size(); j++)
-        {
-            if (candidates[j] > t)
-                break;
-            vector<int> r(s);
-            r.push_back(candidates[j]);
-            if (candidates[j] == t)
+        solve = [&](int i, int t, vector<int> &s) {
+            for (int j = i; j < (int)candidates.size(); j++)
             {
-                result.push_back(r);
-                break;
+                if (candidates[j] > t)
+                    break;
+                vector<int> r(s);
+                r.push_back(candidates[j]);
+                if (candidates[j] == t)
+                {
+                    result.push_back(r);
+                    break;
+                }
+                solve(j, t - candidates[j], r);
             }
-            solve(j, t - candidates[j], r);
-        }
-    };
+        };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1740,24 +1762,24 @@ static vector<vector<int>> combinationSumNoReuse(vector<int> &candidates, int ta
     // [Can we not use sort? Instead using a set of <i,t> pairs to track the visited?]
     std::sort(candidates.begin(), candidates.end());
     function<void(size_t, int, vector<int> &)>
-    solve = [&](size_t i, int t, vector<int> &c) {
-        if (i >= candidates.size() || candidates[i] > t)
-            return;
-        vector<int> c1(c);
-        c1.push_back(candidates[i]);
-        if (candidates[i] == t)
-        {
-            result.push_back(c1);
-            return;
-        }
-        solve(i + 1, t - candidates[i], c1);
-        while (i + 1 < candidates.size() && candidates[i] == candidates[i + 1])
-        {
-            // This is needed to eliminate duplicate solutions
-            i++;
-        }
-        solve(i + 1, t, c);
-    };
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size() || candidates[i] > t)
+                return;
+            vector<int> c1(c);
+            c1.push_back(candidates[i]);
+            if (candidates[i] == t)
+            {
+                result.push_back(c1);
+                return;
+            }
+            solve(i + 1, t - candidates[i], c1);
+            while (i + 1 < candidates.size() && candidates[i] == candidates[i + 1])
+            {
+                // This is needed to eliminate duplicate solutions
+                i++;
+            }
+            solve(i + 1, t, c);
+        };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1769,29 +1791,29 @@ static vector<vector<int>> combinationSumNoReuse2(vector<int> &candidates, int t
     // Sort so we can eliminate duplicate solutions later
     std::sort(candidates.begin(), candidates.end());
     function<void(size_t, int, vector<int> &)>
-    solve = [&](size_t i, int t, vector<int> &c) {
-        if (i >= candidates.size() || candidates[i] > t)
-            return;
-        size_t j = i;
-        while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
-            j++;
-        int s = 0;
-        for (size_t k = i; k <= j; k++)
-        {
-            s += candidates[k];
-            if (s > t)
-                break;
-            vector<int> c1(c);
-            c1.insert(c1.end(), k - i + 1, candidates[i]);
-            if (s == t)
+        solve = [&](size_t i, int t, vector<int> &c) {
+            if (i >= candidates.size() || candidates[i] > t)
+                return;
+            size_t j = i;
+            while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                j++;
+            int s = 0;
+            for (size_t k = i; k <= j; k++)
             {
-                result.push_back(c1);
-                break;
+                s += candidates[k];
+                if (s > t)
+                    break;
+                vector<int> c1(c);
+                c1.insert(c1.end(), k - i + 1, candidates[i]);
+                if (s == t)
+                {
+                    result.push_back(c1);
+                    break;
+                }
+                solve(j + 1, t - s, c1);
             }
-            solve(j + 1, t - s, c1);
-        }
-        solve(j + 1, t, c);
-    };
+            solve(j + 1, t, c);
+        };
     vector<int> s;
     solve(0, target, s);
     return result;
@@ -1813,19 +1835,19 @@ static vector<vector<int>> combine(int n, int k)
     if (k <= 0 || n <= 0 || k > n)
         return result;
     function<void(int, int, vector<int> &)>
-    select = [&](int i, int l, vector<int> &c) {
-        if (l == 0)
-        {
-            result.push_back(c);
-            return;
-        }
-        for (int j = i; j <= n; j++)
-        {
-            vector<int> c1(c);
-            c1.push_back(j);
-            select(j + 1, l - 1, c1);
-        }
-    };
+        select = [&](int i, int l, vector<int> &c) {
+            if (l == 0)
+            {
+                result.push_back(c);
+                return;
+            }
+            for (int j = i; j <= n; j++)
+            {
+                vector<int> c1(c);
+                c1.push_back(j);
+                select(j + 1, l - 1, c1);
+            }
+        };
     vector<int> c = vector<int>{};
     select(1, k, c);
     return result;
@@ -1907,40 +1929,106 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 // expression. Some examples :
 // ["2", "1", "+", "3", "*"] -> ((2 + 1) * 3) -> 9
 // ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
-static int evalRPN(vector<string>& tokens)
+static int evalRPN(vector<string> &tokens)
 {
     int n1;
     int n2;
     stack<int> nums;
     function<void(int &, int &)>
-    pop = [&](int & m1, int & m2) {
-        m2 = nums.top();
-        nums.pop();
-        m1 = nums.top();
-        nums.pop();
-    };
-    for (size_t i = 0; i < tokens.size(); i++) {
-        if (tokens[i].compare("+") == 0) {
+        pop = [&](int &m1, int &m2) {
+            m2 = nums.top();
+            nums.pop();
+            m1 = nums.top();
+            nums.pop();
+        };
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        if (tokens[i].compare("+") == 0)
+        {
             pop(n1, n2);
             nums.push(n1 + n2);
         }
-        else if (tokens[i].compare("-") == 0) {
+        else if (tokens[i].compare("-") == 0)
+        {
             pop(n1, n2);
             nums.push(n1 - n2);
         }
-        else if (tokens[i].compare("*") == 0) {
+        else if (tokens[i].compare("*") == 0)
+        {
             pop(n1, n2);
             nums.push(n1 * n2);
         }
-        else if (tokens[i].compare("/") == 0) {
+        else if (tokens[i].compare("/") == 0)
+        {
             pop(n1, n2);
             nums.push(n1 / n2);
         }
-        else {
+        else
+        {
             nums.push(atoi(tokens[i].c_str()));
         }
     }
     return nums.top();
+}
+
+// 28. Implement strStr()
+// Returns the index of the first occurrence of needle in haystack,
+// or -1 if needle is not part of haystack.
+// @string, @linear
+static int strStr(string haystack, string needle)
+{
+    if (needle.empty())
+        return 0;
+    size_t i = 0;
+    while (i + needle.size() <= haystack.size())
+    {
+        while (i + needle.size() <= haystack.size() && haystack[i] != needle[0])
+            i++;
+        if (i + needle.size() > haystack.size())
+            break;
+        size_t j = 1;
+        while (j < needle.size() && haystack[i + j] == needle[j])
+            j++;
+        if (j == needle.size())
+            return i;
+        i++;
+    }
+    return -1;
+}
+
+// 38. Count and Say
+// The count-and-say sequence is the sequence of integers beginning as follows:
+// 1, 11, 21, 1211, 111221, ...
+// 1 is read off as "one 1" or 11.
+// 11 is read off as "two 1s" or 21.
+// 21 is read off as "one 2, then one 1" or 1211.
+// Given an integer n, generate the nth sequence.
+// Note: The sequence of integers will be represented as a string.
+// @string
+static string countAndSay(int n)
+{
+    if (n <= 0)
+        return string();
+    string s = "1";
+    for (int i = 2; i <= n; i++)
+    {
+        ostringstream oss;
+        size_t j = 0;
+        size_t c = 1;
+        while (j < s.size())
+        {
+            while (j + 1 < s.size() && s[j] == s[j + 1])
+            {
+                j++;
+                c++;
+            }
+            oss << c << s[j];
+            j++;
+            c = 1;
+        }
+        s = oss.str();
+    }
+    return s;
 }
 
 namespace LengthOfLongestSubstring
@@ -2143,15 +2231,15 @@ static string solve3(string s)
 static bool isPalindrome(string s)
 {
     function<bool(char)>
-    isDigit = [&](char c) -> bool {
+        isDigit = [&](char c) -> bool {
         return '0' <= c && c <= '9';
     };
     function<bool(char)>
-    isLower = [&](char c) -> bool {
+        isLower = [&](char c) -> bool {
         return 'a' <= c && c <= 'z';
     };
     function<bool(char)>
-    isUpper = [&](char c) -> bool {
+        isUpper = [&](char c) -> bool {
         return 'A' <= c && c <= 'Z';
     };
     int i = 0;
@@ -2196,7 +2284,7 @@ static vector<vector<string>> partition(string s)
     if (s.empty())
         return result;
     function<bool(size_t, size_t)>
-    isPalindrome = [&](size_t i, size_t j) -> bool {
+        isPalindrome = [&](size_t i, size_t j) -> bool {
         while (i < j)
         {
             if (s[i++] != s[j--])
@@ -2205,22 +2293,22 @@ static vector<vector<string>> partition(string s)
         return true;
     };
     function<void(size_t, vector<string> &)>
-    solve = [&](size_t i, vector<string> &p) {
-        if (i == s.length())
-        {
-            result.push_back(p);
-            return;
-        }
-        for (size_t j = i; j < s.length(); j++)
-        {
-            if (isPalindrome(i, j))
+        solve = [&](size_t i, vector<string> &p) {
+            if (i == s.length())
             {
-                vector<string> p2(p);
-                p2.push_back(s.substr(i, j - i + 1));
-                solve(j + 1, p2);
+                result.push_back(p);
+                return;
             }
-        }
-    };
+            for (size_t j = i; j < s.length(); j++)
+            {
+                if (isPalindrome(i, j))
+                {
+                    vector<string> p2(p);
+                    p2.push_back(s.substr(i, j - i + 1));
+                    solve(j + 1, p2);
+                }
+            }
+        };
     vector<string> r;
     solve(0, r);
     return result;
@@ -2236,32 +2324,42 @@ static vector<vector<string>> partition(string s)
 // UPDATE(2017 / 1 / 4): The wordDict parameter had been changed to a list of
 // strings(instead of a set of strings). Please reload the code definition to
 // get the latest changes.
-static bool wordBreak(string s, vector<string>& wordDict)
+static bool wordBreak(string s, vector<string> &wordDict)
 {
-    if (wordDict.empty()) return false;
+    if (wordDict.empty())
+        return false;
     size_t minLength = wordDict[0].size();
     size_t maxLength = wordDict[0].size();
-    for (size_t i = 1; i < wordDict.size(); i++) {
-        if (wordDict[i].size() < minLength) minLength = wordDict[i].size();
-        if (wordDict[i].size() > maxLength) maxLength = wordDict[i].size();
+    for (size_t i = 1; i < wordDict.size(); i++)
+    {
+        if (wordDict[i].size() < minLength)
+            minLength = wordDict[i].size();
+        if (wordDict[i].size() > maxLength)
+            maxLength = wordDict[i].size();
     }
     map<size_t, bool> breakable;
     function<bool(size_t)>
-    solve = [&](size_t i) -> bool
-    {
-        if (breakable.find(i) != breakable.end()) return breakable[i];
+        solve = [&](size_t i) -> bool {
+        if (breakable.find(i) != breakable.end())
+            return breakable[i];
         breakable[i] = false;
-        if (i == s.size()) {
+        if (i == s.size())
+        {
             breakable[i] = true;
         }
-        else {
-            for (size_t j = minLength; j <= min(maxLength, s.size() - i); j++) {
+        else
+        {
+            for (size_t j = minLength; j <= min(maxLength, s.size() - i); j++)
+            {
                 auto it = find(wordDict.begin(), wordDict.end(), s.substr(i, j));
-                if (it != wordDict.end()) {
-                    if (breakable.find(i + j) == breakable.end()) {
+                if (it != wordDict.end())
+                {
+                    if (breakable.find(i + j) == breakable.end())
+                    {
                         breakable[i + j] = solve(i + j);
                     }
-                    if (breakable[i + j]) {
+                    if (breakable[i + j])
+                    {
                         breakable[i] = true;
                         break;
                     }
@@ -2750,9 +2848,78 @@ static string addBinary(string a, string b)
     return result;
 }
 
+// 43. Multiply Strings
+// Given two non-negative integers num1 and num2 represented as strings, return
+// the product of num1 and num2. Note: The length of both num1 and num2 is < 110.
+// Both num1 and num2 contains only digits 0 - 9. Both num1 and num2 does not
+// contain any leading zero. You must not use any built-in BigInteger library or
+// convert the inputs to integer directly.
+// @string
+static string multiply(string num1, string num2)
+{
+    if (num1.length() == 1 && num1[0] == '0')
+        return string("0");
+    if (num2.length() == 1 && num2[0] == '0')
+        return string("0");
+    function<int(char)> toDigit = [&](char c) {
+        return c - '0';
+    };
+    function<char(int)> toChar = [&](int i) {
+        return i + '0';
+    };
+    function<string(string, char)> multiplyDigit = [&](string str, char ch) {
+        string result;
+        int i = str.length() - 1;
+        int c = 0;
+        int m;
+        while (0 <= i)
+        {
+            m = c + toDigit(str[i--]) * toDigit(ch);
+            c = m / 10;
+            result.insert(result.begin(), toChar(m % 10));
+        }
+        if (c > 0)
+            result.insert(result.begin(), toChar(c));
+        return result;
+    };
+    function<string(string, string)> sum = [&](string str1, string str2) {
+        string result;
+        int i = str1.length() - 1;
+        int j = str2.length() - 1;
+        int c = 0;
+        int m;
+        while (0 <= i || 0 <= j)
+        {
+            if (0 <= i && 0 <= j)
+                m = toDigit(str1[i--]) + toDigit(str2[j--]);
+            else if (0 <= i)
+                m = toDigit(str1[i--]);
+            else
+                m = toDigit(str2[j--]);
+            m += c;
+            c = m / 10;
+            result.insert(result.begin(), toChar(m % 10));
+        }
+        if (c > 0)
+            result.insert(result.begin(), toChar(c));
+        return result;
+    };
+    string result = "0";
+    char c;
+    int i = num2.length() - 1;
+    while (0 <= i)
+    {
+        c = num2[i--];
+        if (c != '0')
+            result = sum(result, multiplyDigit(num1, c));
+        num1.append(1, '0');
+    }
+    return result;
+}
+
 class SpiralMatrix
 {
-  public:
+public:
     // 54. Spiral Matrix
     // Given a matrix of m x n elements (m rows, n columns), return all
     // elements of the matrix in spiral order. For example,
@@ -3054,9 +3221,7 @@ static bool exist(vector<vector<char>> &board, string word)
     int l = word.size();
     function<bool(pair<int, int> &, int, set<pair<int, int>> &)>
         search = [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
-        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n
-           || i < 0 || i >= l || board[p.first][p.second] != word[i]
-           || v.find(p) != v.end())
+        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n || i < 0 || i >= l || board[p.first][p.second] != word[i] || v.find(p) != v.end())
         {
             return false;
         }
@@ -3455,11 +3620,11 @@ static int minimumTotal(vector<vector<int>> &triangle)
 // minStack.getMin();   --> Returns -2.
 class MinStack
 {
-  private:
+private:
     stack<int> _items;
     stack<int> _mins;
 
-  public:
+public:
     // initialize your data structure here.
     MinStack() {}
 
@@ -3599,17 +3764,19 @@ struct RandomListNode
 static RandomListNode *copyRandomList(RandomListNode *head)
 {
     map<RandomListNode *, RandomListNode *> copied;
-    function<RandomListNode * (RandomListNode *)>
-    copy = [&](RandomListNode * node) -> RandomListNode *
-    {
-        if (node == nullptr) return nullptr;
-        RandomListNode * c = new RandomListNode(node->label);
+    function<RandomListNode *(RandomListNode *)>
+        copy = [&](RandomListNode *node) -> RandomListNode * {
+        if (node == nullptr)
+            return nullptr;
+        RandomListNode *c = new RandomListNode(node->label);
         copied[node] = c;
-        if (copied.find(node->next) == copied.end()) {
+        if (copied.find(node->next) == copied.end())
+        {
             copied[node->next] = copy(node->next);
         }
         c->next = copied[node->next];
-        if (copied.find(node->random) == copied.end()) {
+        if (copied.find(node->random) == copied.end())
+        {
             copied[node->random] = copy(node->random);
         }
         c->random = copied[node->random];
