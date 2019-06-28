@@ -2523,6 +2523,62 @@ static int lengthOfLastWord2(string s)
     return length;
 }
 
+// 151. Reverse Words in a String
+// Given an input string, reverse the string word by word. For example, Given
+// s = "the sky is blue", return "blue is sky the". Update(2015-02-12): For C
+// programmers: Try to solve it in-place in O(1) space. Clarification: What
+// constitutes a word? A sequence of non-space characters constitutes a word.
+// Could the input string contain leading or trailing spaces? Yes. However, your
+// reversed string should not contain leading or trailing spaces. How about
+// multiple spaces between two words? Reduce them to a single space in the
+// reversed string.
+static void reverseWords(string &s)
+{
+    if (s.length() == 0)
+        return;
+    int i = -1;
+    size_t j = 0;
+    while (j < s.length() && s[j] == ' ')
+        j++;
+    if (j == s.length())
+    {
+        s.resize(0);
+        return;
+    }
+    while (j < s.length())
+    {
+        if (s[j] != ' ' || s[j - 1] != ' ')
+        {
+            i++;
+            if (i < (int)j)
+                s[i] = s[j];
+        }
+        j++;
+    }
+    if (0 <= i && s[i] == ' ')
+        i--;
+    s.resize(i + 1);
+    function<void(int, int)>
+        reverse = [&](int b, int e) {
+            while (b < e)
+            {
+                swap(s[b++], s[e--]);
+            }
+        };
+    reverse(0, s.length() - 1);
+    i = 0;
+    j = 0;
+    while (j <= s.length())
+    {
+        if (j == s.length() || s[j] == ' ')
+        {
+            reverse(i, j - 1);
+            i = j + 1;
+        }
+        j++;
+    }
+}
+
 // 7. Reverse Integer
 // 123 => 321
 // -123 => -321
@@ -2831,6 +2887,53 @@ static vector<string> restoreIpAddresses(string s)
     return result;
 }
 
+// 165. Compare Version Numbers
+// Compare two version numbers version1 and version2. If version1 > version2
+// return 1, if version1 < version2 return -1, otherwise return 0. You may assume
+// that the version strings are non-empty and contain only digits and the . character.
+// The . character does not represent a decimal point and is used to separate
+// number sequences. For instance, 2.5 is not "two and a half" or "half way to
+// version three", it is the fifth second-level revision of the second first-level
+// revision. Here is an example of version numbers ordering:
+// 0.1 < 1.1 < 1.2 < 13.37
+static int compareVersion(string version1, string version2)
+{
+    function<int(const string &, size_t &)>
+        version = [&](const string &str, size_t &i) -> int {
+        int val = 0;
+        while (i < str.size() && str[i] == '.')
+            i++;
+        if (i >= str.size())
+            return val;
+        size_t j = str.find_first_of('.', i);
+        if (j == string::npos)
+        {
+            val = atoi(str.substr(i).c_str());
+            i = str.size();
+        }
+        else
+        {
+            val = atoi(str.substr(i, j - i).c_str());
+            i = j;
+        }
+        return val;
+    };
+    size_t i1 = 0;
+    size_t i2 = 0;
+    int v1;
+    int v2;
+    while (i1 < version1.size() || i2 < version2.size())
+    {
+        v1 = version(version1, i1);
+        v2 = version(version2, i2);
+        if (v1 < v2)
+            return -1;
+        else if (v1 > v2)
+            return 1;
+    }
+    return 0;
+}
+
 // 9. Palindrome Number
 // Determine whether an integer is a palindrome. Do this without extra space.
 static bool isPalindrome(int x)
@@ -2999,6 +3102,114 @@ static string multiply(string num1, string num2)
         num1.append(1, '0');
     }
     return result;
+}
+
+// 29. Divide Two Integers
+// Divide two integers without using multiplication, division and mod operator.
+// If it is overflow, return MAX_INT.
+static int divide(int dividend, int divisor)
+{
+    if (divisor == 0 || (dividend == INT_MIN && divisor == -1))
+        return INT_MAX;
+    bool negative = false;
+    // use long in case of overflow when fliping the sign
+    long longDividend = (long)dividend;
+    long longDivisor = (long)divisor;
+    if (longDividend < 0)
+    {
+        longDividend = -longDividend;
+        if (longDivisor < 0)
+            longDivisor = -longDivisor;
+        else
+            negative = true;
+    }
+    else if (longDivisor < 0)
+    {
+        longDivisor = -longDivisor;
+        negative = true;
+    }
+    int quotient = 0;
+    // use long in case of overflow when left shift by 1
+    long d = longDivisor;
+    int m = 1;
+    while (longDividend >= longDivisor)
+    {
+        if (d <= longDividend && longDividend < d << 1)
+        {
+            quotient += m;
+            longDividend -= d;
+        }
+        else if (longDividend < d)
+        {
+            d = d >> 1;
+            m = m >> 1;
+        }
+        else
+        { // d << 1 <= longDividend
+            d = d << 1;
+            m = m << 1;
+        }
+    }
+    return negative ? -quotient : quotient;
+}
+
+// 50. Pow(x, n)
+static double myPow(double x, int n)
+{
+    // Use long long to avoid overflow when flip the sign.
+    long long n1 = n;
+    bool inverse = false;
+    if (n1 < 0)
+    {
+        inverse = true;
+        n1 = -n1;
+    }
+    // Use long long to avoid overflow when left-shift the bits.
+    long long d;
+    double y;
+    double z = 1;
+    while (n1 > 0)
+    {
+        d = 1;
+        y = x;
+        while ((d << 1) <= n1)
+        {
+            y *= y;
+            d = d << 1;
+        }
+        z *= y;
+        n1 -= d;
+    }
+    return inverse ? 1 / z : z;
+}
+
+// 69. Sqrt(x)
+// Implement int sqrt(int x). Compute and return the square root of x.
+static int mySqrt(int x)
+{
+    long long l = 0;
+    long long r = x;
+    // Use long long to avoid overflow of m * m.
+    long long m;
+    while (l <= r)
+    {
+        m = l + ((r - l) >> 1);
+        long long low = m * m;
+        long long high = (m + 1) * (m + 1);
+        if (low <= x && x < high)
+        {
+            break;
+        }
+        else if (x < low)
+        {
+            r = m - 1;
+        }
+        else
+        {
+            l = m + 1;
+        }
+    }
+    return (int)m;
 }
 
 class SpiralMatrix
