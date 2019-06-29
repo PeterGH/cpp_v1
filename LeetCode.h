@@ -2994,6 +2994,54 @@ static vector<int> grayCode(int n)
     return gray;
 }
 
+// 168. Excel Sheet Column Title
+// Given a positive integer, return its corresponding column title as appear in
+// an Excel sheet. For example :
+// 1 -> A
+// 2 -> B
+// 3 -> C
+//   ...
+// 26 -> Z
+// 27 -> AA
+// 28 -> AB
+static string convertToTitle(int n)
+{
+    string e;
+    while (n > 0)
+    {
+        int r = n % 26;
+        n = (n - r) / 26;
+        if (r == 0)
+        {
+            r = 26;
+            n--;
+        }
+        e.insert(e.begin(), 'A' + r - 1);
+    }
+    return e;
+}
+
+// 171. Excel Sheet Column Number
+// Related to question Excel Sheet Column Title. Given a column title as appear
+// in an Excel sheet, return its corresponding column number. For example :
+// A -> 1
+// B -> 2
+// C -> 3
+//   ...
+// Z -> 26
+// AA -> 27
+// AB -> 28
+static int titleToNumber(string s)
+{
+    int n = 0;
+    for (size_t i = 0; i < s.length(); i++)
+    {
+        n *= 26;
+        n += (s[i] - 'A' + 1);
+    }
+    return n;
+}
+
 // 67. Add Binary
 // Given two binary strings, return their sum (also a binary string).
 // For example,
@@ -3210,6 +3258,64 @@ static int mySqrt(int x)
         }
     }
     return (int)m;
+}
+
+// 172. Factorial Trailing Zeroes
+// Given an integer n, return the number of trailing zeroes in n!.
+// Note: Your solution should be in logarithmic time complexity.
+static int trailingZeroes(int n)
+{
+    // n! = 1 * 2 * 3 * 4 * 5 * ... * 10 * ... * 15 * ... * n
+    //    = 2^x * 5^y * z
+    // Usually x >= y. So just need to count occurrence of 5.
+    //   n:      1, 2, 3, 4, 5, 6, ..., 2*5, ..., 3*5, ..., n1*5, ..., n
+    // n/5 = n1:             1,    ..., 2,   ..., 3,   ..., n2*5, ..., n1
+    // n1/5 = n2:                                   1, ..., n3*5, ..., n2
+    // n2/5 = n3: ...
+    // ...
+    int c = 0;
+    while (n >= 5)
+    {
+        n /= 5;
+        c += n;
+    }
+    return c;
+}
+
+// 179. Largest Number
+// Given a list of non negative integers, arrange them such that they form the
+// largest number. For example, given [3, 30, 34, 5, 9], the largest formed
+// number is 9534330. Note: The result may be very large, so you need to return
+// a string instead of an integer.
+static string largestNumber(vector<int> &nums)
+{
+    vector<string> strs;
+    strs.resize(nums.size());
+    transform(nums.begin(), nums.end(), strs.begin(), [&](int i) {
+        ostringstream oss;
+        oss << i;
+        return oss.str();
+    });
+    sort(strs.begin(), strs.end(),
+         [&](const string &str1, const string &str2) {
+             string str12(str1);
+             str12.append(str2);
+             string str21(str2);
+             str21.append(str1);
+             return str12.compare(str21) > 0;
+         });
+    string result;
+    if (strs[0] == "0")
+    {
+        result = "0";
+    }
+    else
+    {
+        for_each(strs.begin(), strs.end(), [&](const string &str) {
+            result.append(str);
+        });
+    }
+    return result;
 }
 
 class SpiralMatrix
