@@ -3318,6 +3318,43 @@ static string largestNumber(vector<int> &nums)
     return result;
 }
 
+// 190. Reverse Bits
+// Reverse bits of a given 32 bits unsigned integer. For example, given input
+// 43261596 (represented in binary as 00000010100101000001111010011100), return
+// 964176192 (represented in binary as 00111001011110000010100101000000). Follow
+// up: If this function is called many times, how would you optimize it?
+static uint32_t reverseBits(uint32_t n)
+{
+    // b31 b30 b29 ... b18 b17 b16 b15 b14 b13 ... b2  b1  b0
+    // reverse higher 16 bits and lower 16 bits
+    // b16 b17 b18 ... b29 b30 b31 b0  b1  b2  ... b13 b14 b15
+    // exchange higher 16 bits and lower 16 bits
+    // b0  b1  b2  ... b13 b14 b15 b16 b17 b18 ... b29 b30 b31
+    // reverse(n) = exchange(reverse(higher_half(n)), reverse(lower_half(n)))
+    n = (n & 0x55555555) << 1 | (n & 0xaaaaaaaa) >> 1;
+    n = (n & 0x33333333) << 2 | (n & 0xcccccccc) >> 2;
+    n = (n & 0x0f0f0f0f) << 4 | (n & 0xf0f0f0f0) >> 4;
+    n = (n & 0x00ff00ff) << 8 | (n & 0xff00ff00) >> 8;
+    n = (n & 0x0000ffff) << 16 | (n & 0xffff0000) >> 16;
+    return n;
+}
+
+// 191. Number of 1 Bits
+// Write a function that takes an unsigned integer and returns the number of
+// ’1' bits it has (also known as the Hamming weight). For example, the 32-bit
+// integer ’11' has binary representation 00000000000000000000000000001011, so
+// the function should return 3.
+static int hammingWeight(uint32_t n)
+{
+    int h = 0;
+    while (n != 0)
+    {
+        n &= (n - 1);
+        h++;
+    }
+    return h;
+}
+
 class SpiralMatrix
 {
 public:
