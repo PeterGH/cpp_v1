@@ -3355,6 +3355,52 @@ static int hammingWeight(uint32_t n)
     return h;
 }
 
+// 201. Bitwise AND of Numbers Range
+// Given a range [m, n] where 0 <= m <= n <= 2147483647, return the bitwise AND
+// of all numbers in this range, inclusive. For example, given the range [5, 7],
+// you should return 4.
+static int rangeBitwiseAnd(int m, int n)
+{
+    int x = 0;
+    while (m != n)
+    {
+        m >>= 1;
+        n >>= 1;
+        x++;
+    }
+    return m << x;
+}
+
+// 202. Happy Number
+// Write an algorithm to determine if a number is "happy". A happy number is a
+// number defined by the following process: Starting with any positive integer,
+// replace the number by the sum of the squares of its digits, and repeat the
+// process until the number equals 1 (where it will stay), or it loops endlessly
+// in a cycle which does not include 1. Those numbers for which this process ends
+// in 1 are happy numbers. Example: 19 is a happy number
+//  1^2 + 9^2 = 82
+//  8^2 + 2^2 = 68
+//  6^2 + 8^2 = 100
+//  1^2 + 0^2 + 0^2 = 1
+static bool isHappy(int n)
+{
+    int x = n;
+    cout << n;
+    do
+    {
+        int y = 0;
+        while (x > 0)
+        {
+            int r = x % 10;
+            y += (r * r);
+            x /= 10;
+        }
+        x = y;
+        cout << ", " << x;
+    } while (x != n && x != 1);
+    return x == 1;
+}
+
 class SpiralMatrix
 {
 public:
@@ -4141,6 +4187,267 @@ static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
         }
     }
     return l;
+}
+
+// 61. Rotate List
+// Given a list, rotate the list to the right by k places, where k is non-negative.
+// For example : Given 1->2->3->4->5->NULL and k = 2, return 4->5->1->2->3->NULL.
+static ListNode *rotateRight(ListNode *head, int k)
+{
+    if (head == nullptr)
+        return head;
+    ListNode *tail = head;
+    int i = 1;
+    while (tail->next != nullptr)
+    {
+        i++;
+        tail = tail->next;
+    }
+    k %= i;
+    if (k == 0)
+        return head;
+    int j = i - k;
+    // TODO: compute p in the while loop above.
+    // Be careful when k is larger than the list length.
+    ListNode *p = head;
+    while (j > 1)
+    {
+        p = p->next;
+        j--;
+    }
+    tail->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+
+// 92. Reverse Linked List II
+// Reverse a linked list from position m to n. Do it in-place and in one-pass.
+// For example : Given 1->2->3->4->5->NULL, m = 2 and n = 4,
+// return 1->4->3->2->5->NULL.
+// Note : Given m, n satisfy the following condition :
+// 1 <= m <= n <= length of list.
+static ListNode *reverseBetween(ListNode *head, int m, int n)
+{
+    if (head == nullptr)
+        return nullptr;
+    ListNode *pm_prev = nullptr;
+    ListNode *pm = nullptr;
+    int i;
+    if (m == 1)
+    {
+        pm = head;
+    }
+    else
+    {
+        pm_prev = head;
+        i = 1;
+        while (i < m - 1 && pm_prev->next != nullptr)
+        {
+            pm_prev = pm_prev->next;
+            i++;
+        }
+        if (i < m - 1)
+            return head;
+        pm = pm_prev->next;
+    }
+    ListNode *pn = pm;
+    i = m;
+    while (i < n && pn->next != nullptr)
+    {
+        pn = pn->next;
+        i++;
+    }
+    ListNode *pn_next = pn->next;
+    ListNode *prev = pn_next;
+    ListNode *curr = pm;
+    ListNode *next = pm->next;
+    while (curr != pn)
+    {
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+        next = curr->next;
+    }
+    curr->next = prev;
+    if (pm_prev == nullptr)
+    {
+        head = pn;
+    }
+    else
+    {
+        pm_prev->next = pn;
+    }
+    return head;
+}
+// static ListNode* reverseBetween_2(ListNode* head, int m, int n) {
+// Should just reverse each node while searching for pn
+// }
+
+// 83. Remove Duplicates from Sorted List
+// Given a sorted linked list, delete all duplicates such that each element
+// appear only once. For example, Given 1->1->2, return 1->2.
+// Given 1->1->2->3->3, return 1->2->3.
+static ListNode *deleteDuplicates(ListNode *head)
+{
+    ListNode *p = head;
+    while (p != nullptr)
+    {
+        if (p->next != nullptr && p->val == p->next->val)
+        {
+            ListNode *n = p->next;
+            p->next = n->next;
+            delete n;
+        }
+        else
+        {
+            p = p->next;
+        }
+    }
+    return head;
+}
+
+// 82. Remove Duplicates from Sorted List II
+// Given a sorted linked list, delete all nodes that have duplicate numbers,
+// leaving only distinct numbers from the original list. For example,
+// Given 1->2->3->3->4->4->5, return 1->2->5.
+// Given 1->1->1->2->3, return 2->3.
+static ListNode *deleteDuplicates2(ListNode *head)
+{
+    ListNode *prev = nullptr;
+    ListNode *p = head;
+    ListNode *next = nullptr;
+    while (p != nullptr)
+    {
+        if (p->next != nullptr && p->val == p->next->val)
+        {
+            int v = p->val;
+            while (p != nullptr && p->val == v)
+            {
+                next = p->next;
+                delete p;
+                p = next;
+            }
+            if (prev == nullptr)
+            {
+                head = p;
+            }
+            else
+            {
+                prev->next = p;
+            }
+        }
+        else
+        {
+            if (prev == nullptr)
+            {
+                head = p;
+            }
+            else
+            {
+                prev->next = p;
+            }
+            prev = p;
+            p = p->next;
+        }
+    }
+    return head;
+}
+
+// 86. Partition List
+// Given a linked list and a value x, partition it such that all nodes less than
+// x come before nodes greater than or equal to x. You should preserve the original
+// relative order of the nodes in each of the two partitions. For example,
+// Given 1->4->3->2->5->2 and x = 3,
+// return 1->2->2->4->3->5.
+static ListNode *partition(ListNode *head, int x)
+{
+    if (head == nullptr)
+        return head;
+    ListNode *prev = nullptr;
+    ListNode *p = head;
+    if (p->val < x)
+    {
+        prev = p;
+    }
+    while (p->next != nullptr)
+    {
+        if (p->next->val < x)
+        {
+            if (prev == p)
+            {
+                prev = p->next;
+                p = p->next;
+            }
+            else
+            {
+                ListNode *next = p->next;
+                p->next = next->next;
+                if (prev == nullptr)
+                {
+                    next->next = head;
+                    head = next;
+                    prev = next;
+                }
+                else
+                {
+                    next->next = prev->next;
+                    prev->next = next;
+                    prev = next;
+                }
+            }
+        }
+        else
+        {
+            p = p->next;
+        }
+    }
+    return head;
+}
+
+// 141. Linked List Cycle
+// Given a linked list, determine if it has a cycle in it.
+// Follow up: Can you solve it without using extra space?
+static bool hasCycle(ListNode *head)
+{
+    if (head == nullptr)
+        return false;
+    ListNode *p1 = head;
+    ListNode *p2 = head;
+    while (p2 != nullptr && p2->next != nullptr)
+    {
+        p1 = p1->next;
+        p2 = p2->next->next;
+        if (p1 == p2)
+            return true;
+    }
+    return false;
+}
+
+// 142. Linked List Cycle II
+// Given a linked list, return the node where the cycle begins. If there is no
+// cycle, return null. Note: Do not modify the linked list.
+// Follow up: Can you solve it without using extra space?
+static ListNode *detectCycle(ListNode *head)
+{
+    ListNode *p1 = head;
+    ListNode *p2 = head;
+    while (p2 != nullptr && p2->next != nullptr)
+    {
+        p1 = p1->next;
+        p2 = p2->next->next;
+        if (p1 == p2)
+            break;
+    }
+    if (p2 == nullptr || p2->next == nullptr)
+        return nullptr;
+    p1 = head;
+    while (p1 != p2)
+    {
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+    return p1;
 }
 
 // 133. Clone Graph
