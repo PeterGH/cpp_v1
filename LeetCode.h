@@ -4284,6 +4284,53 @@ static ListNode *reverseBetween(ListNode *head, int m, int n)
 // Should just reverse each node while searching for pn
 // }
 
+// 143. Reorder List
+// Given a singly linked list L: L0->L1->...->Ln-1->Ln, reorder it to:
+// L0->Ln->L1->Ln-1->L2->Ln-2->... You must do this in-place without altering
+// the nodes' values. For example, Given { 1,2,3,4 }, reorder it to { 1,4,2,3 }.
+static void reorderList(ListNode *head)
+{
+    if (head == nullptr)
+        return;
+    // Find the middle node
+    ListNode *first = head;
+    ListNode *second = head;
+    while (second != nullptr && second->next != nullptr)
+    {
+        first = first->next;
+        second = second->next->next;
+    }
+    // Break the list into two lists
+    ListNode *tail = first;
+    ListNode *head2 = tail->next;
+    tail->next = nullptr;
+    if (head2 == nullptr)
+        return;
+    // Reverse the second list
+    ListNode *prev = nullptr;
+    ListNode *middle = head2;
+    ListNode *next = middle->next;
+    while (next != nullptr)
+    {
+        middle->next = prev;
+        prev = middle;
+        middle = next;
+        next = middle->next;
+    }
+    middle->next = prev;
+    // Merge the two lists
+    head2 = middle;
+    first = head;
+    while (head2 != nullptr)
+    {
+        second = head2;
+        head2 = second->next;
+        second->next = first->next;
+        first->next = second;
+        first = second->next;
+    }
+}
+
 // 83. Remove Duplicates from Sorted List
 // Given a sorted linked list, delete all duplicates such that each element
 // appear only once. For example, Given 1->1->2, return 1->2.
@@ -4405,6 +4452,106 @@ static ListNode *partition(ListNode *head, int x)
     return head;
 }
 
+// 147. Insertion Sort List
+// Sort a linked list using insertion sort.
+static ListNode *insertionSortList(ListNode *head)
+{
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *p = head;
+    while (p->next != nullptr)
+    {
+        if (p->val <= p->next->val)
+        {
+            p = p->next;
+        }
+        else
+        {
+            ListNode *q = p->next;
+            p->next = q->next;
+            q->next = nullptr;
+            if (q->val < head->val)
+            {
+                q->next = head;
+                head = q;
+            }
+            else
+            {
+                ListNode *s = head;
+                while (s != p && s->next != nullptr && s->next->val <= q->val)
+                {
+                    s = s->next;
+                }
+                q->next = s->next;
+                s->next = q;
+            }
+        }
+    }
+    return head;
+}
+
+// 148. Sort List
+// Sort a linked list in O(nlogn) time using constant space complexity.
+static ListNode *sortList(ListNode *head)
+{
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    function<ListNode *(ListNode *, ListNode *)>
+        merge = [&](ListNode *l1, ListNode *l2) -> ListNode * {
+        if (l1 == nullptr)
+            return l2;
+        if (l2 == nullptr)
+            return l1;
+        ListNode *h = nullptr;
+        if (l1->val <= l2->val)
+        {
+            h = l1;
+            l1 = l1->next;
+        }
+        else
+        {
+            h = l2;
+            l2 = l2->next;
+        }
+        ListNode *p = h;
+        while (l1 != nullptr && l2 != nullptr)
+        {
+            if (l1->val <= l2->val)
+            {
+                p->next = l1;
+                l1 = l1->next;
+            }
+            else
+            {
+                p->next = l2;
+                l2 = l2->next;
+            }
+            p = p->next;
+        }
+        p->next = l1 == nullptr ? l2 : l1;
+        return h;
+    };
+    function<ListNode *(ListNode *)>
+        sort = [&](ListNode *h) -> ListNode * {
+        if (h == nullptr || h->next == nullptr)
+            return h;
+        ListNode *p = h;
+        ListNode *q = h->next;
+        while (q != nullptr && q->next != nullptr)
+        {
+            p = p->next;
+            q = q->next->next;
+        }
+        q = p->next;
+        p->next = nullptr;
+        p = sort(h);
+        q = sort(q);
+        p = merge(p, q);
+        return p;
+    };
+    return sort(head);
+}
+
 // 141. Linked List Cycle
 // Given a linked list, determine if it has a cycle in it.
 // Follow up: Can you solve it without using extra space?
@@ -4448,6 +4595,108 @@ static ListNode *detectCycle(ListNode *head)
         p2 = p2->next;
     }
     return p1;
+}
+
+// 160. Intersection of Two Linked Lists
+// Write a program to find the node at which the intersection of two singly
+// linked lists begins. For example, the following two linked lists:
+// A:        a1 -> a2
+//                   \
+//                    >
+//                     c1 -> c2 -> c3
+//                    >
+//                   /
+// B : b1 -> b2 -> b3
+// begin to intersect at node c1. Notes: If the two linked lists have no intersection
+// at all, return null. The linked lists must retain their original structure
+// after the function returns. You may assume there are no cycles anywhere in
+// the entire linked structure. Your code should preferably run in O(n) time and
+// use only O(1) memory.
+static ListNode *getIntersectionNode(ListNode *headA, ListNode *headB)
+{
+    function<int(ListNode *)>
+        getLength = [&](ListNode *h) -> int {
+        int i = 0;
+        while (h != nullptr)
+        {
+            i++;
+            h = h->next;
+        }
+        return i;
+    };
+    function<ListNode *(ListNode *, int)>
+        advance = [&](ListNode *h, int n) -> ListNode * {
+        while (n > 0)
+        {
+            h = h->next;
+            n--;
+        }
+        return h;
+    };
+    int la = getLength(headA);
+    int lb = getLength(headB);
+    ListNode *pa = headA;
+    ListNode *pb = headB;
+    if (la > lb)
+        pa = advance(pa, la - lb);
+    else
+        pb = advance(pb, lb - la);
+    while (pa != pb)
+    {
+        pa = pa->next;
+        pb = pb->next;
+    }
+    return pa;
+}
+static ListNode *getIntersectionNode2(ListNode *headA, ListNode *headB)
+{
+    ListNode *pa = headA;
+    ListNode *pb = headB;
+    while (pa != nullptr && pb != nullptr && pa != pb)
+    {
+        pa = pa->next;
+        pb = pb->next;
+        if (pa == pb)
+            break;
+        if (pa == nullptr)
+            pa = headB;
+        if (pb == nullptr)
+            pb = headA;
+    }
+    return pa == pb ? pa : nullptr;
+}
+
+struct TreeNode
+{
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+// The root-to-leaf path 1->2 represents the number 12.
+// The root-to-leaf path 1->3 represents the number 13.
+// Return the sum = 12 + 13 = 25.
+static int sumNumbers(TreeNode *root)
+{
+    function<void(TreeNode *, int, int &)>
+        sum = [&](TreeNode *node, int pathSum, int &totalSum) {
+            if (node == nullptr)
+                return;
+            pathSum = pathSum * 10 + node->val;
+            if (node->left == nullptr && node->right == nullptr)
+            {
+                totalSum += pathSum;
+                return;
+            }
+            if (node->left != nullptr)
+                sum(node->left, pathSum, totalSum);
+            if (node->right != nullptr)
+                sum(node->right, pathSum, totalSum);
+        };
+    int total = 0;
+    sum(root, 0, total);
+    return total;
 }
 
 // 133. Clone Graph
