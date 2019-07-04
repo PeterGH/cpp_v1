@@ -4699,6 +4699,315 @@ static int sumNumbers(TreeNode *root)
     return total;
 }
 
+// 94. Binary Tree Inorder Traversal
+// Given a binary tree, return the inorder traversal of its nodes' values.
+// For example : Given binary tree[1, null, 2, 3],
+//   1
+//    \
+//     2
+//    /
+//   3
+// return[1, 3, 2].
+// Note: Recursive solution is trivial, could you do it iteratively?
+static vector<int> inorderTraversal(TreeNode *root)
+{
+    stack<TreeNode *> path;
+    TreeNode *node = root;
+    vector<int> result;
+    while (!path.empty() || node != nullptr)
+    {
+        if (node != nullptr)
+        {
+            path.push(node);
+            node = node->left;
+        }
+        else
+        {
+            node = path.top();
+            path.pop();
+            result.push_back(node->val);
+            node = node->right;
+        }
+    }
+    return result;
+}
+static vector<int> inorderTraversal_2(TreeNode *root)
+{
+    if (root == nullptr)
+        return vector<int>{};
+    stack<TreeNode *> path;
+    TreeNode *lastVisited = nullptr;
+    path.push(root);
+    TreeNode *node;
+    vector<int> result;
+    while (!path.empty())
+    {
+        node = path.top();
+        if (node->right != nullptr && node->right == lastVisited)
+        {
+            path.pop();
+            lastVisited = node;
+        }
+        else if (node->left != nullptr && node->left != lastVisited)
+        {
+            path.push(node->left);
+            lastVisited = node;
+        }
+        else
+        {
+            result.push_back(node->val);
+            lastVisited = node;
+            if (node->right != nullptr)
+            {
+                path.push(node->right);
+            }
+            else
+            {
+                path.pop();
+            }
+        }
+    }
+    return result;
+}
+
+// 95. Unique Binary Search Trees II
+// Given an integer n, generate all structurally unique BST's (binary search
+// trees) that store values 1...n. For example, Given n = 3, your program should
+// return all 5 unique BST's shown below.
+//  1         3     3      2      1
+//   \       /     /      / \      \
+//    3     2     1      1   3      2
+//   /     /       \                 \
+//  2     1         2                 3
+static vector<TreeNode *> generateTrees(int n)
+{
+    if (n <= 0)
+        return vector<TreeNode *>{};
+    function<vector<vector<int>>(int, int)>
+        generateSerializations = [&](int i, int j) -> vector<vector<int>> {
+        vector<vector<int>> serializations;
+        if (i > j)
+        {
+            serializations.push_back(vector<int>{0});
+        }
+        else
+        {
+            for (int k = i; k <= j; k++)
+            {
+                vector<vector<int>> leftSerializations = generateSerializations(i, k - 1);
+                vector<vector<int>> rightSerializations = generateSerializations(k + 1, j);
+                for (size_t l = 0; l < leftSerializations.size(); l++)
+                {
+                    for (size_t r = 0; r < rightSerializations.size(); r++)
+                    {
+                        vector<int> serialization = {k};
+                        serialization.insert(serialization.end(), leftSerializations[l].begin(), leftSerializations[l].end());
+                        serialization.insert(serialization.end(), rightSerializations[r].begin(), rightSerializations[r].end());
+                        serializations.push_back(serialization);
+                    }
+                }
+            }
+        }
+        return serializations;
+    };
+    function<TreeNode *(size_t &, vector<int> &)>
+        generateTree = [&](size_t &i, vector<int> &serialization) -> TreeNode * {
+        if (i >= serialization.size())
+            return nullptr;
+        if (serialization[i] == 0)
+        {
+            i++;
+            return nullptr;
+        }
+        TreeNode *node = new TreeNode(serialization[i++]);
+        node->left = generateTree(i, serialization);
+        node->right = generateTree(i, serialization);
+        return node;
+    };
+    vector<vector<int>> serializations = generateSerializations(1, n);
+    vector<TreeNode *> trees;
+    for (size_t i = 0; i < serializations.size(); i++)
+    {
+        size_t j = 0;
+        trees.push_back(generateTree(j, serializations[i]));
+    }
+    return trees;
+}
+// incomplete
+static vector<TreeNode *> generateTrees_2(int n)
+{
+    if (n <= 0)
+        return vector<TreeNode *>{};
+    function<vector<TreeNode *>(int, int)>
+    solve = [&](int i, int j) -> vector<TreeNode *> {
+        if (i > j)
+        {
+            return vector<TreeNode *>{nullptr};
+        }
+        if (i == j)
+        {
+            return vector<TreeNode *>{new TreeNode(i)};
+        }
+        for (int k = i; k <= j; k++)
+        {
+            vector<TreeNode *> leftChildren = solve(i, k - 1);
+            vector<TreeNode *> rightChildren = solve(k + 1, j);
+        }
+        return vector<TreeNode *>{};
+    };
+    return solve(1, n);
+}
+
+// 96. Unique Binary Search Trees
+// Given n, how many structurally unique BST's (binary search trees) that store
+// values 1...n? For example, Given n = 3, there are a total of 5 unique BST's.
+// 1         3     3      2      1
+//  \       /     /      / \      \
+//   3     2     1      1   3      2
+//  /     /       \                 \
+// 2     1         2                 3
+static int numTrees(int n)
+{
+    if (n <= 0)
+        return 0;
+    map<pair<int, int>, int> solved;
+    function<int(int, int)>
+        count = [&](int i, int j) -> int {
+        if (i >= j)
+            return 1;
+        pair<int, int> p = make_pair(i, j);
+        if (solved.find(p) != solved.end())
+            return solved[p];
+        int c = 0;
+        for (int k = i; k <= j; k++)
+        {
+            c += (count(i, k - 1) * count(k + 1, j));
+        }
+        solved[p] = c;
+        return c;
+    };
+    return count(1, n);
+}
+
+// 98. Validate Binary Search Tree
+// Given a binary tree, determine if it is a valid binary search tree (BST).
+// Assume a BST is defined as follows: The left subtree of a node contains only
+// nodes with keys less than the node's key. The right subtree of a node contains
+// only nodes with keys greater than the node's key. Both the left and right
+// subtrees must also be binary search trees. Example 1:
+//   2
+//  / \
+// 1   3
+// Binary tree[2, 1, 3], return true.Example 2:
+//   1
+//  / \
+// 2   3
+// Binary tree[1, 2, 3], return false.
+static bool isValidBST(TreeNode *root)
+{
+    stack<TreeNode *> path;
+    TreeNode *node = root;
+    TreeNode *prev = nullptr;
+    while (!path.empty() || node != nullptr)
+    {
+        if (node != nullptr)
+        {
+            path.push(node);
+            node = node->left;
+        }
+        else
+        {
+            node = path.top();
+            path.pop();
+            if (prev != nullptr && prev->val >= node->val)
+                return false;
+            prev = node;
+            node = node->right;
+        }
+    }
+    return true;
+}
+
+// 100. Same Tree
+// Given two binary trees, write a function to check if they are equal or not.
+// Two binary trees are considered equal if they are structurally identical and
+// the nodes have the same value.
+static bool isSameTree(TreeNode *p, TreeNode *q)
+{
+    function<bool(TreeNode *, TreeNode *)>
+        isSame = [&](TreeNode *node1, TreeNode *node2) -> bool {
+        if (node1 == nullptr && node2 == nullptr)
+            return true;
+        if (node1 == nullptr || node2 == nullptr)
+            return false;
+        if (node1->val != node2->val)
+            return false;
+        if (!isSame(node1->left, node2->left))
+            return false;
+        return isSame(node1->right, node2->right);
+    };
+    return isSame(p, q);
+}
+
+// 101. Symmetric Tree
+// Given a binary tree, check whether it is a mirror of itself (ie, symmetric
+// around its center). For example, this binary tree [1, 2, 2, 3, 4, 4, 3] is
+// symmetric :
+//     1
+//    / \
+//   2   2
+//  / \ / \
+// 3  4 4  3
+// But the following[1, 2, 2, null, 3, null, 3] is not:
+//   1
+//  / \
+// 2   2
+//  \   \
+//   3   3
+// Note: Bonus points if you could solve it both recursively and iteratively.
+static bool isSymmetric(TreeNode *root)
+{
+    function<bool(TreeNode *, TreeNode *)>
+    isSame = [&](TreeNode *node1, TreeNode *node2) -> bool {
+        if (node1 == nullptr && node2 == nullptr)
+            return true;
+        if (node1 == nullptr || node2 == nullptr)
+            return false;
+        if (node1->val != node2->val)
+            return false;
+        if (!isSame(node1->left, node2->right))
+            return false;
+        return isSame(node1->right, node2->left);
+    };
+    return isSame(root, root);
+}
+static bool isSymmetric_2(TreeNode *root)
+{
+    deque<TreeNode *> deq;
+    deq.push_front(root);
+    deq.push_back(root);
+    TreeNode *node1;
+    TreeNode *node2;
+    while (!deq.empty())
+    {
+        node1 = deq.front();
+        deq.pop_front();
+        node2 = deq.back();
+        deq.pop_back();
+        if (node1 == nullptr && node2 == nullptr)
+            continue;
+        if (node1 == nullptr || node2 == nullptr)
+            return false;
+        if (node1->val != node2->val)
+            return false;
+        deq.push_front(node1->right);
+        deq.push_front(node1->left);
+        deq.push_back(node2->left);
+        deq.push_back(node2->right);
+    }
+    return true;
+}
+
 // 133. Clone Graph
 // Clone an undirected graph. Each node in the graph contains a label and a list
 // of its neighbors. OJ's undirected graph serialization: Nodes are labeled uniquely.
