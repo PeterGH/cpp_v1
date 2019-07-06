@@ -5,6 +5,7 @@
 #include <functional>
 #include <limits.h>
 #include <map>
+#include <queue>
 #include <set>
 #include <stack>
 #include <unordered_map>
@@ -4839,7 +4840,7 @@ static vector<TreeNode *> generateTrees_2(int n)
     if (n <= 0)
         return vector<TreeNode *>{};
     function<vector<TreeNode *>(int, int)>
-    solve = [&](int i, int j) -> vector<TreeNode *> {
+        solve = [&](int i, int j) -> vector<TreeNode *> {
         if (i > j)
         {
             return vector<TreeNode *>{nullptr};
@@ -4968,7 +4969,7 @@ static bool isSameTree(TreeNode *p, TreeNode *q)
 static bool isSymmetric(TreeNode *root)
 {
     function<bool(TreeNode *, TreeNode *)>
-    isSame = [&](TreeNode *node1, TreeNode *node2) -> bool {
+        isSame = [&](TreeNode *node1, TreeNode *node2) -> bool {
         if (node1 == nullptr && node2 == nullptr)
             return true;
         if (node1 == nullptr || node2 == nullptr)
@@ -5006,6 +5007,216 @@ static bool isSymmetric_2(TreeNode *root)
         deq.push_back(node2->right);
     }
     return true;
+}
+
+// 102. Binary Tree Level Order Traversal
+// Given a binary tree, return the level order traversal of its nodes' values.
+// (ie, from left to right, level by level). For example :
+// Given binary tree [3, 9, 20, null, null, 15, 7],
+//   3
+//  / \
+// 9  20
+//    / \
+//  15   7
+// return its level order traversal as :
+// [
+//  [3],
+//  [9, 20],
+//  [15, 7]
+// ]
+static vector<vector<int>> levelOrder(TreeNode *root)
+{
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int level = 0;
+    while (!q[0].empty() || !q[1].empty())
+    {
+        int currentLevel = level % 2;
+        int nextLevel = (level + 1) % 2;
+        vector<int> v;
+        TreeNode *node;
+        while (!q[currentLevel].empty())
+        {
+            node = q[currentLevel].front();
+            q[currentLevel].pop();
+            v.push_back(node->val);
+            if (node->left != nullptr)
+                q[nextLevel].push(node->left);
+            if (node->right != nullptr)
+                q[nextLevel].push(node->right);
+        }
+        result.push_back(v);
+        level++;
+    }
+    return result;
+}
+
+// 103. Binary Tree Zigzag Level Order Traversal
+// Given a binary tree, return the zigzag level order traversal of its nodes'
+// values. (ie, from left to right, then right to left for the next level and
+// alternate between). For example :
+// Given binary tree [3, 9, 20, null, null, 15, 7],
+//   3
+//  / \
+// 9  20
+//    / \
+//  15   7
+// return its zigzag level order traversal as :
+// [
+//  [3],
+//  [20, 9],
+//  [15, 7]
+// ]
+static vector<vector<int>> zigzagLevelOrder(TreeNode *root)
+{
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    deque<TreeNode *> q[2];
+    int level = 0;
+    bool leftToRight = true;
+    q[0].push_back(root);
+    while (!q[0].empty() || !q[1].empty())
+    {
+        int currentLevel = level % 2;
+        int nextLevel = (level + 1) % 2;
+        vector<int> v;
+        TreeNode *node;
+        if (leftToRight)
+        {
+            while (!q[currentLevel].empty())
+            {
+                node = q[currentLevel].front();
+                q[currentLevel].pop_front();
+                v.push_back(node->val);
+                if (node->left != nullptr)
+                    q[nextLevel].push_back(node->left);
+                if (node->right != nullptr)
+                    q[nextLevel].push_back(node->right);
+            }
+        }
+        else
+        {
+            while (!q[currentLevel].empty())
+            {
+                node = q[currentLevel].back();
+                q[currentLevel].pop_back();
+                v.push_back(node->val);
+                if (node->right != nullptr)
+                    q[nextLevel].push_front(node->right);
+                if (node->left != nullptr)
+                    q[nextLevel].push_front(node->left);
+            }
+        }
+        result.push_back(v);
+        level++;
+        leftToRight = !leftToRight;
+    }
+    return result;
+}
+
+// 104. Maximum Depth of Binary Tree
+// Given a binary tree, find its maximum depth. The maximum depth is the number
+// of nodes along the longest path from the root node down to the farthest leaf node.
+static int maxDepth(TreeNode *root)
+{
+    function<int(TreeNode *)>
+        depth = [&](TreeNode *node) -> int {
+        if (node == nullptr)
+            return 0;
+        if (node->left == nullptr && node->right == nullptr)
+            return 1;
+        return 1 + max(depth(node->left), depth(node->right));
+    };
+    return depth(root);
+}
+// This is wrong
+static int maxDepth_2(TreeNode *root)
+{
+    if (root == nullptr)
+        return 0;
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *node;
+    int depth = 1;
+    int maxDepth = 0;
+    while (!path.empty())
+    {
+        if (depth > maxDepth)
+        {
+            maxDepth = depth;
+        }
+        node = path.top();
+        path.pop();
+        if (node->right == nullptr && node->left == nullptr)
+        {
+            depth--;
+        }
+        else
+        {
+            depth++;
+            if (node->right != nullptr)
+                path.push(node->right);
+            if (node->left != nullptr)
+                path.push(node->left);
+        }
+    }
+    return maxDepth;
+}
+
+// 105. Construct Binary Tree from Preorder and Inorder Traversal
+// Given preorder and inorder traversal of a tree, construct the binary tree.
+// Note: You may assume that duplicates do not exist in the tree.
+static TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder)
+{
+    function<TreeNode *(int, int, int, int)>
+        build = [&](int i1, int i2, int j1, int j2) -> TreeNode * {
+        if (i1 > i2)
+            return nullptr;
+        TreeNode *node = new TreeNode(preorder[i1]);
+        int k;
+        for (k = j1; k <= j2; k++)
+        {
+            if (preorder[i1] == inorder[k])
+                break;
+        }
+        if (k <= j2)
+        {
+            node->left = build(i1 + 1, i1 + k - j1, j1, k - 1);
+            node->right = build(i1 + k - j1 + 1, i2, k + 1, j2);
+        }
+        return node;
+    };
+    return build(0, preorder.size() - 1, 0, inorder.size() - 1);
+}
+
+// 106. Construct Binary Tree from Inorder and Postorder Traversal
+// Given inorder and postorder traversal of a tree, construct the binary tree.
+// Note: You may assume that duplicates do not exist in the tree.
+static TreeNode *buildTreeInOrderPostOrder(vector<int> &inorder, vector<int> &postorder)
+{
+    function<TreeNode *(int, int, int, int)>
+    build = [&](int i1, int i2, int j1, int j2) -> TreeNode * {
+        if (j1 > j2)
+            return nullptr;
+        TreeNode *node = new TreeNode(postorder[j2]);
+        int k;
+        for (k = i1; k <= i2; k++)
+        {
+            if (inorder[k] == postorder[j2])
+                break;
+        }
+        if (k <= i2)
+        {
+            node->left = build(i1, k - 1, j1, j2 - i2 + k - 1);
+            node->right = build(k + 1, i2, j2 - i2 + k, j2 - 1);
+        }
+        return node;
+    };
+    return build(0, inorder.size() - 1, 0, postorder.size() - 1);
 }
 
 // 133. Clone Graph
