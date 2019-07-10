@@ -5009,6 +5009,34 @@ static bool isSymmetric_2(TreeNode *root)
     return true;
 }
 
+// 110. Balanced Binary Tree
+// Given a binary tree, determine if it is height-balanced. For this problem,
+// a height-balanced binary tree is defined as a binary tree in which the depth
+// of the two subtrees of every node never differ by more than 1.
+static bool isBalanced(TreeNode *root)
+{
+    function<bool(TreeNode *, int &)>
+        solve = [&](TreeNode *node, int &depth) -> bool {
+        if (node == nullptr)
+        {
+            depth = 0;
+            return true;
+        }
+        int leftDepth;
+        if (!solve(node->left, leftDepth))
+            return false;
+        int rightDepth;
+        if (!solve(node->right, rightDepth))
+            return false;
+        if (abs(leftDepth - rightDepth) > 1)
+            return false;
+        depth = 1 + max(leftDepth, rightDepth);
+        return true;
+    };
+    int depth;
+    return solve(root, depth);
+}
+
 // 102. Binary Tree Level Order Traversal
 // Given a binary tree, return the level order traversal of its nodes' values.
 // (ie, from left to right, level by level). For example :
@@ -5118,6 +5146,51 @@ static vector<vector<int>> zigzagLevelOrder(TreeNode *root)
     return result;
 }
 
+// 107. Binary Tree Level Order Traversal II
+// Given a binary tree, return the bottom-up level order traversal of its nodes'
+// values. (ie, from left to right, level by level from leaf to root). For example :
+// Given binary tree [3, 9, 20, null, null, 15, 7],
+//   3
+//  / \
+// 9  20
+//    / \
+//  15   7
+// return its bottom - up level order traversal as :
+// [
+//   [15, 7],
+//   [9, 20],
+//   [3]
+// ]
+static vector<vector<int>> levelOrderBottom(TreeNode *root)
+{
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int level = 0;
+    TreeNode *node;
+    while (!q[0].empty() || !q[1].empty())
+    {
+        int currentLevel = level % 2;
+        int nextLevel = (level + 1) % 2;
+        vector<int> v;
+        while (!q[currentLevel].empty())
+        {
+            node = q[currentLevel].front();
+            q[currentLevel].pop();
+            v.push_back(node->val);
+            if (node->left != nullptr)
+                q[nextLevel].push(node->left);
+            if (node->right != nullptr)
+                q[nextLevel].push(node->right);
+        }
+        result.insert(result.begin(), v);
+        level++;
+    }
+    return result;
+}
+
 // 104. Maximum Depth of Binary Tree
 // Given a binary tree, find its maximum depth. The maximum depth is the number
 // of nodes along the longest path from the root node down to the farthest leaf node.
@@ -5167,6 +5240,26 @@ static int maxDepth_2(TreeNode *root)
     return maxDepth;
 }
 
+// 111. Minimum Depth of Binary Tree
+// Given a binary tree, find its minimum depth. The minimum depth is the number
+// of nodes along the shortest path from the root node down to the nearest leaf node.
+static int minDepth(TreeNode *root)
+{
+    function<int(TreeNode *, int)>
+    solve = [&](TreeNode *node, int depth) -> int {
+        if (node == nullptr)
+            return depth;
+        depth++;
+        if (node->left == nullptr)
+            return solve(node->right, depth);
+        else if (node->right == nullptr)
+            return solve(node->left, depth);
+        else
+            return min(solve(node->left, depth), solve(node->right, depth));
+    };
+    return solve(root, 0);
+}
+
 // 105. Construct Binary Tree from Preorder and Inorder Traversal
 // Given preorder and inorder traversal of a tree, construct the binary tree.
 // Note: You may assume that duplicates do not exist in the tree.
@@ -5199,7 +5292,7 @@ static TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder)
 static TreeNode *buildTreeInOrderPostOrder(vector<int> &inorder, vector<int> &postorder)
 {
     function<TreeNode *(int, int, int, int)>
-    build = [&](int i1, int i2, int j1, int j2) -> TreeNode * {
+        build = [&](int i1, int i2, int j1, int j2) -> TreeNode * {
         if (j1 > j2)
             return nullptr;
         TreeNode *node = new TreeNode(postorder[j2]);
@@ -5217,6 +5310,77 @@ static TreeNode *buildTreeInOrderPostOrder(vector<int> &inorder, vector<int> &po
         return node;
     };
     return build(0, inorder.size() - 1, 0, postorder.size() - 1);
+}
+
+// 108. Convert Sorted Array to Binary Search Tree
+// Given an array where elements are sorted in ascending order, convert it to a
+// height balanced BST.
+static TreeNode *sortedArrayToBST(vector<int> &nums)
+{
+    function<TreeNode *(int, int)>
+        build = [&](int i, int j) -> TreeNode * {
+        if (i > j)
+            return nullptr;
+        int k = i + ((j - i) >> 1);
+        TreeNode *node = new TreeNode(nums[k]);
+        node->left = build(i, k - 1);
+        node->right = build(k + 1, j);
+        return node;
+    };
+    return build(0, nums.size() - 1);
+}
+
+// 109. Convert Sorted List to Binary Search Tree
+// Given a singly linked list where elements are sorted in ascending order,
+// convert it to a height balanced BST.
+static TreeNode *sortedListToBST(ListNode *head)
+{
+    if (head == nullptr)
+        return nullptr;
+    if (head->next == nullptr)
+        return new TreeNode(head->val);
+    function<TreeNode *(ListNode *, ListNode *)>
+        build = [&](ListNode *b, ListNode *e) -> TreeNode * {
+        if (b == nullptr || e == nullptr)
+            return nullptr;
+        TreeNode *node;
+        if (b == e)
+        {
+            node = new TreeNode(b->val);
+        }
+        else if (b->next == e)
+        {
+            node = new TreeNode(b->val);
+            node->right = new TreeNode(e->val);
+        }
+        else
+        {
+            ListNode *p = b;
+            ListNode *q = p->next->next;
+            while (q != e && q->next != e)
+            {
+                p = p->next;
+                q = q->next;
+                q = q->next;
+            }
+            node = new TreeNode(p->next->val);
+            node->left = build(b, p);
+            node->right = build(p->next->next, e);
+        }
+        return node;
+    };
+    ListNode *p = head;
+    ListNode *q = p->next;
+    while (q->next != nullptr && q->next->next != nullptr)
+    {
+        p = p->next;
+        q = q->next;
+        q = q->next;
+    }
+    TreeNode *node = new TreeNode(p->next->val);
+    node->left = build(head, p);
+    node->right = build(p->next->next, q->next == nullptr ? q : q->next);
+    return node;
 }
 
 // 133. Clone Graph
