@@ -4700,6 +4700,113 @@ static int sumNumbers(TreeNode *root)
     return total;
 }
 
+// 112. Path Sum
+// Given a binary tree and a sum, determine if the tree has a root-to-leaf path
+// such that adding up all the values along the path equals the given sum. For
+// example: Given the below binary tree and sum = 22,
+//       5
+//      / \
+//     4   8
+//    /   / \
+//   11  13  4
+//  / \       \
+// 7    2      1
+// return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+static bool hasPathSum(TreeNode *root, int sum)
+{
+    function<bool(TreeNode *, int)>
+        solve = [&](TreeNode *node, int parentSum) -> bool {
+        if (node == nullptr)
+            return false;
+        parentSum += node->val;
+        if (node->left == nullptr && node->right == nullptr)
+            return parentSum == sum;
+        return (node->left != nullptr && solve(node->left, parentSum)) || (node->right != nullptr && solve(node->right, parentSum));
+    };
+    return solve(root, 0);
+}
+
+// 113. Path Sum II
+// Given a binary tree and a sum, find all root-to-leaf paths where each path's
+// sum equals the given sum. For example: Given the below binary tree and sum = 22,
+//       5
+//      / \
+//     4   8
+//    /   / \
+//   11  13  4
+//  /  \    / \
+// 7    2  5   1
+// return
+// [
+//  [5, 4, 11, 2],
+//  [5, 8, 4, 5]
+// ]
+static vector<vector<int>> pathSum(TreeNode *root, int sum)
+{
+    vector<vector<int>> result;
+    function<void(TreeNode *, int, vector<int> &)>
+        solve = [&](TreeNode *node, int parentSum, vector<int> &parents) {
+            if (node == nullptr)
+                return;
+            parentSum += node->val;
+            parents.push_back(node->val);
+            if (node->left == nullptr && node->right == nullptr)
+            {
+                if (parentSum == sum)
+                {
+                    result.push_back(parents);
+                }
+            }
+            else
+            {
+                if (node->left != nullptr)
+                {
+                    vector<int> v(parents);
+                    solve(node->left, parentSum, v);
+                }
+                if (node->right != nullptr)
+                {
+                    vector<int> v(parents);
+                    solve(node->right, parentSum, v);
+                }
+            }
+        };
+    vector<int> c;
+    solve(root, 0, c);
+    return result;
+}
+
+// 144. Binary Tree Preorder Traversal
+// Given a binary tree, return the preorder traversal of its nodes' values.
+// For example: Given binary tree { 1,#,2,3 },
+//  1
+//   \
+//    2
+//   /
+//  3
+// return [1, 2, 3].
+// Note: Recursive solution is trivial, could you do it iteratively?
+static vector<int> preorderTraversal(TreeNode *root)
+{
+    vector<int> result;
+    if (root == nullptr)
+        return result;
+    stack<TreeNode *> stack;
+    stack.push(root);
+    TreeNode *node;
+    while (!stack.empty())
+    {
+        node = stack.top();
+        stack.pop();
+        result.push_back(node->val);
+        if (node->right != nullptr)
+            stack.push(node->right);
+        if (node->left != nullptr)
+            stack.push(node->left);
+    }
+    return result;
+}
+
 // 94. Binary Tree Inorder Traversal
 // Given a binary tree, return the inorder traversal of its nodes' values.
 // For example : Given binary tree[1, null, 2, 3],
@@ -4765,6 +4872,50 @@ static vector<int> inorderTraversal_2(TreeNode *root)
             else
             {
                 path.pop();
+            }
+        }
+    }
+    return result;
+}
+
+// 145. Binary Tree Postorder Traversal
+// Given a binary tree, return the postorder traversal of its nodes' values.
+// For example: Given binary tree { 1,#,2,3 },
+//  1
+//   \
+//    2
+//   /
+//  3
+// return [3, 2, 1].
+// Note: Recursive solution is trivial, could you do it iteratively?
+static vector<int> postorderTraversal(TreeNode *root)
+{
+    vector<int> result;
+    if (root == nullptr)
+        return result;
+    stack<TreeNode *> stack;
+    TreeNode *lastVisited = nullptr;
+    TreeNode *node = root;
+    while (!stack.empty() || node != nullptr)
+    {
+        if (node != nullptr)
+        {
+            stack.push(node);
+            lastVisited = node;
+            node = node->left;
+        }
+        else
+        {
+            TreeNode *top = stack.top();
+            if (top->right != nullptr && lastVisited != top->right)
+            {
+                node = top->right;
+            }
+            else
+            {
+                stack.pop();
+                result.push_back(top->val);
+                lastVisited = top;
             }
         }
     }
@@ -5191,6 +5342,51 @@ static vector<vector<int>> levelOrderBottom(TreeNode *root)
     return result;
 }
 
+// 199. Binary Tree Right Side View
+// Given a binary tree, imagine yourself standing on the right side of it,
+// return the values of the nodes you can see ordered from top to bottom.
+// For example: Given the following binary tree,
+//   1      <---
+//  / \
+// 2   3    <---
+//  \   \
+//   5   4  <---
+// You should return [1, 3, 4].
+static vector<int> rightSideView(TreeNode *root)
+{
+    vector<int> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int level = 0;
+    int current = 0;
+    int next = 0;
+    TreeNode *p;
+    while (!q[0].empty() || !q[1].empty())
+    {
+        current = level % 2;
+        next = (level + 1) % 2;
+        p = q[current].front();
+        result.push_back(p->val);
+        while (!q[current].empty())
+        {
+            p = q[current].front();
+            q[current].pop();
+            if (p->right != nullptr)
+            {
+                q[next].push(p->right);
+            }
+            if (p->left != nullptr)
+            {
+                q[next].push(p->left);
+            }
+        }
+        level++;
+    }
+    return result;
+}
+
 // 104. Maximum Depth of Binary Tree
 // Given a binary tree, find its maximum depth. The maximum depth is the number
 // of nodes along the longest path from the root node down to the farthest leaf node.
@@ -5246,7 +5442,7 @@ static int maxDepth_2(TreeNode *root)
 static int minDepth(TreeNode *root)
 {
     function<int(TreeNode *, int)>
-    solve = [&](TreeNode *node, int depth) -> int {
+        solve = [&](TreeNode *node, int depth) -> int {
         if (node == nullptr)
             return depth;
         depth++;
@@ -5381,6 +5577,196 @@ static TreeNode *sortedListToBST(ListNode *head)
     node->left = build(head, p);
     node->right = build(p->next->next, q->next == nullptr ? q : q->next);
     return node;
+}
+
+// 114. Flatten Binary Tree to Linked List
+// Given a binary tree, flatten it to a linked list in-place. For example, Given
+//     1
+//    / \
+//   2   5
+//  / \   \
+// 3   4   6
+// The flattened tree should look like:
+// 1
+//  \
+//   2
+//    \
+//     3
+//      \
+//       4
+//        \
+//         5
+//          \
+//           6
+static void flatten(TreeNode *root)
+{
+    function<TreeNode *(TreeNode *)>
+        solve = [&](TreeNode *node) -> TreeNode * {
+        if (node == nullptr)
+            return nullptr;
+        if (node->left == nullptr && node->right == nullptr)
+        {
+            return node;
+        }
+        TreeNode *leftTail = solve(node->left);
+        TreeNode *rightTail = solve(node->right);
+        if (leftTail != nullptr)
+        {
+            leftTail->right = node->right;
+            node->right = node->left;
+            node->left = nullptr;
+        }
+        return rightTail == nullptr ? leftTail : rightTail;
+    };
+    solve(root);
+}
+
+// 173. Binary Search Tree Iterator
+// Implement an iterator over a binary search tree (BST). Your iterator will be
+// initialized with the root node of a BST. Calling next() will return the next
+// smallest number in the BST. Note: next() and hasNext() should run in average
+// O(1) time and uses O(h) memory, where h is the height of the tree.
+class BSTIterator
+{
+private:
+    stack<TreeNode *> _stack;
+    TreeNode *_node;
+
+public:
+    BSTIterator(TreeNode *root)
+    {
+        _node = root;
+    }
+
+    /** @return whether we have a next smallest number */
+    bool hasNext()
+    {
+        return !_stack.empty() || _node != nullptr;
+    }
+
+    /** @return the next smallest number */
+    int next()
+    {
+        int val;
+        while (hasNext())
+        {
+            if (_node != nullptr)
+            {
+                _stack.push(_node);
+                _node = _node->left;
+            }
+            else
+            {
+                _node = _stack.top();
+                _stack.pop();
+                val = _node->val;
+                _node = _node->right;
+                break;
+            }
+        }
+        return val;
+    }
+};
+
+struct TreeLinkNode
+{
+    TreeLinkNode *left;
+    TreeLinkNode *right;
+    TreeLinkNode *next;
+};
+
+// 116. Populating Next Right Pointers in Each Node
+// Given a binary tree Populate each next pointer to point to its next right node.
+// If there is no next right node, the next pointer should be set to NULL. Initially,
+// all next pointers are set to NULL. Note: You may only use constant extra space.
+// You may assume that it is a perfect binary tree (ie, all leaves are at the same
+// level, and every parent has two children).
+// For example, Given the following perfect binary tree,
+//      1
+//    /   \
+//   2     3
+//  / \   / \
+// 4   5 6   7
+// After calling your function, the tree should look like :
+//      1->NULL
+//    /   \
+//   2 ->  3->NULL
+//  / \   / \
+// 4-> 5->6->7->NULL
+static void connect(TreeLinkNode *root)
+{
+    TreeLinkNode *leftMost = root;
+    while (leftMost != nullptr && leftMost->left != nullptr)
+    {
+        TreeLinkNode *node = leftMost;
+        leftMost = leftMost->left;
+        TreeLinkNode *left = nullptr;
+        while (node != nullptr)
+        {
+            if (left != nullptr)
+            {
+                left->next = node->left;
+            }
+            node->left->next = node->right;
+            left = node->right;
+            node = node->next;
+        }
+    }
+}
+
+// 117. Populating Next Right Pointers in Each Node II
+// Follow up for problem "Populating Next Right Pointers in Each Node". What if
+// the given tree could be any binarytree ? Would your previous solution still
+// work? Note: You may only use constant extra space. For example, Given the
+// following binary tree,
+//     1
+//    / \
+//   2    3
+//  / \    \
+// 4   5    7
+// After calling your function, the tree should look like :
+//     1->NULL
+//    / \
+//   2 -> 3->NULL
+//  / \    \
+// 4-> 5 -> 7->NULL
+static void connect2(TreeLinkNode *root)
+{
+    TreeLinkNode *leftMost = root;
+    while (leftMost != nullptr)
+    {
+        TreeLinkNode *node = leftMost;
+        leftMost = nullptr;
+        TreeLinkNode *left = nullptr;
+        while (node != nullptr)
+        {
+            if (node->left != nullptr)
+            {
+                if (leftMost == nullptr)
+                {
+                    leftMost = node->left;
+                }
+                if (left != nullptr)
+                {
+                    left->next = node->left;
+                }
+                left = node->left;
+            }
+            if (node->right != nullptr)
+            {
+                if (leftMost == nullptr)
+                {
+                    leftMost = node->right;
+                }
+                if (left != nullptr)
+                {
+                    left->next = node->right;
+                }
+                left = node->right;
+            }
+            node = node->next;
+        }
+    }
 }
 
 // 133. Clone Graph
