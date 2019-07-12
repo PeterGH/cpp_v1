@@ -5050,11 +5050,12 @@ static int numTrees(int n)
 //   2
 //  / \
 // 1   3
-// Binary tree[2, 1, 3], return true.Example 2:
+// Binary tree [2, 1, 3], return true. Example 2:
 //   1
 //  / \
 // 2   3
-// Binary tree[1, 2, 3], return false.
+// Binary tree [1, 2, 3], return false.
+// In-order traverse and check whether values are increasing.
 static bool isValidBST(TreeNode *root)
 {
     stack<TreeNode *> path;
@@ -5064,20 +5065,127 @@ static bool isValidBST(TreeNode *root)
     {
         if (node != nullptr)
         {
+            // Move left as much as possible
             path.push(node);
             node = node->left;
         }
         else
         {
+            // == case 1 ========
+            // node is null and is the left child of the top of stack
+            //   top
+            //   / \
+            // null ...
+            // == case 2 ========
+            // node is null and is the right child of the last visited node
+            //     top
+            //     /
+            //    o
+            //   / \
+            // null ...
+            //       \
+            //        o <-- last visited
+            //       / \
+            //    null null
+            // In both cases, left subtree is done, the top is the one to visit
             node = path.top();
+            // Pop the top because no need to visit it again
             path.pop();
+            // Visit current node
             if (prev != nullptr && prev->val >= node->val)
                 return false;
             prev = node;
+            // Move right
             node = node->right;
         }
     }
     return true;
+}
+static bool isValidBST2(TreeNode *root)
+{
+    if (root == nullptr)
+        return true;
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *node = root;
+    TreeNode *prev = nullptr;
+    TreeNode *lastVisited = nullptr;
+    while (!path.empty())
+    {
+        node = path.top();
+        if (node->right != nullptr && node->right == lastVisited)
+        {
+            lastVisited = node;
+            path.pop();
+        }
+        else if (node->left != nullptr && node->left != lastVisited)
+        {
+            lastVisited = node;
+            path.push(node->left);
+        }
+        else
+        {
+            if (prev != nullptr && prev->val >= node->val)
+                return false;
+            prev = node;
+            lastVisited = node;
+            if (node->right != nullptr)
+                path.push(node->right);
+            else
+                path.pop();
+        }
+    }
+    return true;
+}
+static bool isValidBST3(TreeNode *root)
+{
+    function<bool(TreeNode *, int &, int &)>
+        verify = [&](TreeNode *node, int &min, int &max) -> bool {
+        if (node == nullptr)
+            return true;
+        if (node->left == nullptr && node->right == nullptr)
+        {
+            min = node->val;
+            max = node->val;
+            return true;
+        }
+
+        if (node->left == nullptr)
+        {
+            min = node->val;
+        }
+        else
+        {
+            int leftMin;
+            int leftMax;
+            if (!verify(node->left, leftMin, leftMax))
+                return false;
+            if (leftMax >= node->val)
+                return false;
+            min = leftMin;
+        }
+
+        if (node->right == nullptr)
+        {
+            max = node->val;
+        }
+        else
+        {
+            int rightMin;
+            int rightMax;
+            if (!verify(node->right, rightMin, rightMax))
+                return false;
+            if (rightMin <= node->val)
+                return false;
+            max = rightMax;
+        }
+
+        return true;
+    };
+
+    int min;
+    int max;
+    return verify(root, min, max);
 }
 
 // 100. Same Tree
