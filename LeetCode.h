@@ -160,6 +160,9 @@ static vector<pair<int, int>> unsortedMultiSolutions2(vector<int> &nums, int tar
         }
     }
 
+    // m*log(m) + n*log(m) = (m + n)*log(m)
+    // m*log(n) + n*log(n) = (m + n)*log(n)
+    // Should sort the shorter range
     sort(valueIndex.begin() + longRangeBegin, valueIndex.begin() + longRangeEnd + 1);
 
     // find the first element in valueIndex[b..e] equal to v
@@ -444,7 +447,8 @@ static void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
             i++;
         }
     }
-    while (it1 != nums1.end()) // Why need this?
+    // Remove empty positions in nums1
+    while (it1 != nums1.end())
         it1 = nums1.erase(it1);
 }
 
@@ -639,6 +643,8 @@ static bool search2(vector<int> &nums, int target)
             if (nums[m] < nums[nums.size() - 1])
                 return search(l, m - 1);
         }
+        // nums[l] == nums[m] == nums[r]
+        // target could be either in [l, m) or (m, r]
         if (search(l, m - 1))
             return true;
         return search(m + 1, r);
