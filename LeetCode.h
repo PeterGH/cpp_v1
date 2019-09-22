@@ -1643,6 +1643,8 @@ static void rotate(vector<int> &nums, int k)
     swapRange(k, nums.size() - 1);
 }
 // This one works only if n and k are co-prime
+// 0, k, 2k, 3k, ..., (n-1)k, nk
+// 0, k % n, 2k % n, 3k % n, ..., (n-1)k % n, nk % n = 0
 static void rotate2(vector<int> &nums, int k)
 {
     if (nums.empty())
@@ -2903,6 +2905,9 @@ static vector<string> restoreIpAddresses(string s)
 // version three", it is the fifth second-level revision of the second first-level
 // revision. Here is an example of version numbers ordering:
 // 0.1 < 1.1 < 1.2 < 13.37
+// Another option is to compare characters directly:
+// 0.1 < 1.1 because 0 < 1 at index 0
+// 0.3.0 < 0.12.1 because . < 2 at index 3
 static int compareVersion(string version1, string version2)
 {
     function<int(const string &, size_t &)>
@@ -2939,6 +2944,45 @@ static int compareVersion(string version1, string version2)
             return 1;
     }
     return 0;
+}
+
+// Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and s2.
+// For example,
+// s1 = "aabcc",
+// s2 = "dbbca",
+// When s3 = "aadbbcbcac", return true.
+// When s3 = "aadbbbaccc", return false.
+//   j 0 1 2
+// i 0
+//   1
+//   2
+// Let M[i][j] indicates whether s3[0..i+j-1] is interleave of s1[0..i-1] and s2[0..j-1]
+// M[i][j] =   s1[i-1] == s3[i+j-1] && M[i-1][j]
+//          || s2[j-1] == s3[i+j-1] && M[i][j-1]
+static bool IsInterLeave(const string &s1, const string &s2, const string &s3)
+{
+    if (s3.length() != s1.length() + s2.length())
+        return false;
+    if (s3.length() == 0)
+        return true;
+
+    vector<bool> match(1 + s2.size(), true);
+    for (size_t j = 1; j <= s2.size(); j++)
+    {
+        match[j] = match[j - 1] && s2[j - 1] == s3[j - 1];
+    }
+
+    for (size_t i = 1; i <= s1.size(); i++)
+    {
+        match[0] = match[0] && s1[i - 1] == s3[i - 1];
+        for (size_t j = 1; j <= s2.size(); j++)
+        {
+            match[j] = (match[j] && s1[i - 1] == s3[i + j - 1])
+                    || (match[j - 1] && s2[j - 1] == s3[i + j - 1]);
+        }
+    }
+
+    return match[s2.size()];
 }
 
 // 9. Palindrome Number
@@ -3408,154 +3452,153 @@ static bool isHappy(int n)
     return x == 1;
 }
 
-class SpiralMatrix
+namespace SpiralMatrix
 {
-public:
-    // 54. Spiral Matrix
-    // Given a matrix of m x n elements (m rows, n columns), return all
-    // elements of the matrix in spiral order. For example,
-    // Given the following matrix :
-    // [
-    //   [1, 2, 3],
-    //   [4, 5, 6],
-    //   [7, 8, 9]
-    // ]
-    // You should return [1, 2, 3, 6, 9, 8, 7, 4, 5].
-    static vector<int> spiralOrder(vector<vector<int>> &matrix)
-    {
-        vector<int> result = vector<int>{};
-        if (matrix.empty() || matrix[0].empty())
-            return result;
-        int h = matrix[0].size();
-        int v = matrix.size();
-        int i = 0;
-        int j = -1;
-        int k;
-        while (h > 0 && v > 0)
-        {
-            for (k = j + 1; k <= j + h; k++)
-                result.push_back(matrix[i][k]);
-            v--;
-            j = k - 1;
-            if (v == 0)
-                break;
-            for (k = i + 1; k <= i + v; k++)
-                result.push_back(matrix[k][j]);
-            h--;
-            i = k - 1;
-            if (h == 0)
-                break;
-            for (k = j - 1; k >= j - h; k--)
-                result.push_back(matrix[i][k]);
-            v--;
-            j = k + 1;
-            if (v == 0)
-                break;
-            for (k = i - 1; k >= i - v; k--)
-                result.push_back(matrix[k][j]);
-            h--;
-            i = k + 1;
-            if (h == 0)
-                break;
-        }
+// 54. Spiral Matrix
+// Given a matrix of m x n elements (m rows, n columns), return all
+// elements of the matrix in spiral order. For example,
+// Given the following matrix :
+// [
+//   [1, 2, 3],
+//   [4, 5, 6],
+//   [7, 8, 9]
+// ]
+// You should return [1, 2, 3, 6, 9, 8, 7, 4, 5].
+static vector<int> spiralOrder(vector<vector<int>> &matrix)
+{
+    vector<int> result = vector<int>{};
+    if (matrix.empty() || matrix[0].empty())
         return result;
-    }
-    static vector<int> spiralOrder2(vector<vector<int>> &matrix)
+    int h = matrix[0].size();
+    int v = matrix.size();
+    int i = 0;
+    int j = -1;
+    int k;
+    while (h > 0 && v > 0)
     {
-        vector<int> result = vector<int>{};
-        if (matrix.empty() || matrix[0].empty())
-            return result;
-        function<void(int, int, int, int)>
-            solve = [&](int i, int j, int m, int n) {
-                for (int k = 0; k < n; k++)
-                    result.push_back(matrix[i][j + k]);
-                if (m == 1)
-                    return;
-                for (int k = 1; k < m; k++)
-                    result.push_back(matrix[i + k][j + n - 1]);
-                if (n == 1)
-                    return;
-                for (int k = 1; k < n; k++)
-                    result.push_back(matrix[i + m - 1][j + n - 1 - k]);
-                for (int k = 1; k < m - 1; k++)
-                    result.push_back(matrix[i + m - 1 - k][j]);
-            };
-        int m = matrix.size();
-        int n = matrix[0].size();
-        int i = 0;
-        int j = 0;
-        while (m > 0 && n > 0)
-        {
-            solve(i, j, m, n);
-            i++;
-            j++;
-            m -= 2;
-            n -= 2;
-        }
-        return result;
+        for (k = j + 1; k <= j + h; k++)
+            result.push_back(matrix[i][k]);
+        v--;
+        j = k - 1;
+        if (v == 0)
+            break;
+        for (k = i + 1; k <= i + v; k++)
+            result.push_back(matrix[k][j]);
+        h--;
+        i = k - 1;
+        if (h == 0)
+            break;
+        for (k = j - 1; k >= j - h; k--)
+            result.push_back(matrix[i][k]);
+        v--;
+        j = k + 1;
+        if (v == 0)
+            break;
+        for (k = i - 1; k >= i - v; k--)
+            result.push_back(matrix[k][j]);
+        h--;
+        i = k + 1;
+        if (h == 0)
+            break;
     }
+    return result;
+}
+static vector<int> spiralOrder2(vector<vector<int>> &matrix)
+{
+    vector<int> result = vector<int>{};
+    if (matrix.empty() || matrix[0].empty())
+        return result;
+    function<void(int, int, int, int)>
+        solve = [&](int i, int j, int m, int n) {
+            for (int k = 0; k < n; k++)
+                result.push_back(matrix[i][j + k]);
+            if (m == 1)
+                return;
+            for (int k = 1; k < m; k++)
+                result.push_back(matrix[i + k][j + n - 1]);
+            if (n == 1)
+                return;
+            for (int k = 1; k < n; k++)
+                result.push_back(matrix[i + m - 1][j + n - 1 - k]);
+            for (int k = 1; k < m - 1; k++)
+                result.push_back(matrix[i + m - 1 - k][j]);
+        };
+    int m = matrix.size();
+    int n = matrix[0].size();
+    int i = 0;
+    int j = 0;
+    while (m > 0 && n > 0)
+    {
+        solve(i, j, m, n);
+        i++;
+        j++;
+        m -= 2;
+        n -= 2;
+    }
+    return result;
+}
 
-    // 59. Spiral Matrix II
-    // Given an integer n, generate a square matrix filled with elements
-    // from 1 to n^2 in spiral order.
-    // For example,
-    // Given n = 3,
-    // You should return the following matrix :
-    // [
-    //   [1, 2, 3],
-    //   [8, 9, 4],
-    //   [7, 6, 5]
-    // ]
-    // @grid
-    static vector<vector<int>> generateMatrix(int n)
+// 59. Spiral Matrix II
+// Given an integer n, generate a square matrix filled with elements
+// from 1 to n^2 in spiral order.
+// For example,
+// Given n = 3,
+// You should return the following matrix :
+// [
+//   [1, 2, 3],
+//   [8, 9, 4],
+//   [7, 6, 5]
+// ]
+// @grid
+static vector<vector<int>> generateMatrix(int n)
+{
+    if (n <= 0)
+        return vector<vector<int>>{};
+    vector<vector<int>> matrix(n, vector<int>(n, 0));
+    int h = n; // horizontal steps
+    int v = n; // vertical steps
+    int i = 0;
+    int j = -1;
+    int e = 1; // element value
+    int k;
+    while (h >= 0 || v >= 0)
     {
-        if (n <= 0)
-            return vector<vector<int>>{};
-        vector<vector<int>> matrix(n, vector<int>(n, 0));
-        int h = n; // horizontal steps
-        int v = n; // vertical steps
-        int i = 0;
-        int j = -1;
-        int e = 1; // element value
-        int k;
-        while (h >= 0 || v >= 0)
+        for (k = j + 1; k <= j + h; k++)
         {
-            for (k = j + 1; k <= j + h; k++)
-            {
-                matrix[i][k] = e++;
-            }
-            v--;
-            j = k - 1;
-            if (v == 0)
-                break;
-            for (k = i + 1; k <= i + v; k++)
-            {
-                matrix[k][j] = e++;
-            }
-            h--;
-            i = k - 1;
-            if (h == 0)
-                break;
-            for (k = j - 1; k >= j - h; k--)
-            {
-                matrix[i][k] = e++;
-            }
-            v--;
-            j = k + 1;
-            if (v == 0)
-                break;
-            for (k = i - 1; k >= i - v; k--)
-            {
-                matrix[k][j] = e++;
-            }
-            h--;
-            i = k + 1;
-            if (h == 0)
-                break;
+            matrix[i][k] = e++;
         }
-        return matrix;
+        v--;
+        j = k - 1;
+        if (v == 0)
+            break;
+        for (k = i + 1; k <= i + v; k++)
+        {
+            matrix[k][j] = e++;
+        }
+        h--;
+        i = k - 1;
+        if (h == 0)
+            break;
+        for (k = j - 1; k >= j - h; k--)
+        {
+            matrix[i][k] = e++;
+        }
+        v--;
+        j = k + 1;
+        if (v == 0)
+            break;
+        for (k = i - 1; k >= i - v; k--)
+        {
+            matrix[k][j] = e++;
+        }
+        h--;
+        i = k + 1;
+        if (h == 0)
+            break;
     }
-};
+    return matrix;
+}
+} // namespace SpiralMatrix
 
 // 62. Unique Paths
 // A robot is located at the top-left corner of a m x n grid (marked 'Start'
@@ -3702,7 +3745,7 @@ static bool searchMatrix(vector<vector<int>> &matrix, int target)
 // word = "ABCCED", ->returns true,
 // word = "SEE", ->returns true,
 // word = "ABCB", ->returns false.
-// @grid, @bfs
+// @grid, @dfs
 static bool exist(vector<vector<char>> &board, string word)
 {
     if (board.size() == 0 || board[0].size() == 0)
@@ -4299,7 +4342,9 @@ static void reorderList(ListNode *head)
 {
     if (head == nullptr)
         return;
-    // Find the middle node
+    // Find the middle node. When the while-loop stops, pointer first
+    // is the median node if there are odd number of nodes, or the higher
+    // median node if there are even number of nodes.
     ListNode *first = head;
     ListNode *second = head;
     while (second != nullptr && second->next != nullptr)
@@ -4681,6 +4726,104 @@ struct TreeNode
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
+static void Print(TreeNode *node)
+{
+    function<void(stringstream *, int, char)>
+        printChar = [&](stringstream *s, int n, char c) {
+            if (n > 0)
+            {
+                string chars(n, c);
+                *s << chars;
+            }
+        };
+
+    function<void(TreeNode *, unsigned int, int &, int &, vector<stringstream *> &)>
+        toString = [&](
+                       TreeNode *n,               // current node to print
+                       unsigned int y,            // current node level
+                       int &x,                    // x-axis position of root of last printed sub tree
+                       int &r,                    // x-axis position of right-most boundary of last printed sub tree
+                       vector<stringstream *> &ss // output streams, one per level
+                   ) {
+            if (n == nullptr)
+                return;
+
+            if (ss.size() <= y)
+                ss.push_back(new stringstream());
+
+            // print left tree, update x and r accordingly
+            toString(n->left, y + 1, x, r, ss);
+
+            stringstream *s = ss[y];
+
+            int l = (int)(s->str().length());
+            if (l < x)
+                printChar(s, x - l, ' ');
+
+            if (n->left != nullptr && r > x)
+            {
+                *s << '/';
+                printChar(s, r - x - 1, '-');
+            }
+
+            string nc = to_string(n->val);
+            *s << nc;
+
+            x = (r + (nc.length() >> 1));
+            r = r + nc.length();
+
+            int rx = r;
+            int rr = r;
+            toString(n->right, y + 1, rx, rr, ss);
+
+            if (n->right != nullptr && rx >= r)
+            {
+                printChar(s, rx - r - 1, '-');
+                *s << '\\';
+            }
+
+            // Update the right most boundary
+            r = rr;
+        };
+
+    vector<stringstream *> streams;
+    int x = 0;
+    int r = 0;
+    toString(node, 0, x, r, streams);
+
+    for_each(streams.begin(), streams.end(), [&](stringstream *s) {
+        cout << s->str() << endl;
+        delete s;
+    });
+}
+
+static void DeleteTree(TreeNode *root)
+{
+    if (root == nullptr)
+        return;
+    if (root->left != nullptr)
+    {
+        DeleteTree(root->left);
+        root->left = nullptr;
+    }
+    if (root->right != nullptr)
+    {
+        DeleteTree(root->right);
+        root->right = nullptr;
+    }
+    delete root;
+}
+
+static TreeNode *Clone(TreeNode *root)
+{
+    if (root == nullptr)
+        return nullptr;
+    TreeNode *clone = new TreeNode(root->val);
+    clone->left = Clone(root->left);
+    clone->right = Clone(root->right);
+    return clone;
+}
+
 // The root-to-leaf path 1->2 represents the number 12.
 // The root-to-leaf path 1->3 represents the number 13.
 // Return the sum = 12 + 13 = 25.
@@ -4869,6 +5012,7 @@ static vector<int> inorderTraversal_2(TreeNode *root)
         }
         else
         {
+            // left is null or left is just visited
             result.push_back(node->val);
             lastVisited = node;
             if (node->right != nullptr)
@@ -5046,6 +5190,22 @@ static int numTrees(int n)
     };
     return count(1, n);
 }
+// c[n] = c[0]*c[n-1] + c[1]*c[n-2] + ... + c[n-2]*c[1] + c[n-1]*c[0]
+static int numTrees2(int n)
+{
+    if (n <= 0)
+        return 0;
+    vector<int> count(n + 1, 0);
+    count[0] = 1;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            count[i] += count[j] * count[i - j - 1];
+        }
+    }
+    return count[n];
+}
 
 // 98. Validate Binary Search Tree
 // Given a binary tree, determine if it is a valid binary search tree (BST).
@@ -5090,7 +5250,7 @@ static bool isValidBST(TreeNode *root)
             //   / \
             // null ...
             //       \
-            //        o <-- last visited
+            //        o <-- last visited (prev)
             //       / \
             //    null null
             // In both cases, left subtree is done, the top is the one to visit
