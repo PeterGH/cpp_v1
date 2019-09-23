@@ -17,6 +17,21 @@ namespace Test
 {
 namespace LeetCode
 {
+static bool Equal(const map<char, int> &m1, const map<char, int> &m2)
+{
+    if (m1.size() != m2.size())
+        return false;
+    for (map<char, int>::const_iterator it1 = m1.begin(); it1 != m1.end(); it1++)
+    {
+        map<char, int>::const_iterator it2 = m2.find(it1->first);
+        if (it2 == m2.end())
+            return false;
+        if (it2->second != it1->second)
+            return false;
+    }
+    return true;
+}
+
 namespace TwoSum
 {
 // 1. Two Sum
@@ -450,6 +465,64 @@ static void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
     // Remove empty positions in nums1
     while (it1 != nums1.end())
         it1 = nums1.erase(it1);
+}
+static void MergeSortedArrays(int A[], int m, int B[], int n)
+{
+    if (A == nullptr || m < 0 || B == nullptr || n < 0)
+        return;
+    int i = 0;
+    int j = 0;
+    while (i < m && j < n)
+    {
+        if (A[i] <= B[j])
+            i++;
+        else
+        {
+            for (int k = m; k > i; k--)
+            {
+                A[k] = A[k - 1];
+            }
+            A[i] = B[j];
+            m++;
+            i++;
+            j++;
+        }
+    }
+    if (j < n)
+    {
+        for (int k = j; k < n; k++)
+        {
+            A[i] = B[k];
+            i++;
+        }
+    }
+}
+static void MergeSortedArrays2(int A[], int m, int B[], int n)
+{
+    if (A == nullptr || m < 0 || B == nullptr || n < 0)
+        return;
+    int i = m - 1;
+    int j = n - 1;
+    while (i >= 0 && j >= 0)
+    {
+        if (A[i] > B[j])
+        {
+            A[i + j + 1] = A[i];
+            i--;
+        }
+        else
+        {
+            A[i + j + 1] = B[j];
+            j--;
+        }
+    }
+    if (j >= 0)
+    {
+        for (int p = j; p >= 0; p--)
+        {
+            A[p] = B[p];
+        }
+    }
 }
 
 // 26. Remove Duplicates from Sorted Array
@@ -2588,6 +2661,207 @@ static void reverseWords(string &s)
     }
 }
 
+// Given a string s1, we may represent it as a binary tree by partitioning it to two non-empty substrings recursively.
+// Below is one possible representation of s1 = "great":
+//     great
+//    /    \
+//   gr    eat
+//  / \    /  \
+// g   r  e   at
+//            / \
+//           a   t
+// To scramble the string, we may choose any non-leaf node and swap its two children.
+// For example, if we choose the node "gr" and swap its two children, it produces a scrambled string "rgeat".
+//     rgeat
+//    /    \
+//   rg    eat
+//  / \    /  \
+// r   g  e   at
+//            / \
+//           a   t
+// We say that "rgeat" is a scrambled string of "great".
+// Similarly, if we continue to swap the children of nodes "eat" and "at", it produces a scrambled string "rgtae".
+//     rgtae
+//    /    \
+//   rg    tae
+//  / \    /  \
+// r   g  ta   e
+//       / \
+//      t   a
+// We say that "rgtae" is a scrambled string of "great".
+// Given two strings s1 and s2 of the same length, determine if s2 is a scrambled string of s1.
+static bool IsScramble(const string &s1, const string &s2)
+{
+    if (s1.length() != s2.length())
+        return false;
+    if (s1.length() == 0)
+        return true;
+
+    int len = s1.length();
+
+    map<char, int> m1;
+    map<char, int> m2;
+
+    for (int i = 0; i < len; i++)
+    {
+        if (m1.find(s1[i]) == m1.end())
+            m1[s1[i]] = 1;
+        else
+            m1[s1[i]] += 1;
+        if (m2.find(s2[i]) == m2.end())
+            m2[s2[i]] = 1;
+        else
+            m2[s2[i]] += 1;
+        // TODO: do we still need further check once two maps are equal?
+        if (Equal(m1, m2))
+        {
+            // s1[0..i] and s2[0..i] may be scramble
+            if (i == 0 || i == 1)
+            {
+                // s1[0] and s2[0], or s1[0..1] and s2[0..1] are scramble
+                if (i == len - 1 || IsScramble(s1.substr(i + 1, len - 1 - i), s2.substr(i + 1, len - 1 - i)))
+                    return true;
+            }
+            else if (i < len - 1)
+            {
+                if (IsScramble(s1.substr(0, i + 1), s2.substr(0, i + 1)) && IsScramble(s1.substr(i + 1, len - 1 - i), s2.substr(i + 1, len - 1 - i)))
+                    return true;
+            }
+        }
+    }
+
+    m1.clear();
+    m2.clear();
+
+    for (int i = 0; i < len; i++)
+    {
+        int j = len - 1 - i;
+        if (m1.find(s1[j]) == m1.end())
+            m1[s1[j]] = 1;
+        else
+            m1[s1[j]] += 1;
+        if (m2.find(s2[i]) == m2.end())
+            m2[s2[i]] = 1;
+        else
+            m2[s2[i]] += 1;
+        if (Equal(m1, m2))
+        {
+            // s1[len-1-i..len-1] and s2[0..i] may be scramble
+            if (i == 0 || i == 1)
+            {
+                if (i == len - 1 || IsScramble(s1.substr(0, len - 1 - i), s2.substr(i + 1, len - 1 - i)))
+                    return true;
+            }
+            else if (i < len - 1)
+            {
+                if (IsScramble(s1.substr(0, len - 1 - i), s2.substr(i + 1, len - 1 - i)) && IsScramble(s1.substr(len - 1 - i, i + 1), s2.substr(0, i + 1)))
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+static bool IsScramble2(const string &s1, const string &s2)
+{
+    if (s1.length() != s2.length())
+        return false;
+    if (s1.length() == 0)
+        return true;
+
+    map<pair<int, int>, map<pair<int, int>, bool>> scramble;
+
+    function<bool(int, int, int, int)>
+        isScramble = [&](int i1, int i2, int j1, int j2) -> bool {
+        // check s1[i1..i2] and s2[j1..j2]
+        pair<int, int> pi = make_pair(i1, i2);
+        pair<int, int> pj = make_pair(j1, j2);
+
+        if (scramble.find(pi) != scramble.end() && scramble[pi].find(pj) != scramble[pi].end())
+            return scramble[pi][pj];
+
+        if (scramble.find(pi) == scramble.end())
+            scramble[pi] = map<pair<int, int>, bool>{};
+
+        if (scramble[pi].find(pj) == scramble[pi].end())
+            scramble[pi][pj] = false;
+
+        map<char, int> m1;
+        map<char, int> m2;
+
+        for (int i = i1, j = j1; i <= i2, j <= j2; i++, j++)
+        {
+            if (m1.find(s1[i]) == m1.end())
+                m1[s1[i]] = 1;
+            else
+                m1[s1[i]] += 1;
+            if (m2.find(s2[j]) == m2.end())
+                m2[s2[j]] = 1;
+            else
+                m2[s2[j]] += 1;
+            if (Equal(m1, m2))
+            {
+                // s1[i1..i] and s2[j1..j] may be scramble
+                if (j - j1 <= 1)
+                {
+                    if (j == j2 || isScramble(i + 1, i2, j + 1, j2))
+                    {
+                        scramble[pi][pj] = true;
+                        return true;
+                    }
+                }
+                else if (j < j2)
+                {
+                    if (isScramble(i1, i, j1, j) && isScramble(i + 1, i2, j + 1, j2))
+                    {
+                        scramble[pi][pj] = true;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        m1.clear();
+        m2.clear();
+
+        for (int i = i2, j = j1; i >= i1, j <= j2; i--, j++)
+        {
+            if (m1.find(s1[i]) == m1.end())
+                m1[s1[i]] = 1;
+            else
+                m1[s1[i]] += 1;
+            if (m2.find(s2[j]) == m2.end())
+                m2[s2[j]] = 1;
+            else
+                m2[s2[j]] += 1;
+            if (Equal(m1, m2))
+            {
+                // s1[i..i2] and s2[j1..j] may be scramble
+                if (j - j1 <= 1)
+                {
+                    if (j == j2 || isScramble(i1, i - 1, j + 1, j2))
+                    {
+                        scramble[pi][pj] = true;
+                        return true;
+                    }
+                }
+                else if (j < j2)
+                {
+                    if (isScramble(i1, i - 1, j + 1, j2) && isScramble(i, i2, j1, j))
+                    {
+                        scramble[pi][pj] = true;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+    return isScramble(0, (int)s1.length() - 1, 0, (int)s2.length() - 1);
+}
+
 // 7. Reverse Integer
 // 123 => 321
 // -123 => -321
@@ -2850,6 +3124,29 @@ static int numDecodings(string s)
     };
     return solve(0);
 }
+static int numDecodings2(const string &s)
+{
+    if (s.size() == 0)
+        return 0;
+    if (s[0] < '1' || s[0] > '9')
+        return 0;
+    int c0 = 1;
+    int c1 = 1;
+    int c2;
+    for (size_t i = 1; i < s.size(); i++)
+    {
+        if (s[i] < '0' && '9' < s[i])
+            return 0;
+        c2 = 0;
+        if ('1' <= s[i] && s[i] <= '9')
+            c2 = c1;
+        if (s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9' || s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6')
+            c2 += c0;
+        c0 = c1;
+        c1 = c2;
+    }
+    return c2;
+}
 
 // 93. Restore IP Addresses
 // Given a string containing only digits, restore it by returning
@@ -2894,6 +3191,53 @@ static vector<string> restoreIpAddresses(string s)
     string prefix;
     solve(1, 0, prefix);
     return result;
+}
+static vector<string> restoreIpAddresses2(const string &s)
+{
+    vector<string> ips;
+    int len = s.length();
+    if (len < 4 || len > 12)
+        return ips;
+
+    auto check = [&](const string &octet) -> bool {
+        int l = octet.length();
+        for (int i = 0; i < min(3, l); i++)
+        {
+            if (octet[i] < '0' || octet[i] > '9')
+                return false;
+        }
+        int m = 0;
+        for (int i = 0; i < min(3, l); i++)
+        {
+            m = 10 * m + octet[i] - '0';
+        }
+        return 0 <= m && m <= 255;
+    };
+
+    for (int i = 1; i <= (s[0] == '0' ? 1 : min(3, len - 3)); i++)
+    {
+        for (int j = i + 1; j <= (s[i] == '0' ? i + 1 : min(i + 3, len - 2)); j++)
+        {
+            for (int k = j + 1; k <= (s[j] == '0' ? j + 1 : min(j + 3, len - 1)); k++)
+            {
+                if (len - k > 3 || len - k > 1 && s[k] == '0')
+                    continue;
+                if (check(s.substr(0, i)) && check(s.substr(i, j - i)) && check(s.substr(j, k - j)) && check(s.substr(k, len - k)))
+                {
+                    string ip(s.substr(0, i));
+                    ip.append(1, '.');
+                    ip.append(s.substr(i, j - i));
+                    ip.append(1, '.');
+                    ip.append(s.substr(j, k - j));
+                    ip.append(1, '.');
+                    ip.append(s.substr(k, len - k));
+                    ips.push_back(ip);
+                }
+            }
+        }
+    }
+
+    return ips;
 }
 
 // 165. Compare Version Numbers
@@ -2977,8 +3321,7 @@ static bool IsInterLeave(const string &s1, const string &s2, const string &s3)
         match[0] = match[0] && s1[i - 1] == s3[i - 1];
         for (size_t j = 1; j <= s2.size(); j++)
         {
-            match[j] = (match[j] && s1[i - 1] == s3[i + j - 1])
-                    || (match[j - 1] && s2[j - 1] == s3[i + j - 1]);
+            match[j] = (match[j] && s1[i - 1] == s3[i + j - 1]) || (match[j - 1] && s2[j - 1] == s3[i + j - 1]);
         }
     }
 
@@ -3043,6 +3386,28 @@ static vector<int> grayCode(int n)
         b = (b << 1);
     }
     return gray;
+}
+static vector<int> grayCode2(int n)
+{
+    vector<int> codes = {};
+    if (n <= 0 || n > 8 * sizeof(int))
+        return codes;
+    function<void(int &, int)> toggle = [&](int &code, int position) {
+        code = code ^ (0x1 << position);
+        codes.push_back(code);
+        if (position > 0)
+        {
+            for (int i = 0; i < position; i++)
+                toggle(code, i);
+        }
+    };
+
+    int code = 0;
+    codes.push_back(code);
+    for (int i = 0; i < n; i++)
+        toggle(code, i);
+
+    return codes;
 }
 
 // 168. Excel Sheet Column Title
@@ -4188,6 +4553,46 @@ struct ListNode
     ListNode(int x) : val(x), next(nullptr) {}
 };
 
+static void Print(ListNode *node)
+{
+    if (node == nullptr)
+        return;
+    while (node != nullptr)
+    {
+        cout << node->val << "->";
+        node = node->next;
+    }
+    cout << "null" << endl;
+}
+
+static void DeleteList(ListNode *node)
+{
+    if (node == nullptr)
+        return;
+    ListNode *p = node;
+    while (p != nullptr)
+    {
+        node = p->next;
+        delete p;
+        p = node;
+    }
+}
+
+static ListNode *ToList(vector<int> &numbers)
+{
+    ListNode *list = nullptr;
+    if (numbers.size() == 0)
+        return list;
+    list = new ListNode(numbers[0]);
+    ListNode *n = list;
+    for (size_t i = 1; i < numbers.size(); i++)
+    {
+        n->next = new ListNode(numbers[i]);
+        n = n->next;
+    }
+    return list;
+}
+
 // 2. Add Two Numbers
 // Given two non-empty linked lists representing two non-negative integers. The
 // digits are stored in reverse order (LSB is the head) and each node contain a
@@ -4330,9 +4735,52 @@ static ListNode *reverseBetween(ListNode *head, int m, int n)
     }
     return head;
 }
-// static ListNode* reverseBetween_2(ListNode* head, int m, int n) {
-// Should just reverse each node while searching for pn
-// }
+static ListNode *reverseBetween2(ListNode *head, int m, int n)
+{
+    if (head == nullptr || m <= 0 || n <= 0 || m >= n)
+        return head;
+
+    ListNode *ph = nullptr;
+    ListNode *pm = head;
+    int i = 1;
+    while (i < m && pm->next != nullptr)
+    {
+        ph = pm;
+        pm = pm->next;
+        i++;
+    }
+
+    if (i < m)
+        return head;
+
+    ListNode *r = ph;
+    ListNode *s = pm;
+    ListNode *t = pm->next;
+
+    while (i <= n && t != nullptr)
+    {
+        s->next = r;
+        r = s;
+        s = t;
+        t = t->next;
+        i++;
+    }
+
+    if (i <= n && t == nullptr)
+    {
+        s->next = r;
+        r = s;
+        s = t;
+    }
+
+    pm->next = s;
+    if (ph != nullptr)
+        ph->next = r;
+    else
+        head = r;
+
+    return head;
+}
 
 // 143. Reorder List
 // Given a singly linked list L: L0->L1->...->Ln-1->Ln, reorder it to:
@@ -4464,11 +4912,11 @@ static ListNode *partition(ListNode *head, int x)
     if (head == nullptr)
         return head;
     ListNode *prev = nullptr;
-    ListNode *p = head;
-    if (p->val < x)
+    if (head->val < x)
     {
-        prev = p;
+        prev = head;
     }
+    ListNode *p = head;
     while (p->next != nullptr)
     {
         if (p->next->val < x)
@@ -4501,6 +4949,68 @@ static ListNode *partition(ListNode *head, int x)
             p = p->next;
         }
     }
+    return head;
+}
+static ListNode *partition2(ListNode *head, int x)
+{
+    if (head == nullptr)
+        return nullptr;
+
+    // p is the last node less than x
+    ListNode *p = head;
+
+    // q is the last node no less than x
+    ListNode *q = head;
+
+    if (head->val >= x)
+    {
+        while (q->next != nullptr && q->next->val >= x)
+            q = q->next;
+        if (q->next == nullptr)
+        {
+            // every node is equal to or greater than x
+            return head;
+        }
+
+        // q->next is less than x
+        ListNode *t = q->next;
+        q->next = t->next;
+        t->next = head;
+        head = t;
+
+        p = head;
+    }
+    else
+    {
+        while (p->next != nullptr && p->next->val < x)
+            p = p->next;
+        if (p->next == nullptr)
+        {
+            // every node is less than x
+            return head;
+        }
+
+        q = p->next;
+    }
+
+    // Now check if q->next should be moved to be after p
+
+    while (q->next != nullptr)
+    {
+        if (q->next->val < x)
+        {
+            ListNode *t = q->next;
+            q->next = t->next;
+            t->next = p->next;
+            p->next = t;
+            p = t;
+        }
+        else
+        {
+            q = q->next;
+        }
+    }
+
     return head;
 }
 
