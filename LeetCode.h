@@ -585,8 +585,31 @@ static int removeDuplicates2(vector<int> &nums)
     }
     return i + 1;
 }
+static int removeDuplicates2_1(int A[], int n)
+{
+    if (A == nullptr || n <= 2)
+        return n;
+
+    int i = 0;
+    int j = 1;
+
+    while (j < n)
+    {
+        if (i + 1 < j)
+            A[i + 1] = A[j];
+        i++;
+        j++;
+        if (A[i - 1] == A[i])
+        {
+            while (j < n && A[j] == A[i])
+                j++;
+        }
+    }
+
+    return i + 1;
+}
 // This is wrong. For input [1, 1, 1, 2, 2, 3], output is [1, 1, 2, 3]
-static int removeDuplicates2_1(vector<int> &nums)
+static int removeDuplicates2_2(vector<int> &nums)
 {
     if (nums.size() < 3)
         return nums.size();
@@ -1934,6 +1957,108 @@ static vector<vector<int>> combine(int n, int k)
     select(1, k, c);
     return result;
 }
+// Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+// then we need s(n, k).
+// s(n, k) = s(n-1, k-1) + s(n-1, k)
+static vector<vector<int>> combine2(int n, int k)
+{
+    if (n < k)
+        return vector<vector<int>>{{}};
+    function<void(int, int, map<pair<int, int>, vector<vector<int>>> &)>
+        combine = [&](int i, int j, map<pair<int, int>, vector<vector<int>>> &s) {
+            pair<int, int> p = make_pair(i, j);
+            s[p] = vector<vector<int>>{};
+
+            if (i <= 0 || j <= 0 || i < j)
+            {
+                s[p].push_back(vector<int>{});
+                return;
+            }
+
+            if (i == j)
+            {
+                vector<int> v;
+                for (int k = 1; k <= j; k++)
+                {
+                    v.push_back(k);
+                }
+                s[p].push_back(v);
+                return;
+            }
+
+            pair<int, int> q1 = make_pair(i - 1, j - 1);
+            if (s.find(q1) == s.end())
+                combine(i - 1, j - 1, s);
+            for_each(s[q1].begin(), s[q1].end(), [&](vector<int> &v) {
+                vector<int> ex(v.begin(), v.end());
+                ex.push_back(i);
+                s[p].push_back(ex);
+            });
+
+            pair<int, int> q2 = make_pair(i - 1, j);
+            if (s.find(q2) == s.end())
+                combine(i - 1, j, s);
+            for_each(s[q2].begin(), s[q2].end(), [&](vector<int> &v) {
+                s[p].push_back(v);
+            });
+        };
+
+    map<pair<int, int>, vector<vector<int>>> sets;
+    combine(n, k, sets);
+    pair<int, int> p = make_pair(n, k);
+    return sets[p];
+}
+// Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+// then we need s(n, k).
+// s(n, k) = s(n-1, k-1) + s(n-1, k)
+//
+// s(1,1)
+// s(2,1)     s(2,2)
+// s(3,1)     s(3,2)     s(3,3)
+// s(4,1)     s(4,2)     s(4,3)     s(4,4)
+// ......     ......     ......     ......
+// ......     ......     ......     ......  ......
+// ......     ......     ......     ......  ...... ......
+// ......     ......     ......     ......  ...... s(k,k-1)   s(k,k)
+// ......     ......     ......     ......  ...... s(k+1,k-1) s(k+1,k)
+// ......     ......     ......     ......  ...... ......     ......
+// ......     ......     ......     ......  ...... ......     ......
+// s(n-k+1,1) s(n-k+1,2) ......     ......  ...... ......     ......
+//            s(n-k+2,2) ......     ......  ...... ......     ......
+//                       s(n-k+2,3) ......  ...... ......     ......
+//                                  ......  ...... ......     ......
+//                                          ...... ......     ......
+//                                                 s(n-1,k-1) s(n-1,k)
+//                                                            s(n,k)
+//
+// [TODO] Use subset algorithm to solve this problem
+static vector<vector<int>> combine3(int n, int k)
+{
+    if (n <= 0 || k <= 0 || n < k)
+        return vector<vector<int>>{{}};
+
+    // Represent a column
+    vector<vector<vector<int>>> s(n - k + 1, vector<vector<int>>{{}});
+
+    for (int j = 1; j <= k; j++)
+    {
+        // s(j,j) = {{1,2,...,j}}
+        s[0][0].push_back(j);
+        for (int i = 1; i <= n - k; i++)
+        {
+            // Extend s(i,j) by adding i+j to each of s(i-1,j-1)
+            for_each(s[i].begin(), s[i].end(), [&](vector<int> &v) {
+                v.push_back(i + j);
+            });
+            // Extend s(i,j) by adding s(i-1,j)
+            for_each(s[i - 1].begin(), s[i - 1].end(), [&](vector<int> &v) {
+                s[i].push_back(v);
+            });
+        }
+    }
+
+    return s[n - k];
+}
 
 // 78. Subsets
 // Given a set of distinct integers, nums, return all possible subsets. Note:
@@ -2004,6 +2129,88 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 }
 
 } // namespace Combination
+
+// Given n non-negative integers representing the histogram's bar height
+// where the width of each bar is 1, find the area of largest rectangle in
+// the histogram. One example histogram has width of each bar 1, given
+// height = [2,1,5,6,2,3]. The largest rectangle has area = 10 unit, which
+// is under the 3rd and 4th columns.
+static int LargestRectangleInHistogram(vector<int> &height)
+{
+    if (height.size() == 0)
+        return 0;
+
+    map<int, pair<int, int>> rec = {{0, make_pair(0, height[0])}};
+    int maxArea = height[0];
+
+    for (int i = 1; i < (int)height.size(); i++)
+    {
+        if (height[i] == 0)
+        {
+            rec.clear();
+            continue;
+        }
+
+        for (map<int, pair<int, int>>::iterator it = rec.begin(); it != rec.end(); it++)
+        {
+            if (height[i] < it->second.second)
+            {
+                it->second.second = height[i];
+            }
+
+            it->second.first++;
+
+            // TODO: Can this be done only when height[i] = 0?
+            int area = (it->second.first - it->first + 1) * it->second.second;
+            if (area > maxArea)
+            {
+                maxArea = area;
+            }
+        }
+
+        if (height[i] > height[i - 1])
+        {
+            rec[i] = make_pair(i, height[i]);
+            if (height[i] > maxArea)
+            {
+                maxArea = height[i];
+            }
+        }
+    }
+
+    return maxArea;
+}
+static int LargestRectangleInHistogram2(vector<int> &height)
+{
+    if (height.size() == 0)
+        return 0;
+
+    int maxArea = 0;
+    stack<int> rec;
+    for (int i = 0; i < (int)height.size(); i++)
+    {
+        while (!rec.empty() && height[rec.top()] > height[i])
+        {
+            int t = rec.top();
+            rec.pop();
+            int area = height[t] * (i - 1 - (rec.empty() ? -1 : rec.top()));
+            if (area > maxArea)
+                maxArea = area;
+        }
+        rec.push(i);
+    }
+    // Now rec contains indices of non-decreasing elements
+    while (!rec.empty())
+    {
+        int t = rec.top();
+        rec.pop();
+        int area = height[t] * ((int)height.size() - 1 - (rec.empty() ? -1 : rec.top()));
+        if (area > maxArea)
+            maxArea = area;
+    }
+
+    return maxArea;
+}
 
 // 150. Evaluate Reverse Polish Notation
 // Evaluate the value of an arithmetic expression in Reverse Polish Notation.
@@ -2789,7 +2996,7 @@ static bool IsScramble2(const string &s1, const string &s2)
         map<char, int> m1;
         map<char, int> m2;
 
-        for (int i = i1, j = j1; i <= i2, j <= j2; i++, j++)
+        for (int i = i1, j = j1; i <= i2 && j <= j2; i++, j++)
         {
             if (m1.find(s1[i]) == m1.end())
                 m1[s1[i]] = 1;
@@ -2824,7 +3031,7 @@ static bool IsScramble2(const string &s1, const string &s2)
         m1.clear();
         m2.clear();
 
-        for (int i = i2, j = j1; i >= i1, j <= j2; i--, j++)
+        for (int i = i2, j = j1; i >= i1 && j <= j2; i--, j++)
         {
             if (m1.find(s1[i]) == m1.end())
                 m1[s1[i]] = 1;
@@ -3140,7 +3347,8 @@ static int numDecodings2(const string &s)
         c2 = 0;
         if ('1' <= s[i] && s[i] <= '9')
             c2 = c1;
-        if (s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9' || s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6')
+        if ((s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9')
+            || (s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6'))
             c2 += c0;
         c0 = c1;
         c1 = c2;
@@ -3220,7 +3428,7 @@ static vector<string> restoreIpAddresses2(const string &s)
         {
             for (int k = j + 1; k <= (s[j] == '0' ? j + 1 : min(j + 3, len - 1)); k++)
             {
-                if (len - k > 3 || len - k > 1 && s[k] == '0')
+                if ((len - k > 3) || (len - k > 1 && s[k] == '0'))
                     continue;
                 if (check(s.substr(0, i)) && check(s.substr(i, j - i)) && check(s.substr(j, k - j)) && check(s.substr(k, len - k)))
                 {
@@ -3390,7 +3598,7 @@ static vector<int> grayCode(int n)
 static vector<int> grayCode2(int n)
 {
     vector<int> codes = {};
-    if (n <= 0 || n > 8 * sizeof(int))
+    if (n <= 0 || n > 8 * (int)sizeof(int))
         return codes;
     function<void(int &, int)> toggle = [&](int &code, int position) {
         code = code ^ (0x1 << position);
@@ -4111,6 +4319,7 @@ static bool searchMatrix(vector<vector<int>> &matrix, int target)
 // word = "SEE", ->returns true,
 // word = "ABCB", ->returns false.
 // @grid, @dfs
+// [TODO] What if a letter can be reused?
 static bool exist(vector<vector<char>> &board, string word)
 {
     if (board.size() == 0 || board[0].size() == 0)
@@ -4417,6 +4626,111 @@ static int numIslands(vector<vector<char>> &grid)
         }
     }
     return c;
+}
+
+// Given a 2D binary matrix filled with 0's and 1's, find the largest rectangle
+// containing all ones and return its area.
+static int MaximalRectangle(vector<vector<char>> &matrix)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return 0;
+    bool foundOne = false;
+    int imin = -1;
+    int imax = -1;
+    int jmin = -1;
+    int jmax = -1;
+    for (int i = 0; i < (int)matrix.size(); i++)
+    {
+        for (int j = 0; j < (int)matrix[i].size(); j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                if (foundOne)
+                {
+                    if (i < imin)
+                        imin = i;
+                    if (i > imax)
+                        imax = i;
+                    if (j < jmin)
+                        jmin = j;
+                    if (j > jmax)
+                        jmax = j;
+                }
+                else
+                {
+                    imin = i;
+                    imax = i;
+                    jmin = j;
+                    jmax = j;
+                    foundOne = true;
+                }
+            }
+        }
+    }
+
+    if (!foundOne)
+        return 0;
+
+    int area = (imax - imin + 1) * (jmax - jmin + 1);
+    return area;
+}
+
+// Given a 2D binary matrix filled with 0's and 1's,
+// find the largest rectangle full of ones and with a give point on its top-left
+// corner, return the rectangle area.
+static int MaximalRectangleAtPoint(vector<vector<char>> &matrix, int pi, int pj)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return 0;
+    if (pi < 0 || pi >= (int)matrix.size() || pj < 0 || pj >= (int)matrix[0].size())
+        return 0;
+    if (matrix[pi][pj] != 1)
+        return 0;
+
+    int i = pi;
+    int j = pj;
+
+    while (j + 1 < (int)matrix[0].size() && matrix[i][j + 1] == 1)
+        j++;
+
+    int maxj = j;
+    int maxArea = j - pj + 1;
+
+    while (i + 1 < (int)matrix.size() && matrix[i + 1][pj] == 1)
+    {
+        i++;
+        j = pj;
+        while (j + 1 <= maxj && matrix[i][j + 1] == 1 && matrix[i - 1][j + 1] == 1)
+            j++;
+        int area = (i - pi + 1) * (j - pj + 1);
+        if (area > maxArea)
+            maxArea = area;
+        maxj = j;
+    }
+
+    return maxArea;
+}
+
+// Given a 2D binary matrix filled with 0's and 1's, find the largest rectangle
+// full of ones, return its area.
+static int MaximalRectangleFullOnes(vector<vector<char>> &matrix)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return 0;
+    int maxArea = 0;
+    for (int i = 0; i < (int)matrix.size(); i++)
+    {
+        for (int j = 0; j < (int)matrix[i].size(); j++)
+        {
+            if (matrix[i][j] == 1)
+            {
+                int area = MaximalRectangleAtPoint(matrix, i, j);
+                if (area > maxArea)
+                    maxArea = area;
+            }
+        }
+    }
+    return maxArea;
 }
 
 // 118. Pascal's Triangle
@@ -4898,6 +5212,56 @@ static ListNode *deleteDuplicates2(ListNode *head)
             p = p->next;
         }
     }
+    return head;
+}
+static ListNode *deleteDuplicates2_1(ListNode *head)
+{
+    if (head == nullptr)
+        return nullptr;
+
+    ListNode *p;
+
+    while (head->next != nullptr && head->val == head->next->val)
+    {
+        int dup = head->val;
+        while (head != nullptr && head->val == dup)
+        {
+            p = head;
+            head = p->next;
+            delete p;
+        }
+
+        if (head == nullptr)
+            return nullptr;
+    }
+
+    if (head->next == nullptr)
+        return head;
+
+    p = head;
+    ListNode *q = p->next;
+
+    while (q->next != nullptr)
+    {
+        if (q->val != q->next->val)
+        {
+            p = q;
+            q = p->next;
+        }
+        else
+        {
+            int dup = q->val;
+            while (q != nullptr && q->val == dup)
+            {
+                p->next = q->next;
+                delete q;
+                q = p->next;
+            }
+            if (q == nullptr)
+                return head;
+        }
+    }
+
     return head;
 }
 
