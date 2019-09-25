@@ -789,5 +789,115 @@ void LeetCodeTest::Init(void)
         vector<vector<int>> grid = {{0, 0}, {0, 0}};
         test(grid, 2);
     });
+
+    Add("LargestRectangleInHistogram", [&](){
+		auto check = [&](const vector<int> & h, int e){
+			Logger().WriteInformation("Histogram:");
+			for (size_t i = 0; i < h.size(); i++) {
+				Logger().WriteInformation(" %d", h[i]);
+			}
+			Logger().WriteInformation("\n");
+			int a = Test::LeetCode::LargestRectangleInHistogram(h);
+			int b = Test::LeetCode::LargestRectangleInHistogram2(h);
+            int c = Test::LeetCode::LargestRectangleInHistogram3(h);
+			Logger().WriteInformation(" max area: %d, %d, %d\n", a, b, c);
+			if (e >= 0) {
+				ASSERT1(a == e);
+				ASSERT1(b == e);
+                ASSERT1(c == e);
+			} else {
+				ASSERT1(a == b);
+                ASSERT1(a == c);
+			}
+		};
+
+		check(vector<int> { 1 }, 1);
+		check(vector<int> { 2 }, 2);
+		check(vector<int> { 1, 1 }, 2);
+		check(vector<int> { 1, 2 }, 2);
+		check(vector<int> { 1, 3 }, 3);
+		check(vector<int> { 2, 3 }, 4);
+		check(vector<int> { 0, 1 }, 1);
+		check(vector<int> { 0, 2 }, 2);
+		check(vector<int> { 0, 0 }, 0);
+		check(vector<int> { 1, 0 }, 1);
+		check(vector<int> { 2, 0 }, 2);
+		check(vector<int> { 2, 1 }, 2);
+		check(vector<int> { 3, 1 }, 3);
+		check(vector<int> { 3, 2 }, 4);
+		check(vector<int> { 0, 0, 0 }, 0);
+		check(vector<int> { 1, 0, 0 }, 1);
+		check(vector<int> { 0, 1, 0 }, 1);
+		check(vector<int> { 0, 0, 1 }, 1);
+		check(vector<int> { 1, 1, 0 }, 2);
+		check(vector<int> { 1, 0, 1 }, 1);
+		check(vector<int> { 0, 1, 1 }, 2);
+		check(vector<int> { 1, 1, 1 }, 3);
+		check(vector<int> { 2, 1, 1 }, 3);
+		check(vector<int> { 1, 2, 1 }, 3);
+		check(vector<int> { 1, 1, 2 }, 3);
+		check(vector<int> { 3, 1, 1 }, 3);
+		check(vector<int> { 1, 3, 1 }, 3);
+		check(vector<int> { 1, 1, 3 }, 3);
+		check(vector<int> { 4, 1, 1 }, 4);
+		check(vector<int> { 1, 4, 1 }, 4);
+		check(vector<int> { 1, 1, 4 }, 4);
+		check(vector<int> { 1, 2, 2 }, 4);
+		check(vector<int> { 2, 1, 2 }, 3);
+		check(vector<int> { 2, 2, 1 }, 4);
+		check(vector<int> { 1, 2, 3 }, 4);
+		check(vector<int> { 1, 3, 2 }, 4);
+		check(vector<int> { 2, 1, 3 }, 3);
+		check(vector<int> { 2, 3, 1 }, 4);
+		check(vector<int> { 3, 1, 2 }, 3);
+		check(vector<int> { 3, 2, 1 }, 4);
+		check(vector<int> { 1, 2, 5 }, 5);
+		check(vector<int> { 1, 5, 2 }, 5);
+		check(vector<int> { 5, 2, 1 }, 5);
+		check(vector<int> { 5, 1, 2 }, 5);
+		check(vector<int> { 1, 3, 4 }, 6);
+		check(vector<int> { 3, 1, 4 }, 4);
+		check(vector<int> { 1, 2, 3, 4 }, 6);
+		check(vector<int> { 2, 1, 3, 4 }, 6);
+		check(vector<int> { 2, 3, 1, 4 }, 4);
+		check(vector<int> { 4, 2, 1, 3 }, 4);
+		check(vector<int> { 4, 2, 3, 1 }, 6);
+		check(vector<int> { 1, 2, 3, 4, 5 }, 9);
+		check(vector<int> { 5, 4, 3, 2, 1 }, 9);
+		check(vector<int> { 2, 1, 5, 6, 2, 3 }, 10);
+		for (int i = 0; i < 100; i++) {
+			int len = 1 + (rand() % 100);
+			vector<int> hist;
+			for (int j = 0; j < len; j++) {
+				int v = (rand() % 100);
+				hist.push_back(v);
+			}
+			check(hist, -1);
+		}
+	});
+
+    Add("MinWindow", [&](){
+		auto check = [&](const string & s, const string & t, const string & e){
+			Logger().WriteInformation("Source: %s\n", s.c_str());
+			Logger().WriteInformation("Target: %s\n", t.c_str());
+			string u = Test::LeetCode::MinWindow(s, t);
+			string v = Test::LeetCode::MinWindow2(s, t);
+			Logger().WriteInformation("Substring: %s %s %s\n", u.c_str(), u == v ? "==" : "!=", v.c_str());
+			ASSERT1(u == e);
+			ASSERT1(v == e);
+		};
+		check("", "", "");
+		check("", "A", "");
+		check("A", "", "");
+		check("AA", "A", "A");
+		check("AA", "AA", "AA");
+		check("AB", "A", "A");
+		check("AB", "B", "B");
+		check("AB", "BA", "AB");
+		check("AB", "AB", "AB");
+		check("ACCCCCBCCCACCACB", "ABA", "ACCACB");
+		check("ACCCCCBCCCACCACB", "ABD", "");
+		check("ADOBECODEBANC", "ABC", "BANC");
+	});
 }
 #endif

@@ -1453,6 +1453,57 @@ static void sortColors(vector<int> &nums)
         }
     }
 }
+static void sortColors2(int A[], int n)
+{
+    if (A == nullptr || n <= 1)
+        return;
+
+    int i = 0;
+    int j = 0;
+    int k = n - 1;
+    int t;
+    while (i < k)
+    {
+        while (A[i] == 0)
+            i++;
+        while (A[k] == 2)
+            k--;
+        if (i >= k)
+            return;
+        // A[i] in {1,2}
+        // A[k] in {0,1}
+        if (A[i] > A[k])
+        {
+            //    A[i] = 1 && A[k] = 0
+            // || A[i] = 2 && A[k] = {0,1}
+            t = A[i];
+            A[i] = A[k];
+            A[k] = t;
+        }
+        else
+        {
+            // A[i] == A[k] == 1
+            if (j <= i)
+                j = i + 1;
+            while (A[j] == 1)
+                j++;
+            if (j >= k)
+                return;
+            if (A[j] == 0)
+            {
+                t = A[i];
+                A[i] = A[j];
+                A[j] = t;
+            }
+            else
+            { // A[j] == 2
+                t = A[k];
+                A[k] = A[j];
+                A[j] = t;
+            }
+        }
+    }
+}
 
 // 56. Merge Intervals
 // Given a collection of intervals, merge all overlapping intervals. For example,
@@ -2134,12 +2185,14 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 // where the width of each bar is 1, find the area of largest rectangle in
 // the histogram. One example histogram has width of each bar 1, given
 // height = [2,1,5,6,2,3]. The largest rectangle has area = 10 unit, which
-// is under the 3rd and 4th columns.
-static int LargestRectangleInHistogram(vector<int> &height)
+// is under the 3rd and 4th columns. Note: the bars between two sides of
+// rectangle must have the height no less than the minimum height of the two sides.
+static int LargestRectangleInHistogram(const vector<int> &height)
 {
     if (height.size() == 0)
         return 0;
 
+    // Track rectangle [i, j] with area a such that rec[i] = <j, a>;
     map<int, pair<int, int>> rec = {{0, make_pair(0, height[0])}};
     int maxArea = height[0];
 
@@ -2180,7 +2233,7 @@ static int LargestRectangleInHistogram(vector<int> &height)
 
     return maxArea;
 }
-static int LargestRectangleInHistogram2(vector<int> &height)
+static int LargestRectangleInHistogram2(const vector<int> &height)
 {
     if (height.size() == 0)
         return 0;
@@ -2193,6 +2246,7 @@ static int LargestRectangleInHistogram2(vector<int> &height)
         {
             int t = rec.top();
             rec.pop();
+            // area [t, i-1] is a rectangle and the min height is at t
             int area = height[t] * (i - 1 - (rec.empty() ? -1 : rec.top()));
             if (area > maxArea)
                 maxArea = area;
@@ -2200,15 +2254,49 @@ static int LargestRectangleInHistogram2(vector<int> &height)
         rec.push(i);
     }
     // Now rec contains indices of non-decreasing elements
+    // including the last element of height at the end.
     while (!rec.empty())
     {
         int t = rec.top();
         rec.pop();
+        // area [t, n-1] is a rectangle and the min height is at t
         int area = height[t] * ((int)height.size() - 1 - (rec.empty() ? -1 : rec.top()));
         if (area > maxArea)
             maxArea = area;
     }
 
+    return maxArea;
+}
+// This is wrong, e.g., for [2 1 2] it returns 2 but answer should be 3
+static int LargestRectangleInHistogram3(const vector<int> &height)
+{
+    if (height.empty())
+        return 0;
+
+    int maxArea = height[0];
+    int i = 0;
+    int j = 1;
+    int n = (int)height.size();
+    while (j < n)
+    {
+        // Find [i, j-1] where elements in between are no less than min of boundaries
+        while (j < n && height[j - 1] <= height[j])
+            j++;
+        while (j < n && height[j - 1] >= height[j])
+            j++;
+        int p = i;
+        int q = j - 1;
+        while (p <= q)
+        {
+            maxArea = std::max(maxArea,
+                               (q - p + 1) * std::min(height[p], height[q]));
+            if (height[p] < height[q])
+                p++;
+            else
+                q--;
+        }
+        i = j - 1;
+    }
     return maxArea;
 }
 
@@ -3069,6 +3157,137 @@ static bool IsScramble2(const string &s1, const string &s2)
     return isScramble(0, (int)s1.length() - 1, 0, (int)s2.length() - 1);
 }
 
+// Minimum Window Substring
+// Given a string S and a string T, find the minimum window in S which will
+// contain all the characters in T in complexity O(n).
+// For example,
+// S = "ADOBECODEBANC"
+// T = "ABC"
+// Minimum window is "BANC".
+// Note: If there is no such window in S that covers all characters in T, return
+// the emtpy string "". If there are multiple such windows, you are guaranteed
+// that there will always be only one unique minimum window in S.
+static string MinWindow(const string &s, const string &t)
+{
+    if (s.length() == 0 || t.length() == 0 || s.length() < t.length())
+        return "";
+
+    map<char, int> countT;
+    for (size_t i = 0; i < t.length(); i++)
+    {
+        if (countT.find(t[i]) == countT.end())
+            countT[t[i]] = 1;
+        else
+            countT[t[i]] += 1;
+    }
+
+    // c1 count should be no less than c2 count
+    auto compare = [&](map<char, int> &c1, map<char, int> &c2) -> bool {
+        if (c1.size() != c2.size())
+            return false;
+        for (map<char, int>::iterator it = c1.begin(); it != c1.end(); it++)
+        {
+            if (c2.find(it->first) == c2.end())
+                return false;
+            if (c2[it->first] > it->second)
+                return false;
+        }
+        return true;
+    };
+
+    map<char, int> countS;
+    queue<pair<char, int>> indices;
+    int begin = -1;
+    int end = (int)s.length();
+    for (int i = 0; i < (int)s.length(); i++)
+    {
+        if (countT.find(s[i]) != countT.end())
+        {
+            if (countS.find(s[i]) == countS.end())
+                countS[s[i]] = 1;
+            else
+                countS[s[i]] += 1;
+            // indices contains a range of characters that are also in T
+            indices.push(make_pair(s[i], i));
+            // Shorten the range
+            while (countS[indices.front().first] > countT[indices.front().first])
+            {
+                countS[indices.front().first] -= 1;
+                indices.pop();
+            }
+
+            if (compare(countS, countT))
+            {
+                if (i - indices.front().second < end - begin)
+                {
+                    begin = indices.front().second;
+                    end = i;
+                }
+            }
+        }
+    }
+
+    if (begin == -1)
+        return "";
+    else
+        return s.substr(begin, end - begin + 1);
+}
+static string MinWindow2(const string &s, const string &t)
+{
+    if (s.length() == 0 || t.length() == 0 || s.length() < t.length())
+        return "";
+
+    map<char, int> countT;
+    for (size_t i = 0; i < t.length(); i++)
+    {
+        if (countT.find(t[i]) == countT.end())
+            countT[t[i]] = 1;
+        else
+            countT[t[i]] += 1;
+    }
+
+    map<char, int> countS;
+    int total = 0;
+    queue<pair<char, int>> indices;
+    int begin = -1;
+    int end = (int)s.length();
+    for (int i = 0; i < (int)s.length(); i++)
+    {
+        if (countT.find(s[i]) != countT.end())
+        {
+            if (countS.find(s[i]) == countS.end())
+                countS[s[i]] = 1;
+            else
+                countS[s[i]] += 1;
+
+            if (countS[s[i]] <= countT[s[i]])
+                total++;
+
+            indices.push(make_pair(s[i], i));
+
+            while (countS[indices.front().first] > countT[indices.front().first])
+            {
+                countS[indices.front().first] -= 1;
+                indices.pop();
+            }
+
+            if (total == (int)t.length())
+            {
+                if (i - indices.front().second < end - begin)
+                {
+                    begin = indices.front().second;
+                    end = i;
+                }
+            }
+        }
+    }
+
+    if (begin == -1)
+        return "";
+    else
+        return s.substr(begin, end - begin + 1);
+}
+
 // 7. Reverse Integer
 // 123 => 321
 // -123 => -321
@@ -3347,8 +3566,7 @@ static int numDecodings2(const string &s)
         c2 = 0;
         if ('1' <= s[i] && s[i] <= '9')
             c2 = c1;
-        if ((s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9')
-            || (s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6'))
+        if ((s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9') || (s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6'))
             c2 += c0;
         c0 = c1;
         c1 = c2;
@@ -4302,6 +4520,62 @@ static bool searchMatrix(vector<vector<int>> &matrix, int target)
             j--;
         }
     }
+    return false;
+}
+static bool searchMatrix2(vector<vector<int>> &matrix, int target)
+{
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return false;
+
+    int l = 0;
+    int h = matrix.size() - 1;
+    int m;
+    while (l <= h)
+    {
+        m = l + ((h - l) >> 1);
+        if (target == matrix[m][0])
+            return true;
+        if (target < matrix[m][0])
+        {
+            if (l == m)
+                return false;
+            h = m - 1;
+        }
+        else
+        {
+            if (l == m)
+            {
+                if (target >= matrix[h][0])
+                    m = h;
+                break;
+            }
+
+            l = m;
+        }
+    }
+
+    l = 0;
+    h = matrix[m].size() - 1;
+    int n;
+    while (l <= h)
+    {
+        n = l + ((h - l) >> 1);
+        if (target == matrix[m][n])
+            return true;
+        if (target < matrix[m][n])
+        {
+            if (l == n)
+                break;
+            h = n - 1;
+        }
+        else
+        {
+            if (n == h)
+                break;
+            l = n + 1;
+        }
+    }
+
     return false;
 }
 
