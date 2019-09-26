@@ -2832,6 +2832,136 @@ static bool wordBreak(string s, vector<string> &wordDict)
     return solve(0);
 }
 
+// Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2.
+// (each operation is counted as 1 step.)
+// You have the following 3 operations permitted on a word:
+//  a) Insert a character
+//  b) Delete a character
+//  c) Replace a character
+static int MinDistance(const string &word1, const string &word2)
+{
+    // Compute distance from w1[i:] to w2[j:]
+    function<int(const string &, int, const string &, int, map<pair<int, int>, int> &)>
+        distance = [&](const string &w1, int i, const string &w2, int j, map<pair<int, int>, int> &d) -> int {
+        pair<int, int> p = make_pair(i, j);
+        if (d.find(p) == d.end())
+        {
+            if (i == (int)w1.length())
+            {
+                // Need to insert d[p] chars to w1
+                d[p] = (int)w2.length() - j;
+            }
+            else if (j == (int)w2.length())
+            {
+                // Need to delete d[p] chars from w1
+                d[p] = (int)w1.length() - i;
+            }
+            else if (w1[i] == w2[j])
+            {
+                d[p] = distance(w1, i + 1, w2, j + 1, d);
+            }
+            else
+            {
+                int ins = distance(w1, i, w2, j + 1, d);
+                int rep = distance(w1, i + 1, w2, j + 1, d);
+                int del = distance(w1, i + 1, w2, j, d);
+                int min = ins;
+                if (rep < min)
+                    min = rep;
+                if (del < min)
+                    min = del;
+                d[p] = 1 + min;
+            }
+        }
+        return d[p];
+    };
+
+    map<pair<int, int>, int> d;
+    return distance(word1, 0, word2, 0, d);
+}
+// d[i,j]
+//     j 0 1 2 3 ...... n-1
+// i 0
+//   1
+//   2
+//   .
+//   m-1
+//
+// d[m-1][n-1] = 0,                                             if w1[m-1] == w2[n-1]
+//               1,                                             if w1[m-1] != w2[n-1]
+// d[m-1][j]   = n - 1 - j,                                     if w1[m-1] == w2[j]
+//               1 + min { n - 1 - j, d[m-1][j+1] },            if w1[m-1] != w2[j]
+// d[i][n-1]   = m - 1 - i,                                     if w1[i] == w2[n-1]
+//               1 + min { m - 1 - i, d[i+1][n-1] },            if w1[i] != w2[n-1]
+// d[i][j]     = d[i+1][j+1],                                   if w1[i] == w2[j]
+//               1 + min { d[i][j+1], d[i+1][j+1], d[i+1][j] }, if w1[i] != w2[j]
+static int MinDistance2(const string &word1, const string &word2)
+{
+    int m = word1.length();
+    int n = word2.length();
+
+    if (m == 0)
+        return n;
+    if (n == 0)
+        return m;
+
+    vector<vector<int>> d(m, vector<int>(n, 0));
+
+    d[m - 1][n - 1] = word1[m - 1] == word2[n - 1] ? 0 : 1;
+
+    for (int j = n - 2; j >= 0; j--)
+    {
+        if (word1[m - 1] == word2[j])
+        {
+            d[m - 1][j] = n - 1 - j;
+        }
+        else
+        {
+            d[m - 1][j] = n - 1 - j;
+            if (d[m - 1][j + 1] < d[m - 1][j])
+                d[m - 1][j] = d[m - 1][j + 1];
+            d[m - 1][j] += 1;
+        }
+    }
+
+    for (int i = m - 2; i >= 0; i--)
+    {
+        if (word1[i] == word2[n - 1])
+        {
+            d[i][n - 1] = m - 1 - i;
+        }
+        else
+        {
+            d[i][n - 1] = m - 1 - i;
+            if (d[i + 1][n - 1] < d[i][n - 1])
+                d[i][n - 1] = d[i + 1][n - 1];
+            d[i][n - 1] += 1;
+        }
+    }
+
+    for (int i = m - 2; i >= 0; i--)
+    {
+        for (int j = n - 2; j >= 0; j--)
+        {
+            if (word1[i] == word2[j])
+            {
+                d[i][j] = d[i + 1][j + 1];
+            }
+            else
+            {
+                d[i][j] = d[i][j + 1];
+                if (d[i + 1][j + 1] < d[i][j])
+                    d[i][j] = d[i + 1][j + 1];
+                if (d[i + 1][j] < d[i][j])
+                    d[i][j] = d[i + 1][j];
+                d[i][j] += 1;
+            }
+        }
+    }
+
+    return d[0][0];
+}
+
 // 6. ZigZag Conversion
 // "PAYPALISHIRING"
 // P   A   H   N
@@ -2954,6 +3084,92 @@ static void reverseWords(string &s)
         }
         j++;
     }
+}
+
+// Given an array of words and a length L, format the text such that each line
+// has exactly L characters and is fully (left and right) justified. You should
+// pack your words in a greedy approach; that is, pack as many words as you can
+// in each line. Pad extra spaces ' ' when necessary so that each line has
+// exactly L characters. Extra spaces between words should be distributed as
+// evenly as possible. If the number of spaces on a line do not divide evenly
+// between words, the empty slots on the left will be assigned more spaces than
+// the slots on the right. For the last line of text, it should be left justified
+// and no extra space is inserted between words. For example,
+// words: ["This", "is", "an", "example", "of", "text", "justification."]
+// L: 16.
+// Return the formatted lines as:
+// [
+//   "This    is    an",
+//   "example  of text",
+//   "justification.  "
+// ]
+// Note: Each word is guaranteed not to exceed L in length.
+// Corner Cases:
+// A line other than the last line might contain only one word. What should you
+// do in this case? In this case, that line should be left-justified.
+static vector<string> TextJustification(vector<string> &words, int L)
+{
+    if (words.size() == 0)
+        return vector<string>{};
+    vector<string> output;
+    int i = 0;
+    int j = 0;
+    int count = (int)words.size();
+    int len = 0;
+    while (i < count && j < count)
+    {
+        while (j < count && len + (int)words[j].length() + j - i <= L)
+        {
+            len += words[j].length();
+            j++;
+        }
+        if (j == count)
+        {
+            // last line with words[i..j-1]
+            string line;
+            for (int k = i; k < j; k++)
+            {
+                if (k != i)
+                    line.append(1, ' ');
+                line.append(words[k]);
+            }
+            int extra = L - len - (j - 1 - i);
+            if (extra > 0)
+                line.append(extra, ' ');
+            output.push_back(line);
+            break;
+        }
+        else
+        {
+            // one line with words[i..j-1]
+            string line(words[i]);
+            int totalSpaces = L - len;
+            int intervals = j - 1 - i;
+            if (intervals == 0)
+            {
+                line.append(totalSpaces, ' ');
+            }
+            else
+            {
+                int spaces = totalSpaces / intervals;
+                int extra = totalSpaces % intervals;
+                for (int k = i + 1; k <= i + extra; k++)
+                {
+                    line.append(spaces + 1, ' ');
+                    line.append(words[k]);
+                }
+                for (int k = i + extra + 1; k < j; k++)
+                {
+                    line.append(spaces, ' ');
+                    line.append(words[k]);
+                }
+            }
+            output.push_back(line);
+            i = j;
+            len = 0;
+        }
+    }
+    return output;
 }
 
 // Given a string s1, we may represent it as a binary tree by partitioning it to two non-empty substrings recursively.
@@ -3390,6 +3606,72 @@ static int solve2(string str)
 }
 } // namespace AToI
 
+// Validate if a given string is numeric. Some examples:
+// "0" => true
+// " 0.1 " => true
+// "abc" => false
+// "1 a" => false
+// "2e10" => true
+static bool IsNumber(const char *s)
+{
+    if (s == nullptr || *s == '\0')
+        return false;
+    while (*s == ' ')
+        s++;
+    if (*s == '\0')
+        return false;
+    if (*s != '+' && *s != '-' && *s != '.' && (*s < '0' || *s > '9'))
+        return false;
+    if ((*s == '+' || *s == '-') && *(s + 1) == '.' && (*(s + 2) == '\0' || *(s + 2) == ' '))
+        return false;
+    bool foundDot = *s == '.';
+    if (foundDot && (*(s + 1) < '0' || *(s + 1) > '9'))
+        return false;
+    bool foundE = false;
+    s++;
+    while (*s != '\0' && *s != ' ')
+    {
+        switch (*s)
+        {
+        case '+':
+        case '-':
+            if (*(s - 1) != 'e' && *(s - 1) != 'E')
+                return false;
+            if (*(s + 1) < '0' || *(s + 1) > '9')
+                return false;
+            break;
+        case '.':
+            if (foundE || foundDot)
+                return false;
+            foundDot = true;
+            if (*(s + 1) != '\0' && *(s + 1) != ' ' && *(s + 1) != 'e' && *(s + 1) != 'E' && (*(s + 1) < '0' || *(s + 1) > '9'))
+                return false;
+            break;
+        case 'e':
+        case 'E':
+            if (foundE)
+                return false;
+            foundE = true;
+            if (*(s - 1) != '.' && (*(s - 1) < '0' || *(s - 1) > '9'))
+                return false;
+            if (*(s + 1) != '+' && *(s + 1) != '-' && (*(s + 1) < '0' || *(s + 1) > '9'))
+                return false;
+            break;
+        default:
+            if (*s < '0' || *s > '9')
+                return false;
+            break;
+        }
+        s++;
+    }
+    while (*s == ' ')
+        s++;
+    if (*s == '\0')
+        return true;
+    else
+        return false;
+}
+
 // 71. Simplify Path
 // Given an absolute path for a file (Unix-style), simplify it. For example,
 // path = "/home/", => "/home"
@@ -3475,6 +3757,65 @@ static string simplifyPath(string path)
         return string("/");
     else
         return path.substr(0, i + 1);
+}
+static string simplifyPath2(string path)
+{
+    int len = path.length();
+    if (len == 0)
+        return "";
+    vector<string> tokens;
+    int i = 0;
+    while (i < len)
+    {
+        while (i < len && path[i] == '/')
+            i++;
+        if (i == len)
+            break;
+        if (path[i] == '.')
+        {
+            if (i + 1 == len)
+                break;
+            if (path[i + 1] == '/')
+            {
+                i += 2;
+                continue;
+            }
+            else if (path[i + 1] == '.')
+            {
+                if (i + 2 == len || path[i + 2] == '/')
+                {
+                    if (!tokens.empty())
+                    {
+                        tokens.pop_back();
+                    }
+                    i += 3;
+                    continue;
+                }
+            }
+        }
+        string token;
+        int j = i;
+        while (j < len && path[j] != '/')
+        {
+            token.append(1, path[j]);
+            j++;
+        }
+        tokens.push_back(token);
+        i = j;
+    }
+    string output;
+    if (tokens.size() == 0)
+    {
+        output.append(1, '/');
+    }
+    else
+    {
+        for_each(tokens.begin(), tokens.end(), [&](string &t) {
+            output.append(1, '/');
+            output.append(t.begin(), t.end());
+        });
+    }
+    return output;
 }
 
 // 91. Decode Ways
@@ -4101,6 +4442,43 @@ static int mySqrt(int x)
     }
     return (int)m;
 }
+static int mySqrt2(int x)
+{
+    if (x < 0)
+        throw invalid_argument("x cannot be negative");
+    if (x < 2)
+        return x;
+    long long l = 1;
+    long long h = (x >> 1) + 1;
+    while (l <= h)
+    {
+        long long m = l + ((h - l) >> 1);
+        long long s = m * m;
+        if (x == s)
+            return (int)m;
+        else if (x < s)
+        {
+            if (l == m)
+                break;
+            h = m;
+        }
+        else
+        {
+            if (l == m)
+            {
+                s = h * h;
+                if (x == s)
+                    return (int)h;
+                return (int)m;
+            }
+            else
+            {
+                l = m;
+            }
+        }
+    }
+    throw runtime_error("sqrt(x) cannot be found");
+}
 
 // 172. Factorial Trailing Zeroes
 // Given an integer n, return the number of trailing zeroes in n!.
@@ -4398,7 +4776,6 @@ static vector<vector<int>> generateMatrix(int n)
 // grid (marked 'Finish' in the diagram below). How many possible unique paths
 // are there? Note: m and n will be at most 100.
 // @grid, @dynamicprogramming
-// Can solve by using one array.
 static int uniquePaths(int m, int n)
 {
     if (m <= 0 || n <= 0)
@@ -4417,6 +4794,21 @@ static int uniquePaths(int m, int n)
         }
     }
     return grid[0][0];
+}
+// sum[i][j] = sum[i+1][j] + sum[i][j+1]
+static int uniquePaths2(int m, int n)
+{
+    if (m <= 0 || n <= 0)
+        return 0;
+    vector<int> sum(n, 1);
+    for (int i = m - 2; i >= 0; i--)
+    {
+        for (int j = n - 2; j >= 0; j--)
+        {
+            sum[j] += sum[j + 1];
+        }
+    }
+    return sum[0];
 }
 
 // 63. Unique Paths II
@@ -4454,6 +4846,32 @@ static int uniquePathsWithObstacles(vector<vector<int>> &obstacleGrid)
     }
     return grid[0][0];
 }
+static int uniquePathsWithObstacles2(vector<vector<int>> &obstacleGrid)
+{
+    int m = obstacleGrid.size();
+    if (m == 0)
+        return 0;
+    int n = obstacleGrid[0].size();
+    if (n == 0)
+        return 0;
+    if (obstacleGrid[m - 1][n - 1] == 1)
+        return 0;
+    vector<int> sum(n, 0);
+    sum[n - 1] = 1;
+    for (int j = n - 2; j >= 0; j--)
+    {
+        sum[j] = obstacleGrid[m - 1][j] == 1 ? 0 : sum[j + 1];
+    }
+    for (int i = m - 2; i >= 0; i--)
+    {
+        sum[n - 1] = obstacleGrid[i][n - 1] == 1 ? 0 : sum[n - 1];
+        for (int j = n - 2; j >= 0; j--)
+        {
+            sum[j] = obstacleGrid[i][j] == 1 ? 0 : (sum[j] + sum[j + 1]);
+        }
+    }
+    return sum[0];
+}
 
 // 64. Minimum Path Sum
 // Given a m x n grid filled with non-negative numbers, find a path from top
@@ -4464,7 +4882,6 @@ static int uniquePathsWithObstacles(vector<vector<int>> &obstacleGrid)
 //  [2, 100, 0]
 //  [1, 1,   1]]
 // @grid, @dynamicprogramming
-// Can solve by using one array.
 static int minPathSum(vector<vector<int>> &grid)
 {
     if (grid.size() == 0 || grid[0].size() == 0)
@@ -4485,6 +4902,28 @@ static int minPathSum(vector<vector<int>> &grid)
         }
     }
     return sum[m - 1][n - 1];
+}
+static int minPathSum2(vector<vector<int>> &grid)
+{
+    if (grid.size() == 0 && grid[0].size() == 0)
+        return 0;
+    vector<int> sum(grid[0].size(), 0);
+    sum[0] = grid[0][0];
+    int i = 0;
+    int j = 0;
+    for (j = 1; j < (int)grid[0].size(); j++)
+    {
+        sum[j] = sum[j - 1] + grid[0][j];
+    }
+    for (i = 1; i < (int)grid.size(); i++)
+    {
+        sum[0] = sum[0] + grid[i][0];
+        for (j = 1; j < (int)grid[i].size(); j++)
+        {
+            sum[j] = grid[i][j] + min(sum[j - 1], sum[j]);
+        }
+    }
+    return sum[j - 1];
 }
 
 // 74. Search a 2D Matrix
@@ -5181,6 +5620,51 @@ static ListNode *ToList(vector<int> &numbers)
     return list;
 }
 
+static ListNode *MergeSortedLists(ListNode *l1, ListNode *l2)
+{
+    if (l1 == nullptr)
+        return l2;
+    if (l2 == nullptr)
+        return l1;
+
+    ListNode *head = l1;
+    if (l1->val > l2->val)
+    {
+        head = l2;
+        l2 = l2->next;
+    }
+    else
+    {
+        l1 = l1->next;
+    }
+
+    ListNode *p = head;
+
+    while (l1 != nullptr && l2 != nullptr)
+    {
+        if (l1->val <= l2->val)
+        {
+            if (p->next != l1)
+                p->next = l1;
+            p = l1;
+            l1 = p->next;
+        }
+        else
+        {
+            if (p->next != l2)
+                p->next = l2;
+            p = l2;
+            l2 = p->next;
+        }
+    }
+
+    ListNode *q = l1 == nullptr ? l2 : l1;
+    if (q != nullptr && p->next != q)
+        p->next = q;
+
+    return head;
+}
+
 // 2. Add Two Numbers
 // Given two non-empty linked lists representing two non-negative integers. The
 // digits are stored in reverse order (LSB is the head) and each node contain a
@@ -5246,6 +5730,7 @@ static ListNode *rotateRight(ListNode *head, int k)
         i++;
         tail = tail->next;
     }
+    // tail is the last element and is the i-th element (1-based)
     k %= i;
     if (k == 0)
         return head;
@@ -5259,6 +5744,44 @@ static ListNode *rotateRight(ListNode *head, int k)
         j--;
     }
     tail->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+static ListNode *rotateRight2(ListNode *head, int k)
+{
+    if (head == nullptr || k <= 0)
+        return head;
+    ListNode *p = head;
+    ListNode *q = head;
+    int i = 0;
+    while (i < k && q->next != nullptr)
+    {
+        q = q->next;
+        i++;
+    }
+    // q is the i-th element (0-based)
+    if (q->next == nullptr)
+    {
+        int l = i + 1; // total length
+        k = k % l;
+        if (k == 0)
+            return head;
+        i = 0;
+        q = head;
+        while (i < k && q->next != nullptr)
+        {
+            q = q->next;
+            i++;
+        }
+    }
+    // q is the k-th element (0-based)
+    while (q->next != nullptr)
+    {
+        q = q->next;
+        p = p->next;
+    }
+    q->next = head;
     head = p->next;
     p->next = nullptr;
     return head;
