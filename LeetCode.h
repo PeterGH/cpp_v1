@@ -1286,6 +1286,85 @@ static bool canJump2(vector<int> &nums)
     }
     return index >= nums.size() - 1;
 }
+// Jump Game
+// Given an array of non-negative integers, you are initially positioned at
+// the first index of the array. Each element in the array represents your
+// maximum jump length at that position. Your goal is to reach the last index
+// in the minimum number of jumps. For example: Given array A = [2,3,1,1,4]
+// The minimum number of jumps to reach the last index is 2. (Jump 1 step from
+// index 0 to 1, then 3 steps to the last index.) Note: The array is designed
+// such that no element is 0.
+// minSteps[i] = min{1 + minStep[k]} for i < k <= i + A[i]
+static int Jump(int A[], int n)
+{
+    if (A == nullptr || n <= 1)
+        return 0;
+    vector<int> steps(n, 0);
+    for (int i = n - 2; i >= 0; i--)
+    {
+        int j = i + A[i];
+        if (j >= n - 1)
+            steps[i] = 1;
+        else
+        {
+            int m = steps[j];
+            for (int k = j - 1; k > i; k--)
+            {
+                if (steps[k] < m)
+                    m = steps[k];
+            }
+            steps[i] = 1 + m;
+        }
+    }
+    return steps[0];
+}
+static int Jump2(int A[], int n)
+{
+    if (A == nullptr || n <= 1)
+        return 0;
+    map<int, int> step; // Key is the number of steps, value is the index where to take the steps
+    map<int, int>::iterator it;
+    step[0] = n - 1;
+    for (int i = n - 2; i >= 0; i--)
+    {
+        int j = i + A[i];
+        for (it = step.begin(); it != step.end(); it++)
+        {
+            if (j >= it->second)
+            {
+                int s = it->first + 1;
+                if (i == 0)
+                    return s;
+                else
+                    step[s] = i;
+                break;
+            }
+        }
+    }
+    return 0;
+}
+// @greedy
+static int Jump3(int A[], int n)
+{
+    if (A == nullptr || n <= 1)
+        return 0;
+    int currentIndex = A[0];      // max distance current step can reach
+    int nextIndex = currentIndex; // max distance next step can reach
+    int step = 1;
+    int i = 1;
+    while (currentIndex < n - 1 && i <= currentIndex)
+    {
+        if (i + A[i] > nextIndex)
+            nextIndex = i + A[i];
+        i++;
+        if (i > currentIndex)
+        {
+            step++;
+            currentIndex = nextIndex;
+        }
+    }
+    return step;
+}
 
 // 70. Climbing Stairs
 // You are climbing a stair case. It takes n steps to reach to the top. Each
@@ -1515,6 +1594,7 @@ struct Interval
     Interval() : start(0), end(0) {}
     Interval(int s, int e) : start(s), end(e) {}
 };
+
 // @array, @linear
 static vector<Interval> merge(vector<Interval> &intervals)
 {
@@ -1544,6 +1624,102 @@ static vector<Interval> merge(vector<Interval> &intervals)
     }
     result.push_back(v);
     return result;
+}
+// Comparer Design:
+// It will produce Runtime Error simply because you provide the sort() with a
+// wrong comparator.
+// 1. A correct comparator should have determined behavior, i.e. return the same
+//    result on same input.
+// 2. The result should be transitive, i.e., if you return true for a<b and b<c,
+//    you should return true for a<c
+// 3. The result should not contain conflicts, e.g., if you return true for a<b,
+//    you should return false for b<a
+// 4. return false for both a<b and b<a will means that a == b.
+// Violating the above rules and trying to pass an invalid comparator to sort()
+// will result in undefined behavior, usually crash.
+static bool IntervalLess(const Interval &i1, const Interval &i2)
+{
+    if (i1.start < i2.start)
+        return true;
+    if (i1.start == i2.start)
+    {
+        // cannot use <=, otherwise violates 3.
+        return i1.end < i2.end;
+    }
+    return false;
+}
+static vector<Interval> MergeIntervals(vector<Interval> &intervals)
+{
+    vector<Interval> output;
+    int len = intervals.size();
+    if (len == 0)
+        return output;
+    sort(intervals.begin(), intervals.end(), IntervalLess);
+    output.push_back(intervals[0]);
+    int i = 0;
+    for (int j = 1; j < len; j++)
+    {
+        if (output[i].end < intervals[j].start)
+        {
+            output.push_back(intervals[j]);
+            i++;
+        }
+        else
+        {
+            output[i].start = min(output[i].start, intervals[j].start);
+            output[i].end = max(output[i].end, intervals[j].end);
+        }
+    }
+    return output;
+}
+
+// Given a set of non-overlapping intervals, insert a new interval into the
+// intervals (merge if necessary). Example 1: Given intervals [1,3],[6,9],
+// insert and merge [2,5] in as [1,5],[6,9]. Example 2: Given [1,2],[3,5],
+// [6,7],[8,10],[12,16], insert and merge [4,9] in as [1,2],[3,10],[12,16].
+// This is because the new interval [4,9] overlaps with [3,5],[6,7],[8,10].
+static vector<Interval> InsertMergeInterval(vector<Interval> &intervals, Interval newInterval)
+{
+    vector<Interval> output;
+    for_each(intervals.begin(), intervals.end(), [&](Interval i) {
+        if (i.end < newInterval.start || newInterval.end < i.start)
+        {
+            output.push_back(i);
+        }
+        else
+        {
+            newInterval.start = min(newInterval.start, i.start);
+            newInterval.end = max(newInterval.end, i.end);
+        }
+    });
+    output.push_back(newInterval);
+    return output;
+}
+
+// Given a set of non-overlapping intervals, insert a new interval into the
+// intervals (merge if necessary). You may assume that the intervals were
+// initially sorted according to their start times. Example 1: Given intervals
+// [1,3],[6,9], insert and merge [2,5] in as [1,5],[6,9]. Example 2: Given
+// [1,2],[3,5],[6,7],[8,10],[12,16], insert and merge [4,9] in as [1,2],[3,10],
+// [12,16]. This is because the new interval [4,9] overlaps with [3,5],[6,7],[8,10].
+static vector<Interval> InsertMergeSortedInterval(vector<Interval> &intervals, Interval newInterval)
+{
+    vector<Interval> output;
+    int len = intervals.size();
+    int i = 0;
+    while (i < len && intervals[i].end < newInterval.start)
+        output.push_back(intervals[i++]);
+    output.push_back(newInterval);
+    int j = i;
+    while (j < len && output[i].end >= intervals[j].start)
+    {
+        output[i].start = min(output[i].start, intervals[j].start);
+        output[i].end = max(output[i].end, intervals[j].end);
+        j++;
+    }
+    while (j < len)
+        output.push_back(intervals[j++]);
+    return output;
 }
 
 namespace Permutation
@@ -3029,7 +3205,50 @@ static int lengthOfLastWord2(string s)
     }
     return length;
 }
-
+static int lengthOfLastWord3(const char *s)
+{
+    if (*s == '\0')
+        return 0;
+    while (*s == ' ')
+        s++;
+    int i = 0;
+    while (*s != '\0')
+    {
+        while (*s != '\0' && *s != ' ')
+        {
+            i++;
+            s++;
+        }
+        while (*s == ' ')
+            s++;
+        if (*s != '\0')
+            i = 0;
+    }
+    return i;
+}
+static int lengthOfLastWord4(string s)
+{
+    int length = 0;
+    size_t i = 0;
+    int n = 0; // count every word encountered
+    while (i < s.size())
+    {
+        if (s[i] == ' ')
+        {
+            if (n > 0)
+            {
+                length = n;
+                n = 0;
+            }
+        }
+        else
+        {
+            n++;
+        }
+        i++;
+    }
+    return n > 0 ? n : length;
+}
 // 151. Reverse Words in a String
 // Given an input string, reverse the string word by word. For example, Given
 // s = "the sky is blue", return "blue is sky the". Update(2015-02-12): For C
@@ -3170,6 +3389,126 @@ static vector<string> TextJustification(vector<string> &words, int L)
         }
     }
     return output;
+}
+
+// The n-queens puzzle is the problem of placing n queens on an n×n chessboard
+// such that no two queens attack each other. Given an integer n, return all
+// distinct solutions to the n-queens puzzle. Each solution contains a distinct
+// board configuration of the n-queens' placement, where 'Q' and '.' both
+// indicate a queen and an empty space respectively. For example,
+// There exist two distinct solutions to the 4-queens puzzle:
+// [
+//  [".Q..",  // Solution 1
+//   "...Q",
+//   "Q...",
+//   "..Q."],
+//  ["..Q.",  // Solution 2
+//   "Q...",
+//   "...Q",
+//   ".Q.."]
+// ]
+static vector<vector<string>> NQueens(int n)
+{
+    if (n <= 0)
+        return vector<vector<string>>{};
+
+    function<void(vector<string> &, int, vector<vector<string>> &)>
+        solve = [&](vector<string> &board, size_t line, vector<vector<string>> &solutions) {
+            for (size_t i = 0; i < board[line].size(); i++)
+            {
+                if (board[line][i] == '.')
+                {
+                    vector<string> next(board);
+                    next[line][i] = 'Q';
+                    if (line == board.size() - 1)
+                    {
+                        for_each(next.begin(), next.end(), [&](string &l) {
+                            for (size_t j = 0; j < l.length(); j++)
+                            {
+                                if (l[j] == 'X')
+                                    l[j] = '.';
+                            }
+                        });
+                        solutions.push_back(next);
+                    }
+                    else
+                    {
+                        int a = i;
+                        int b = i;
+                        for (size_t j = line + 1; j < board.size(); j++)
+                        {
+                            a--;
+                            if (a >= 0)
+                                next[j][a] = 'X';
+                            next[j][i] = 'X';
+                            b++;
+                            if (b < (int)next[j].size())
+                                next[j][b] = 'X';
+                        }
+                        solve(next, line + 1, solutions);
+                    }
+                }
+            }
+        };
+
+    vector<vector<string>> solutions;
+    vector<string> board(n, string(n, '.'));
+    solve(board, 0, solutions);
+    return solutions;
+}
+
+static int NQeensSolutionsCount(int n)
+{
+    if (n <= 0)
+        return 0;
+
+    function<int(vector<vector<bool>> &, int)>
+        count = [&](vector<vector<bool>> &board, int line) -> int {
+        int c = 0;
+        for (size_t i = 0; i < board[line].size(); i++)
+        {
+            if (board[line][i] == true)
+            {
+                if (line == board.size() - 1)
+                    c++;
+                else
+                {
+                    vector<vector<bool>> next(board);
+                    next[line][i] = false;
+                    int a = i;
+                    int b = i;
+                    bool proceed = false;
+                    for (size_t j = line + 1; j < board.size(); j++)
+                    {
+                        a--;
+                        if (a >= 0)
+                            next[j][a] = false;
+                        next[j][i] = false;
+                        b++;
+                        if (b < (int)next[j].size())
+                            next[j][b] = false;
+                        proceed = false;
+                        for (size_t k = 0; k < next[j].size(); k++)
+                        {
+                            if (next[j][k] == true)
+                            {
+                                proceed = true;
+                                break;
+                            }
+                        }
+                        if (proceed == false)
+                            break;
+                    }
+                    if (proceed)
+                        c += count(next, line + 1);
+                }
+            }
+        }
+        return c;
+    };
+
+    vector<vector<bool>> board(n, vector<bool>(n, true));
+    return count(board, 0);
 }
 
 // Given a string s1, we may represent it as a binary tree by partitioning it to two non-empty substrings recursively.
@@ -4402,7 +4741,8 @@ static double myPow(double x, int n)
     while (n1 > 0)
     {
         d = 1;
-        y = x;
+        y = x; // = x^d
+        // loop x^2, x^4, x^8, ...
         while ((d << 1) <= n1)
         {
             y *= y;
@@ -4412,6 +4752,80 @@ static double myPow(double x, int n)
         n1 -= d;
     }
     return inverse ? 1 / z : z;
+}
+// Keep dividing n by 2 and get the remainder r (0 or 1)
+// then there is a sequence:
+// n n_1 n_2 n_3 n_4 ...... n_k (= 0)
+//   r_1 r_2 r_3 r_4 ...... r_k (= 0)
+// x^n = x^{r_1} * (x^2)^{n_1}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{n_2}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{n_3}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4}
+//     ......
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4} ...... * (x^{2^(k-1)})^{r_(k-1)} * (x^{2^k})^{n_k}
+static double myPow2(double x, int n)
+{
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    bool negative = n < 0;
+    if (negative)
+        n = -n;
+    double m = x;
+    double p = (n & 0x1) == 1 ? x : 1;
+    n = n >> 1;
+    while (n > 0)
+    {
+        m = m * m;
+        if ((n & 0x1) == 1)
+        {
+            p = p * m;
+        }
+        n = n >> 1;
+    }
+    if (negative)
+        p = 1 / p;
+    return p;
+}
+static double myPow3(double x, int n)
+{
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    bool negative = n < 0;
+    if (negative)
+        n = -n;
+    double m = x;
+    double p = 1;
+    while (n > 0)
+    {
+        if ((n & 0x1) == 1)
+        {
+            p = p * m;
+        }
+        m = m * m;
+        n = n >> 1;
+    }
+    if (negative)
+        p = 1 / p;
+    return p;
+}
+static double myPow4(double x, int n)
+{
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    bool negative = n < 0;
+    if (negative)
+        n = -n;
+    double p = (n & 0x1) == 1 ? x : 1;
+    p = p * myPow4(x * x, n >> 1);
+    if (negative)
+        p = 1 / p;
+    return p;
 }
 
 // 69. Sqrt(x)
@@ -4621,8 +5035,6 @@ static bool isHappy(int n)
     return x == 1;
 }
 
-namespace SpiralMatrix
-{
 // 54. Spiral Matrix
 // Given a matrix of m x n elements (m rows, n columns), return all
 // elements of the matrix in spiral order. For example,
@@ -4767,7 +5179,64 @@ static vector<vector<int>> generateMatrix(int n)
     }
     return matrix;
 }
-} // namespace SpiralMatrix
+static vector<vector<int>> generateMatrix2(int n)
+{
+    if (n == 0)
+        return vector<vector<int>>();
+    if (n < 0)
+        n = -n;
+    vector<vector<int>> o(n, vector<int>(n, 0));
+    int h = n;
+    int v = n;
+    int i = 0;
+    int j = -1;
+    int t = 1;
+    int d = 0;
+    while (h > 0 && v > 0)
+    {
+        d = d % 4;
+        switch (d)
+        {
+        case 0:
+            for (int k = 1; k <= h; k++)
+            {
+                j++;
+                o[i][j] = t++;
+            }
+            v--;
+            d++;
+            break;
+        case 1:
+            for (int k = 1; k <= v; k++)
+            {
+                i++;
+                o[i][j] = t++;
+            }
+            h--;
+            d++;
+            break;
+        case 2:
+            for (int k = 1; k <= h; k++)
+            {
+                j--;
+                o[i][j] = t++;
+            }
+            v--;
+            d++;
+            break;
+        default:
+            for (int k = 1; k <= v; k++)
+            {
+                i--;
+                o[i][j] = t++;
+            }
+            h--;
+            d++;
+            break;
+        }
+    }
+    return o;
+}
 
 // 62. Unique Paths
 // A robot is located at the top-left corner of a m x n grid (marked 'Start'
@@ -5134,6 +5603,7 @@ static bool isValidSudoku(vector<vector<char>> &board)
 static void rotate(vector<vector<int>> &matrix)
 {
     int d = matrix.size();
+    // Swap up-left with bottom-right
     for (int i = 0; i < d - 1; i++)
     {
         for (int j = 0; j < d - i - 1; j++)
@@ -5141,11 +5611,36 @@ static void rotate(vector<vector<int>> &matrix)
             swap(matrix[i][j], matrix[d - j - 1][d - i - 1]);
         }
     }
+    // Swap up with bottom
     for (int i = 0; i < (d >> 1); i++)
     {
         for (int j = 0; j < d; j++)
         {
             swap(matrix[i][j], matrix[d - i - 1][j]);
+        }
+    }
+}
+static void rotate2(vector<vector<int>> &matrix)
+{
+    int n = matrix.size();
+    // Swap up-right with bottom-left
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            int t = matrix[i][j];
+            matrix[i][j] = matrix[j][i];
+            matrix[j][i] = t;
+        }
+    }
+    // Swap left with right
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n / 2; j++)
+        {
+            int t = matrix[i][j];
+            matrix[i][j] = matrix[i][n - 1 - j];
+            matrix[i][n - 1 - j] = t;
         }
     }
 }
