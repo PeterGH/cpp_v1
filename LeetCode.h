@@ -1015,6 +1015,65 @@ static int findPeakElement(vector<int> &nums)
     throw AssertError("No result");
 }
 
+// Given an unsorted integer array, find the first missing positive
+// integer. For example, Given [1,2,0] return 3, and [3,4,-1,1] return 2.
+// Your algorithm should run in O(n) time and uses constant space.
+static int FirstMissingPositive(int A[], int n)
+{
+    if (A == nullptr || n <= 0)
+        return 1;
+    for (int i = 0; i < n; i++)
+    {
+        // Make sure A[i] = i + 1
+        while (A[i] > 0 && A[i] - 1 != i)
+        {
+            // A[i] should be at another index j
+            int j = A[i] - 1;
+            if (j >= n)
+                break; // A[i] is out of range
+            if (A[i] == A[j])
+                break;
+            int t = A[j];
+            A[j] = A[i];
+            A[i] = t;
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (A[i] != i + 1)
+            return i + 1;
+    }
+    return n + 1;
+}
+static int FirstMissingPositive2(int A[], int n)
+{
+    if (A == nullptr || n <= 0)
+        return 1;
+    for (int i = 0; i < n; i++)
+    {
+        // This is wrong. After switching A[i] and A[j],
+        // it does not check whether A[j] (now at i) is valid or not.
+        if (A[i] > 0 && A[i] - 1 != i)
+        {
+            // A[i] should be at another index j
+            int j = A[i] - 1;
+            if (j >= n)
+                break; // A[i] is out of range
+            if (A[i] == A[j])
+                break;
+            int t = A[j];
+            A[j] = A[i];
+            A[i] = t;
+        }
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (A[i] != i + 1)
+            return i + 1;
+    }
+    return n + 1;
+}
+
 // 121. Best Time to Buy and Sell Stock
 // Say you have an array for which the i-th element is the price of a given
 // stock on day i. If you were only permitted to complete at most one
@@ -2476,6 +2535,120 @@ static int LargestRectangleInHistogram3(const vector<int> &height)
     return maxArea;
 }
 
+// Given n non-negative integers representing an elevation map where the
+// width of each bar is 1, compute how much water it is able to trap after
+// raining. For example, Given [0,1,0,2,1,0,1,3,2,1,2,1], return 6.
+static int TrapWater(int A[], int n)
+{
+    if (A == nullptr || n <= 2)
+        return 0;
+
+    function<int(int[], int, int)>
+        count = [&](int a[], int i, int j) -> int {
+        int m = min(a[i], a[j]);
+        int s = 0;
+        for (int k = i + 1; k < j; k++)
+        {
+            s += (m - a[k]);
+        }
+        return s;
+    };
+
+    // contains non-increasing integers
+    stack<int> tips;
+    tips.push(0);
+    int i;
+    int v = 0;
+    for (int j = 1; j < n; j++)
+    {
+        while (!tips.empty() && A[tips.top()] < A[j])
+        {
+            i = tips.top();
+            tips.pop();
+        }
+        if (tips.empty())
+        {
+            // Now A[i] and A[j] are the two most higher tips seen so far
+            // and A[i] < A[j]
+            if (j - i > 1)
+            {
+                v += count(A, i, j);
+            }
+        }
+        tips.push(j);
+    }
+
+    if (tips.size() == 1)
+        return v; // A is an increasing sequence
+
+    int j = tips.top();
+    tips.pop();
+    while (!tips.empty())
+    {
+        // A[i] >= A[j]
+        i = tips.top();
+        if (j - i > 1)
+        {
+            v += count(A, i, j);
+        }
+        j = i;
+        tips.pop();
+    }
+
+    return v;
+}
+// This algorithm is wrong.
+// Not every tip is a valid tip.
+// If a tip is trapped between two higher tips, then it should be removed.
+static int TrapWater2(int A[], int n)
+{
+    if (A == nullptr || n <= 2)
+        return 0;
+
+    stack<int> tips;
+    if (A[0] > A[1])
+        tips.push(0);
+    for (int i = 1; i < n; i++)
+    {
+        if (A[i - 1] < A[i] && (i == n - 1 || A[i] >= A[i + 1]))
+        {
+            // This loop is wrong because tips[0] can be the lowest tip
+            // e.g., [1, 0, 2, 0, 3]
+            while (tips.size() > 1 && A[tips.top()] < A[i])
+            {
+                tips.pop();
+            }
+            tips.push(i);
+        }
+    }
+
+    if (tips.size() == 1)
+        return 0;
+
+    int v = 0;
+    int j = tips.top();
+    tips.pop();
+    while (!tips.empty())
+    {
+        int i = tips.top();
+        if (j - i > 1)
+        {
+            int m = min(A[i], A[j]);
+            for (int k = i + 1; k < j; k++)
+            {
+                if (A[k] < m)
+                {
+                    v += (m - A[k]);
+                }
+            }
+        }
+        j = i;
+        tips.pop();
+    }
+
+    return v;
+}
+
 // 150. Evaluate Reverse Polish Notation
 // Evaluate the value of an arithmetic expression in Reverse Polish Notation.
 // Valid operators are + , -, *, /. Each operand may be an integer or another
@@ -2580,6 +2753,34 @@ static string countAndSay(int n)
             c = 1;
         }
         s = oss.str();
+    }
+    return s;
+}
+static string countAndSay2(int n)
+{
+    if (n <= 0)
+        return "";
+    string s = "1";
+    for (int i = 0; i < n - 1; i++)
+    {
+        int j = 0;
+        string o;
+        while (j < (int)s.length())
+        {
+            int k = j;
+            while (k + 1 < (int)s.length() && s[k + 1] == s[k])
+                k++;
+            int c = k - j + 1;
+            int m = o.length();
+            while (c > 0)
+            {
+                o.insert(m, 1, '0' + (c % 10));
+                c = c / 10;
+            }
+            o.append(1, s[j]);
+            j = k + 1;
+        }
+        s = o;
     }
     return s;
 }
@@ -3469,7 +3670,7 @@ static int NQeensSolutionsCount(int n)
         {
             if (board[line][i] == true)
             {
-                if (line == board.size() - 1)
+                if (line == (int)board.size() - 1)
                     c++;
                 else
                 {
@@ -3509,6 +3710,157 @@ static int NQeensSolutionsCount(int n)
 
     vector<vector<bool>> board(n, vector<bool>(n, true));
     return count(board, 0);
+}
+
+// Write a program to solve a Sudoku puzzle by filling the empty cells.
+// Empty cells are indicated by the character '.'.
+// You may assume that there will be only one unique solution.
+static void Sudoku(vector<vector<char>> &board)
+{
+    function<void(int &, int, int &, int)>
+        oneStep = [&](int &i, int r, int &j, int c) {
+            j++;
+            j = j % c;
+            if (j == 0)
+            {
+                i++;
+                i = i % r;
+            }
+        };
+
+    function<bool(
+        vector<vector<char>> &,
+        int,
+        int,
+        vector<set<char>> &,
+        vector<set<char>> &,
+        vector<vector<set<char>>> &,
+        map<pair<int, int>, set<char>> &)>
+        solve = [&](
+                    vector<vector<char>> &b,
+                    int i,
+                    int j,
+                    vector<set<char>> &row, // existing characters on every row
+                    vector<set<char>> &col, // existing characters on every column
+                    vector<vector<set<char>>> cell, // existing characters in every 3x3 cell
+                    map<pair<int, int>, set<char>> &m // available characters for every empty cell
+                    ) -> bool {
+        while (i != (int)b.size() - 1 || j != (int)b[i].size() - 1)
+        {
+            if (b[i][j] == '.')
+                break;
+            oneStep(i, (int)b.size(), j, (int)b[i].size());
+        }
+        // Now (i, j) is either empty or it is the bottom-right element of b
+        if (b[i][j] != '.')
+            return true;
+        pair<int, int> p = make_pair(i, j);
+        for (set<char>::iterator it = m[p].begin(); it != m[p].end(); it++)
+        {
+            char c = *it;
+            if (row[i].find(c) == row[i].end() && col[j].find(c) == col[j].end() && cell[i / 3][j / 3].find(c) == cell[i / 3][j / 3].end())
+            {
+                b[i][j] = c;
+                row[i].insert(c);
+                col[j].insert(c);
+                cell[i / 3][j / 3].insert(c);
+                if (i == (int)b.size() - 1 && j == (int)b[i].size() - 1)
+                    return true;
+                int i1 = i;
+                int j1 = j;
+                oneStep(i1, (int)b.size(), j1, (int)b[i].size());
+                if (solve(b, i1, j1, row, col, cell, m))
+                    return true;
+                b[i][j] = '.';
+                row[i].erase(c);
+                col[j].erase(c);
+                cell[i / 3][j / 3].erase(c);
+            }
+        }
+        return false;
+    };
+
+    if (board.size() == 0 || board[0].size() == 0)
+        return;
+
+    vector<set<char>> row = vector<set<char>>(9, set<char>{});
+    vector<set<char>> col = vector<set<char>>(9, set<char>{});
+    vector<vector<set<char>>> cell = vector<vector<set<char>>>(3, vector<set<char>>(3, set<char>{}));
+    for (int i = 0; i < (int)board.size(); i++)
+    {
+        for (int j = 0; j < (int)board[i].size(); j++)
+        {
+            if (board[i][j] != '.')
+            {
+                row[i].insert(board[i][j]);
+                col[j].insert(board[i][j]);
+                cell[i / 3][j / 3].insert(board[i][j]);
+            }
+        }
+    }
+    map<pair<int, int>, set<char>> m;
+    for (int i = 0; i < (int)board.size(); i++)
+    {
+        for (int j = 0; j < (int)board[i].size(); j++)
+        {
+            if (board[i][j] == '.')
+            {
+                pair<int, int> p = make_pair(i, j);
+                m[p] = set<char>{};
+                for (char c = '1'; c <= '9'; c++)
+                {
+                    if (row[i].find(c) == row[i].end() && col[j].find(c) == col[j].end() && cell[i / 3][j / 3].find(c) == cell[i / 3][j / 3].end())
+                    {
+                        m[p].insert(c);
+                    }
+                }
+            }
+        }
+    }
+
+    solve(board, 0, 0, row, col, cell, m);
+    return;
+}
+
+// 36. Valid Sudoku
+// Determine if a Sudoku is valid, according to: Sudoku Puzzles The Rules.
+// The Sudoku board could be partially filled, where empty cells are filled with
+// the character '.'. A partially filled sudoku which is valid. Note: A valid
+// Sudoku board (partially filled) is not necessarily solvable. Only the filled
+// cells need to be validated.
+static bool isValidSudoku(vector<vector<char>> &board)
+{
+    map<size_t, set<char>> rows;
+    map<size_t, set<char>> cols;
+    map<size_t, set<char>> grids;
+    for (size_t i = 0; i < board.size(); i++)
+    {
+        if (rows.find(i) == rows.end())
+            rows[i] = set<char>{};
+        for (size_t j = 0; j < board[i].size(); j++)
+        {
+            if (i == 0 && cols.find(j) == cols.end())
+                cols[j] = set<char>();
+            if (i % 3 == 0 && j % 3 == 0 && grids.find(i * 3 + j) == grids.end())
+            {
+                grids[i * 3 + j] = set<char>{};
+            }
+            if (board[i][j] != '.')
+            { // A real check may be against '0'-'9'
+                if (rows[i].find(board[i][j]) != rows[i].end())
+                    return false;
+                rows[i].insert(board[i][j]);
+                if (cols[j].find(board[i][j]) != cols[j].end())
+                    return false;
+                cols[j].insert(board[i][j]);
+                auto k = (i / 3) * 3 + (j / 3);
+                if (grids[k].find(board[i][j]) != grids[k].end())
+                    return false;
+                grids[k].insert(board[i][j]);
+            }
+        }
+    }
+    return true;
 }
 
 // Given a string s1, we may represent it as a binary tree by partitioning it to two non-empty substrings recursively.
@@ -3710,6 +4062,81 @@ static bool IsScramble2(const string &s1, const string &s2)
     };
 
     return isScramble(0, (int)s1.length() - 1, 0, (int)s2.length() - 1);
+}
+
+// Implement wildcard pattern matching with support for '?' and '*'.
+// '?' Matches any single character.
+// '*' Matches any sequence of characters (including the empty sequence).
+// The matching should cover the entire input string (not partial).
+// The function prototype should be:
+// bool isMatch(const char *s, const char *p)
+// Some examples:
+// isMatch("aa","a") false
+// isMatch("aa","aa") true
+// isMatch("aaa","aa") false
+// isMatch("aa", "*") true
+// isMatch("aa", "a*") true
+// isMatch("ab", "?*") true
+// isMatch("aab", "c*a*b") false
+static int length(const char *s)
+{
+    int i = 0;
+    const char *p = s;
+    while (*p != '\0')
+    {
+        if (*p != '*')
+            i++;
+        p++;
+    }
+    return i;
+}
+static bool isMatchInternal(const char *s, const char *p, map<pair<const char *, const char *>, bool> &m)
+{
+    pair<const char *, const char *> c = make_pair(s, p);
+    if (m.find(c) != m.end())
+        return m[c];
+
+    m[c] = false;
+
+    int i = length(s);
+    int j = length(p);
+    if (i < j)
+        return false;
+
+    while (*s != '\0' && *p != '\0' && (*s == *p || *p == '?'))
+    {
+        ++s;
+        ++p;
+    }
+    // Now *s == '\0' || *p == '\0' || (*s != *p && *p != '?')
+    if (*s == '\0' && *p == '\0')
+    {
+        m[c] = true;
+        return true;
+    }
+    if (*p == '\0' || *p != '*')
+        return false;
+    // Now *p == '*'
+    while (*p == '*')
+        p++;
+    // Now *p == '\0' || *p == '?' || *p != '*'
+    while (*s != '\0' && i >= j)
+    {
+        if ((*s == *p || *p == '?') && isMatchInternal(s + 1, p + 1, m))
+        {
+            m[c] = true;
+            return true;
+        }
+        s++;
+        i--;
+    }
+    m[c] = (*s == *p) && (i >= j);
+    return m[c];
+}
+static bool isMatch(const char *s, const char *p)
+{
+    map<pair<const char *, const char *>, bool> m;
+    return isMatchInternal(s, p, m);
 }
 
 // Minimum Window Substring
@@ -5552,47 +5979,6 @@ static bool exist(vector<vector<char>> &board, string word)
         }
     }
     return false;
-}
-
-// 36. Valid Sudoku
-// Determine if a Sudoku is valid, according to: Sudoku Puzzles The Rules.
-// The Sudoku board could be partially filled, where empty cells are filled with
-// the character '.'. A partially filled sudoku which is valid. Note: A valid
-// Sudoku board (partially filled) is not necessarily solvable. Only the filled
-// cells need to be validated.
-static bool isValidSudoku(vector<vector<char>> &board)
-{
-    map<size_t, set<char>> rows;
-    map<size_t, set<char>> cols;
-    map<size_t, set<char>> grids;
-    for (size_t i = 0; i < board.size(); i++)
-    {
-        if (rows.find(i) == rows.end())
-            rows[i] = set<char>{};
-        for (size_t j = 0; j < board[i].size(); j++)
-        {
-            if (i == 0 && cols.find(j) == cols.end())
-                cols[j] = set<char>();
-            if (i % 3 == 0 && j % 3 == 0 && grids.find(i * 3 + j) == grids.end())
-            {
-                grids[i * 3 + j] = set<char>{};
-            }
-            if (board[i][j] != '.')
-            { // A real check may be against '0'-'9'
-                if (rows[i].find(board[i][j]) != rows[i].end())
-                    return false;
-                rows[i].insert(board[i][j]);
-                if (cols[j].find(board[i][j]) != cols[j].end())
-                    return false;
-                cols[j].insert(board[i][j]);
-                auto k = (i / 3) * 3 + (j / 3);
-                if (grids[k].find(board[i][j]) != grids[k].end())
-                    return false;
-                grids[k].insert(board[i][j]);
-            }
-        }
-    }
-    return true;
 }
 
 // 48. Rotate Image

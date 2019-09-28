@@ -676,8 +676,8 @@ void LeetCodeTest::Init(void)
     Add("SpiralMatrix", [&]() {
         auto check = [&](vector<vector<int>> m) {
             Logger() << m;
-            vector<int> o = LeetCode::SpiralMatrix::spiralOrder(m);
-            vector<int> o2 = LeetCode::SpiralMatrix::spiralOrder2(m);
+            vector<int> o = LeetCode::spiralOrder(m);
+            vector<int> o2 = LeetCode::spiralOrder2(m);
             Logger() << o << o2;
             ASSERT1(o.size() == o2.size());
             for (int i = 0; i < (int)o.size(); i++)
@@ -768,8 +768,8 @@ void LeetCodeTest::Init(void)
             {
                 vector<vector<int>> m = Random::Grid(Random::Int(50, 1), Random::Int(50, 1));
                 Logger() << m;
-                vector<int> o = LeetCode::SpiralMatrix::spiralOrder(m);
-                vector<int> o2 = LeetCode::SpiralMatrix::spiralOrder2(m);
+                vector<int> o = LeetCode::spiralOrder(m);
+                vector<int> o2 = LeetCode::spiralOrder2(m);
                 ASSERT1(o.size() == o2.size());
                 for (size_t j = 0; j < o.size(); j++)
                 {
@@ -898,6 +898,94 @@ void LeetCodeTest::Init(void)
 		check("ACCCCCBCCCACCACB", "ABA", "ACCACB");
 		check("ACCCCCBCCCACCACB", "ABD", "");
 		check("ADOBECODEBANC", "ABC", "BANC");
+	});
+
+    Add("TrapWater", [&](){
+		auto check = [&](int a[], int n){
+			for (int i = 0; i < n; i++) {
+				Logger().WriteInformation("%s %d", i == 0 ? "" : ",", a[i]);
+			}
+			Logger().WriteInformation("\n");
+			int s = Test::LeetCode::TrapWater(a, n);
+			int s2 = s; // Test::LeetCode::TrapWater2(a, n);
+			Logger().WriteInformation("  Trapped water: %d, %d\n", s, s2);
+			ASSERT1(s == s2);
+		};
+		{
+			int a[] = { 1 };
+			check(a, 1);
+		}
+		{
+			int a[] = { 1, 2 };
+			check(a, 2);
+		}
+		{
+			int a[] = { 2, 1 };
+			check(a, 2);
+		}
+		{
+			int a[] = { 1, 2, 3 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 3, 2, 1 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 2, 1, 3 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 3, 1, 2 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 2, 0, 2, 1, 3 };
+			check(a, 5);
+		}
+		{
+			int a[] = { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 };
+			check(a, 12);
+		}
+		{
+			int a[] = { 5, 2, 1, 2, 1, 5 };
+			check(a, 6);
+		}
+	});
+
+    Add("FirstMissingPositive", [&](){
+		auto check = [&](int a[], int n){
+			unique_ptr<int[]> b(new int[n]);
+            for (int i = 0; i < n; i++) {
+				Logger().WriteInformation("%s %d", i == 0 ? "" : ",", a[i]);
+                b[i] = a[i];
+			}
+			Logger().WriteInformation("\n");
+			int s = Test::LeetCode::FirstMissingPositive(a, n);
+            int s2 = Test::LeetCode::FirstMissingPositive2(b.get(), n);
+			Logger().WriteInformation("  first missing positive: %d, %d\n", s, s2);
+            ASSERT1(s == s2);
+		};
+		{
+			int a[] = { 1, 2, 0 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 3, 4, -1, 1 };
+			check(a, 4);
+		}
+		{
+			int a[] = { 3, 4, 2 };
+			check(a, 3);
+		}
+		{
+			int a[] = { 4, 3, 2, 1 };
+			check(a, 4);
+		}
+		{
+			int a[] = { 1, 1 };
+			check(a, 2);
+		}
 	});
 }
 #endif
