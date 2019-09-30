@@ -987,5 +987,28 @@ void LeetCodeTest::Init(void)
 			check(a, 2);
 		}
 	});
+
+    Add("LongestValidParentheses", [&](){
+		auto check = [&](const string & s){
+			int l = Test::LeetCode::LongestValidParentheses(s);
+			int l2 = Test::LeetCode::LongestValidParentheses2(s);
+            int l3 = Test::LeetCode::LongestValidParentheses3(s);
+            int l4 = Test::LeetCode::LongestValidParentheses4(s);
+			Logger().WriteInformation("%s: %d, %d, %d, %d\n", s.c_str(), l, l2, l3, l4);
+			ASSERT1(l == l2);
+            ASSERT1(l == l4);
+		};
+		check("()");
+		check("()()");
+		check("(())");
+		check("(()())");
+        check("(()())((()())(()()))");
+        for (int i = 0; i < 10; i++)
+        {
+            size_t n = Random::Int(20, 2);
+            string s = Random::String(n, string("()"));
+            check(s);
+        }
+	});
 }
 #endif
