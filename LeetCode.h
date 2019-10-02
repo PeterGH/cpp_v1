@@ -2721,6 +2721,45 @@ static int strStr(string haystack, string needle)
     }
     return -1;
 }
+static char *strStr2(char *haystack, char *needle)
+{
+    if (*needle == '\0')
+        return haystack;
+    if (*haystack == '\0')
+        return nullptr;
+    int lh = 0;
+    char *h = haystack;
+    while (*h != '\0')
+    {
+        lh++;
+        h++;
+    }
+    int ln = 0;
+    char *n = needle;
+    while (*n != '\0')
+    {
+        ln++;
+        n++;
+    }
+    if (lh < ln)
+        return nullptr;
+    for (int i = 0; i <= lh - ln; i++, haystack++)
+    {
+        if (*haystack == *needle)
+        {
+            h = haystack;
+            n = needle;
+            while (*h != '\0' && *n != '\0' && *n == *h)
+            {
+                h++;
+                n++;
+            }
+            if (*n == '\0')
+                return haystack;
+        }
+    }
+    return nullptr;
+}
 
 // 38. Count and Say
 // The count-and-say sequence is the sequence of integers beginning as follows:
@@ -3214,21 +3253,184 @@ static int LongestValidParentheses4(const string &s)
     {
         switch (s[i])
         {
-            case '(':
-                p.push(i);
-                break;
-            case ')':
-                if (!p.empty())
-                {
-                    m = std::max(m, i - p.top() + 1);
-                    p.pop();
-                }
-                break;
-            default:
-                break;
+        case '(':
+            p.push(i);
+            break;
+        case ')':
+            if (!p.empty())
+            {
+                m = std::max(m, i - p.top() + 1);
+                p.pop();
+            }
+            break;
+        default:
+            break;
         }
     }
     return m;
+}
+
+// Given n pairs of parentheses, write a function to generate all combinations
+// of well-formed parentheses. For example, given n = 3, a solution set is:
+// "((()))", "(()())", "(())()", "()(())", "()()()"
+static vector<string> GenerateParentheses(int n)
+{
+    if (n <= 0)
+        return vector<string>{};
+
+    function<void(int, int, map<pair<int, int>, vector<string>> &)>
+        solve = [&](
+                    // l <= r
+                    int l, // count '(' needed
+                    int r, // count ')' needed
+                    map<pair<int, int>, vector<string>> &m) {
+            pair<int, int> p = make_pair(l, r);
+            m[p] = vector<string>{};
+            string s;
+            for (int i = 1; i < l; i++)
+            {
+                s.append(1, '(');
+                string t(s);
+                for (int j = 1; j <= r - l + i; j++)
+                {
+                    t.append(1, ')');
+                    // l - i <= r - j
+                    pair<int, int> q = make_pair(l - i, r - j);
+                    if (m.find(q) == m.end())
+                        solve(l - i, r - j, m);
+                    for_each(m[q].begin(), m[q].end(), [&](string &u) {
+                        string v(t);
+                        v.append(u);
+                        m[p].push_back(v);
+                    });
+                }
+            }
+            s.append(1, '(');
+            s.append(r, ')');
+            m[p].push_back(s);
+        };
+
+    map<pair<int, int>, vector<string>> m;
+    solve(n, n, m);
+    pair<int, int> p = make_pair(n, n);
+    return m[p];
+}
+static vector<string> GenerateParentheses2(int n)
+{
+    if (n <= 0)
+        return vector<string>{};
+    if (n == 1)
+        return vector<string>{"()"};
+
+    function<void(string, int, int, int, vector<string> &)>
+        solve = [&](
+                    string s,
+                    int l, // count '(' in s
+                    int r, // count ')' in s
+                    int n,
+                    vector<string> &o) {
+            for (int i = 1; i < n - l; i++)
+            {
+                s.append(1, '(');
+                string t(s);
+                for (int j = 1; j <= l - r + i; j++)
+                {
+                    t.append(1, ')');
+                    solve(t, l + i, r + j, n, o);
+                }
+            }
+            s.append(1, '(');
+            s.append(n - r, ')');
+            o.push_back(s);
+        };
+
+    vector<string> result;
+    string s;
+    solve(s, 0, 0, n, result);
+    return result;
+}
+// This algorithm is wrong
+static vector<string> GenerateParentheses3(int n)
+{
+    vector<string> result;
+    if (n <= 0)
+        return result;
+    result.push_back("()");
+    if (n == 1)
+        return result;
+    for (int i = 2; i <= n; i++)
+    {
+        int j = result.size();
+        for (int k = 0; k < j; k++)
+        {
+            string s = result.front();
+            result.erase(result.begin());
+            string o = s;
+            o.append("()");
+            result.push_back(o);
+            bool symmetric = true;
+            int a = 0;
+            int b = o.length() - 1;
+            while (a < b)
+            {
+                if (o[a] == o[b])
+                {
+                    symmetric = false;
+                    break;
+                }
+                a++;
+                b--;
+            }
+            if (!symmetric)
+            {
+                o = "()";
+                o.append(s);
+                result.push_back(o);
+            }
+            o = "(";
+            o.append(s);
+            o.append(")");
+            result.push_back(o);
+        }
+    }
+    return result;
+}
+static vector<string> GenerateParentheses4(int n)
+{
+    if (n <= 0)
+        return vector<string>{};
+    if (n == 1)
+        return vector<string>{"()"};
+
+    function<void(string, int, int, int, vector<string> &)>
+        solve = [&](
+                    string s,
+                    int l, // count '(' in s
+                    int r, // count ')' in s
+                    int n,
+                    vector<string> &o) {
+            if (l == n)
+            {
+                s.append(n - r, ')');
+                o.push_back(s);
+                return;
+            }
+
+            string tl(s);
+            tl.append(1, '(');
+            solve(tl, l + 1, r, n, o);
+            if (l > r)
+            {
+                string tr(s);
+                tr.append(1, ')');
+                solve(tr, l, r + 1, n, o);
+            }
+        };
+
+    vector<string> result;
+    string s;
+    solve(s, 0, 0, n, result);
+    return result;
 }
 
 // 49. Group Anagrams
@@ -3412,6 +3614,55 @@ static bool wordBreak(string s, vector<string> &wordDict)
         return breakable[i];
     };
     return solve(0);
+}
+
+// You are given a string, S, and a list of words, L, that are all of the
+// same length. Find all starting indices of substring(s) in S that is a
+// concatenation of each word in L exactly once and without any intervening
+// characters. For example, given: S: "barfoothefoobarman" L: ["foo", "bar"]
+// You should return the indices: [0,9]. (order does not matter).
+// [TODO] Think about the simple case where each word of L is a character.
+static vector<int> SubstringOfConcatenation(const string &S, vector<string> &L)
+{
+    vector<int> result;
+    int len = S.length();
+    if (len == 0 || L.size() == 0)
+        return result;
+    int sl = L.size() * L[0].length();
+    if (len < sl)
+        return result;
+    map<string, int> m;
+    for_each(L.begin(), L.end(), [&](string &s) {
+        if (m.find(s) == m.end())
+        {
+            m[s] = 1;
+        }
+        else
+        {
+            m[s] += 1;
+        }
+    });
+    for (int i = 0; i <= len - sl; i++)
+    {
+        string s = S.substr(i, L[0].length());
+        if (m.find(s) != m.end())
+        {
+            map<string, int> n(m);
+            for (int j = i; j < i + sl; j += L[0].length())
+            {
+                s = S.substr(j, L[0].length());
+                if (n.find(s) == n.end())
+                    break;
+                if (n[s] == 1)
+                    n.erase(s);
+                else
+                    n[s]--;
+            }
+            if (n.size() == 0)
+                result.push_back(i);
+        }
+    }
+    return result;
 }
 
 // Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2.
@@ -5354,6 +5605,152 @@ static int divide(int dividend, int divisor)
     }
     return negative ? -quotient : quotient;
 }
+static int divide2(int dividend, int divisor)
+{
+    if (divisor == 0)
+        throw invalid_argument("divided by zero");
+    if (dividend == 0)
+        return 0;
+    if (divisor == 1)
+        return dividend;
+    if (divisor == -1)
+        return -dividend;
+
+    long long de = dividend;
+    long long ds = divisor;
+
+    bool negative = false;
+    if (de > 0 && ds < 0)
+    {
+        negative = true;
+        ds = -ds;
+    }
+    else if (de < 0 && ds > 0)
+    {
+        negative = true;
+        de = -de;
+    }
+    else if (de < 0 && ds < 0)
+    {
+        de = -de;
+        ds = -ds;
+    }
+
+    long long r = 0;
+    while (de >= ds)
+    {
+        long long d = ds;
+        long long i = 1;
+        while (de >= d)
+        {
+            d = d << 1;
+            i = i << 1;
+        }
+        d = d >> 1;
+        i = i >> 1;
+        de -= d;
+        r += i;
+    }
+
+    if (negative)
+        r = -r;
+    return (int)r;
+}
+static int divide3(int dividend, int divisor)
+{
+    if (divisor == 0)
+        throw invalid_argument("divided by zero");
+    if (dividend == 0)
+        return 0;
+
+    long long de = dividend;
+    long long ds = divisor;
+
+    bool negative = false;
+    if (de > 0 && ds < 0)
+    {
+        negative = true;
+        ds = -ds;
+    }
+    else if (de < 0 && ds > 0)
+    {
+        negative = true;
+        de = -de;
+    }
+    else if (de < 0 && ds < 0)
+    {
+        de = -de;
+        ds = -ds;
+    }
+
+    if (de < ds)
+        return 0;
+    if (de == ds)
+        return negative ? -1 : 1;
+
+    long long r = 0;
+    long long d = ds;
+    long long i = 1;
+    vector<long long> v(1, d);
+    while (de >= d)
+    {
+        d = d << 1;
+        i = i << 1;
+        v.push_back(d);
+    }
+    d = d >> 1;
+    i = i >> 1;
+    de -= d;
+    v.pop_back();
+    r += i;
+
+    while (de >= ds)
+    {
+        int j = 0;
+        int k = v.size() - 1;
+        while (j <= k)
+        {
+            int m = j + ((k - j) >> 1);
+            if (de < v[m])
+            {
+                if (j == m)
+                {
+                    if (m > 0)
+                    {
+                        r += (long long)(1 << (m - 1));
+                        de -= v[m - 1];
+                    }
+                    while ((int)v.size() > m)
+                        v.pop_back();
+                    break;
+                }
+                k = m - 1;
+            }
+            else if (v[m] < de)
+            {
+                if (m == k)
+                {
+                    r += (long long)(1 << m);
+                    de -= v[m];
+                    while ((int)v.size() > m + 1)
+                        v.pop_back();
+                    break;
+                }
+                j = m + 1;
+            }
+            else
+            {
+                r += (long long)(1 << m);
+                de -= v[m];
+                break;
+            }
+        }
+    }
+
+    if (negative)
+        r = -r;
+    return (int)r;
+}
 
 // 50. Pow(x, n)
 static double myPow(double x, int n)
@@ -6751,6 +7148,98 @@ static ListNode *MergeSortedLists(ListNode *l1, ListNode *l2)
     return head;
 }
 
+// Merge k sorted linked lists and return it as one sorted list.
+static ListNode *MergeKLists(vector<ListNode *> &lists)
+{
+    if (lists.size() == 0)
+        return nullptr;
+    ListNode *list = nullptr;
+    ListNode *tail = list;
+    while (true)
+    {
+        ListNode *mp = nullptr;
+        int mi = 0;
+        for (int i = 0; i < (int)lists.size(); i++)
+        {
+            if (lists[i] != nullptr)
+            {
+                if (mp == nullptr || lists[i]->val < mp->val)
+                {
+                    mp = lists[i];
+                    mi = i;
+                }
+            }
+        }
+        if (mp == nullptr)
+            break;
+        if (list == nullptr)
+            list = mp;
+        else
+            tail->next = mp;
+        tail = mp;
+        lists[mi] = mp->next;
+    }
+    return list;
+}
+static bool Greater(ListNode *first, ListNode *second)
+{
+    if (first == nullptr && second == nullptr)
+        return false;
+    if (first == nullptr && second != nullptr)
+        return true;
+    if (first != nullptr && second == nullptr)
+        return false;
+    if (first->val > second->val)
+        return true;
+    else
+        return false;
+}
+static ListNode *MergeKLists2(vector<ListNode *> &lists)
+{
+    if (lists.size() == 0)
+        return nullptr;
+    ListNode *list = nullptr;
+    ListNode *tail = list;
+    make_heap(lists.begin(), lists.end(), Greater);
+    while (lists.front() != nullptr)
+    {
+        pop_heap(lists.begin(), lists.end(), Greater);
+        if (list == nullptr)
+            list = lists.back();
+        else
+            tail->next = lists.back();
+        tail = lists.back();
+        lists.back() = lists.back()->next;
+        push_heap(lists.begin(), lists.end(), Greater);
+    }
+    return list;
+}
+static ListNode *MergeKLists3(vector<ListNode *> &lists)
+{
+    if (lists.size() == 0)
+        return nullptr;
+    ListNode *list = nullptr;
+    ListNode *tail = list;
+    make_heap(lists.begin(), lists.end(), Greater);
+    while (lists.size() > 0)
+    {
+        pop_heap(lists.begin(), lists.end(), Greater);
+        if (lists.back() == nullptr)
+            break;
+        if (list == nullptr)
+            list = lists.back();
+        else
+            tail->next = lists.back();
+        tail = lists.back();
+        lists.back() = lists.back()->next;
+        if (lists.back() == nullptr)
+            lists.pop_back();
+        else
+            push_heap(lists.begin(), lists.end(), Greater);
+    }
+    return list;
+}
+
 // 2. Add Two Numbers
 // Given two non-empty linked lists representing two non-negative integers. The
 // digits are stored in reverse order (LSB is the head) and each node contain a
@@ -6976,6 +7465,88 @@ static ListNode *reverseBetween2(ListNode *head, int m, int n)
     else
         head = r;
 
+    return head;
+}
+
+// Given a linked list, reverse the nodes of a linked list k at a time and
+// return its modified list. If the number of nodes is not a multiple of k
+// then left-out nodes in the end should remain as it is. You may not alter
+// the values in the nodes, only nodes itself may be changed. Only constant
+// memory is allowed. For example, Given this linked list: 1->2->3->4->5
+// For k = 2, you should return: 2->1->4->3->5
+// For k = 3, you should return: 3->2->1->4->5
+static ListNode *ReverseKGroup(ListNode *head, int k)
+{
+    if (head == nullptr || k <= 1)
+        return head;
+
+    ListNode *begin = head;
+    ListNode *prev = begin;
+    while (begin != nullptr)
+    {
+        ListNode *end = begin;
+        int i = 1;
+        while (i < k && end != nullptr)
+        {
+            end = end->next;
+            i++;
+        }
+        if (end == nullptr)
+            return head;
+
+        ListNode *f = begin;
+        ListNode *s = f->next;
+        ListNode *t = nullptr;
+        begin->next = end->next;
+
+        while (f != end)
+        {
+            t = s->next;
+            s->next = f;
+            f = s;
+            s = t;
+        }
+
+        if (head == begin)
+            head = end;
+        else
+            prev->next = end;
+
+        prev = begin;
+        begin = begin->next;
+    }
+    return head;
+}
+
+// Given a linked list, swap every two adjacent nodes and return its head.
+// For example, Given 1->2->3->4, you should return the list as 2->1->4->3.
+// Your algorithm should use only constant space. You may not modify the
+// values in the list, only nodes itself can be changed.
+static ListNode *SwapPairs(ListNode *head)
+{
+    if (head == nullptr || head->next == nullptr)
+        return head;
+
+    ListNode *f = head;
+    ListNode *s = f->next;
+
+    f->next = s->next;
+    s->next = f;
+    head = s;
+
+    ListNode *p = f;
+    f = f->next;
+    while (f != nullptr)
+    {
+        s = f->next;
+        if (s == nullptr)
+            break;
+        f->next = s->next;
+        s->next = f;
+        p->next = s;
+        p = f;
+        f = f->next;
+    }
     return head;
 }
 
