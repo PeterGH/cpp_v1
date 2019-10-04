@@ -3021,6 +3021,64 @@ static int TrapWater2(int A[], int n)
     return v;
 }
 
+// Container With Most Water
+// Given n non-negative integers a1, a2, ..., an, where each represents a
+// point at coordinate (i, ai). n vertical lines are drawn such that the two
+// endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together
+// with x-axis forms a container, such that the container contains the most water.
+// Note: You may not slant the container.
+static int MaxContainerArea(vector<int> &height)
+{
+    int n = height.size();
+    if (n <= 1)
+        return 0;
+    int l = 0;
+    int h = n - 1;
+    int a = 0;
+    while (l < h)
+    {
+        a = max(a, (h - l) * min(height[l], height[h]));
+        if (height[l] < height[h])
+            l++;
+        else
+            h--;
+    }
+    return a;
+}
+static int MaxContainerArea2(vector<int> &height)
+{
+    int n = height.size();
+    if (n <= 1)
+        return 0;
+    vector<int> begin = {0};
+    for (int i = 1; i < n; i++)
+    {
+        if (height[i] > height[begin.back()])
+            begin.push_back(i);
+    }
+    // begin contains increasing elements
+    vector<int> end = {n - 1};
+    for (int i = n - 2; i >= 0; i--)
+    {
+        if (height[i] > height[end.front()])
+            end.insert(end.begin(), i);
+    }
+    // end contains decreasing elements
+    int a = 0;
+    for (int j = 0; j < (int)end.size(); j++)
+    {
+        int i = 0;
+        while (i < (int)begin.size() && begin[i] < end[j])
+        {
+            int b = (end[j] - begin[i]) * min(height[begin[i]], height[end[j]]);
+            if (b > a)
+                a = b;
+            i++;
+        }
+    }
+    return a;
+}
+
 // 150. Evaluate Reverse Polish Notation
 // Evaluate the value of an arithmetic expression in Reverse Polish Notation.
 // Valid operators are + , -, *, /. Each operand may be an integer or another
@@ -5569,6 +5627,199 @@ static int numDecodings2(const string &s)
         c1 = c2;
     }
     return c2;
+}
+
+// Given a roman numeral, convert it to an integer.
+// Input is guaranteed to be within the range from 1 to 3999.
+// I can be placed before V and X to make 4 units (IV) and 9 units (IX) respectively
+// X can be placed before L and C to make 40 (XL) and 90 (XC) respectively
+// C can be placed before D and M to make 400 (CD) and 900 (CM) according to the same pattern
+static int RomanToInt(const string &s)
+{
+    int n = s.length();
+    if (n == 0)
+        return 0;
+    int i = 0;
+    int r = 0;
+    while (i < n)
+    {
+        switch (s[i])
+        {
+        case 'I': // 1
+            if (i + 1 < n && s[i + 1] == 'V')
+            {
+                r += 4;
+                i += 2;
+            }
+            else if (i + 1 < n && s[i + 1] == 'X')
+            {
+                r += 9;
+                i += 2;
+            }
+            else
+            {
+                r += 1;
+                i++;
+            }
+            break;
+        case 'V': // 5
+            r += 5;
+            i++;
+            break;
+        case 'X': // 10
+            if (i + 1 < n && s[i + 1] == 'L')
+            {
+                r += 40;
+                i += 2;
+            }
+            else if (i + 1 < n && s[i + 1] == 'C')
+            {
+                r += 90;
+                i += 2;
+            }
+            else
+            {
+                r += 10;
+                i++;
+            }
+            break;
+        case 'L': // 50
+            r += 50;
+            i++;
+            break;
+        case 'C': // 100
+            if (i + 1 < n && s[i + 1] == 'D')
+            {
+                r += 400;
+                i += 2;
+            }
+            else if (i + 1 < n && s[i + 1] == 'M')
+            {
+                r += 900;
+                i += 2;
+            }
+            else
+            {
+                r += 100;
+                i++;
+            }
+            break;
+        case 'D': // 500
+            r += 500;
+            i++;
+            break;
+        case 'M': // 1,000
+            r += 1000;
+            i++;
+            break;
+        default:
+            i++;
+            break;
+        }
+    }
+    return r;
+}
+
+// Given an integer, convert it to a roman numeral.
+// Input is guaranteed to be within the range from 1 to 3999.
+static string IntToRomain(int num)
+{
+    string s;
+    if (num <= 0)
+        return s;
+    int d = num / 1000;
+    if (d > 0)
+        s.append(d, 'M');
+    num = num % 1000;
+    if (num == 0)
+        return s;
+    if (num >= 900)
+    {
+        s.append(1, 'C');
+        s.append(1, 'M');
+        num -= 900;
+    }
+    else if (num >= 500)
+    {
+        s.append(1, 'D');
+        num -= 500;
+        if (num == 0)
+            return s;
+        d = num / 100;
+        if (d > 0)
+            s.append(d, 'C');
+        num = num % 100;
+    }
+    else if (num >= 400)
+    {
+        s.append(1, 'C');
+        s.append(1, 'D');
+        num -= 400;
+    }
+    else
+    {
+        d = num / 100;
+        if (d > 0)
+            s.append(d, 'C');
+        num = num % 100;
+    }
+    // Now 0 <= num < 100
+    if (num == 0)
+        return s;
+    if (num >= 90)
+    {
+        s.append(1, 'X');
+        s.append(1, 'C');
+        num -= 90;
+    }
+    else if (num >= 50)
+    {
+        s.append(1, 'L');
+        num -= 50;
+        if (num == 0)
+            return s;
+        d = num / 10;
+        if (d > 0)
+            s.append(d, 'X');
+        num = num % 10;
+    }
+    else if (num >= 40)
+    {
+        s.append(1, 'X');
+        s.append(1, 'L');
+        num -= 40;
+    }
+    else
+    {
+        d = num / 10;
+        if (d > 0)
+            s.append(d, 'X');
+        num = num % 10;
+    }
+    // Now 0 <= num < 10
+    if (num == 0)
+        return s;
+    if (num == 9)
+    {
+        s.append(1, 'I');
+        s.append(1, 'X');
+    }
+    else if (num >= 5)
+    {
+        s.append(1, 'V');
+        num -= 5;
+        s.append(num, 'I');
+    }
+    else if (num == 4)
+    {
+        s.append(1, 'I');
+        s.append(1, 'V');
+    }
+    else
+    {
+        s.append(num, 'I');
+    }
+    return s;
 }
 
 // 93. Restore IP Addresses
