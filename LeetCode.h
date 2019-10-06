@@ -676,21 +676,51 @@ static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
             {
                 if (s[ms] <= l[ml + 1])
                 {
+                    // The median or the lower median is in s
                     if (odd)
+                    {
+                        // s[0..(ms-1)], s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml],        l[(ml+1)..(ll-1)]
                         return s[ms];
+                    }
                     else if (ms + 1 < (int)s.size())
+                    {
+                        // even
+                        // s[0..(ms-1)], s[ms], s[ms+1], s[(ms+2)..(ls-1)]
+                        //     l[0..ml],        l[ml+1], l[(ml+2)..(ll-1)]
                         return (s[ms] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                    }
                     else
+                    {
+                        // even
+                        // s[0..(ms-1)], s[ms]
+                        //     l[0..ml],        l[(ml+1)..(ll-1)]
                         return (s[ms] + l[ml + 1]) / 2.0;
+                    }
                 }
                 if (bs == ms)
                 {
+                    // The median or the lower median is in l
                     if (odd)
+                    {
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1],        l[(ml+2)..(ll-1)]
                         return l[ml + 1];
+                    }
                     else if (ml + 2 < (int)l.size())
+                    {
+                        // even
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1], l[(ml+2)..(ll-1)]
                         return (l[ml + 1] + min(s[ms], l[ml + 2])) / 2.0;
+                    }
                     else
+                    {
+                        // even
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1]
                         return (l[ml + 1] + s[ms]) / 2.0;
+                    }
                 }
                 es = ms - 1;
             }
@@ -699,25 +729,54 @@ static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2)
                 if (ms == (int)s.size() - 1)
                 {
                     if (odd)
+                    {
+                        //     s[0..ms]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
                         return l[ml];
+                    }
                     else
+                    {
+                        //     s[0..ms]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)], l[(ml+2)..(ll-1)]
                         return (l[ml] + l[ml + 1]) / 2.0;
+                    }
                 }
                 if (l[ml] <= s[ms + 1])
                 {
                     if (odd)
+                    {
+                        //     s[0..ms],        s[(ms+1)..(ls-1)]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
                         return l[ml];
+                    }
                     else
+                    {
+                        // even
+                        //     s[0..ms],        s[(ms+1)..(ls-1)]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
                         return (l[ml] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                    }
                 }
                 if (ms == es)
                 {
                     if (odd)
+                    {
+                        //     s[0..ms], s[ms+1],        s[(ms+2)..(ls-1)]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
                         return s[ms + 1];
+                    }
                     else if (ms + 2 < (int)s.size())
-                        return (s[ms + 1] + min(s[ms + 2], l[ml + 1])) / 2.0;
+                    {
+                        //     s[0..ms], s[ms+1], s[(ms+2)..(ls-1)]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
+                        return (s[ms + 1] + min(s[ms + 2], l[ml])) / 2.0;
+                    }
                     else
-                        return (s[ms + 1] + l[ml + 1]) / 2.0;
+                    {
+                        //     s[0..ms], s[ms+1]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
+                        return (s[ms + 1] + l[ml]) / 2.0;
+                    }
                 }
                 bs = ms + 1;
             }
@@ -5028,6 +5087,7 @@ static bool IsScramble2(const string &s1, const string &s2)
 // isMatch("aab", "c*a*b") false
 static int length(const char *s)
 {
+    // Count characters in s that is not '*'
     int i = 0;
     const char *p = s;
     while (*p != '\0')
@@ -5085,6 +5145,45 @@ static bool isMatch(const char *s, const char *p)
 {
     map<pair<const char *, const char *>, bool> m;
     return isMatchInternal(s, p, m);
+}
+// Implement regular expression matching with support for '.' and '*'.
+// '.' Matches any single character.
+// '*' Matches zero or more of the preceding element.
+// The matching should cover the entire input string (not partial).
+// The function prototype should be:
+// bool isMatch(const char *s, const char *p)
+// Some examples:
+// isMatch("aa","a") → false
+// isMatch("aa","aa") → true
+// isMatch("aaa","aa") → false
+// isMatch("aa", "a*") → true
+// isMatch("aa", ".*") → true
+// isMatch("ab", ".*") → true
+// isMatch("aab", "c*a*b") → true
+static bool isMatch2(const char *s, const char *p)
+{
+    while (*p == '*')
+        p++;
+    if (*s == '\0' && *p == '\0')
+        return true;
+    if (*p == '\0')
+        return false;
+    if (*(p + 1) != '*')
+    {
+        if (*s != '\0' && (*s == *p || *p == '.'))
+            return isMatch2(++s, ++p);
+        else
+            return false;
+    }
+    // Now *(p + 1) == '*'
+    while (*s != '\0' && (*s == *p || *p == '.'))
+    {
+        if (isMatch2(s, p + 2))
+            return true;
+        s++;
+    }
+    // *s and *p are not matching, skip *p because *(p + 1) is '*'
+    return isMatch2(s, p + 2);
 }
 
 // Minimum Window Substring
