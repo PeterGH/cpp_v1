@@ -13,7 +13,7 @@ namespace Test
 {
 class Log
 {
-  public:
+public:
     enum Level
     {
         Error,
@@ -22,7 +22,7 @@ class Log
         Verbose
     };
 
-  private:
+private:
     static const size_t MaxLength = 1024;
     ostream &_os;
     Level _level;
@@ -45,7 +45,7 @@ class Log
         }                                         \
     }
 
-  public:
+public:
     Log(ostream &os = cout, Level level = Level::Information)
         : _os(os), _level(level)
     {
@@ -91,6 +91,57 @@ class Log
     {
         *this << "(" << p.first << ", " << p.second << ")";
         return *this;
+    }
+
+    template <class T>
+    void Print(T a[], int n, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("[");
+        for (int i = 0; i < n; i++)
+        {
+            if (i != 0)
+                WriteInformation(sep);
+            WriteInformation(format, a[i]);
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(const T *input, const int length, const int columns, const char *format = "%d", const char *sep = ", ")
+    {
+        if (input == nullptr || length <= 0)
+            return;
+        int rows = length / columns;
+        WriteInformation("[\n");
+
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < columns; j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                WriteInformation(format, *(input + i * columns + j));
+            }
+            WriteInformation("\n");
+        }
+
+        int remainders = length % columns;
+        if (remainders > 0)
+        {
+            for (int j = 0; j < remainders; j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                WriteInformation(format, *(input + rows * columns + j));
+            }
+            WriteInformation("\n");
+        }
+
+        WriteInformation("]\n");
     }
 
     template <class T>

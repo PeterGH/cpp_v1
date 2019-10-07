@@ -2,6 +2,8 @@
 #include "Argument.h"
 #include "Log.h"
 #include "ArgumentTest.h"
+#include "ArrayTest.h"
+#include "BitSetTest.h"
 #include "LeetCodeTest.h"
 #include "LogTest.h"
 
@@ -30,6 +32,8 @@ int main(int argc, const char *argv[])
             arg.Has("v") ? Log::Level::Verbose : Log::Level::Warning);
     TestSuite suite(log);
     suite.Add(new ArgumentTest(log));
+    suite.Add(new ArrayTest(log));
+    suite.Add(new BitSetTest(log));
     suite.Add(new LeetCodeTest(log));
     suite.Add(new LogTest(log));
 

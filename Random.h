@@ -11,10 +11,22 @@ namespace Test
 {
 class Random
 {
-  public:
+public:
     static int Int(int max = RAND_MAX, int min = 0)
     {
         return min + (rand() % (max - min + 1));
+    }
+
+    static void Array(int *array, int length, int max = RAND_MAX, int min = 0)
+    {
+        if (array == nullptr)
+            throw invalid_argument("array is nullptr");
+        if (length <= 0)
+            throw invalid_argument("invalid length");
+        for (int i = 0; i < length; i++)
+        {
+            array[i] = Int(max, min);
+        }
     }
 
     static vector<int> Vector(size_t n, int max = RAND_MAX, int min = 0)
