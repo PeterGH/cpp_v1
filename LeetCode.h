@@ -3132,6 +3132,8 @@ static vector<vector<int>> combine(int n, int k)
 // Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
 // then we need s(n, k).
 // s(n, k) = s(n-1, k-1) + s(n-1, k)
+// where s(i-1, j-1) contains solutions each of which contains i, and
+// s(i-1, j) contains solutions each of which does not contain i.
 static vector<vector<int>> combine2(int n, int k)
 {
     if (n < k)
@@ -3231,6 +3233,63 @@ static vector<vector<int>> combine3(int n, int k)
 
     return s[n - k];
 }
+static vector<vector<int>> combine4(int n, int k)
+{
+    vector<vector<int>> sets = {vector<int>{}};
+    vector<vector<int>> output = {};
+    for (int i = 1; i <= n; i++)
+    {
+        int size = sets.size();
+        for (int j = 0; j < size; j++)
+        {
+            if ((int)sets[j].size() < k)
+            {
+                vector<int> ex(sets[j].begin(), sets[j].end());
+                ex.push_back(i);
+                if ((int)ex.size() == k)
+                {
+                    output.push_back(ex);
+                }
+                else
+                {
+                    sets.push_back(ex);
+                }
+            }
+        }
+    }
+    return output;
+}
+static vector<vector<int>> combine5(int n, int k)
+{
+    function<void(vector<int>, int, int, vector<vector<int>> &)>
+        solve = [&](vector<int> pre, int i, int k1, vector<vector<int>> &s) {
+            if (k1 == 0)
+            {
+                s.push_back(pre);
+                return;
+            }
+            if (n - i + 1 == k1)
+            {
+                // pre contains i - 1 numbers
+                // There k1 numbers from i to n
+                for (int j = i; j <= n; j++)
+                {
+                    pre.push_back(j);
+                }
+                s.push_back(pre);
+                return;
+            }
+            for (int j = i; j <= n - k1 + 1; j++)
+            {
+                vector<int> p(pre.begin(), pre.end());
+                p.push_back(j);
+                solve(p, j + 1, k1 - 1, s);
+            }
+        };
+    vector<vector<int>> set = {};
+    solve(vector<int>{}, 1, k, set);
+    return set;
+}
 
 // 78. Subsets
 // Given a set of distinct integers, nums, return all possible subsets. Note:
@@ -3301,6 +3360,169 @@ static vector<vector<int>> subsetsWithDup(vector<int> &nums)
 }
 
 } // namespace Combination
+
+namespace CoinChange
+{
+// Given an amount n and a set of coin denominations:
+// d_0, d_1, d_2, ......, d_(k-1)
+// The minimum count of coins to make up n:
+// N(n) = 1 + min{N(n - d_0), N(n - d_1), ..., N(n - d_(k-1))}
+static void ComputeMinCounts(unsigned int amount, vector<unsigned int> &denominations, vector<pair<unsigned int, unsigned int>> &counts)
+{
+    // Sort coins increasingly
+    sort(denominations.begin(), denominations.end());
+
+    // counts[i] tracks the min count to make up amount i, and
+    // the last change coin picked.
+    counts.push_back(make_pair(0, 0));
+    counts.push_back(make_pair(1, 1));
+    for (unsigned int i = 2; i <= amount; i++)
+    {
+        unsigned int minCount = amount;
+        unsigned int change;
+        unsigned int j = 0;
+        while (j < denominations.size() && denominations[j] <= i)
+        {
+            if (counts[i - denominations[j]].first < minCount)
+            {
+                minCount = counts[i - denominations[j]].first;
+                change = denominations[j];
+            }
+
+            j++;
+        }
+
+        counts.push_back(make_pair(1 + minCount, change));
+    }
+}
+static void ComputeSolution(unsigned int amount, vector<unsigned int> &denominations, map<unsigned int, unsigned int> &changes)
+{
+    vector<pair<unsigned int, unsigned int>> counts;
+    ComputeMinCounts(amount, denominations, counts);
+    int i = amount;
+    while (i > 0)
+    {
+        unsigned int c = counts[i].second;
+        if (changes.find(c) == changes.end())
+        {
+            changes[c] = 1;
+        }
+        else
+        {
+            changes[c]++;
+        }
+
+        i -= (int)c;
+    }
+}
+
+static unsigned int GreedySolution(unsigned int amount, vector<unsigned int> &denominations, map<unsigned int, unsigned int> &changes)
+{
+    function<bool(unsigned int, unsigned int)>
+        greater = [&](unsigned int first, unsigned int second) -> bool {
+        return first > second;
+    };
+
+    // Sort in decreasing order
+    sort(denominations.begin(), denominations.end(), greater);
+
+    for_each(denominations.begin(), denominations.end(), [&](unsigned int d) {
+        if (amount == 0)
+            return;
+
+        if (amount >= d)
+        {
+            unsigned int count = amount / d;
+            changes[d] = count;
+            amount = amount % d;
+        }
+    });
+
+    // Return what ever cannot be changed, e.g. the minimum denomination is not 1.
+    return amount;
+}
+
+// http://leetcode.com/2010/09/print-all-combinations-of-number-as-sum.html
+// Compute all sets of changes sum up to a given ammount
+static void ComputeAllSolutions(unsigned int amount, vector<unsigned int> &denominations, vector<map<unsigned int, unsigned int>> &changes)
+{
+    // [TODO] no need to sort if use minIndex instead of minD in compute()
+    sort(denominations.begin(), denominations.end());
+
+    function<void(int, unsigned int, map<unsigned int, unsigned int> &)>
+        compute = [&](int sum, unsigned int minD, map<unsigned int, unsigned int> &s) {
+            for_each(denominations.begin(), denominations.end(), [&](unsigned int d) {
+                if (d >= minD && sum >= (int)d)
+                {
+                    // Since denominations is already sorted, we can use
+                    // minD as a gate to avoid to recompute solutions with smaller denoms.
+                    map<unsigned int, unsigned int> copy(s);
+                    if (copy.find(d) == copy.end())
+                    {
+                        copy[d] = 1;
+                    }
+                    else
+                    {
+                        copy[d]++;
+                    }
+
+                    if (sum == (int)d)
+                    {
+                        changes.push_back(copy);
+                    }
+                    else
+                    {
+                        compute(sum - d, d, copy);
+                    }
+                }
+            });
+        };
+
+    map<unsigned int, unsigned int> s;
+    compute(amount, denominations.front(), s);
+}
+
+// http://leetcode.com/2010/09/print-all-combinations-of-number-as-sum.html
+// Compute all sub sets of changes sum up to a given ammount.
+// Duplication of a change is disallowed.
+static void ComputeSubSetSolutions(unsigned int amount, vector<unsigned int> &denominations, vector<map<unsigned int, unsigned int>> &changes)
+{
+    // [TODO] no need to sort if use minIndex instead of minD in compute()
+    sort(denominations.begin(), denominations.end());
+
+    function<void(int, unsigned int, map<unsigned int, unsigned int> &)>
+        compute = [&](int sum, unsigned int minD, map<unsigned int, unsigned int> &s) {
+            for_each(denominations.begin(), denominations.end(), [&](unsigned int d) {
+                if (d >= minD && sum >= (int)d)
+                {
+                    // Since denominations is already sorted, we can use
+                    // minD as a gate to avoid to recompute solutions with smaller denoms.
+                    map<unsigned int, unsigned int> copy(s);
+                    if (copy.find(d) == copy.end())
+                    {
+                        copy[d] = 1;
+                    }
+                    else
+                    {
+                        copy[d]++;
+                    }
+
+                    if (sum == (int)d)
+                    {
+                        changes.push_back(copy);
+                    }
+                    else
+                    {
+                        compute(sum - d, d + 1, copy);
+                    }
+                }
+            });
+        };
+
+    map<unsigned int, unsigned int> s;
+    compute(amount, denominations.front(), s);
+}
+} // namespace CoinChange
 
 // Given a phone digit string, return all possible letter combinations
 // that the number could represent. A mapping of digit to letters (just
