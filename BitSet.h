@@ -127,6 +127,10 @@ public:
         _lenInt = bitset._lenInt;
         _y = bitset._y;
         _ints = bitset._ints;
+        bitset._lenBit = 0;
+        bitset._lenInt = 0;
+        bitset._y = 0;
+        bitset._ints = nullptr;
     }
 
     BitSet &operator=(BitSet &&bitset)
@@ -142,6 +146,10 @@ public:
             _lenInt = bitset._lenInt;
             _y = bitset._y;
             _ints = bitset._ints;
+            bitset._lenBit = 0;
+            bitset._lenInt = 0;
+            bitset._y = 0;
+            bitset._ints = nullptr;
         }
         return *this;
     }

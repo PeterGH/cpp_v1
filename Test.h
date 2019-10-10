@@ -15,7 +15,7 @@ namespace Test
 {
 class AssertError : public domain_error
 {
-  public:
+public:
     AssertError(const string &message) : domain_error(message) {}
 };
 
@@ -25,9 +25,19 @@ class AssertError : public domain_error
 #define ASSERT2(statement, message) \
     Assert(statement, #statement, message, __FILE__, __LINE__)
 
+#define ASSERTERROR(statement, error) \
+    try                               \
+    {                                 \
+        statement;                    \
+    }                                 \
+    catch (error &)                   \
+    {                                 \
+        ASSERT1(true);                \
+    }
+
 class TestClass
 {
-  private:
+private:
     size_t _passCount;
     size_t _failCount;
     Log &_log;
@@ -63,7 +73,7 @@ class TestClass
         }
     }
 
-  public:
+public:
     TestClass(Log &log) : _passCount(0), _failCount(0), _log(log) {}
 
     virtual ~TestClass(void) {}
@@ -139,7 +149,7 @@ class TestClass
 
 class TestSuite final
 {
-  private:
+private:
     size_t _passCount;
     size_t _failCount;
     Log &_log;
@@ -169,7 +179,7 @@ class TestSuite final
         _failCount += it->second->FailCount();
     }
 
-  public:
+public:
     TestSuite(Log &log) : _passCount(0), _failCount(0), _log(log) {}
     ~TestSuite(void) {}
 
