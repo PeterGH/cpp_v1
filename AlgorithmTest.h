@@ -38,25 +38,223 @@ void AlgorithmTest::Init(void)
     });
 
     Add("Knapsack", [&]() {
-		{
-			vector<pair<int, int>> items;
-			items.push_back(make_pair(60, 2));
-			items.push_back(make_pair(100, 4));
-			items.push_back(make_pair(120, 6));
-			Matrix<int> values(3, 11);
-			Knapsack::PrintSolution(items, values);
-		}
-		{
-			vector<pair<int, int>> items;
-			items.push_back(make_pair(60, 2));
-			items.push_back(make_pair(100, 2));
-			items.push_back(make_pair(120, 6));
-			Matrix<int> values(3, 11);
-			Knapsack::ComputeValues(items, values);
-			Knapsack::PrintSolution(items, values);
-		}
-	});
+        {
+            vector<pair<int, int>> items;
+            items.push_back(make_pair(60, 2));
+            items.push_back(make_pair(100, 4));
+            items.push_back(make_pair(120, 6));
+            Matrix<int> values(3, 11);
+            Knapsack::PrintSolution(items, values);
+        }
+        {
+            vector<pair<int, int>> items;
+            items.push_back(make_pair(60, 2));
+            items.push_back(make_pair(100, 2));
+            items.push_back(make_pair(120, 6));
+            Matrix<int> values(3, 11);
+            Knapsack::ComputeValues(items, values);
+            Knapsack::PrintSolution(items, values);
+        }
+    });
 
+    Add("LongestCommonSubsequence", [&]() {
+        string x = "ABCBDAB";
+        string y = "BDCABA";
+        LongestCommonSubsequence::PrintLCS(x, y);
+
+        x = "ABCBDABJOHBFUOBLNJIPIOHUGOYO";
+        y = "BDCABATIOFTYFIBLOILUIIGGOBLOBIP";
+        LongestCommonSubsequence::PrintLCS(x, y);
+    });
+
+    Add("LongestIncreasingSubsequence", [&]() {
+        {
+            int I[] = {1};
+            LongestIncreasingSubsequence::PrintSolution(I, 1);
+        }
+        {
+            int I1[] = {1, 2};
+            LongestIncreasingSubsequence::PrintSolution(I1, 2);
+
+            int I2[] = {2, 1};
+            LongestIncreasingSubsequence::PrintSolution(I2, 2);
+        }
+        {
+            int I1[] = {1, 2, 3};
+            LongestIncreasingSubsequence::PrintSolution(I1, 3);
+
+            int I2[] = {1, 3, 2};
+            LongestIncreasingSubsequence::PrintSolution(I2, 3);
+
+            int I3[] = {2, 1, 3};
+            LongestIncreasingSubsequence::PrintSolution(I3, 3);
+
+            int I4[] = {2, 3, 1};
+            LongestIncreasingSubsequence::PrintSolution(I4, 3);
+
+            int I5[] = {3, 1, 2};
+            LongestIncreasingSubsequence::PrintSolution(I5, 3);
+
+            int I6[] = {3, 2, 1};
+            LongestIncreasingSubsequence::PrintSolution(I6, 3);
+        }
+        {
+            int I1[] = {1, 2, 3, 4};
+            LongestIncreasingSubsequence::PrintSolution(I1, 4);
+
+            int I2[] = {1, 2, 4, 3};
+            LongestIncreasingSubsequence::PrintSolution(I2, 4);
+
+            int I3[] = {1, 3, 2, 4};
+            LongestIncreasingSubsequence::PrintSolution(I3, 4);
+
+            int I4[] = {1, 3, 4, 2};
+            LongestIncreasingSubsequence::PrintSolution(I4, 4);
+
+            int I5[] = {1, 4, 2, 3};
+            LongestIncreasingSubsequence::PrintSolution(I5, 4);
+
+            int I6[] = {1, 4, 3, 2};
+            LongestIncreasingSubsequence::PrintSolution(I6, 4);
+
+            int I7[] = {2, 1, 3, 4};
+            LongestIncreasingSubsequence::PrintSolution(I7, 4);
+
+            int I8[] = {2, 1, 4, 3};
+            LongestIncreasingSubsequence::PrintSolution(I8, 4);
+
+            int I9[] = {2, 3, 1, 4};
+            LongestIncreasingSubsequence::PrintSolution(I9, 4);
+
+            int I10[] = {2, 3, 4, 1};
+            LongestIncreasingSubsequence::PrintSolution(I10, 4);
+
+            int I11[] = {2, 4, 1, 3};
+            LongestIncreasingSubsequence::PrintSolution(I11, 4);
+
+            int I12[] = {2, 4, 3, 1};
+            LongestIncreasingSubsequence::PrintSolution(I12, 4);
+
+            int I13[] = {3, 1, 2, 4};
+            LongestIncreasingSubsequence::PrintSolution(I13, 4);
+
+            int I14[] = {3, 1, 4, 2};
+            LongestIncreasingSubsequence::PrintSolution(I14, 4);
+
+            int I15[] = {3, 2, 1, 4};
+            LongestIncreasingSubsequence::PrintSolution(I15, 4);
+
+            int I16[] = {3, 2, 4, 1};
+            LongestIncreasingSubsequence::PrintSolution(I16, 4);
+
+            int I17[] = {3, 4, 1, 2};
+            LongestIncreasingSubsequence::PrintSolution(I17, 4);
+
+            int I18[] = {3, 4, 2, 1};
+            LongestIncreasingSubsequence::PrintSolution(I18, 4);
+
+            int I19[] = {4, 1, 2, 3};
+            LongestIncreasingSubsequence::PrintSolution(I19, 4);
+
+            int I20[] = {4, 1, 3, 2};
+            LongestIncreasingSubsequence::PrintSolution(I20, 4);
+
+            int I21[] = {4, 2, 1, 3};
+            LongestIncreasingSubsequence::PrintSolution(I21, 4);
+
+            int I22[] = {4, 2, 3, 1};
+            LongestIncreasingSubsequence::PrintSolution(I22, 4);
+
+            int I23[] = {4, 3, 1, 2};
+            LongestIncreasingSubsequence::PrintSolution(I23, 4);
+
+            int I24[] = {4, 3, 2, 1};
+            LongestIncreasingSubsequence::PrintSolution(I24, 4);
+        }
+    });
+
+    Add("MatrixChain", [&]() {
+        int dimension[7] = {30, 35, 15, 5, 10, 20, 25};
+        int count = 7;
+        int cost[6][6];
+        int split[6][6];
+
+        memset(cost, 0, 36 * sizeof(int));
+        memset(split, 0, 36 * sizeof(int));
+
+        MatrixChain::ComputeCostTable(dimension, count, &cost[0][0], &split[0][0]);
+
+        for (int i = 0; i < 6; i++)
+        {
+            cout << "\t" << dimension[i] << "x" << dimension[i + 1];
+        }
+
+        cout << endl;
+
+        for (int i = 0; i < 6; i++)
+        {
+            cout << "\t" << i;
+        }
+
+        cout << endl;
+
+        for (int i = 0; i < 6; i++)
+        {
+            cout << i;
+            for (int j = 0; j < 6; j++)
+            {
+                cout << "\t";
+                if (j >= i)
+                    cout << cost[i][j];
+            }
+
+            cout << endl;
+        }
+
+        cout << endl;
+
+        for (int i = 0; i < 6; i++)
+        {
+            cout << i;
+            for (int j = 0; j < 6; j++)
+            {
+                cout << "\t";
+                if (j >= i)
+                    cout << split[i][j];
+            }
+
+            cout << endl;
+        }
+
+        MatrixChain::PrintSolution(dimension, count);
+    });
+
+    Add("MazeUniquePaths", [&]() {
+        auto check = [&](int rows, int cols) {
+            Logger().WriteInformation("Maze %d x %d:", rows, cols);
+            Matrix<double> count(rows, cols);
+            Matrix<double> count2(rows, cols);
+            Maze::CountUniquePaths(rows, cols, count);
+            Maze::CountUniquePaths2(rows, cols, count2);
+            Logger().WriteInformation(" unique paths (%f, %f)\n", count(0, 0), count2(0, 0));
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    ASSERT1(count(i, j) == count2(i, j));
+                }
+            }
+        };
+
+        // overflow may happen if the maze is too large
+        for (int i = 1; i <= 15; i++)
+        {
+            for (int j = 1; j <= 15; j++)
+            {
+                check(i, j);
+            }
+        }
+    });
 }
 
 #endif
