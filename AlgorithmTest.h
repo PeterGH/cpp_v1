@@ -255,6 +255,164 @@ void AlgorithmTest::Init(void)
             }
         }
     });
+
+    Add("MinMaxPartitionSum", [&]() {
+        auto check = [&](int *input, int length, int partitions, int expectedSum) {
+            Logger().WriteInformation("\nInput:");
+            for (int i = 0; i < length; i++)
+            {
+                Logger().WriteInformation(" %d", input[i]);
+            }
+            Logger().WriteInformation("\n%d partitions\n", partitions);
+
+            unique_ptr<int[]> indices(new int[partitions]);
+            unique_ptr<int[]> indices2(new int[partitions]);
+            int sum = MinMaxPartitionSum::Solve(input, length, indices.get(), partitions);
+            int sum2 = MinMaxPartitionSum::Solve2(input, length, indices2.get(), partitions);
+
+            auto print = [&](unique_ptr<int[]> &indicesArray) {
+                for (int j = 0; j < partitions; j++)
+                {
+                    int b = indicesArray[j];
+                    int e = j == partitions - 1 ? length - 1 : indicesArray[j + 1] - 1;
+                    int s = 0;
+                    for (int i = b; i <= e; i++)
+                    {
+                        s += input[i];
+                    }
+                    Logger().WriteInformation("  %d = sum{A[%d..%d]} = ", s, b, e);
+                    for (int i = b; i <= e; i++)
+                    {
+                        Logger().WriteInformation("%s%d", i == b ? "" : " + ", input[i]);
+                    }
+                    Logger().WriteInformation("\n");
+                }
+            };
+
+            Logger().WriteInformation("\nSolution using dynamic programming: %d\n", sum);
+            print(indices);
+            Logger().WriteInformation("\nSolution using binary search: %d\n", sum2);
+            print(indices2);
+            ASSERT1(sum == expectedSum);
+            ASSERT1(sum2 == expectedSum);
+            for (int i = 0; i < partitions; i++)
+            {
+                ASSERT1(indices[i] == indices2[i]);
+            }
+        };
+
+        int A1[] = {100, 200, 300, 400, 500, 600, 700, 800, 900};
+        check(A1, 9, 3, 1700);
+
+        int A2[] = {100, 200, 300, 400, 500, 600, 700, 800, 900};
+        check(A2, 9, 9, 900);
+
+        int A3[] = {900, 800, 700, 600, 500, 400, 300, 200, 100};
+        check(A3, 9, 3, 1700);
+
+        int A4[] = {100, 100, 100, 100, 100, 100, 100, 100, 100};
+        check(A4, 9, 3, 300);
+
+        int A5[] = {100, 100, 100, 100, 100, 100, 100, 100, 100};
+        check(A5, 9, 2, 500);
+
+        int A6[] = {100, 100, 100, 100, 100, 100, 100, 100, 100};
+        check(A6, 9, 9, 100);
+
+        int A7[] = {100, 100, 100, 100, 100, 100, 100, 100, 100};
+        check(A7, 9, 4, 300);
+
+        int A8[] = {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
+        check(A8, 12, 5, 300);
+    });
+
+    Add("FiniteAutomationInvalidPattern", [&]() {
+		ASSERTERROR(FiniteAutomation fa(nullptr), invalid_argument);
+		ASSERTERROR(FiniteAutomation fa(""), invalid_argument);
+		ASSERTERROR(FiniteAutomation fa("test"), invalid_argument);
+	});
+
+	Add("FiniteAutomationInvalidInput", [&]() {
+		FiniteAutomation fa("a");
+		vector<int> i = fa.SearchString("", 0);
+		ASSERT1(i.size() == 0);
+	});
+
+	Add("FiniteAutomation1", [&]() {
+		FiniteAutomation fa("a");
+		fa.Print();
+
+		vector<int> indices = fa.SearchString("b", 1);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("a", 1);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 0);
+
+		indices = fa.SearchString("ba", 2);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 1);
+
+		indices = fa.SearchString("ab", 1);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 0);
+
+		indices = fa.SearchString("bb", 2);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("aa", 2);
+		ASSERT1(indices.size() == 2);
+		ASSERT1(indices[0] == 0);
+		ASSERT1(indices[1] == 1);
+
+		indices = fa.SearchString("baa", 3);
+		ASSERT1(indices.size() == 2);
+		ASSERT1(indices[0] == 1);
+		ASSERT1(indices[1] == 2);
+
+		indices = fa.SearchString("aba", 3);
+		ASSERT1(indices.size() == 2);
+		ASSERT1(indices[0] == 0);
+		ASSERT1(indices[1] == 2);
+
+		indices = fa.SearchString("bba", 3);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 2);
+	});
+
+	Add("FiniteAutomation2", [&]() {
+		FiniteAutomation fa("aa");
+		fa.Print();
+
+		vector<int> indices = fa.SearchString("b", 1);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("a", 1);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("aa", 2);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 0);
+
+		indices = fa.SearchString("ba", 2);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("baa", 3);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 1);
+
+		indices = fa.SearchString("bab", 3);
+		ASSERT1(indices.size() == 0);
+
+		indices = fa.SearchString("aab", 3);
+		ASSERT1(indices.size() == 1);
+		ASSERT1(indices[0] == 0);
+
+		indices = fa.SearchString("aaa", 3);
+		ASSERT1(indices.size() == 2);
+		ASSERT1(indices[0] == 0);
+		ASSERT1(indices[1] == 1);
+	});
 }
 
 #endif
