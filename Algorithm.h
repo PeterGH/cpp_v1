@@ -1014,6 +1014,378 @@ private:
     // For current state i, given a character c determine the next state j
     map<int, map<char, int> *> transition;
 };
+
+class KMP
+{
+public:
+    KMP(const char *pattern)
+    {
+        this->prefix = nullptr;
+        this->pattern = nullptr;
+        if (pattern == nullptr)
+            throw invalid_argument("pattern is nullptr");
+        this->length = (int)strlen(pattern);
+        if (this->length <= 0)
+            throw invalid_argument(String::Format("length %d <= 0", this->length));
+
+        this->pattern = new char[this->length + 1];
+        strcpy(this->pattern, pattern);
+        this->prefix = new int[this->length];
+        memset(this->prefix, 0, this->length * sizeof(int));
+
+        // Maintain prefix[i] = k, update prefix[i+1] by checking pattern[i+1] vs pattern[k+1].
+        // The goal is for each input i, find k such that pattern[0..k] is suffix of input[0..i].
+
+        int k = -1;
+        this->prefix[0] = k;
+        for (int i = 1; i < this->length; i++)
+        {
+            while (k > -1 && this->pattern[k + 1] != this->pattern[i])
+            {
+                // Keep searching backward for minimum k
+                // such that pattern[0..k)] is a suffix of pattern[0..(i-1)]
+                k = this->prefix[k];
+            }
+
+            // The while loop terminates when
+            // 1. there is a k such that pattern[0..(k+1)] is a suffix of pattern[0..i], or
+            // 2. k = -1
+
+            if (this->pattern[k + 1] == this->pattern[i])
+            {
+                // One more match
+                k = k + 1;
+            }
+
+            this->prefix[i] = k;
+        }
+    }
+
+    ~KMP(void)
+    {
+        if (this->prefix != nullptr)
+        {
+            delete[] this->prefix;
+            this->prefix = nullptr;
+        }
+
+        if (this->pattern != nullptr)
+        {
+            delete[] this->pattern;
+            this->pattern = nullptr;
+        }
+    }
+
+    void Print(void)
+    {
+        for (int i = 0; i < this->length; i++)
+        {
+            printf("\t%d", i);
+        }
+
+        printf("\n");
+
+        for (int i = 0; i < this->length; i++)
+        {
+            printf("\t%d", this->prefix[i]);
+        }
+
+        printf("\n");
+    }
+
+    vector<int> SearchString(const char *input, int length)
+    {
+        vector<int> indices;
+        if (input == nullptr || input[0] == '\0' || length <= 0)
+            return indices;
+
+        int k = -1;
+        for (int i = 0; i < length; i++)
+        {
+            while (k > -1 && this->pattern[k + 1] != input[i])
+            {
+                k = this->prefix[k];
+            }
+
+            if (this->pattern[k + 1] == input[i])
+            {
+                k = k + 1;
+            }
+
+            if (k == this->length - 1)
+            {
+                indices.push_back(i - k);
+                k = this->prefix[k];
+            }
+        }
+
+        return indices;
+    }
+
+private:
+    char *pattern;
+    int *prefix;
+    int length;
+};
+
+namespace Math
+{
+static size_t CountBits(unsigned int n)
+{
+    int c = 0;
+    while (n != 0)
+    {
+        n = n >> 1;
+        c++;
+    }
+    return c;
+};
+
+static size_t CountBitOnes(unsigned int n)
+{
+    int c = 0;
+    while (n != 0)
+    {
+        // erase one bit from the lower end
+        // 0x####0100 & 0x####00FF = 0x####0000
+        n = n & (n - 1);
+        c++;
+    }
+    return c;
+};
+
+static int LowerMedian(int b, int e)
+{
+    // If e - b + 1 = 2m
+    // +----------------+    +------------------+
+    // b               b+m-1 b+m             e = b+2m-1
+    // The median index is b+m-1 = b + (e - b) / 2, rounding to the lower boundary
+    //
+    // If e - b + 1 = 2m-1
+    // +----------------+    +     +------------------+
+    // b               b+m-2 b+m-1 b+m+1             e = b+2m-2
+    // The median index is b+m-1 = b + (e - b) / 2
+    return b + ((e - b) >> 1);
+}
+
+static int HigherMedian(int b, int e)
+{
+    // If e - b + 1 = 2m
+    // +----------------+    +------------------+
+    // b               b+m-1 b+m             e = b+2m-1
+    // The median index is b+m = b + (e - b + 1) / 2, rounding to the lower boundary
+    //
+    // If e - b + 1 = 2m-1
+    // +----------------+    +     +------------------+
+    // b               b+m-2 b+m-1 b+m+1             e = b+2m-2
+    // The median index is b+m-1 = b + (e - b + 1) / 2
+    return b + ((e - b + 1) >> 1);
+}
+
+static long long ToInteger(const string &input)
+{
+    if (input.length() == 0)
+        throw invalid_argument("input is empty");
+    long long s = 0;
+    bool negative = input[0] == '-';
+    for (size_t i = negative ? 1 : 0; i < input.length(); i++)
+    {
+        if (input[i] < '0' || input[i] > '9')
+            throw invalid_argument("input is not an integer");
+        s = s * 10 + input[i] - '0';
+    }
+    return negative ? -s : s;
+}
+
+template <class T>
+static T GreatestCommonDivisor(T n0, T n1)
+{
+    if (n0 == 0 && n1 == 0)
+        throw invalid_argument("(0, 0) has no greatest common divisor");
+    if (n0 < 0)
+        n0 = -n0;
+    if (n1 < 0)
+        n1 = -n1;
+    if (n0 == 0)
+        return n1;
+    if (n1 == 0)
+        return n0;
+    if (n1 > n0)
+        swap(n0, n1);
+    T r = n0 % n1;
+    while (r != 0)
+    {
+        n0 = n1;
+        n1 = r;
+        r = n0 % n1;
+    }
+    return n1;
+}
+
+// Add two bit arrays, n2 = n0 + n1. Assume bit-0 is the LSB.
+static void AddBits(const int *n0, size_t l0, const int *n1, size_t l1, int *n2)
+{
+    if (n0 == nullptr || n1 == nullptr)
+        return;
+    if (l0 == 0 || l1 == 0)
+        return;
+    if (n2 == nullptr)
+        return;
+    if (l0 > l1)
+    { // adjust so that n0 is shorter than n1
+        swap(n0, n1);
+        swap(l0, l1);
+    }
+    memset(n2, 0, (l1 + 1) * sizeof(int));
+    memcpy(n2, n0, l0 * sizeof(int));
+    int c = 0;
+    size_t i = 0;
+    for (i = 0; i < l1; i++)
+    {
+        int s = n2[i] + n1[i] + c;
+        switch (s)
+        {
+        case 0:
+        case 1:
+            n2[i] = s;
+            c = 0;
+            break;
+        case 2:
+        case 3:
+            n2[i] = s & 0x1;
+            c = 1;
+            break;
+        default:
+            break;
+        }
+    }
+    if (c == 1)
+        n2[i] = 1;
+}
+
+// Convert Excel column number to integer:
+//     A, B, ..., Z,  AA, AB, ..., AZ, BA, BB, ..., ZZ,  AAA, AAB, ...
+//     0, 1, ..., 25, 26, 27, ..., 51, 52, 53, ..., 701, 702, 703, ...
+// If we encode [A-Z] to [1 - 26], then
+//     A, B, ..., Z,  AA, AB, ..., AZ, BA, BB, ..., ZZ,  AAA, AAB, ...
+//     1, 2, ..., 26, 27, 28, ..., 52, 53, 54, ..., 702, 703, 704, ...
+// The output is merely one less.
+// input  I[0..n-1]
+// output I[0] * 26^(n-1) + I[1] * 26^(n-2) + ... + I[i] * 26^(n-1-i) + ... + I[n-2] * 26^1 + I[n-1]
+static unsigned long long DecodeExcel(const string &input)
+{
+    unsigned long long s = 0;
+    for (unsigned int i = 0; i < input.length(); i++)
+    {
+        s = s * 26 + (input[i] - 'A' + 1);
+    }
+    return s - 1;
+}
+
+// Convert integer tp Excel column number:
+//     0, 1, ..., 25, 26, 27, ..., 51, 52, 53, ..., 701, 702, 703, ...
+//     A, B, ..., Z,  AA, AB, ..., AZ, BA, BB, ..., ZZ,  AAA, AAB, ...
+// If we encode [A-Z] to [1 - 26], then
+//     A, B, ..., Z,  AA, AB, ..., AZ, BA, BB, ..., ZZ,  AAA, AAB, ...
+//     1, 2, ..., 26, 27, 28, ..., 52, 53, 54, ..., 702, 703, 704, ...
+static string EncodeExcel(unsigned long long input)
+{
+    string code;
+    unsigned int r;
+    input++;
+    while (input > 0)
+    {
+        r = input % 26;
+        input /= 26;
+        if (r == 0)
+        {
+            // make sure r is in [1, 26]
+            // so if r = 0, then borrow one from next higher position
+            input--;
+            r = 26;
+        }
+        code.insert(0, 1, r - 1 + 'A');
+    }
+    return code;
+}
+
+// http://leetcode.com/2010/04/multiplication-of-numbers.html
+// There is an array A[N] of N numbers. You have to compose an array
+// Output[N] such that Output[i] will be equal to multiplication of all
+// the elements of A[N] except A[i]. Solve it without division operator
+// and in O(n). For example Output[0] will be multiplication of A[1]
+// to A[N-1] and Output[1] will be multiplication of A[0] and from A[2]
+// to A[N-1]. Example:
+// A: {4, 3, 2, 1, 2}
+// OUTPUT: {12, 16, 24, 48, 24}
+// Let M[i..j] = I[i] * I[i+1] * ... * I[j]
+// I[i]  I[0]      I[1]      I[2]      ...... I[i]        ...... I[n-1]
+// L[i]  1         M[0..0]   M[0..1]   ...... M[0..i-1]   ...... M[0..n-2]
+// R[i]  M[1..n-1] M[2..n-1] M[3..n-1] ...... M[i+1..n-1] ...... 1
+// O[i] = L[i] * R[i]
+static void ExclusiveMultiplication(const int *input, int length, long long *output)
+{
+    for (int i = 0; i < length; i++)
+        output[i] = 1;
+    long long left = 1;
+    long long right = 1;
+    for (int i = 0; i < length; i++)
+    {
+        // At loop i, output[i] *= left (= multiplication of input[0..i-1])
+        // At loop length - 1 - i, output[i] *= right (= multiplication of input[i+1..length-1])
+        output[i] *= left;
+        output[length - 1 - i] *= right;
+        left *= input[i];
+        right *= input[length - 1 - i];
+    }
+}
+
+// Evaluate the value of an arithmetic expression in Reverse Polish Notation.
+static int EvalReversePolishNotation(vector<string> &tokens)
+{
+    if (tokens.size() == 0)
+        throw invalid_argument("No token is provided");
+    stack<int> args;
+    int first;
+    int second;
+    int s;
+    for_each(tokens.begin(), tokens.end(), [&](string &t) {
+        if (t != "+" && t != "-" && t != "*" && t != "/")
+        {
+            if (t.length() == 0)
+                throw invalid_argument("Token is empty");
+            s = (int)Math::ToInteger(t);
+            args.push(s);
+        }
+        else
+        {
+            if (args.empty())
+                throw invalid_argument("Not enough tokens");
+            second = args.top();
+            args.pop();
+            if (args.empty())
+                throw invalid_argument("Not enough tokens");
+            first = args.top();
+            args.pop();
+            if (t == "+")
+                s = first + second;
+            else if (t == "-")
+                s = first - second;
+            else if (t == "*")
+                s = first * second;
+            else if (t == "/")
+            {
+                if (second == 0)
+                    throw runtime_error("Divided by zero");
+                s = first / second;
+            }
+            args.push(s);
+        }
+    });
+    return args.top();
+}
+
+} // namespace Math
 } // namespace Test
 
 #endif
