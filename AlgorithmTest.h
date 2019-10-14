@@ -1,7 +1,9 @@
 #ifndef _ALGORITHMTEST_H_
 #define _ALGORITHMTEST_H_
 
+#include <limits.h>
 #include "Algorithm.h"
+#include "Array.h"
 #include "Random.h"
 #include "Test.h"
 
@@ -596,6 +598,340 @@ void AlgorithmTest::Init(void)
         check(t, 6);
         t = {"-22", "-2", "/"};
         check(t, 11);
+    });
+
+    Add("SingleNumber", [&]() {
+        auto check = [&](int input[], int length, int expect) {
+            int r1 = SingleNumber::FindOutOfThree(input, length);
+            int r2 = SingleNumber::FindOutOfThree(input, length);
+            int r3 = SingleNumber::FindOutOfThree(input, length);
+            int r4 = SingleNumber::FindLOutOfK(input, length, 3, 1);
+            int r5 = SingleNumber::FindLOutOfK2(input, length, 3, 1);
+            Logger().WriteInformation("Single number: %d, %d, %d, %d, %d\n", r1, r2, r3, r4, r5);
+            ASSERT1(r1 == expect);
+            ASSERT1(r2 == expect);
+            ASSERT1(r3 == expect);
+            ASSERT1(r4 == expect);
+            ASSERT1(r5 == expect);
+        };
+        {
+            int A[] = {0, 1, 0, 0};
+            check(A, 4, 1);
+        }
+        {
+            int a = 0xFFFFFFFF;
+            int A[] = {a, 3, a, a};
+            check(A, 4, 3);
+        }
+        {
+            int A[] = {1, 2, 3, 1, 2, 3, 4, 1, 2, 3};
+            check(A, 10, 4);
+        }
+        {
+            int A[] = {0, 1, 0, 1, 0, 1, 99};
+            check(A, 7, 99);
+        }
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                int k = 2 + rand() % 10;
+                int l = 1 + rand() % (k - 1);
+                vector<int> n;
+                int c;
+                for (int i = 0; i < 10; i++)
+                {
+                    c = 1 + rand() % INT_MAX;
+                    n.insert(n.end(), k, c);
+                }
+                c = 1 + rand() % INT_MAX;
+                n.insert(n.end(), l, c);
+                random_shuffle(n.begin(), n.end());
+                Logger() << n;
+                unique_ptr<int[]> input(new int[n.size()]);
+                ToArray(n, input.get());
+                int r = SingleNumber::FindLOutOfK(input.get(), n.size(), k, l);
+                int r2 = SingleNumber::FindLOutOfK2(input.get(), n.size(), k, l);
+                Logger().WriteInformation("Run %d: Single (%d, %d out of %d): %d, %d\n", j, c, l, k, r, r2);
+                ASSERT1(r == c);
+                ASSERT1(r2 == c);
+            }
+        }
+    });
+
+    Add("CountInversions", [&]() {
+        auto check = [&](int *A, int L, int expected) -> void {
+            int count = CountInversions<int>(A, L);
+            ASSERT1(expected == count);
+        };
+
+        int I1[] = {0};
+        check(I1, 1, 0);
+
+        int I2[] = {0, 1};
+        check(I2, 2, 0);
+
+        int I3[] = {1, 0};
+        check(I3, 2, 1);
+
+        int I4[] = {0, 1, 2};
+        check(I4, 3, 0);
+
+        int I5[] = {1, 0, 2};
+        check(I5, 3, 1);
+
+        int I6[] = {2, 0, 1};
+        check(I6, 3, 2);
+
+        int I7[] = {2, 1, 0};
+        check(I7, 3, 3);
+
+        int I8[] = {0, 2, 1};
+        check(I8, 3, 1);
+
+        int I9[] = {1, 2, 0};
+        check(I9, 3, 2);
+
+        int I10[] = {3, 2, 1, 0};
+        check(I10, 4, 6);
+
+        int I11[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+        int L = sizeof(I11) / sizeof(I11[0]);
+        check(I11, L, 45);
+    });
+
+    Add("Range", [&]() {
+        auto check = [&](double b1, double e1, double b2, double e2, bool o) {
+            OverLap::Range r1 = make_pair(b1, e1);
+            OverLap::Range r2 = make_pair(b2, e2);
+            bool r = OverLap::IsOverlap(r1, r2);
+            Logger().WriteInformation("(%.2f, %.2f) and (%.2f, %.2f) %s overlap\n", b1, e1, b2, e2, r ? "" : "not");
+            ASSERT1(r == o);
+        };
+
+        check(0.0, 1.0, 2.0, 3.0, false);
+        check(0.0, 2.0, 1.5, 3.0, true);
+        check(0.0, 4.0, 2.0, 3.0, true);
+    });
+
+    Add("Rectangle", [&]() {
+        auto check = [&](
+                         double b1, double e1, double b2, double e2,
+                         double b3, double e3, double b4, double e4,
+                         bool o) {
+            OverLap::Rectangle r1 = make_pair(make_pair(b1, e1), make_pair(b2, e2));
+            OverLap::Rectangle r2 = make_pair(make_pair(b3, e3), make_pair(b4, e4));
+            bool r = OverLap::IsOverlap(r1, r2);
+            Logger().WriteInformation(
+                "((%.2f, %.2f), (%.2f, %.2f)) and ((%.2f, %.2f), (%.2f, %.2f)) %s overlap\n",
+                b1, e1, b2, e2, b3, e3, b4, e4, r ? "" : "not");
+            ASSERT1(r == o);
+        };
+
+        check(0, 6, 2, 5, 3, 4, 5, 3, false);
+        check(1, 6, 3, 5, 3, 4, 5, 3, false);
+        check(2, 6, 4, 5, 3, 4, 5, 3, false);
+        check(3, 6, 5, 5, 3, 4, 5, 3, false);
+        check(4, 6, 6, 5, 3, 4, 5, 3, false);
+        check(5, 6, 7, 5, 3, 4, 5, 3, false);
+        check(6, 6, 8, 5, 3, 4, 5, 3, false);
+
+        check(0, 4.5, 2, 3.5, 3, 4, 5, 3, false);
+        check(1, 4.5, 3, 3.5, 3, 4, 5, 3, false);
+        check(2, 4.5, 4, 3.5, 3, 4, 5, 3, true);
+        check(3, 4.5, 5, 3.5, 3, 4, 5, 3, true);
+        check(4, 4.5, 6, 3.5, 3, 4, 5, 3, true);
+        check(5, 4.5, 7, 3.5, 3, 4, 5, 3, false);
+        check(6, 4.5, 8, 3.5, 3, 4, 5, 3, false);
+
+        check(0, 4, 2, 3, 3, 4, 5, 3, false);
+        check(1, 4, 3, 3, 3, 4, 5, 3, false);
+        check(2, 4, 4, 3, 3, 4, 5, 3, true);
+        check(3, 4, 5, 3, 3, 4, 5, 3, true);
+        check(4, 4, 6, 3, 3, 4, 5, 3, true);
+        check(5, 4, 7, 3, 3, 4, 5, 3, false);
+        check(6, 4, 8, 3, 3, 4, 5, 3, false);
+
+        check(0, 3.5, 2, 2.5, 3, 4, 5, 3, false);
+        check(1, 3.5, 3, 2.5, 3, 4, 5, 3, false);
+        check(2, 3.5, 4, 2.5, 3, 4, 5, 3, true);
+        check(3, 3.5, 5, 2.5, 3, 4, 5, 3, true);
+        check(4, 3.5, 6, 2.5, 3, 4, 5, 3, true);
+        check(5, 3.5, 7, 2.5, 3, 4, 5, 3, false);
+        check(6, 3.5, 8, 2.5, 3, 4, 5, 3, false);
+
+        check(0, 2, 2, 1, 3, 4, 5, 3, false);
+        check(1, 2, 3, 1, 3, 4, 5, 3, false);
+        check(2, 2, 4, 1, 3, 4, 5, 3, false);
+        check(3, 2, 5, 1, 3, 4, 5, 3, false);
+        check(4, 2, 6, 1, 3, 4, 5, 3, false);
+        check(5, 2, 7, 1, 3, 4, 5, 3, false);
+        check(6, 2, 8, 1, 3, 4, 5, 3, false);
+    });
+
+    Add("IntPoint", [&]() {
+		vector<PointsOnALine::IntPoint> points = {
+			PointsOnALine::IntPoint{ 3, 1 },
+			PointsOnALine::IntPoint{ 3, 1 },
+			PointsOnALine::IntPoint{ 0, 2 },
+			PointsOnALine::IntPoint{ 0, 1 },
+			PointsOnALine::IntPoint{ -1, 0 },
+			PointsOnALine::IntPoint{ 0, 0 }
+		};
+		sort(points.begin(), points.end());
+		for_each(points.begin(), points.end(), [&](PointsOnALine::IntPoint & p) {
+			Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+		});
+		Logger().WriteInformation("\n");
+		PointsOnALine::IntPoint p0(-1, 0);
+		ASSERT1(points[0] == p0);
+		PointsOnALine::IntPoint p1(0, 0);
+		ASSERT1(points[1] == p1);
+		PointsOnALine::IntPoint p2(0, 1);
+		ASSERT1(points[2] == p2);
+		PointsOnALine::IntPoint p3(0, 2);
+		ASSERT1(points[3] == p3);
+		PointsOnALine::IntPoint p4(3, 1);
+		ASSERT1(points[4] == p4);
+		PointsOnALine::IntPoint p5(3, 1);
+		ASSERT1(points[5] == p5);
+	});
+
+	Add("MaxPointsOnLine", [&]() {
+		auto check = [&](vector<PointsOnALine::IntPoint> & points, int expect) {
+			Logger().WriteInformation("Input %d points:\n", points.size());
+			for_each(points.begin(), points.end(), [&](const PointsOnALine::IntPoint & p) {
+				Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+			});
+			Logger().WriteInformation("\n");
+			set<PointsOnALine::IntPoint> output;
+			int count = PointsOnALine::MaxPointsOnALine(points, output);
+			Logger().WriteInformation("Max points on a line: %d\n", count);
+			for_each(output.begin(), output.end(), [&](const PointsOnALine::IntPoint & p) {
+				Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+			});
+			Logger().WriteInformation("\n");
+			ASSERT1(count == expect);
+		};
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 1 }
+			};
+			check(points, 1);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 1 },
+				PointsOnALine::IntPoint{ 1, 2 }
+			};
+			check(points, 2);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 1 },
+				PointsOnALine::IntPoint{ 2, 1 }
+			};
+			check(points, 2);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 2, 3 },
+				PointsOnALine::IntPoint{ 4, 5 }
+			};
+			check(points, 2);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 2 },
+				PointsOnALine::IntPoint{ 2, 2 },
+				PointsOnALine::IntPoint{ 1, 1 },
+				PointsOnALine::IntPoint{ 2, 1 }
+			};
+			check(points, 2);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 2 },
+				PointsOnALine::IntPoint{ 2, 2 },
+				PointsOnALine::IntPoint{ 1, 1 },
+				PointsOnALine::IntPoint{ 2, 1 },
+				PointsOnALine::IntPoint{ 3, 1 }
+			};
+			check(points, 3);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 2, 3 },
+				PointsOnALine::IntPoint{ 1, 2 },
+				PointsOnALine::IntPoint{ 2, 2 },
+				PointsOnALine::IntPoint{ 1, 1 },
+				PointsOnALine::IntPoint{ 2, 1 }
+			};
+			check(points, 3);
+		}
+		{
+			vector<PointsOnALine::IntPoint> points = {
+				PointsOnALine::IntPoint{ 1, 4 },
+				PointsOnALine::IntPoint{ 1, 3 },
+				PointsOnALine::IntPoint{ 2, 3 },
+				PointsOnALine::IntPoint{ 1, 2 },
+				PointsOnALine::IntPoint{ 2, 2 },
+				PointsOnALine::IntPoint{ 3, 2 },
+				PointsOnALine::IntPoint{ 2, 1 },
+				PointsOnALine::IntPoint{ 3, 1 },
+				PointsOnALine::IntPoint{ 4, 1 }
+			};
+			check(points, 4);
+		}
+	});
+
+    Add("CointSelect", [&]() {
+        auto check = [&](int *input, int length) {
+            Logger().WriteInformation("Input:");
+            Logger().Print(input, length);
+
+            auto print = [&](int value, vector<int> &indices) {
+                Logger().WriteInformation("\tMax value:\t  %d\n", value);
+                Logger().WriteInformation("\tIndices:\t");
+                Logger() << indices;
+                Logger().WriteInformation("\tItems:\t");
+                Logger().Print<int>(indices, [&](Log &l, int i) {
+                    l.WriteInformation("%d", input[i]);
+                });
+            };
+
+            vector<int> indices;
+            vector<int> indices2;
+            int v = CoinSelect::MaxSelection(input, length, indices);
+            Logger().WriteInformation("Solution 1\n");
+            print(v, indices);
+            int v2 = CoinSelect::MaxSelection2(input, length, indices2);
+            Logger().WriteInformation("Solution 2\n");
+            print(v2, indices2);
+
+            ASSERT1(v == v2);
+            ASSERT1(indices.size() == indices2.size());
+            for (unsigned int i = 0; i < indices.size(); i++)
+            {
+                ASSERT1(indices[i] == indices2[i]);
+            }
+        };
+
+        int c[] = {3, 2, 2, 3, 1, 2};
+        int l = sizeof(c) / sizeof(c[0]);
+        check(c, l);
+
+        int c2[] = {3, 2, 2, 3, 1, 2, 1};
+        int l2 = sizeof(c2) / sizeof(c2[0]);
+        check(c2, l2);
+
+        for (int i = 0; i < 100; i++)
+        {
+            int length = 1 + rand() % 100;
+            unique_ptr<int[]> input(new int[length]);
+            Random::Array(input.get(), length);
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            check(input.get(), length);
+        }
     });
 }
 

@@ -2,12 +2,21 @@
 #define _ARRAY_H_
 
 #include <functional>
-#include "BitSet.h"
+#include "Structure.h"
 
 using namespace std;
 
 namespace Test
 {
+
+template <class T>
+static void ToArray(const vector<T> & v, T *a)
+{
+    for (size_t i = 0; i < v.size(); i++)
+    {
+        a[i] = v[i];
+    }
+}
 
 template <class T>
 static bool Equal(const T *first, const T *second, int length)

@@ -6,7 +6,7 @@
 #include <memory>
 #include <stack>
 #include <vector>
-#include "Matrix.h"
+#include "Structure.h"
 
 using namespace std;
 
@@ -1386,6 +1386,477 @@ static int EvalReversePolishNotation(vector<string> &tokens)
 }
 
 } // namespace Math
+
+namespace SingleNumber
+{
+// An array contain numbers duplicated by three times, except
+// one single number. Find the single number.
+// Count number of bit 1 per position and modulo 3.
+static int FindOutOfThree(int input[], int length)
+{
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int n = 0;
+    int bits = 8 * sizeof(int);
+    for (int i = 0; i < bits; i++)
+    {
+        int count = 0;
+        for (int j = 0; j < length; j++)
+            count += ((input[j] >> i) & 0x1);
+        n |= ((count % 3) << i);
+    }
+    return n;
+}
+static int FindOutOfThree2(int input[], int length)
+{
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int o0 = ~0; // positions that bit 1 occurred 0 or 3 times
+    int o1 = 0;  // positions that bit 1 occurred 1 time
+    int o2 = 0;  // positions that bit 1 occurred 2 times
+    int t = 0;
+    for (int i = 0; i < length; i++)
+    {
+        // keep o2 temporarily to calculate o0 later
+        t = o2;
+        // Update the positions that bit 1 occurred the second time due to input[i], and
+        // keep the positions that bit 1 already occurred two times and not affected by input[i]
+        o2 = (o1 & input[i]) | (o2 & ~input[i]);
+        // Update the positions that bit 1 occurred the first time due to input[i], and
+        // keep the positions that bit 1 already occurred one time and not affected by input[i]
+        o1 = (o0 & input[i]) | (o1 & ~input[i]);
+        // Update the positions that bit 1 occurred the third time due to input[i], and
+        // keep the positions that bit 1 already occurred zero or three times and not affected by input[i]
+        o0 = (t & input[i]) | (o0 & ~input[i]);
+    }
+    return o1;
+}
+static int FindOutOfThree3(int input[], int length)
+{
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int o1 = 0; // positions that bit 1 occurred 0 or 3 times
+    int o2 = 0; // positions that bit 1 occurred 1 time
+    int o3 = 0; // positions that bit 1 occurred 2 times
+    for (int i = 0; i < length; i++)
+    {
+        o2 |= o1 & input[i];
+        o1 ^= input[i];
+        o3 = o1 & o2;
+        o1 &= ~o3;
+        o2 &= ~o3;
+    }
+    return o1;
+}
+
+// An array contain numbers duplicated by k times, except
+// one single number occurring l times.
+// Find the single number.
+static int FindLOutOfK(int input[], int length, int k, int l)
+{
+    if (length % k != l)
+        throw invalid_argument("The count of numbers is not kn+l");
+    int bits = 8 * sizeof(int);
+    int r = 0;
+    for (int i = 0; i < bits; i++)
+    {
+        int c = 0;
+        for (int j = 0; j < length; j++)
+            c += ((input[j] >> i) & 0x1);
+        c %= k;
+        if (c > 0)
+            r |= (0x1 << i);
+    }
+    return r;
+}
+static int FindLOutOfK2(int input[], int length, int k, int l)
+{
+    if (length % k != l)
+        throw invalid_argument("The count of numbers is not kn+l");
+    unique_ptr<int[]> o(new int[k]);
+    memset(o.get(), 0, k * sizeof(int));
+    o[0] = ~0;
+    for (int i = 0; i < length; i++)
+    {
+        int t = o[k - 1];
+        for (int j = k - 1; j > 0; j--)
+            o[j] = (o[j - 1] & input[i]) | (o[j] & ~input[i]);
+        o[0] = (t & input[i]) | (o[0] & ~input[i]);
+    }
+    return o[l];
+}
+} // namespace SingleNumber
+
+template <class T>
+static int CountInversions(T *input, size_t length)
+{
+    if (input == nullptr || length <= 1)
+        return 0;
+
+    // Count inversions between a[h..(m-1)] and a[m..t],
+    // assuming both subarrays are sorted
+    function<int(T *, int, int, int)>
+        merge = [&](T *a, int h, int m, int t) -> int {
+        int c = 0;
+        // head and middle point to the heads of two sub sorted arrays.
+        while (h < m && m <= t)
+        {
+            if (a[h] <= a[m])
+            {
+                h++;
+            }
+            else
+            {
+                T x = a[m];
+                for (int i = m; i > (int)h; i--)
+                {
+                    a[i] = a[i - 1];
+                }
+                a[h] = x;
+                // There (m - h) elements moved.
+                // Each of them paired with a[m] is an inversion.
+                c += (m - h);
+                // Move to the next pair of elements
+                h++;
+                m++;
+            }
+        }
+        return c;
+    };
+
+    function<int(T *, int, int)> count = [&](T *a, int h, int t) -> int {
+        if (a == nullptr || h >= t)
+            return 0;
+        int c = 0;
+        if (h < t)
+        {
+            int m = h + ((t - h) >> 1) + 1;
+            c += count(a, h, m - 1);
+            c += count(a, m, t);
+            c += merge(a, h, m, t);
+        }
+        return c;
+    };
+
+    return count(input, 0, length - 1);
+}
+
+namespace OverLap
+{
+// [pair.first, pair.second]
+typedef pair<double, double> Range;
+
+static bool IsOverlap(const Range &r1, const Range &r2)
+{
+    // Non-overlap r1.second <= r2.first || r2.second <= r1.first;
+    return r1.first < r2.second && r2.first < r1.second;
+}
+
+// (Point.x, Point.y) = (pair.first, pair.second)
+typedef pair<double, double> Point;
+
+// The sides of Rectangle are in parallel with x-axis or y-axis
+// Top-Left Point = pair.first
+// Bottom-Right Point = pair.second
+typedef pair<Point, Point> Rectangle;
+
+static bool IsOverlap(const Rectangle &r1, const Rectangle &r2)
+{
+    // r1 and r2 overlaps if their projections onto x-axis and y-axis overlap
+    // [r1.first.first, r1.second.first] and [r2.first.first, r2.second.first] overlaps.
+    // [r1.second.second, r1.first.second] and [r2.second.second, r2.first.second] overlaps.
+    return r1.first.first < r2.second.first && r2.first.first < r1.second.first && r1.second.second < r2.first.second && r2.second.second < r1.first.second;
+}
+} // namespace OverLap
+
+namespace PointsOnALine
+{
+struct IntPoint
+{
+    int x;
+    int y;
+    IntPoint() : x(0), y(0) {}
+    IntPoint(int a, int b) : x(a), y(b) {}
+    bool operator==(const IntPoint &other) const
+    {
+        return x == other.x && y == other.y;
+    }
+    bool operator<(const IntPoint &other) const
+    {
+        if (x == other.x)
+            return y < other.y;
+        return x < other.x;
+    }
+};
+
+// slope = (p1.y - p0.y) / (p1.x - p0.x)
+// Reduce the slope so that the numerator and denominator are co-prime
+// Return a pair <deltaX, deltaY> after reduction
+static pair<int, int> NomalizeSlope(const IntPoint &p0, const IntPoint &p1)
+{
+    int dX = p1.x - p0.x;
+    int dY = p1.y - p0.y;
+    int gcd = Math::GreatestCommonDivisor(dX, dY);
+    dX = dX / gcd;
+    dY = dY / gcd;
+    return make_pair(dX, dY);
+}
+
+// Find a line containing maximum number of points
+static int MaxPointsOnALine(vector<IntPoint> &points, set<IntPoint> &output)
+{
+    if (points.size() <= 1)
+    {
+        output.clear();
+        output.insert(points.begin(), points.end());
+        return points.size();
+    }
+
+    // Group pairs of points by slopes. The points with the same slope
+    // are potentially on the same lines.
+
+    // Use comparer of IntPoint
+    sort(points.begin(), points.end());
+    map<pair<int, int>, vector<pair<IntPoint, IntPoint>>> slopes;
+    for (size_t i = 0; i < points.size() - 1; i++)
+    {
+        for (size_t j = i + 1; j < points.size(); j++)
+        {
+            if (points[i] == points[j])
+            {
+                // Ignore duplication
+                continue;
+            }
+
+            pair<int, int> slope = NomalizeSlope(points[i], points[j]);
+
+            // Treat vertical line specially
+            if (slope.first == 0)
+                slope.second = 1;
+            // Treat horizontal line specially
+            if (slope.second == 0)
+                slope.first = 1;
+
+            if (slopes.find(slope) == slopes.end())
+            {
+                slopes[slope] = vector<pair<IntPoint, IntPoint>>{};
+            }
+
+            slopes[slope].push_back(make_pair(points[i], points[j]));
+        }
+    }
+
+    size_t max = 0;
+
+    for (map<pair<int, int>, vector<pair<IntPoint, IntPoint>>>::iterator slope = slopes.begin();
+        slope != slopes.end();
+        slope++)
+    {
+        // lines of the same slope
+        vector<set<IntPoint>> lines;
+        for_each(slope->second.begin(), slope->second.end(), [&](pair<IntPoint, IntPoint> &s) {
+            // s is a line segament ending with two points.
+            // Check and assign the points into the set of points on the same line.
+
+            // first is the line containing the first point of segament s
+            vector<set<IntPoint>>::iterator first = lines.end();
+            // second is the line containing the second point of segament s
+            vector<set<IntPoint>>::iterator second = lines.end();
+
+            for (vector<set<IntPoint>>::iterator it = lines.begin(); it != lines.end(); it++)
+            {
+                // it refers to the set of points on the same line
+                if (it->find(s.first) != it->end())
+                {
+                    first = it;
+                }
+                if (it->find(s.second) != it->end())
+                {
+                    second = it;
+                }
+            }
+
+            if (first == lines.end() && second == lines.end())
+            {
+                // Segament s is a new line
+                set<IntPoint> line;
+                line.insert(s.first);
+                line.insert(s.second);
+                lines.push_back(line);
+            }
+            else if (first == lines.end())
+            {
+                // The second point of segament s is already on a line.
+                // Just add the first point.
+                second->insert(s.first);
+            }
+            else if (second == lines.end())
+            {
+                // The first point of segament s is already on a line.
+                // Just add the second point.
+                first->insert(s.second);
+            }
+            else if (first == second)
+            {
+                // The segament is already on a line
+                ;
+            }
+            else
+            {
+                // The segament joins two lines into one
+                set<IntPoint> line;
+                line.insert(first->begin(), first->end());
+                line.insert(second->begin(), second->end());
+                lines.erase(first);
+                lines.erase(second);
+                lines.push_back(line);
+            }
+        });
+
+        for_each(lines.begin(), lines.end(), [&](set<IntPoint> &l) {
+            if (l.size() > max)
+            {
+                max = l.size();
+                output.clear();
+                output.insert(l.begin(), l.end());
+            }
+        });
+    }
+
+    return max;
+}
+} // namespace PointsOnALine
+
+// http://leetcode.com/2011/02/coins-in-line.html
+// Two players take turn to select a coin from one end of a line of coins.
+// Compute the maximum value of coins the first palyer can get.
+namespace CoinSelect
+{
+// Given the value matrix, return the indices the first player wants to choose
+static void GetIndices(Matrix<int> &v, int length, vector<int> &indices)
+{
+    int i = 0;
+    int j = length - 1;
+    while (i + 2 <= j)
+    {
+        if (v(i + 1, j) <= v(i, j - 1))
+        {
+            // A select input[i] and leave B input[i+1..j]
+            indices.push_back(i);
+            if (v(i + 2, j) <= v(i + 1, j - 1))
+            {
+                // B select input[i+1] and leave A input[i+2..j]
+                i = i + 2;
+            }
+            else
+            {
+                // B select input[j] and leave A input[i+1..j-1]
+                i++;
+                j--;
+            }
+        }
+        else
+        {
+            // A select input[j] and leave B input[i..j-1]
+            indices.push_back(j);
+            if (v(i + 1, j - 1) <= v(i, j - 2))
+            {
+                // B select input[i] and leave A input[i+1..j-1]
+                i++;
+                j--;
+            }
+            else
+            {
+                // B select input[j-1] and leave A input[i..j-2]
+                j = j - 2;
+            }
+        };
+    }
+
+    if (i + 1 == j)
+    {
+        if (v(i, i) > v(j, j))
+        {
+            indices.push_back(i);
+        }
+        else
+        {
+            indices.push_back(j);
+        }
+    }
+    else if (i == j)
+    {
+        indices.push_back(i);
+    }
+}
+
+// Let V[i,j] be the maximum value from input[i..j]
+// Let S[i,j] be the sum of input[i..j]
+// V[i,j] = S[i,j] - min { V[i+1,j], V[i,j-1] }
+static int MaxSelection(const int *input, int length, vector<int> &indices)
+{
+    Matrix<int> v(length, length);
+    Matrix<int> s(length, length);
+
+    // S[i,i] = input[i]
+    // V[i,i] = input[i]
+    for (int i = 0; i < length; i++)
+    {
+        s(i, i) = input[i];
+        v(i, i) = input[i];
+    }
+
+    // S[i,j] = S[i,j-1] + input[j]
+    // V[i,j] = S[i,j] - min { V[i+1,j], V[i,j-1] }
+    for (int l = 1; l < length; l++)
+    {
+        for (int i = 0; i < length - l; i++)
+        {
+            s(i, i + l) = s(i, i + l - 1) + input[i + l];
+            v(i, i + l) = s(i, i + l) - min(v(i + 1, i + l), v(i, i + l - 1));
+        }
+    }
+
+    GetIndices(v, length, indices);
+    return v(0, length - 1);
+}
+
+// Let V[i,j] be the maximum value from input[i..j]
+// V[i,j] = max { input[i] + min { V[i+2,j], V[i+1,j-1] },
+//                input[j] + min { V[i+1,j-1], V[i,j-2] } }
+static int MaxSelection2(const int *input, int length, vector<int> &indices)
+{
+    Matrix<int> v(length, length);
+
+    // V[i,i] = input[i]
+    for (int i = 0; i < length; i++)
+    {
+        v(i, i) = input[i];
+    }
+
+    // V[i,i+1] = max { V[i,i], V[i+1,i+1] }
+    for (int i = 0; i < length - 1; i++)
+    {
+        v(i, i + 1) = max(v(i, i), v(i + 1, i + 1));
+    }
+
+    // V[i,j] = max { input[i] + min { V[i+2,j], V[i+1,j-1] },
+    //                input[j] + min { V[i+1,j-1], V[i,j-2] } }
+    for (int l = 2; l < length; l++)
+    {
+        for (int i = 0; i < length - l; i++)
+        {
+            v(i, i + l) = max(
+                input[i] + min(v(i + 2, i + l), v(i + 1, i + l - 1)),
+                input[i + l] + min(v(i + 1, i + l - 1), v(i, i + l - 2)));
+        }
+    }
+
+    GetIndices(v, length, indices);
+    return v(0, length - 1);
+}
+} // namespace CoinSelect
+
 } // namespace Test
 
 #endif

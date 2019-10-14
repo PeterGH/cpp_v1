@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <string>
 #include <vector>
-#include "Matrix.h"
+#include "Structure.h"
 
 using namespace std;
 
