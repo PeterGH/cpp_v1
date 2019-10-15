@@ -160,6 +160,19 @@ public:
     }
 
     template <class T>
+    void Print(const vector<T> &v, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("{");
+        for (size_t i = 0; i < v.size(); i++)
+        {
+            if (i != 0)
+                WriteInformation(sep);
+            WriteInformation(format, v[i]);
+        }
+        WriteInformation("}\n");
+    }
+
+    template <class T>
     void Print(vector<T> v, function<void(Log &, T &)> format, const char *sep = ", ")
     {
         WriteInformation("{");
@@ -182,6 +195,18 @@ public:
         }
         _os << "}" << endl;
         return *this;
+    }
+
+    template <class T>
+    void Print(const vector<vector<T>> &v, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("{\n");
+        for (size_t i = 0; i < v.size(); i++)
+        {
+            WriteInformation(" ");
+            Print(v[i], format, sep);
+        }
+        WriteInformation("}\n");
     }
 
     template <class T>

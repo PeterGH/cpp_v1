@@ -4,6 +4,7 @@
 #include "AlgorithmTest.h"
 #include "ArgumentTest.h"
 #include "ArrayTest.h"
+#include "CppTest.h"
 #include "LeetCodeTest.h"
 #include "LogTest.h"
 #include "StructureTest.h"
@@ -35,6 +36,7 @@ int main(int argc, const char *argv[])
     suite.Add(new AlgorithmTest(log));
     suite.Add(new ArgumentTest(log));
     suite.Add(new ArrayTest(log));
+    suite.Add(new CppTest(log));
     suite.Add(new LeetCodeTest(log));
     suite.Add(new LogTest(log));
     suite.Add(new StructureTest(log));

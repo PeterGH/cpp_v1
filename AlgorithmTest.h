@@ -769,120 +769,111 @@ void AlgorithmTest::Init(void)
     });
 
     Add("IntPoint", [&]() {
-		vector<PointsOnALine::IntPoint> points = {
-			PointsOnALine::IntPoint{ 3, 1 },
-			PointsOnALine::IntPoint{ 3, 1 },
-			PointsOnALine::IntPoint{ 0, 2 },
-			PointsOnALine::IntPoint{ 0, 1 },
-			PointsOnALine::IntPoint{ -1, 0 },
-			PointsOnALine::IntPoint{ 0, 0 }
-		};
-		sort(points.begin(), points.end());
-		for_each(points.begin(), points.end(), [&](PointsOnALine::IntPoint & p) {
-			Logger().WriteInformation("  (%d, %d)", p.x, p.y);
-		});
-		Logger().WriteInformation("\n");
-		PointsOnALine::IntPoint p0(-1, 0);
-		ASSERT1(points[0] == p0);
-		PointsOnALine::IntPoint p1(0, 0);
-		ASSERT1(points[1] == p1);
-		PointsOnALine::IntPoint p2(0, 1);
-		ASSERT1(points[2] == p2);
-		PointsOnALine::IntPoint p3(0, 2);
-		ASSERT1(points[3] == p3);
-		PointsOnALine::IntPoint p4(3, 1);
-		ASSERT1(points[4] == p4);
-		PointsOnALine::IntPoint p5(3, 1);
-		ASSERT1(points[5] == p5);
-	});
+        vector<PointsOnALine::IntPoint> points = {
+            PointsOnALine::IntPoint{3, 1},
+            PointsOnALine::IntPoint{3, 1},
+            PointsOnALine::IntPoint{0, 2},
+            PointsOnALine::IntPoint{0, 1},
+            PointsOnALine::IntPoint{-1, 0},
+            PointsOnALine::IntPoint{0, 0}};
+        sort(points.begin(), points.end());
+        for_each(points.begin(), points.end(), [&](PointsOnALine::IntPoint &p) {
+            Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+        });
+        Logger().WriteInformation("\n");
+        PointsOnALine::IntPoint p0(-1, 0);
+        ASSERT1(points[0] == p0);
+        PointsOnALine::IntPoint p1(0, 0);
+        ASSERT1(points[1] == p1);
+        PointsOnALine::IntPoint p2(0, 1);
+        ASSERT1(points[2] == p2);
+        PointsOnALine::IntPoint p3(0, 2);
+        ASSERT1(points[3] == p3);
+        PointsOnALine::IntPoint p4(3, 1);
+        ASSERT1(points[4] == p4);
+        PointsOnALine::IntPoint p5(3, 1);
+        ASSERT1(points[5] == p5);
+    });
 
-	Add("MaxPointsOnLine", [&]() {
-		auto check = [&](vector<PointsOnALine::IntPoint> & points, int expect) {
-			Logger().WriteInformation("Input %d points:\n", points.size());
-			for_each(points.begin(), points.end(), [&](const PointsOnALine::IntPoint & p) {
-				Logger().WriteInformation("  (%d, %d)", p.x, p.y);
-			});
-			Logger().WriteInformation("\n");
-			set<PointsOnALine::IntPoint> output;
-			int count = PointsOnALine::MaxPointsOnALine(points, output);
-			Logger().WriteInformation("Max points on a line: %d\n", count);
-			for_each(output.begin(), output.end(), [&](const PointsOnALine::IntPoint & p) {
-				Logger().WriteInformation("  (%d, %d)", p.x, p.y);
-			});
-			Logger().WriteInformation("\n");
-			ASSERT1(count == expect);
-		};
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 1 }
-			};
-			check(points, 1);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 1 },
-				PointsOnALine::IntPoint{ 1, 2 }
-			};
-			check(points, 2);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 1 },
-				PointsOnALine::IntPoint{ 2, 1 }
-			};
-			check(points, 2);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 2, 3 },
-				PointsOnALine::IntPoint{ 4, 5 }
-			};
-			check(points, 2);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 2 },
-				PointsOnALine::IntPoint{ 2, 2 },
-				PointsOnALine::IntPoint{ 1, 1 },
-				PointsOnALine::IntPoint{ 2, 1 }
-			};
-			check(points, 2);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 2 },
-				PointsOnALine::IntPoint{ 2, 2 },
-				PointsOnALine::IntPoint{ 1, 1 },
-				PointsOnALine::IntPoint{ 2, 1 },
-				PointsOnALine::IntPoint{ 3, 1 }
-			};
-			check(points, 3);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 2, 3 },
-				PointsOnALine::IntPoint{ 1, 2 },
-				PointsOnALine::IntPoint{ 2, 2 },
-				PointsOnALine::IntPoint{ 1, 1 },
-				PointsOnALine::IntPoint{ 2, 1 }
-			};
-			check(points, 3);
-		}
-		{
-			vector<PointsOnALine::IntPoint> points = {
-				PointsOnALine::IntPoint{ 1, 4 },
-				PointsOnALine::IntPoint{ 1, 3 },
-				PointsOnALine::IntPoint{ 2, 3 },
-				PointsOnALine::IntPoint{ 1, 2 },
-				PointsOnALine::IntPoint{ 2, 2 },
-				PointsOnALine::IntPoint{ 3, 2 },
-				PointsOnALine::IntPoint{ 2, 1 },
-				PointsOnALine::IntPoint{ 3, 1 },
-				PointsOnALine::IntPoint{ 4, 1 }
-			};
-			check(points, 4);
-		}
-	});
+    Add("MaxPointsOnLine", [&]() {
+        auto check = [&](vector<PointsOnALine::IntPoint> &points, int expect) {
+            Logger().WriteInformation("Input %d points:\n", points.size());
+            for_each(points.begin(), points.end(), [&](const PointsOnALine::IntPoint &p) {
+                Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+            });
+            Logger().WriteInformation("\n");
+            set<PointsOnALine::IntPoint> output;
+            int count = PointsOnALine::MaxPointsOnALine(points, output);
+            Logger().WriteInformation("Max points on a line: %d\n", count);
+            for_each(output.begin(), output.end(), [&](const PointsOnALine::IntPoint &p) {
+                Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+            });
+            Logger().WriteInformation("\n");
+            ASSERT1(count == expect);
+        };
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 1}};
+            check(points, 1);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{1, 2}};
+            check(points, 2);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{2, 1}};
+            check(points, 2);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{2, 3},
+                PointsOnALine::IntPoint{4, 5}};
+            check(points, 2);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{2, 1}};
+            check(points, 2);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{2, 1},
+                PointsOnALine::IntPoint{3, 1}};
+            check(points, 3);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{2, 3},
+                PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{2, 1}};
+            check(points, 3);
+        }
+        {
+            vector<PointsOnALine::IntPoint> points = {
+                PointsOnALine::IntPoint{1, 4},
+                PointsOnALine::IntPoint{1, 3},
+                PointsOnALine::IntPoint{2, 3},
+                PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{3, 2},
+                PointsOnALine::IntPoint{2, 1},
+                PointsOnALine::IntPoint{3, 1},
+                PointsOnALine::IntPoint{4, 1}};
+            check(points, 4);
+        }
+    });
 
     Add("CointSelect", [&]() {
         auto check = [&](int *input, int length) {
@@ -931,6 +922,348 @@ void AlgorithmTest::Init(void)
             Random::Array(input.get(), length);
             Logger().WriteInformation("Run %d: %d elements\n", i, length);
             check(input.get(), length);
+        }
+    });
+
+    Add("SearchWord", [&]() {
+        auto check = [&](const vector<vector<char>> &m, const string &w, bool e) {
+            Logger().Print(m, "%c", " ");
+            Logger().WriteInformation("%s\n", w.c_str());
+            bool r = SearchWord::Existed(m, w);
+            bool r2 = SearchWord::Existed2(m, w);
+            ASSERT1(r == e);
+            ASSERT1(r2 == e);
+        };
+        {
+            vector<vector<char>> m =
+                {
+                    {'x', 'x', 'x'},
+                    {'x', 'h', 'e'},
+                    {'o', 'l', 'x'},
+                    {'x', 'l', 'x'}};
+            check(m, "hello", true);
+        }
+        {
+            vector<vector<char>> m =
+                {
+                    {'x', 'x', 'x'},
+                    {'x', 'h', 'e'},
+                    {'o', 'l', 'x'},
+                    {'x', 'l', 'x'}};
+            check(m, "hillo", false);
+        }
+        {
+            // This will fail
+            vector<vector<char>> m =
+                {
+                    {'x', 'w', 'h', 'b'},
+                    {'u', 'k', 'o', 'm'},
+                    {'z', 'w', 'v', 'a'},
+                    {'t', 'd', 'k', 'n'}};
+            // check(m, "owuxwhm", true);
+        }
+        {
+            vector<vector<char>> m =
+                {
+                    {'w', 'x', 'x'},
+                    {'x', 'w', 'x'},
+                    {'x', 'x', 'x'}};
+            check(m, "www", true);
+        }
+        {
+            vector<vector<char>> m =
+                {
+                    {'w', 'y', 'x'},
+                    {'x', 'w', 'x'},
+                    {'x', 'x', 'x'}};
+            check(m, "wwwy", true);
+        }
+        {
+            vector<vector<char>> m =
+                {
+                    {'x', 'x', 'x'},
+                    {'w', 'y', 'x'},
+                    {'x', 'w', 'x'}};
+            check(m, "wwwy", true);
+        }
+        {
+            vector<vector<char>> m =
+                {
+                    {'y', 'x', 'x'},
+                    {'w', 'x', 'x'},
+                    {'x', 'w', 'x'}};
+            check(m, "wwwy", true);
+        }
+        /*
+		{
+			for (int i = 0; i < 10; i++) {
+				string word = String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() % 10));
+				vector<vector<char>> matrix = MatrixProblem::Generator::RandomWithoutWord(word);
+				check(matrix, word, false);
+			}
+		}
+		{
+			for (int i = 0; i < 10; i++) {
+				string word = String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() % 10));
+				vector<vector<char>> matrix = MatrixProblem::Generator::RandomWithWord(word);
+				check(matrix, word, true);
+			}
+		}
+		*/
+    });
+
+    Add("SurroundedRegion", [&]() {
+        auto verify = [&](vector<vector<char>> &board) {
+            int height = board.size();
+            int width = board[0].size();
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    if (board[i][j] == 'O')
+                    {
+                        bool boundary = i == 0 || i == height - 1 || j == 0 || j == width - 1;
+                        pair<int, int> p = make_pair(i, j);
+                        set<pair<int, int>> region;
+                        queue<pair<int, int>> q;
+                        region.insert(p);
+                        q.push(p);
+                        while (!q.empty())
+                        {
+                            p = q.front();
+                            q.pop();
+                            pair<int, int> n;
+                            if (p.first > 0 && board[p.first - 1][p.second] == 'O')
+                            {
+                                if (p.first - 1 == 0)
+                                    boundary = true;
+                                n = make_pair(p.first - 1, p.second);
+                                if (region.find(n) == region.end())
+                                {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.second > 0 && board[p.first][p.second - 1] == 'O')
+                            {
+                                if (p.second - 1 == 0)
+                                    boundary = true;
+                                n = make_pair(p.first, p.second - 1);
+                                if (region.find(n) == region.end())
+                                {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.second < width - 1 && board[p.first][p.second + 1] == 'O')
+                            {
+                                if (p.second + 1 == width - 1)
+                                    boundary = true;
+                                n = make_pair(p.first, p.second + 1);
+                                if (region.find(n) == region.end())
+                                {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.first < height - 1 && board[p.first + 1][p.second] == 'O')
+                            {
+                                if (p.first + 1 == height - 1)
+                                    boundary = true;
+                                n = make_pair(p.first + 1, p.second);
+                                if (region.find(n) == region.end())
+                                {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                        }
+
+                        ASSERT1(boundary);
+                    }
+                }
+            }
+        };
+
+        auto check = [&](vector<vector<char>> &board, vector<vector<char>> &board2) {
+            Logger().WriteInformation("Input:\n");
+            Logger().Print(board, "%c");
+            SurroundedRegion::Capture(board);
+            Logger().WriteInformation("Output1:\n");
+            Logger().Print(board, "%c");
+            ;
+            verify(board);
+            SurroundedRegion::Capture2(board2);
+            Logger().WriteInformation("Output2:\n");
+            Logger().Print(board2, "%c");
+            verify(board2);
+            int height = board.size();
+            int width = board[0].size();
+            int height2 = board.size();
+            int width2 = board[0].size();
+            ASSERT1(height == height2);
+            ASSERT1(width == width2);
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    ASSERT1(board[i][j] == board2[i][j]);
+                }
+            }
+        };
+        {
+            vector<vector<char>> board = {{'X'}};
+            vector<vector<char>> board2 = {{'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O'}};
+            vector<vector<char>> board2 = {{'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}};
+            vector<vector<char>> board2 = {{'X', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'O'}};
+            vector<vector<char>> board2 = {{'O', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X'}, {'X'}};
+            vector<vector<char>> board2 = {{'X'}, {'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X'}, {'O'}};
+            vector<vector<char>> board2 = {{'X'}, {'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O'}, {'X'}};
+            vector<vector<char>> board2 = {{'O'}, {'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O'}, {'O'}};
+            vector<vector<char>> board2 = {{'O'}, {'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'X', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'X'}, {'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'X', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'X'}, {'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'X', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'O'}, {'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'O', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'X'}, {'O', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'X', 'O'}};
+            vector<vector<char>> board2 = {{'X', 'X'}, {'X', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'O'}, {'X', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'O'}, {'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'O', 'O'}};
+            vector<vector<char>> board2 = {{'X', 'X'}, {'O', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'O', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'X'}, {'O', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'X', 'O'}};
+            vector<vector<char>> board2 = {{'X', 'O'}, {'X', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'X', 'O'}};
+            vector<vector<char>> board2 = {{'O', 'X'}, {'X', 'O'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'O', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'O'}, {'O', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {{'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {{'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            check(board, board2);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                int height = 1 + rand() % 100;
+                int width = 1 + rand() % 100;
+                Logger().WriteInformation("Run %d, %d X %d\n", i, height, width);
+                vector<vector<char>> board;
+                vector<vector<char>> board2;
+                for (int j = 0; j < height; j++)
+                {
+                    vector<char> row;
+                    for (int k = 0; k < width; k++)
+                    {
+                        int v = rand();
+                        if ((v & 0x1) == 1)
+                        {
+                            row.push_back('X');
+                        }
+                        else
+                        {
+                            row.push_back('O');
+                        }
+                    }
+                    board.push_back(row);
+                    board2.push_back(row);
+                }
+                check(board, board2);
+            }
         }
     });
 }
