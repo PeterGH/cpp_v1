@@ -3038,6 +3038,60 @@ void AlgorithmTest::Init(void)
             }
         }
     });
+
+    Add("WordLadder", [&]() {
+        auto check = [&](const string &start, const string &end, const unordered_set<string> &dict, int expect) {
+            Logger().WriteInformation("Dictionary: [");
+            int i = 0;
+            for_each(dict.begin(), dict.end(), [&](string w) {
+                if (i != 0)
+                {
+                    Logger().WriteInformation(" ");
+                }
+                Logger().WriteInformation("%s", w.c_str());
+                i++;
+            });
+            Logger().WriteInformation("]\n");
+            Logger().WriteInformation("    Start:   %s\n", start.c_str());
+            Logger().WriteInformation("    End:     %s\n", end.c_str());
+            int length = WordLadder::Solve(start, end, dict);
+            int length2 = WordLadder::Solve2(start, end, dict);
+            int length3 = WordLadder::Solve3(start, end, dict);
+            vector<vector<string>> ladders = WordLadder::WordLadders(start, end, dict);
+            Logger().WriteInformation("    Length:  %d %s %d\n", length, length == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length2: %d %s %d\n", length2, length2 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length3: %d %s %d\n", length3, length3 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Ladders:\n");
+            for_each(ladders.begin(), ladders.end(), [&](vector<string> &l) {
+                Logger().WriteInformation("            [");
+                int i = 0;
+                for_each(l.begin(), l.end(), [&](string w) {
+                    if (i != 0)
+                    {
+                        Logger().WriteInformation(" ");
+                    }
+                    Logger().WriteInformation("%s", w.c_str());
+                    i++;
+                });
+                Logger().WriteInformation("]\n");
+            });
+            ASSERT1(length == expect);
+            ASSERT1(length2 == expect);
+            ASSERT1(length3 == expect);
+        };
+        {
+            unordered_set<string> dict = {"hot"};
+            check("hit", "cog", dict, 0);
+        }
+        {
+            unordered_set<string> dict = {"hot", "dot", "dog", "lot", "log"};
+            check("hit", "cog", dict, 5);
+        }
+        {
+            unordered_set<string> dict = {"ted", "tex", "red", "tax", "tad", "den", "rex", "pee"};
+            check("red", "tax", dict, 4);
+        }
+    });
 }
 
 #endif

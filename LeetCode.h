@@ -4802,6 +4802,7 @@ static vector<vector<string>> partition(string s)
 // and endWord are non-empty and are not the same. UPDATE(2017/1/20): The wordList
 // parameter had been changed to a list of strings (instead of a set of strings).
 // Please reload the code definition to get the latest changes
+// TODO: can we use BFS here?
 static int ladderLength(string beginWord, string endWord, vector<string> &wordList)
 {
     function<int(bool, string, vector<string> &)>
