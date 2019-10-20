@@ -3092,6 +3092,80 @@ void AlgorithmTest::Init(void)
             check("red", "tax", dict, 4);
         }
     });
+
+    Add("MatchSubsequence", [&]() {
+        auto check = [&](const string &input, const string &pattern, int expect) {
+            Logger().WriteInformation("Input:   %s\n", input.c_str());
+            Logger().WriteInformation("Pattern: %s\n", pattern.c_str());
+            int count2 = MatchSubsequence::Count2(input, pattern);
+            Logger().WriteInformation("Matches: %d %s %d\n", count2, count2 == expect ? "==" : "!=", expect);
+            int count = MatchSubsequence::Count(input, pattern);
+            Logger().WriteInformation("Matches: %d %s %d\n", count, count == expect ? "==" : "!=", expect);
+            ASSERT1(count == expect);
+            ASSERT1(count2 == expect);
+        };
+        check("r", "r", 1);
+        check("s", "r", 0);
+        check("rr", "r", 2);
+        check("rb", "r", 1);
+        check("br", "r", 1);
+        check("vb", "r", 0);
+        check("rabbbit", "rabbit", 3);
+        check("rrrr", "rr", 6);
+        check("rrrrr", "rr", 10);
+        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 861);
+        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 5151);
+        check("aabdbaabeeadcbbdedacbbeecbabebaeeecaeabaedadcbdbcdaabebdadbbaeabdadeaabbabbecebbebcaddaacccebeaeedababedeacdeaaaeeaecbe", "bddabdcae", 10582116);
+    });
+
+    Add("BreakString", [&]() {
+        int positions[] = {0, 2, 8, 10, 20};
+        Matrix<pair<int, int>> cost(5, 5);
+        BreakString::ComputeCostTable(positions, 5, cost);
+        Logger().Print(positions, 5);
+        auto print = [&](Log &l, pair<int, int> &p) {
+            l.WriteInformation("(%d, %d)", p.first, p.second);
+        };
+        Logger().Print<pair<int, int>>(cost, print);
+
+        vector<int> breaks;
+        int totalCost = BreakString::ComputeBreaks(positions, 5, breaks);
+        Logger().WriteInformation("Cost: %d\n", totalCost);
+        Logger().WriteInformation("Breaks: ");
+        Logger().Print(breaks);
+    });
+
+    Add("MinPathSum", [&]() {
+        auto check = [&](vector<vector<int>> &triangle, int expect) {
+            for_each(triangle.begin(), triangle.end(), [&](vector<int> &r) {
+                for_each(r.begin(), r.end(), [&](int i) {
+                    Logger().WriteInformation(" %d", i);
+                });
+                Logger().WriteInformation("\n");
+            });
+            int sum = MinPathSum::Solve(triangle);
+            Logger().WriteInformation("Sum: %d %s %d\n", sum, sum == expect ? "==" : "!=", expect);
+            ASSERT1(sum == expect);
+        };
+        {
+            vector<vector<int>> t = {{-10}};
+            check(t, -10);
+        }
+        {
+            vector<vector<int>> t = {
+                {-10},
+                {1, 2}};
+            check(t, -9);
+        }
+        {
+            vector<vector<int>> t = {
+                {2},
+                {3, 4},
+                {6, 5, 7},
+                {4, 1, 8, 3}};
+            check(t, 11);
+        }
+    });
 }
 
 #endif

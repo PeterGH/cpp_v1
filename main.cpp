@@ -7,6 +7,7 @@
 #include "CppTest.h"
 #include "LeetCodeTest.h"
 #include "LogTest.h"
+#include "StringTest.h"
 #include "StructureTest.h"
 
 using namespace std;
@@ -39,6 +40,7 @@ int main(int argc, const char *argv[])
     suite.Add(new CppTest(log));
     suite.Add(new LeetCodeTest(log));
     suite.Add(new LogTest(log));
+    suite.Add(new StringTest(log));
     suite.Add(new StructureTest(log));
 
     if (arg.Has("l"))
