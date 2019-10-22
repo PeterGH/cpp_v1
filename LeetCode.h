@@ -5820,19 +5820,6 @@ static bool IsScramble2(const string &s1, const string &s2)
 // isMatch("aa", "a*") true
 // isMatch("ab", "?*") true
 // isMatch("aab", "c*a*b") false
-static int length(const char *s)
-{
-    // Count characters in s that is not '*'
-    int i = 0;
-    const char *p = s;
-    while (*p != '\0')
-    {
-        if (*p != '*')
-            i++;
-        p++;
-    }
-    return i;
-}
 static bool isMatchInternal(const char *s, const char *p, map<pair<const char *, const char *>, bool> &m)
 {
     pair<const char *, const char *> c = make_pair(s, p);
@@ -5878,6 +5865,62 @@ static bool isMatchInternal(const char *s, const char *p, map<pair<const char *,
 }
 static bool isMatch(const char *s, const char *p)
 {
+    function<int(const char *)> length = [&](const char *c) -> int {
+        // Count characters in c that is not '*'
+        int i = 0;
+        while (*c != '\0')
+        {
+            if (*c != '*')
+                i++;
+            c++;
+        }
+        return i;
+    };
+
+    function<bool(const char *, const char *, map<pair<const char *, const char *>, bool> &)>
+        isMatchInternal = [&](const char *s, const char *p, map<pair<const char *, const char *>, bool> &m) -> bool {
+        pair<const char *, const char *> c = make_pair(s, p);
+        if (m.find(c) != m.end())
+            return m[c];
+
+        m[c] = false;
+
+        int i = length(s);
+        int j = length(p);
+        if (i < j)
+            return false;
+
+        while (*s != '\0' && *p != '\0' && (*s == *p || *p == '?'))
+        {
+            ++s;
+            ++p;
+        }
+        // Now *s == '\0' || *p == '\0' || (*s != *p && *p != '?')
+        if (*s == '\0' && *p == '\0')
+        {
+            m[c] = true;
+            return true;
+        }
+        if (*p == '\0' || *p != '*')
+            return false;
+        // Now *p == '*'
+        while (*p == '*')
+            p++;
+        // Now *p == '\0' || *p == '?' || *p != '*'
+        while (*s != '\0' && i >= j)
+        {
+            if ((*s == *p || *p == '?') && isMatchInternal(s + 1, p + 1, m))
+            {
+                m[c] = true;
+                return true;
+            }
+            s++;
+            i--;
+        }
+        m[c] = (*s == *p) && (i >= j);
+        return m[c];
+    };
+
     map<pair<const char *, const char *>, bool> m;
     return isMatchInternal(s, p, m);
 }

@@ -10,7 +10,7 @@ namespace Test
 {
 
 template <class T>
-static void ToArray(const vector<T> & v, T *a)
+static void ToArray(const vector<T> &v, T *a)
 {
     for (size_t i = 0; i < v.size(); i++)
     {
@@ -237,6 +237,21 @@ static void Reverse(T *input, int start, int end)
         swap(input[start], input[end]);
         start++;
         end--;
+    }
+}
+
+// Reverse subarray from input[i] to input[j]
+template <class T>
+static void Reverse(vector<T> &input, int i, int j)
+{
+    assert(i >= 0);
+    assert(i <= j);
+    assert(j < input.size());
+    while (i < j)
+    {
+        swap(input[i], input[j]);
+        i++;
+        j--;
     }
 }
 
