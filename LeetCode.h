@@ -5820,49 +5820,6 @@ static bool IsScramble2(const string &s1, const string &s2)
 // isMatch("aa", "a*") true
 // isMatch("ab", "?*") true
 // isMatch("aab", "c*a*b") false
-static bool isMatchInternal(const char *s, const char *p, map<pair<const char *, const char *>, bool> &m)
-{
-    pair<const char *, const char *> c = make_pair(s, p);
-    if (m.find(c) != m.end())
-        return m[c];
-
-    m[c] = false;
-
-    int i = length(s);
-    int j = length(p);
-    if (i < j)
-        return false;
-
-    while (*s != '\0' && *p != '\0' && (*s == *p || *p == '?'))
-    {
-        ++s;
-        ++p;
-    }
-    // Now *s == '\0' || *p == '\0' || (*s != *p && *p != '?')
-    if (*s == '\0' && *p == '\0')
-    {
-        m[c] = true;
-        return true;
-    }
-    if (*p == '\0' || *p != '*')
-        return false;
-    // Now *p == '*'
-    while (*p == '*')
-        p++;
-    // Now *p == '\0' || *p == '?' || *p != '*'
-    while (*s != '\0' && i >= j)
-    {
-        if ((*s == *p || *p == '?') && isMatchInternal(s + 1, p + 1, m))
-        {
-            m[c] = true;
-            return true;
-        }
-        s++;
-        i--;
-    }
-    m[c] = (*s == *p) && (i >= j);
-    return m[c];
-}
 static bool isMatch(const char *s, const char *p)
 {
     function<int(const char *)> length = [&](const char *c) -> int {
@@ -5976,7 +5933,7 @@ static bool isMatch2(const char *s, const char *p)
 // that there will always be only one unique minimum window in S.
 static string MinWindow(const string &s, const string &t)
 {
-    if (s.length() == 0 || t.length() == 0 || s.length() < t.length())
+    if (s.empty() || t.empty() || s.length() < t.length())
         return "";
 
     map<char, int> countT;
@@ -6041,7 +5998,7 @@ static string MinWindow(const string &s, const string &t)
 }
 static string MinWindow2(const string &s, const string &t)
 {
-    if (s.length() == 0 || t.length() == 0 || s.length() < t.length())
+    if (s.empty() || t.empty() || s.length() < t.length())
         return "";
 
     map<char, int> countT;

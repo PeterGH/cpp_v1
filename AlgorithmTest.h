@@ -3166,6 +3166,260 @@ void AlgorithmTest::Init(void)
             check(t, 11);
         }
     });
+
+    Add("IsMatch", [&]() {
+        auto check = [&](char *s, char *p, bool e) {
+            bool m1 = IsMatch1(s, p);
+            bool m2 = IsMatch2(s, p);
+            Logger().WriteInformation("IsMatch:\t%s %s %s\n", s, m1 ? "==" : "!=", p);
+            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", s, m2 ? "==" : "!=", p);
+            ASSERT1(m1 == e);
+            ASSERT1(m2 == e);
+        };
+        check("", "", true);
+        check("a", "", false);
+        check("", "a", false);
+        check("", "*", true);
+        check("", ".*", true);
+        check("aa", "a", false);
+        check("aa", ".", false);
+        check("aa", "aa", true);
+        check("aa", "..", true);
+        check("aa", "*aa", true);
+        check("aaa", "aa", false);
+        check("aaa", "*aa", false);
+        check("aaa", "aa*", true);
+        check("aaa", "aa**", true);
+        check("aaa", "a*a", true);
+        check("aaa", "...", true);
+        check("aaa", ".*.", true);
+        check("aa", "a*", true);
+        check("aa", ".*", true);
+        check("ab", ".*", true);
+        check("ab", "..", true);
+        check("aab", "c*a*b", true);
+        check("aab", "c***a**b", true);
+        check("abbbc", "ab*c", true);
+        check("ac", "ab*c", true);
+        check("abbc", "ab*bbc", true);
+        check("abcbcd", "a.*c.*d", true);
+        const string ab1 = "ab";
+        const string ab2 = "ab.*";
+        for (int i = 0; i < 100; i++)
+        {
+            size_t len1 = 1 + rand() % 5;
+            string input = Random::String(len1, ab1);
+            size_t len2 = 1 + rand() % 5;
+            string pattern = Random::String(len2, ab2);
+            bool m1 = IsMatch1(input.c_str(), pattern.c_str());
+            bool m2 = IsMatch2(input.c_str(), pattern.c_str());
+            Logger().WriteInformation("IsMatch1:\t%s %s %s\n", input.c_str(), m1 ? "==" : "!=", pattern.c_str());
+            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", input.c_str(), m2 ? "==" : "!=", pattern.c_str());
+            ASSERT1(m1 == m2);
+        }
+    });
+
+    Add("LongestSubStringWithUniqueChars", [&]() {
+        auto check = [&](char *s, int i, int l) {
+            string ss(s);
+            size_t ai1, al1;
+            LongestSubStringWithUniqueChars1(ss, ai1, al1);
+            size_t ai2, al2;
+            LongestSubStringWithUniqueChars1(ss, ai2, al2);
+            Logger().WriteInformation(
+                "%s, (%d%s%d, %d%s%d), %s\n",
+                ss.c_str(),
+                ai1,
+                ai1 == i ? "==" : "!=",
+                i,
+                al1,
+                al1 == l ? "==" : "!=",
+                l,
+                ss.substr(ai1, al1).c_str());
+            Logger().WriteInformation(
+                "%s, (%d%s%d, %d%s%d), %s\n",
+                ss.c_str(),
+                ai2,
+                ai2 == i ? "==" : "!=",
+                i,
+                al2,
+                al2 == l ? "==" : "!=",
+                l,
+                ss.substr(ai2, al2).c_str());
+            ASSERT1(ai1 == i);
+            ASSERT1(al1 == l);
+            ASSERT1(ai2 == i);
+            ASSERT1(al2 == l);
+        };
+        check("a", 0, 1);
+        check("aa", 0, 1);
+        check("ab", 0, 2);
+        check("aaa", 0, 1);
+        check("aba", 0, 2);
+        check("aab", 1, 2);
+        check("abc", 0, 3);
+        check("abab", 0, 2);
+        check("abba", 0, 2);
+        check("abca", 0, 3);
+        check("aabc", 1, 3);
+        check("abac", 1, 3);
+        check("abcd", 0, 4);
+        check("abcabc", 0, 3);
+        check("abcad", 1, 4);
+        check("aaabcd", 2, 4);
+        check("abcabcbb", 0, 3);
+        for (int i = 0; i < 100; i++)
+        {
+            size_t len = 1 + (rand() % 100);
+            string ss = Random::String(len);
+            size_t ai1, al1;
+            LongestSubStringWithUniqueChars1(ss, ai1, al1);
+            size_t ai2, al2;
+            LongestSubStringWithUniqueChars1(ss, ai2, al2);
+            Logger().WriteInformation(
+                "%s, (%d, %d), %s\n",
+                ss.c_str(),
+                ai1,
+                al1,
+                ss.substr(ai1, al1).c_str());
+            Logger().WriteInformation(
+                "%s, (%d, %d), %s\n",
+                ss.c_str(),
+                ai2,
+                al2,
+                ss.substr(ai2, al2).c_str());
+            ASSERT1(ai1 == ai2);
+            ASSERT1(al1 == al2);
+        }
+    });
+
+    Add("ShortestSubStringContainingGivenChars", [&]() {
+        {
+            auto check = [&](const string &input, const string &chars, const string &expect) {
+                int index1;
+                int length1;
+                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
+                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                int index2;
+                int length2;
+                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
+                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                int index3;
+                int length3;
+                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars1(chars, input, index3, length3);
+                string match3 = index3 == -1 ? "" : input.substr(index3, length3);
+                int index4;
+                int length4;
+                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars2(chars, input, index4, length4);
+                string match4 = index4 == -1 ? "" : input.substr(index4, length4);
+                Logger().WriteInformation("Input: %s\n", input.c_str());
+                Logger().WriteInformation("Chars: %s\n", chars.c_str());
+                Logger().WriteInformation("Match1: %s %s %s\n", match1.c_str(), match1 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation("Match2: %s %s %s\n", match2.c_str(), match2 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation("Match3: %s %s %s\n", match3.c_str(), match3 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation("Match4: %s %s %s\n", match4.c_str(), match4 == expect ? "==" : "!=", expect.c_str());
+                ASSERT1(match1 == expect);
+                ASSERT1(match2 == expect);
+                ASSERT1(match3 == expect);
+                ASSERT1(match4 == expect);
+            };
+
+            check("aaaaa", "a", "a");
+            check("aaaaa", "b", "");
+            check("aaaaa", "ab", "");
+            check("abaa", "ab", "ab");
+            check("abaa", "ba", "ab");
+            check("ccab", "ab", "ab");
+            check("ccab", "ba", "ab");
+            check("aabaa", "ab", "ab");
+            check("aabaa", "ba", "ab");
+            check("ccaba", "ab", "ab");
+            check("ccaba", "ba", "ab");
+            check("aacbddaa", "ba", "acb");
+            check("aacdbddbeaa", "ab", "bea");
+            check("ADOBECODEBANC", "ABC", "BANC");
+            check("aabbbccaa", "abc", "bcca");
+            check("aabbbccbaa", "abc", "cba");
+            check("bcdfdefdcfeecgfacecdeagadcb", "dcgab", "gadcb");
+            check("cfegdgbddacafeaccceccedgagfcbagcfbcdfdefdcfeecgfacecdeagadcbeddcacadebafcdcga", "dcgab", "gadcb");
+        }
+        {
+            auto check = [&](const string &input, const string &chars, const string &expect) {
+                int index1;
+                int length1;
+                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
+                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                int index2;
+                int length2;
+                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
+                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                Logger().WriteInformation("Input: %s\n", input.c_str());
+                Logger().WriteInformation("Chars: %s\n", chars.c_str());
+                Logger().WriteInformation("Match1: %s %s %s\n", match1.c_str(), match1 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation("Match2: %s %s %s\n", match2.c_str(), match2 == expect ? "==" : "!=", expect.c_str());
+                ASSERT1(match1 == expect);
+                ASSERT1(match2 == expect);
+            };
+
+            check("aaaaa", "aa", "aa");
+            check("aaaaa", "bb", "");
+            check("aaaaa", "aba", "");
+            check("abaa", "aab", "aba");
+            check("abaa", "aba", "aba");
+            check("ccab", "ccab", "ccab");
+            check("ccab", "cba", "cab");
+            check("aabaa", "aaab", "aaba");
+            check("aabaa", "baa", "aab");
+            check("ccaba", "aab", "aba");
+            check("ccaba", "aba", "aba");
+            check("aacbddaa", "aba", "aacb");
+            check("aacdbddbeaa", "aabb", "bddbeaa");
+            check("ADOBECODEBANC", "ABCC", "CODEBANC");
+            check("aabbbccaa", "abbc", "abbbc");
+            check("aabbbccbaa", "aabcc", "ccbaa");
+        }
+        {
+            auto length = [&](int max) -> int {
+                return 1 + rand() % max;
+            };
+            string alphabet = "abcdefg";
+            auto random = [&](int len) -> string {
+                string output = Random::String(len, alphabet);
+                return output;
+            };
+            for (int i = 0; i < 1000; i++)
+            {
+                string chars = random(length(10));
+                string input = random(length(100));
+                int index1;
+                int length1;
+                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
+                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                int index2;
+                int length2;
+                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
+                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                Logger().WriteInformation("Input: %s\n", input.c_str());
+                Logger().WriteInformation("Chars: %s\n", chars.c_str());
+                Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match2 ? "==" : "!=", match2.c_str());
+                ASSERT1(match1 == match2);
+                if (ContainsUniqueChars(chars))
+                {
+                    int index3;
+                    int length3;
+                    ShortestSubStringContainingGivenChars::SolveGivenUniqueChars1(chars, input, index3, length3);
+                    string match3 = index3 == -1 ? "" : input.substr(index3, length3);
+                    Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match3 ? "==" : "!=", match3.c_str());
+                    int index4;
+                    int length4;
+                    ShortestSubStringContainingGivenChars::SolveGivenUniqueChars2(chars, input, index4, length4);
+                    string match4 = index4 == -1 ? "" : input.substr(index4, length4);
+                    Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match4 ? "==" : "!=", match4.c_str());
+                    ASSERT1(match1 == match4);
+                }
+            }
+        }
+    });
 }
 
 #endif

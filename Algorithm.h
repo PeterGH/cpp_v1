@@ -4419,6 +4419,354 @@ static int Solve(vector<vector<int>> &triangle)
     return min;
 }
 } // namespace MinPathSum
+
+// Pattern can include:
+// '.'	Any single character
+// '*'  Zero or more occurrences of previous character
+// Any other characters
+// Return true if the entire input string match the pattern.
+static bool IsMatch1(const char *input, const char *pattern)
+{
+    if (input == nullptr || pattern == nullptr)
+        return false;
+    while (*pattern == '*')
+        pattern++;
+    if (*input == '\0' && *pattern == '\0')
+        return true;
+    if (*pattern == '\0')
+        return false;
+    if (*(pattern + 1) != '*')
+    {
+        // input    a#######
+        //          ""
+        // pattern  b####
+        //          a####
+        //          .####
+        return (*input == *pattern || *pattern == '.' && *input != '\0') && IsMatch1(input + 1, pattern + 1);
+    }
+    // input    a#######
+    //          ""
+    // pattern  b***####
+    //          a***###
+    //          .***###
+    while (*input == *pattern || (*pattern == '.' && *input != '\0'))
+    {
+        // input    a#######
+        // pattern  a***###
+        //          .***###
+        if (IsMatch1(input++, pattern + 2))
+            return true;
+    }
+    // input    a#######
+    //          ""
+    // pattern  b***####
+    return IsMatch1(input, pattern + 2);
+}
+static bool IsMatch2(const char *input, const char *pattern)
+{
+    if (input == nullptr || pattern == nullptr)
+        return false;
+    while (*pattern == '*')
+        pattern++;
+    while ((*input == *pattern || *pattern == '.') && *input != '\0' && *pattern != '\0' && *(pattern + 1) != '*')
+    {
+        // input    a#######
+        // pattern  a####
+        //          .####
+        input++;
+        pattern++;
+    }
+    if (*input == '\0' && *pattern == '\0')
+        return true; // input and pattern match
+    if (*pattern == '\0')
+        return false; // input has more characters unmatched
+    if (*(pattern + 1) != '*')
+    {
+        // input    a#######
+        //          '\0'
+        // pattern  b####
+        return false;
+    }
+    // input    a#######
+    //          '\0'
+    // pattern  b***####
+    //          a***###
+    //          .***###
+    // Now *(pattern+1) == '*'
+    if (*input != *pattern && *pattern != '.')
+    {
+        // input    a#######
+        //          '\0'
+        // pattern  b*###
+        return IsMatch2(input, pattern + 2);
+    }
+    // input    a#######
+    //          '\0'
+    // pattern  a*###
+    //          .*###
+    while (*input != '\0' && (*input == *pattern || *pattern == '.'))
+    {
+        if (IsMatch2(input, pattern + 2))
+            return true;
+        input++;
+    }
+    // input	'\0'
+    // input    b#######
+    // pattern  a*###
+    return IsMatch2(input, pattern + 2);
+}
+
+static void LongestSubStringWithUniqueChars1(const string &input, size_t &index, size_t &length)
+{
+    index = 0;
+    length = 0;
+    bitset<256> visited;
+    size_t i = 0;
+    size_t j = 0;
+    while (j < input.length())
+    {
+        if (visited[input[j]] == true)
+        {
+            if (j - i > length)
+            {
+                index = i;
+                length = j - i;
+            }
+            while (input[i] != input[j])
+            {
+                visited[input[i]] = false;
+                i++;
+            }
+            i++;
+        }
+        else
+            visited[input[j]] = true;
+        j++;
+    }
+    if (j - i > length)
+    {
+        index = i;
+        length = j - i;
+    }
+}
+static void LongestSubStringWithUniqueChars2(const string &input, size_t &index, size_t &length)
+{
+    index = 0;
+    length = 0;
+    map<char, size_t> position;
+    size_t i = 0;
+    size_t j = 0;
+    while (j < input.length())
+    {
+        if (position.find(input[j]) != position.end() && position[input[j]] >= i)
+        {
+            if (j - i > length)
+            {
+                index = i;
+                length = j - i;
+            }
+            i = position[input[j]] + 1;
+        }
+        position[input[j]] = j;
+        j++;
+    }
+    if (j - i > length)
+    {
+        index = i;
+        length = j - i;
+    }
+}
+
+namespace ShortestSubStringContainingGivenChars
+{
+static void UpdateMap(map<char, int> &m, char c)
+{
+    if (m.find(c) == m.end())
+        m[c] = 1;
+    else
+        m[c]++;
+}
+
+// check if m1 contains m2
+static bool Contain(map<char, int> m1, map<char, int> m2)
+{
+    if (m1.size() < m2.size())
+        return false;
+    for (map<char, int>::iterator it = m2.begin(); it != m2.end(); it++)
+    {
+        if (m1.find(it->first) == m1.end())
+            return false;
+        if (m1[it->first] < it->second)
+            return false;
+    }
+    return true;
+}
+
+// http://leetcode.com/2010/11/finding-minimum-window-in-s-which.html
+// Find the shortest substring containing all the characters in a given set
+// The given set may contain duplicate chars
+static void Solve1(const string &chars, const string &input, int &index, int &length)
+{
+    index = -1;
+    length = INT_MAX;
+
+    map<char, int> charMap;
+    for (unsigned int i = 0; i < chars.length(); i++)
+    {
+        UpdateMap(charMap, chars[i]);
+    }
+
+    map<char, int> count;
+    int i = 0;
+    int j = 0;
+    while (j < (int)input.length() && count.size() < charMap.size() - 1)
+    {
+        if (charMap.find(input[j]) != charMap.end())
+            UpdateMap(count, input[j]);
+        j++;
+    }
+    while (j < (int)input.length())
+    {
+        if (charMap.find(input[j]) != charMap.end())
+        {
+            UpdateMap(count, input[j]);
+            if (Contain(count, charMap))
+            {
+                while (Contain(count, charMap))
+                {
+                    if (count.find(input[i]) != count.end())
+                        count[input[i]]--;
+                    i++;
+                }
+                int l = j - i + 2; // j - (i-1) + 1
+                if (l < length)
+                {
+                    index = i - 1;
+                    length = l;
+                }
+            }
+        }
+        j++;
+    }
+}
+
+static void Solve2(const string &chars, const string &input, int &index, int &length)
+{
+    index = -1;
+    length = INT_MAX;
+
+    map<char, int> charMap;
+    for (unsigned int i = 0; i < chars.length(); i++)
+    {
+        UpdateMap(charMap, chars[i]);
+    }
+
+    for (unsigned int i = 0; i < input.length(); i++)
+    {
+        if (charMap.find(input[i]) != charMap.end())
+        {
+            map<char, int> count;
+            unsigned int j = i;
+            while (j < input.length())
+            {
+                if (charMap.find(input[j]) != charMap.end())
+                {
+                    UpdateMap(count, input[j]);
+                    if (Contain(count, charMap))
+                    {
+                        int l = j - i + 1;
+                        if (l < length)
+                        {
+                            index = i;
+                            length = l;
+                        }
+                        break;
+                    }
+                }
+                j++;
+            }
+        }
+    }
+}
+
+// Assuming the given set does not contain duplicate characters
+static void SolveGivenUniqueChars1(const string &chars, const string &input, int &index, int &length)
+{
+    index = -1;
+    length = INT_MAX;
+    map<char, int> count;
+    int i = 0;
+    char c;
+    for (unsigned int j = 0; j < input.length(); j++)
+    {
+        c = input[j];
+        if (chars.find(c) != string::npos)
+        {
+            if (count.find(c) == count.end())
+                count[c] = 1;
+            else
+                count[c]++;
+            if (count.size() == chars.length())
+            {
+                while (count.size() == chars.length())
+                {
+                    c = input[i];
+                    if (count.find(c) != count.end())
+                    {
+                        count[c]--;
+                        if (count[c] == 0)
+                            count.erase(c);
+                    }
+                    i++;
+                }
+                int l = j - i + 2; // j - (i-1) + 1
+                if (l < length)
+                {
+                    index = i - 1;
+                    length = l;
+                }
+            }
+        }
+    }
+}
+
+// Assuming the given set does not contain duplicate characters
+static void SolveGivenUniqueChars2(const string &chars, const string &input, int &index, int &length)
+{
+    index = -1;
+    length = INT_MAX;
+    queue<int> indices;
+    map<char, int> found; // track found chars and their most recent indices
+    for (unsigned int i = 0; i < input.length(); i++)
+    {
+        if (chars.find(input[i]) != string::npos)
+        {
+            indices.push(i);
+            found[input[i]] = i; // insert or update with the latest index
+            if (found.size() == chars.length())
+            {
+                // found all chars
+                // pop old indices that are not the most recent
+                while (indices.front() != found[input[indices.front()]])
+                    indices.pop();
+                int l = indices.back() - indices.front() + 1;
+                if (l < length)
+                {
+                    // Update if the current one is shorter
+                    index = indices.front();
+                    length = l;
+                }
+                // erase the oldest char in order to start next search
+                found.erase(input[indices.front()]);
+                indices.pop();
+            }
+        }
+    }
+    if (index == -1)
+        length = 0;
+}
+} // namespace ShortestSubStringContainingGivenChars
+
 } // namespace Test
 
 #endif
