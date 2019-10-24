@@ -2,6 +2,7 @@
 #define _STRUCTURE_H_
 
 #include <algorithm>
+#include <assert.h>
 #include <functional>
 #include <iostream>
 #include <limits.h>
@@ -1363,6 +1364,73 @@ public:
         }
     }
 };
+
+class PermutationGenerator
+{
+private:
+    unsigned int _length;
+    unsigned long long _totalCount;
+    // Internal counter to track the permutation state.
+    // It is a multiple-radix integer, where the base
+    // of position i is i + 1.
+    // 0 <= _counter[i] < i + 1
+    unique_ptr<unsigned int[]> _counter;
+
+    void IncreaseCounter(void)
+    {
+        for (unsigned int i = 0; i < _length; i++)
+        {
+            _counter[i] = (_counter[i] + 1) % (i + 1);
+            if (_counter[i] != 0)
+            {
+                // Current position does not round off (i + 1).
+                // No need to continue.
+                break;
+            }
+        }
+    }
+
+public:
+    PermutationGenerator(unsigned int length)
+    {
+        assert(length > 0);
+        _length = length;
+        _counter = unique_ptr<unsigned int[]>(new unsigned int[length]);
+        memset(_counter.get(), 0, length * sizeof(unsigned int));
+        _totalCount = Factorial(length);
+    }
+
+    ~PermutationGenerator(void) {}
+
+    // Total number of permutations
+    const unsigned long long TotalCount(void) const
+    {
+        return _totalCount;
+    }
+
+    // Current counter value at position index
+    const unsigned int operator[](unsigned int index) const
+    {
+        assert(index < _length);
+        return _counter[index];
+    }
+
+    // Get next permutation in-place
+    template <class T>
+    void Next(vector<T> &input)
+    {
+        int len = (int)min((unsigned int)input.size(), _length);
+        for (int i = len - 1; i >= 0; i--)
+        {
+            if (_counter[i] > 0)
+                swap(input[i], input[i - _counter[i]]);
+        }
+
+        // Prepare for the next permutation
+        IncreaseCounter();
+    }
+};
+
 } // namespace Test
 
 #endif

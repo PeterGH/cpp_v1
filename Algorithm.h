@@ -4579,6 +4579,8 @@ static void LongestSubStringWithUniqueChars2(const string &input, size_t &index,
 
 namespace ShortestSubStringContainingGivenChars
 {
+// Refer to leetcode "Minimum Window Substring"
+
 static void UpdateMap(map<char, int> &m, char c)
 {
     if (m.find(c) == m.end())
@@ -4766,6 +4768,470 @@ static void SolveGivenUniqueChars2(const string &chars, const string &input, int
         length = 0;
 }
 } // namespace ShortestSubStringContainingGivenChars
+
+// http://leetcode.com/2010/11/microsoft-string-replacement-problem.html
+// Replace a pattern with a shorter string in place.
+// Continous occurrences of the pattern should be replaced with one shorter string.
+static void ReplaceWithShorterString(char *input, const char *pattern, const char *shorter)
+{
+    if (input == nullptr || pattern == nullptr || shorter == nullptr || *input == '\0' || *pattern == '\0' || *shorter == '\0')
+        return;
+    char *i = input; // Next insert position
+    char *j = input; // Next check position
+    const char *s = shorter;
+    const char *p = pattern;
+    while (*j != '\0')
+    {
+        bool found = false;
+        while (*j == *p)
+        {
+            char *k = j;
+            while (*k != '\0' && *p != '\0' && *k == *p)
+            {
+                // Do not use *k++ == *p++ in the while condition statement,
+                // because k and p will advance even if *k and *p are different.
+                k++;
+                p++;
+            }
+            if (*p == '\0')
+            {
+                // Found one pattern, skip it and
+                // check for next continous pattern
+                found = true;
+                j = k;
+                p = pattern;
+            }
+            else
+            {
+                // Input is done or not match
+                p = pattern;
+                break;
+            }
+        }
+        if (found)
+        {
+            while (*s != '\0')
+                *i++ = *s++;
+            s = shorter;
+        }
+        if (*j != '\0')
+        {
+            // j may reach the end if the input ends with the pattern
+            *i++ = *j++;
+        }
+    }
+    *i = '\0';
+}
+
+// An input string may contains leading and ending spaces, and
+// may contain contiguous spaces in the middle. Remove the leading
+// and ending spaces, and nomalize each group of contiguous spaces
+// in the middle into one space.
+static void RemoveExtraSpaces(char *input)
+{
+    if (input == nullptr)
+        return;
+    char *i = input - 1; // Track the end of the last word seen so far
+    char *j = input;     // Track the next char in input
+    while (*j != '\0')
+    {
+        while (*j == ' ')
+            j++;
+        if (*j == '\0')
+            break;
+        if (i + 1 != input)
+        {
+            i++;
+            *i = ' ';
+        }
+        while (*j != ' ' && *j != '\0')
+        {
+            i++;
+            if (i < j)
+                *i = *j;
+            j++;
+        }
+    }
+    i++;
+    *i = '\0';
+}
+
+// input is a sentence of words separated by spaces.
+// There can be multiple spaces between two words.
+// Reverse the order of words, and condense multiple spaces between
+// two words into one.
+static void ReverseWords(string &input)
+{
+    size_t len = input.length();
+    size_t i = 0;
+    while (i < len && input[i] == ' ')
+        i++;
+    if (i == len)
+    {
+        input.clear();
+        return;
+    }
+    while (i < len)
+    {
+        size_t j = input.find_first_of(" ", i);
+        if (j == string::npos)
+            j = len;
+        input.insert(len, input, i, j - i);
+        input.insert(len, 1, ' ');
+        while (j < len && input[j] == ' ')
+            j++;
+        i = j;
+    }
+    input = input.substr(i + 1);
+}
+// input is a sentence of words separated by spaces.
+// There can be multiple spaces between two words.
+// Reverse the order of words, and condense multiple spaces between
+// two words into one.
+static void ReverseWords(char *input)
+{
+    if (input == nullptr)
+        return;
+    RemoveExtraSpaces(input);
+    auto reverse = [&](char *s, char *t) {
+        while (s < t)
+        {
+            char v = *s;
+            *s++ = *t;
+            *t-- = v;
+        }
+    };
+    char *s = input;
+    char *t = s;
+    while (*s != '\0')
+    {
+        if (*s == ' ')
+            s++;
+        t = s;
+        while (*t != '\0' && *t != ' ')
+            t++;
+        t--;
+        reverse(s, t);
+        s = ++t;
+    }
+    reverse(input, --s);
+}
+
+// Return a pointer to the first occurrence of input2 in input1, or nullptr
+static const char *StrStr1(const char *input1, const char *input2)
+{
+    if (input1 == nullptr || input2 == nullptr)
+        return nullptr;
+    if (*input2 == '\0')
+        return input1;
+    const char *q = input1;
+    const char *p = input2;
+    while (*(q + 1) != '\0' && *(p + 1) != '\0')
+    {
+        q++;
+        p++;
+    }
+    if (*(q + 1) == '\0' && *(p + 1) != '\0')
+    {
+        return nullptr; // input2 is longer than input1
+    }
+    // now input1 is not shorter than input2
+    // set p to the beginning of input1
+    p = input1;
+    // Hop p and q at same step until q reaches the end of input1
+    while (*q != '\0')
+    {
+        if (*p == *input2)
+        {
+            const char *r = p;
+            const char *s = input2;
+            while (*s != '\0' && *r == *s)
+            {
+                r++;
+                s++;
+            }
+            if (*s == '\0')
+                return p;
+        }
+        p++;
+        q++;
+    }
+    return nullptr;
+}
+// Return a pointer to the first occurrence of input2 in input1, or nullptr
+static const char *StrStr2(const char *input1, const char *input2)
+{
+    if (input1 == nullptr || input2 == nullptr)
+        return nullptr;
+    const char *p = input1;
+    while (*p != '\0')
+    {
+        if (*p == *input2)
+        {
+            const char *r = p;
+            const char *s = input2;
+            while (*r != '\0' && *s != '\0' && *r == *s)
+            {
+                r++;
+                s++;
+            }
+            if (*s == '\0')
+                return p;
+        }
+        p++;
+    }
+    return *input2 == '\0' ? input1 : nullptr;
+}
+
+namespace BreakWords
+{
+// leetcode "Word Break"
+static bool StartWith(const string &s1, const string &s2)
+{
+    if (s1.length() < s2.length())
+        return false;
+    for (size_t i = 0; i < s2.length(); i++)
+    {
+        if (s1[i] != s2[i])
+            return false;
+    }
+    return true;
+}
+
+// Given a input string, break it by inserting spaces so that each word
+// is in a given dictionary. Return all possible sentences by breaking the string.
+static vector<string> Solve1(const string &input, unordered_set<string> &dictionary)
+{
+    function<void(const string &, unordered_set<string> &, const string &, vector<string> &)>
+        breakWord = [&](
+                        const string &s,
+                        unordered_set<string> &dict,
+                        const string &sentence,
+                        vector<string> &results) {
+            size_t len = s.length();
+            for_each(dict.begin(), dict.end(), [&](string w) {
+                size_t wlen = w.length();
+                if (StartWith(s, w))
+                {
+                    string sen(sentence);
+                    if (sen.length() > 0)
+                        sen.append(1, ' ');
+                    sen.append(w);
+                    if (len == wlen)
+                        results.push_back(sen);
+                    else
+                        breakWord(s.substr(wlen), dict, sen, results);
+                }
+            });
+        };
+    vector<string> sentences;
+    breakWord(input, dictionary, string(), sentences);
+    return sentences;
+}
+
+// Given a input string, break it by inserting spaces so that each word
+// is in a given dictionary. Return all possible sentences by breaking the string.
+static vector<string> Solve2(const string &input, unordered_set<string> &dictionary)
+{
+    function<void(const string &, size_t, unordered_set<string> &, map<size_t, vector<string>> &)>
+        breakWord = [&](
+                        const string &s,
+                        size_t index,
+                        unordered_set<string> &dict,
+                        map<size_t, vector<string>> &results) {
+            if (results.find(index) == results.end())
+                results[index] = vector<string>{};
+            size_t len = s.length() - index;
+            for_each(dict.begin(), dict.end(), [&](string w) {
+                size_t wlen = w.length();
+                if (StartWith(s.substr(index), w))
+                {
+                    size_t wi = index + wlen;
+                    if (wi == s.length())
+                        results[index].push_back(w);
+                    else
+                    {
+                        if (results.find(wi) == results.end())
+                            breakWord(s, wi, dict, results);
+                        for_each(results[wi].begin(), results[wi].end(), [&](string r) {
+                            string rs(w);
+                            rs.append(1, ' ');
+                            rs.append(r);
+                            results[index].push_back(rs);
+                        });
+                    }
+                }
+            });
+        };
+    map<size_t, vector<string>> sentences;
+    breakWord(input, 0, dictionary, sentences);
+    return sentences[0];
+}
+
+static bool Solvable(const string &input, unordered_set<string> &dictionary)
+{
+    function<void(const string &, size_t, unordered_set<string> &, map<size_t, bool> &)>
+        breakWord = [&](
+                        const string &s,
+                        size_t index,
+                        unordered_set<string> &dict,
+                        map<size_t, bool> &results) {
+            if (results.find(index) == results.end())
+                results[index] = false;
+            size_t len = s.length() - index;
+            for_each(dict.begin(), dict.end(), [&](string w) {
+                size_t wlen = w.length();
+                if (StartWith(s.substr(index), w))
+                {
+                    size_t wi = index + wlen;
+                    if (wi == s.length())
+                    {
+                        results[index] = true;
+                        return;
+                    }
+                    else
+                    {
+                        if (results.find(wi) == results.end())
+                            breakWord(s, wi, dict, results);
+                        if (results[wi])
+                        {
+                            results[index] = true;
+                            return;
+                        }
+                    }
+                }
+            });
+        };
+    map<size_t, bool> sentences;
+    breakWord(input, 0, dictionary, sentences);
+    return sentences[0];
+}
+} // namespace BreakWords
+
+// Find the elements forming the longest contiguous sequence.
+// Given [100, 4, 200, 1, 3, 2], The longest consecutive elements sequence is [1, 2, 3, 4].
+// Return: first = 1, length = 4.
+static void LongestConsecutiveSequence1(const vector<int> &input, int &first, size_t &length)
+{
+    if (input.size() == 0)
+    {
+        length = 0;
+        return;
+    }
+    first = input[0];
+    length = 1;
+    // Given a open range (begin, end), track the begin and end using two hash tables.
+    unordered_map<int, int> end;   // (begin, end)
+    unordered_map<int, int> begin; // (end, begin)
+    for_each(input.begin(), input.end(), [&](int i) {
+        // i must fall into one of cases:
+        // 1. i begins one range and ends another range.
+        // 2. i begins one range or ends one range.
+        // 3. i is inside one range.
+        // 4. i is outside of any range.
+        bool iBegin = end.find(i) != end.end();   // (i, end[i])
+        bool iEnd = begin.find(i) != begin.end(); // (begin[i], i)
+        if (iEnd && iBegin)
+        {
+            // merge (begin[i], i) with (i, end[i])
+            if (end[i] - begin[i] - 1 > length)
+            {
+                length = end[i] - begin[i] - 1;
+                first = begin[i] + 1;
+            }
+            end[begin[i]] = end[i];
+            begin[end[i]] = begin[i];
+            end.erase(i);
+            begin.erase(i);
+        }
+        else if (iBegin)
+        {
+            // expand (i, end[i]) to (i-1, end[i])
+            if (end[i] - i > length)
+            {
+                length = end[i] - i;
+                first = i;
+            }
+            // if (i-1, end[i-1]) exists, then should not change it,
+            // because (i, end[i]) must be inside (i-1, end[i-1]).
+            if (end.find(i - 1) == end.end())
+            {
+                end[i - 1] = end[i];
+                begin[end[i]] = i - 1;
+                end.erase(i);
+            }
+        }
+        else if (iEnd)
+        {
+            // expand (begin[i], i) to (begin[i], i+1)
+            if (i - begin[i] > length)
+            {
+                length = i - begin[i];
+                first = begin[i] + 1;
+            }
+            // if (begin[i+1], i+1) exists, then should not change it,
+            // because (begin[i], i) must be inside (begin[i+1], i+1).
+            if (begin.find(i + 1) == begin.end())
+            {
+                begin[i + 1] = begin[i];
+                end[begin[i]] = i + 1;
+                begin.erase(i);
+            }
+        }
+        else
+        {
+            // add new range (i-1, i+1) and (i+1, i-1)
+            // the new range may already be covered in existing range, e.g.
+            // { 0, 1, 2, 1}, when the second 1 occurrs, a new range (0,2) is added,
+            // but the first three numbers already generate range (-1, 3).
+            if (1 > length)
+            {
+                length = 1;
+                first = i;
+            }
+            if (end.find(i - 1) == end.end() && begin.find(i + 1) == begin.end())
+            {
+                end[i - 1] = i + 1;
+                begin[i + 1] = i - 1;
+            }
+        }
+    });
+}
+static void LongestConsecutiveSequence2(vector<int> &input, int &first, size_t &length)
+{
+    if (input.size() == 0)
+    {
+        length = 0;
+        return;
+    }
+    first = input[0];
+    length = 1;
+    sort(input.begin(), input.end());
+    int f = input[0];
+    int l = 1;
+    for (size_t i = 1; i < input.size(); i++)
+    {
+        if (input[i] == input[i - 1])
+            continue;
+        else if (input[i] == input[i - 1] + 1)
+            l++;
+        else
+        { // input[i] > input[i - 1] + 1
+            if (l > length)
+            {
+                first = f;
+                length = l;
+            }
+            f = input[i];
+            l = 1;
+        }
+    }
+    if (l > length)
+    {
+        first = f;
+        length = l;
+    }
+}
 
 } // namespace Test
 

@@ -3420,6 +3420,395 @@ void AlgorithmTest::Init(void)
             }
         }
     });
+
+    Add("ReplaceWithShorterString", [&]() {
+        auto check = [&](char *input, char *pattern, char *shorter, char *expect) {
+            Logger().WriteInformation("\nInput:   %s\n", input);
+            Logger().WriteInformation("Pattern: %s\n", pattern);
+            Logger().WriteInformation("Shorter: %s\n", shorter);
+            ReplaceWithShorterString(input, pattern, shorter);
+            Logger().WriteInformation("Output:  %s\n", input);
+            while (*input != '\0')
+            {
+                ASSERT1(*input++ == *expect++);
+            }
+        };
+        char A[][4][256] = {
+            {"a", "a", "X", "X"},
+            {"aa", "aa", "X", "X"},
+            {"aa", "a", "X", "X"},
+            {"aa", "aaa", "X", "aa"},
+            {"abc", "abc", "X", "X"},
+            {"abcabc", "abc", "X", "X"},
+            {"abcabcabc", "abc", "X", "X"},
+            {"abcaabcaabc", "abc", "X", "XaXaX"},
+            {"abcaaabcaaabca", "abc", "X", "XaaXaaXa"},
+            {"abcabcabababcabc", "abc", "X", "XababX"},
+            {"abcabcabababcabcab", "abc", "X", "XababXab"},
+            {"aabbaabbaaabbbaabb", "aabb", "X", "XaXbX"},
+            {"aabbaabbaaabbbaabb", "aaabb", "X", "aabbaabbXbaabb"},
+            {"aabbaabbaaabbbaaabb", "aaabb", "X", "aabbaabbXbX"},
+            {"aabbaabbaaabbbaaabc", "aaabb", "X", "aabbaabbXbaaabc"},
+            {"abcdeffdfegabcabc", "abc", "X", "XdeffdfegX"},
+            {"abcdeffdfegabcabc", "ab", "X", "XcdeffdfegXcXc"},
+            {"abcdeffdfegabcabc", "a", "X", "XbcdeffdfegXbcXbc"},
+            {"abcdeffdfegabcab", "abc", "X", "XdeffdfegXab"},
+            {"abcdeffdfegabcabcab", "abc", "X", "XdeffdfegXab"},
+            {"abcdeffdfegabcaabcab", "abc", "X", "XdeffdfegXaXab"},
+            {"abcdeffdfegabcaaaabcab", "abc", "X", "XdeffdfegXaaaXab"},
+            {"aaaaaa", "a", "X", "X"},
+            {"aaaaaa", "aa", "X", "X"},
+            {"aaaaaa", "aaaaaa", "X", "X"},
+            {"aaaaaa", "aaaaaaa", "X", "aaaaaa"},
+            {"aabaababaaab", "a", "X", "XbXbXbXb"},
+            {"aabaababaaa", "a", "X", "XbXbXbX"},
+            {"aaaab", "a", "X", "Xb"},
+            {"baaa", "a", "X", "bX"},
+            {"aabaaabaab", "aaa", "X", "aabXbaab"},
+            {"aabaaabaab", "aa", "X", "XbXabXb"},
+            {"aabaaabaa", "aa", "X", "XbXabX"},
+            {"aa", "aa", "XY", "XY"},
+            {"aa", "aaa", "XY", "aa"},
+            {"abc", "abc", "XY", "XY"},
+            {"abcabc", "abc", "XY", "XY"},
+            {"abcabcabc", "abc", "XY", "XY"},
+            {"abcaabcaabc", "abc", "XY", "XYaXYaXY"},
+            {"abcaaabcaaabca", "abc", "XY", "XYaaXYaaXYa"},
+            {"abcabcabababcabc", "abc", "XY", "XYababXY"},
+            {"abcabcabababcabcab", "abc", "XY", "XYababXYab"},
+            {"aabbaabbaaabbbaabb", "aabb", "XY", "XYaXYbXY"},
+            {"aabbaabbaaabbbaabb", "aaabb", "XY", "aabbaabbXYbaabb"},
+            {"aabbaabbaaabbbaaabb", "aaabb", "XY", "aabbaabbXYbXY"},
+            {"aabbaabbaaabbbaaabc", "aaabb", "XY", "aabbaabbXYbaaabc"},
+            {"abcdeffdfegabcabc", "abc", "XY", "XYdeffdfegXY"},
+            {"abcdeffdfegabcabc", "ab", "XY", "XYcdeffdfegXYcXYc"},
+            {"abcdeffdfegabcab", "abc", "XY", "XYdeffdfegXYab"},
+            {"abcdeffdfegabcabcab", "abc", "XY", "XYdeffdfegXYab"},
+            {"abcdeffdfegabcaabcab", "abc", "XY", "XYdeffdfegXYaXYab"},
+            {"abcdeffdfegabcaaaabcab", "abc", "XY", "XYdeffdfegXYaaaXYab"},
+            {"aaaaaa", "aa", "XY", "XY"},
+            {"aaaaaa", "aaaaaa", "XY", "XY"},
+            {"aaaaaa", "aaaaaaa", "XY", "aaaaaa"},
+            {"aabaaabaab", "aaa", "XY", "aabXYbaab"},
+            {"aabaaabaab", "aa", "XY", "XYbXYabXYb"},
+            {"aabaaabaa", "aa", "XY", "XYbXYabXY"}};
+        int len = sizeof(A) / sizeof(A[0]);
+        for (int i = 0; i < len; i++)
+        {
+            check(A[i][0], A[i][1], A[i][2], A[i][3]);
+        }
+    });
+
+    Add("RemoveExtraSpaces", [&]() {
+        auto check = [&](char *input, char *expect) {
+            Logger().WriteInformation("\"%s\"", input);
+            RemoveExtraSpaces(input);
+            Logger().WriteInformation("\t=>\t\"%s\"\n", input);
+            ASSERT1(0 == strcmp(input, expect));
+        };
+        {
+            char a[] = "";
+            char b[] = "";
+            check(a, b);
+        }
+        {
+            char a[] = "   ";
+            char b[] = "";
+            check(a, b);
+        }
+        {
+            char a[] = "ABCDEFG";
+            char b[] = "ABCDEFG";
+            check(a, b);
+        }
+        {
+            char a[] = "A B C D E F G";
+            char b[] = "A B C D E F G";
+            check(a, b);
+        }
+        {
+            char a[] = "AB CD EFG";
+            char b[] = "AB CD EFG";
+            check(a, b);
+        }
+        {
+            char a[] = "AB   CD  EFG";
+            char b[] = "AB CD EFG";
+            check(a, b);
+        }
+        {
+            char a[] = "ABCD     EFG";
+            char b[] = "ABCD EFG";
+            check(a, b);
+        }
+        {
+            char a[] = " ABCDEFG ";
+            char b[] = "ABCDEFG";
+            check(a, b);
+        }
+        {
+            char a[] = "    ABCDEFG    ";
+            char b[] = "ABCDEFG";
+            check(a, b);
+        }
+        {
+            char a[] = "    A B C D E F G    ";
+            char b[] = "A B C D E F G";
+            check(a, b);
+        }
+        {
+            char a[] = "    A B  C   D    E   F  G    ";
+            char b[] = "A B C D E F G";
+            check(a, b);
+        }
+        {
+            char a[] = "    AB CD EF G    ";
+            char b[] = "AB CD EF G";
+            check(a, b);
+        }
+        {
+            char a[] = "    AB CD  EF   GHI  JK L    ";
+            char b[] = "AB CD EF GHI JK L";
+            check(a, b);
+        }
+    });
+
+    Add("ReverseWords", [&]() {
+        auto check = [&](const char *input, const string &expect) {
+            Logger().WriteInformation("\nInput:  %s\n", input);
+            string input1(input);
+            size_t len = strlen(input);
+            unique_ptr<char[]> input2(new char[len + 1]);
+            strcpy_s(input2.get(), len + 1, input);
+            ReverseWords(input1);
+            ReverseWords(input2.get());
+            Logger().WriteInformation("Output: %s\n", input1.c_str());
+            Logger().WriteInformation("Output: %s\n", input2.get());
+            string input3(input2.get());
+            ASSERT1(input1 == expect);
+            ASSERT1(input3 == expect);
+        };
+        check("a", "a");
+        check("", "");
+        check(" ", "");
+        check("  ", "");
+        check("ab", "ab");
+        check("a b", "b a");
+        check("a  b", "b a");
+        check(" a b ", "b a");
+        check("  a  b  ", "b a");
+        check("  ab  cd  ", "cd ab");
+        check("   This is a test!   ", "test! a is This");
+    });
+
+    Add("StrStr", [&]() {
+        auto check = [&](char *input1, char *input2, int index) {
+            Logger().WriteInformation("\nInput1:\t%s\n", input1);
+            Logger().WriteInformation("Input2:\t%s\n", input2);
+            const char *p1 = StrStr1(input1, input2);
+            int i1 = (int)(p1 == nullptr ? -1 : p1 - input1);
+            const char *p2 = StrStr2(input1, input2);
+            int i2 = (int)(p2 == nullptr ? -1 : p2 - input1);
+            const char *p3 = strstr(input1, input2);
+            int i3 = (int)(p3 == nullptr ? -1 : p3 - input1);
+            Logger().WriteInformation("Index:\t%d\t%d\t%d\n", i1, i2, i3);
+            ASSERT1(i1 == index);
+            ASSERT1(i2 == index);
+            ASSERT1(i3 == index);
+        };
+        check("", "", 0);
+        check("", "a", -1);
+        check("a", "", 0);
+        check("a", "a", 0);
+        check("a", "b", -1);
+        check("a", "aa", -1);
+        check("aa", "a", 0);
+        check("aa", "b", -1);
+        check("aa", "aa", 0);
+        check("aa", "aaa", -1);
+        check("ab", "a", 0);
+        check("ab", "b", 1);
+        check("ab", "c", -1);
+        check("ab", "ab", 0);
+        check("abc", "a", 0);
+        check("abc", "b", 1);
+        check("abc", "c", 2);
+        check("abc", "d", -1);
+        check("abc", "ab", 0);
+        check("abc", "bc", 1);
+        check("abc", "abc", 0);
+        check("ababa", "ab", 0);
+        check("ababa", "ba", 1);
+        check("ababa", "aba", 0);
+        check("ababa", "bab", 1);
+        check("ababa", "ababa", 0);
+        check("abcabcab", "abc", 0);
+        check("abcabcab", "bca", 1);
+        check("abcabcab", "cab", 2);
+        check("abdabcab", "abc", 3);
+        check("abdabcab", "bca", 4);
+        check("abdabcab", "cab", 5);
+    });
+
+    Add("BreakWord", [&]() {
+        function<void(Log &, const string &)>
+            print = [&](Log &l, const string &s) {
+                l.WriteInformation("%s", s.c_str());
+            };
+
+        auto check = [&](string s, unordered_set<string> &dict) {
+            Logger().WriteInformation("Input: %s\n", s.c_str());
+            Logger().WriteInformation("Dictionary: ");
+            Logger().Print(dict, print, " ");
+            bool breakable = BreakWords::Solvable(s, dict);
+            if (breakable)
+                Logger().WriteInformation("breakable\n");
+            else
+                Logger().WriteInformation("unbreakable\n");
+            vector<string> sentences1 = BreakWords::Solve1(s, dict);
+            vector<string> sentences2 = BreakWords::Solve2(s, dict);
+            Logger().WriteInformation("Output1:\n");
+            Logger().Print(sentences1, print, "\n");
+            Logger().WriteInformation("Output2:\n");
+            Logger().Print(sentences2, print, "\n");
+            ASSERT1(sentences1.size() == sentences2.size());
+            sort(sentences1.begin(), sentences1.end());
+            sort(sentences2.begin(), sentences2.end());
+            for (size_t i = 0; i < sentences1.size(); i++)
+            {
+                ASSERT1(sentences1[i] == sentences2[i]);
+            }
+        };
+        {
+            string s = "catsanddog";
+            unordered_set<string> dict = {"cat", "cats", "and", "sand", "dog"};
+            check(s, dict);
+        }
+        {
+            string s;
+            unordered_set<string> dict = {"cat", "cats", "and", "sand", "dog"};
+            check(s, dict);
+        }
+        {
+            string s = "aaaaaaa";
+            unordered_set<string> dict = {"a", "aa", "aaa", "aaaa", "aaaaa", "aaaaaa", "aaaaaaa"};
+            check(s, dict);
+        }
+        {
+            string s = "dogs";
+            unordered_set<string> dict = {"dog", "s", "gs"};
+            check(s, dict);
+        }
+    });
+
+    Add("LongestConsecutiveSequence", [&]() {
+        auto check = [&](vector<int> &input, int expectBegin, int expectLength) {
+            Logger().WriteInformation("Input: ");
+            Logger().Print(input);
+            int begin1;
+            size_t length1;
+            LongestConsecutiveSequence1(input, begin1, length1);
+            Logger().WriteInformation("  Begin:  %d %s %d\n", begin1, begin1 == expectBegin ? "==" : "!=", expectBegin);
+            Logger().WriteInformation("  Length: %d %s %d\n", length1, length1 == expectLength ? "==" : "!=", expectLength);
+            int begin2;
+            size_t length2;
+            LongestConsecutiveSequence2(input, begin2, length2);
+            Logger().WriteInformation("  Begin2:  %d %s %d\n", begin2, begin2 == expectBegin ? "==" : "!=", expectBegin);
+            Logger().WriteInformation("  Length2: %d %s %d\n", length2, length2 == expectLength ? "==" : "!=", expectLength);
+            ASSERT1(begin1 == expectBegin);
+            ASSERT1(length1 == expectLength);
+            ASSERT1(begin2 == expectBegin);
+            ASSERT1(length2 == expectLength);
+        };
+        {
+            vector<int> input = {0};
+            check(input, 0, 1);
+        }
+        {
+            vector<int> input = {0, 0};
+            check(input, 0, 1);
+        }
+        {
+            vector<int> input = {0, 1};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {1, 0};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {0, 2};
+            check(input, 0, 1);
+        }
+        {
+            vector<int> input = {0, 1, 2};
+            check(input, 0, 3);
+        }
+        {
+            vector<int> input = {0, 1, 3};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {-1, 1, 2};
+            check(input, 1, 2);
+        }
+        {
+            vector<int> input = {0, -1, 2};
+            check(input, -1, 2);
+        }
+        {
+            vector<int> input = {3, 1, 2};
+            check(input, 1, 3);
+        }
+        {
+            vector<int> input = {0, 1, 1};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {1, 0, 1, 1};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {1, 0, 1, 0};
+            check(input, 0, 2);
+        }
+        {
+            vector<int> input = {1, 0, -1};
+            check(input, -1, 3);
+        }
+        {
+            vector<int> input = {0, 1, 2, 1};
+            check(input, 0, 3);
+        }
+        {
+            vector<int> input = {-7, -1, 3, -9, -4, 7, -3, 2, 4, 9, 4, -9, 8, -7, 5, -1, -7};
+            check(input, 2, 4);
+        }
+        {
+            vector<int> input = {-6, 8, -5, 7, -9, -1, -7, -6, -9, -7, 5, 7, -1, -8, -8, -2, 0};
+            check(input, -9, 5);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input;
+                Random(input);
+                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                if (input.size() == 0)
+                    continue;
+                int begin1;
+                size_t length1;
+                LongestConsecutiveSequence1(input, begin1, length1);
+                int begin2;
+                size_t length2;
+                LongestConsecutiveSequence1(input, begin2, length2);
+                Logger().WriteInformation("  Begin:  %d %s %d\n", begin1, begin1 == begin2 ? "==" : "!=", begin2);
+                Logger().WriteInformation("  Length: %d %s %d\n", length1, length1 == length2 ? "==" : "!=", length2);
+                ASSERT1(begin1 == begin2);
+                ASSERT1(length1 == length2);
+            }
+        }
+    });
 }
 
 #endif

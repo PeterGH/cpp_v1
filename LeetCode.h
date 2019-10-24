@@ -5203,8 +5203,9 @@ static int lengthOfLastWord4(string s)
 // reversed string.
 static void reverseWords(string &s)
 {
-    if (s.length() == 0)
+    if (s.empty())
         return;
+    // step 1: remove extra spaces
     int i = -1;
     size_t j = 0;
     while (j < s.length() && s[j] == ' ')
@@ -5227,6 +5228,7 @@ static void reverseWords(string &s)
     if (0 <= i && s[i] == ' ')
         i--;
     s.resize(i + 1);
+    // step 2: reverse words
     function<void(int, int)>
         reverse = [&](int b, int e) {
             while (b < e)
@@ -6024,6 +6026,8 @@ static string MinWindow2(const string &s, const string &t)
             else
                 countS[s[i]] += 1;
 
+            // TODO: investigate when and how to decrease total and see
+            // if can avoid using queue indices.
             if (countS[s[i]] <= countT[s[i]])
                 total++;
 
