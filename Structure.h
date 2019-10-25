@@ -1431,6 +1431,140 @@ public:
     }
 };
 
+template <class T>
+class Queue
+{
+private:
+    stack<T> in, out;
+
+    static void Flush(stack<T> &from, stack<T> &to)
+    {
+        while (!from.empty())
+        {
+            T v = from.top();
+            from.pop();
+            to.push(v);
+        }
+    }
+
+public:
+    Queue(void) {}
+    ~Queue(void) {}
+
+    T &Back(void)
+    {
+        if (in.empty())
+        {
+            if (out.empty())
+                throw runtime_error("Queue is empty");
+            Flush(out, in);
+        }
+
+        return in.top();
+    }
+
+    bool Empty(void) const
+    {
+        return out.empty() && in.empty();
+    }
+
+    T &Front(void)
+    {
+        if (out.empty())
+            Flush(in, out);
+        if (out.empty())
+            throw runtime_error("Queue is empty");
+        return out.top();
+    }
+
+    void Pop(void)
+    {
+        if (out.empty())
+            Flush(in, out);
+        if (out.empty())
+            throw runtime_error("Queue is empty");
+        out.pop();
+    }
+
+    void Push(const T &value)
+    {
+        in.push(value);
+    }
+
+    size_t Size(void) const
+    {
+        return out.size() + in.size();
+    }
+};
+
+template <class T>
+class Stack
+{
+private:
+    queue<T> queue0, queue1;
+
+    static void Flush(queue<T> &nonempty, queue<T> &empty, size_t count)
+    {
+        while (count > 0)
+        {
+            T v = nonempty.front();
+            nonempty.pop();
+            empty.push(v);
+            count--;
+        }
+    }
+
+public:
+    Stack(void) {}
+    ~Stack(void) {}
+
+    bool Empty(void) const
+    {
+        return queue0.empty() && queue1.empty();
+    }
+
+    void Pop(void)
+    {
+        if (queue0.empty() && queue1.empty())
+            throw runtime_error("Stack is empty");
+        else if (!queue0.empty())
+        {
+            Flush(queue0, queue1, queue0.size() - 1);
+            queue0.pop();
+        }
+        else if (!queue1.empty())
+        {
+            Flush(queue1, queue0, queue1.size() - 1);
+            queue1.pop();
+        }
+    }
+
+    void Push(const T &value)
+    {
+        if (!queue0.empty())
+            queue0.push(value);
+        else if (!queue1.empty())
+            queue1.push(value);
+        else
+            queue0.push(value);
+    }
+
+    size_t Size(void) const
+    {
+        return queue0.size() + queue1.size();
+    }
+
+    T &Top(void)
+    {
+        if (queue0.empty() && queue1.empty())
+            throw runtime_error("Stack is empty");
+        else if (!queue0.empty())
+            return queue0.back();
+        else
+            return queue1.back();
+    }
+};
+
 } // namespace Test
 
 #endif

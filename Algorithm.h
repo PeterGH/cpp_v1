@@ -5233,6 +5233,252 @@ static void LongestConsecutiveSequence2(vector<int> &input, int &first, size_t &
     }
 }
 
+// Get a random permutation in-place
+template <class T>
+static void RandomPermutation(vector<T> &input)
+{
+    int len = (int)input.size() - 1;
+    for (int i = len; i >= 0; i--)
+    {
+        // The rand function returns a pseudorandom integer
+        // in the range 0 (inclusive) to RAND_MAX (32767).
+        // We need r in [0, i]
+        int r = rand() % (i + 1);
+        swap(input[i], input[i - r]);
+    }
+}
+
+// The set {1, 2, 3, ..., n} contains a total of n! unique
+// permutations. By listing and labeling all of the permutations
+// in order, We get the following sequence (ie, for n = 3):
+// 1. "123"
+// 2. "132"
+// 3. "213"
+// 4. "231"
+// 5. "312"
+// 6. "321"
+// Given n and k, return the k-th permutation sequence.
+// Note: Given n will be between 1 and 9 inclusive.
+static string KthPermutation(int n, int k)
+{
+    assert(n > 0);
+    assert(n < 10);
+    if (n <= 0 || k <= 0)
+        return string();
+
+    int i = 1; // Count number of digits to permute
+    int m = 1; // Count number of permutations of i digits, i.e. i!
+
+    while (m < k && i < n)
+    {
+        i++;
+        m *= i;
+    }
+
+    if (m < k)
+        return string(); // k > n!
+
+    // Now m = i!, and (i-1)! < k <= i!
+
+    // 1 2 3 ...... n-i n-i+1 n-i+2 ...... n-1 n
+    // ~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~
+    //     not permute         permute i digits
+
+    string output;
+
+    // append {1, 2, 3, ..., n-i}
+    for (int j = 1; j <= n - i; j++)
+    {
+        output.append(1, '0' + j);
+    }
+
+    // Permute the last i digits
+    vector<int> permute;
+
+    // Initialize with {n-i+1, ..., n}
+    for (int j = n - i + 1; j <= n; j++)
+    {
+        permute.push_back(j);
+    }
+
+    while (i > 0)
+    {
+        // For each loop, the variables are defined as:
+        //   i, number of digits to permute
+        //   m, number of permutations of i digits
+        //   k, index (1-based) of target in m permutations
+
+        /*
+			if (i == 1) {
+			// k = 1 since k <= m = i! = 1
+			output.append(1, '0' + permute[permute.size() - 1]);
+			break;
+			} else if (i == 2) {
+			if (k == 1) {
+			output.append(1, '0' + permute[permute.size() - 2]);
+			output.append(1, '0' + permute[permute.size() - 1]);
+			} else { // k = 2
+			output.append(1, '0' + permute[permute.size() - 1]);
+			output.append(1, '0' + permute[permute.size() - 2]);
+			}
+			break;
+			}
+			*/
+
+        // Permute 1 2 3 4 5 ...... i-1 i, will get i ranges
+        // determined by the first digit
+        //   1 ......
+        //   1 ......
+        //   2 ......
+        //   2 ......
+        //   ......
+        //   ......
+        //   i-1 ......
+        //   i-1 ......
+        //   i ......
+        //   i ......
+
+        m = m / i; // Count permutations per range
+
+        int j = (k - 1) / m + 1; // Get the range index (1-based)
+                                 // which k falls into
+
+        // 1 2 3 4 5 ... j-1 j   j+1 ... i-1 i
+        // j 1 2 3 4 5 ...   j-1 j+1 ... i-1 i
+        int t = permute[j - 1];
+        permute.erase(permute.begin() + j - 1);
+        output.append(1, '0' + t);
+
+        i--;                   // Move on to the rest i - 1 digits
+        k = ((k - 1) % m) + 1; // Get the index in the j-th range
+    }
+
+    return output;
+}
+
+// Partition input into two ranges input[low..i] and input[(i+1)..high],
+// such that transform(input[low..i]) <= transform(value) < transform(input[(i+1)..high]).
+// Invariant: given j, divide the input into three ranges input[low..i],
+// input[(i+1)..(j-1)] and input[j..high] using value, such that
+// transform(input[low..i]) <= transform(value) < transform(input[(i+1)..(j-1)]).
+// Return the index i, i.e. the last element less than or equal to value
+// If all elements are less than value, then return index high
+// If all elements are greater than value, then return low-1
+template <class T, class C>
+static int PartitionByValue(
+    vector<T> &input,
+    int low,
+    int high,
+    const T &value,
+    function<C(T)> transform = [&](T v) -> C { return v; })
+{
+    assert(low >= 0);
+    assert(high < input.size());
+    assert(low <= high);
+    int i = low - 1;
+    C v = transform(value);
+    for (int j = low; j <= high; j++)
+    {
+        if (transform(input[j]) <= v)
+        {
+            // The check can be <.
+            // The difference is:
+            // 1. <= incurs more swaps, but it is stable because all elements equal to value
+            //    are still in their original order. The return value is the last index of
+            //    elements less than or equal to value.
+            // 2. < incurs less swaps, but it is unstable. The return value is the last
+            //    index of elements less than value.
+            i++;
+            if (i != j)
+                swap(input[i], input[j]);
+        }
+    }
+    // Now input[low..i] <= value < input[(i+1)..high]
+    // Note not necessarily input[i] is the maximum in input[low..i],
+    // i.e., it may not be true input[i] == value
+    return i;
+}
+
+template <class T>
+static int PartitionByValue(vector<T> &input, int low, int high, const T &value)
+{
+    return PartitionByValue<T, T>(input, low, high, value);
+}
+
+// Randomly select an element to partition the input.
+// Return the new index of selected element
+template <class T, class C>
+static int PartitionRandomly(
+    vector<T> &input,
+    int low,
+    int high,
+    function<C(T)> transform = [&](T v) -> C { return v; })
+{
+    assert(low >= 0);
+    assert(high < input.size());
+    assert(low <= high);
+    int i = low + rand() % (high - low + 1);
+    // move element input[i] to input[high], so on return the return index
+    // points to the element
+    swap(input[i], input[high]);
+    return PartitionByValue<T, C>(input, low, high, input[high], transform);
+}
+
+template <class T>
+static int PartitionRandomly(vector<T> &input, int low, int high)
+{
+    return PartitionRandomly<T, T>(input, low, high);
+}
+
+// Reorder input[low..high] such that it is partioned by the i-th order element,
+// i.e., input[low..(low+i-1)] <= input[low+i] <= input[low+i+1..high]
+// The order is zero-based, i.e., 0 <= i <= high - low
+// Return the i-th order element
+template <class T, class C>
+static T &PartitionByOrder(
+    vector<T> &input,
+    int low,
+    int high,
+    int i,
+    function<C(T)> transform = [&](T v) -> C { return v; })
+{
+    assert(low >= 0);
+    assert(high < input.size());
+    assert(low <= high);
+    assert(i <= high - low);
+    if (low == high)
+        return input[low];
+    int m = PartitionRandomly(input, low, high, transform);
+    int k = m - low;
+    if (i == k)
+    {
+        // low ......... m ......... high
+        // 0   ......... k
+        // 0   ......... i
+        return input[m];
+    }
+    else if (i < k)
+    {
+        // low ............ m ...... high
+        // 0   ............ k
+        // 0   ...... i
+        return PartitionByOrder(input, low, m - 1, i, transform);
+    }
+    else
+    {
+        // low ...... m ............ high
+        // 0   ...... k
+        // 0   ............ i
+        return PartitionByOrder(input, m + 1, high, i - k - 1, transform);
+    }
+}
+
+template <class T>
+static T &PartitionByOrder(vector<T> &input, int low, int high, int i)
+{
+    return PartitionByOrder<T, T>(input, low, high, i);
+}
+
 } // namespace Test
 
 #endif

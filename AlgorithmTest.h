@@ -3809,6 +3809,106 @@ void AlgorithmTest::Init(void)
             }
         }
     });
+
+    Add("Partition", [&]() {
+        {
+            vector<int> I = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            int L = (int)I.size();
+
+            int i = PartitionByValue(I, 0, 0, 3);
+            ASSERT1(i == 0);
+
+            i = PartitionByValue(I, L - 1, L - 1, 64);
+            ASSERT1(i == L - 1);
+
+            i = PartitionByValue(I, 0, 1, 43);
+            ASSERT1(i == 1);
+            ASSERT1(I[0] == 3);
+            ASSERT1(I[1] == 43);
+
+            i = PartitionByValue(I, 2, 3, 1);
+            ASSERT1(i == 2);
+            ASSERT1(I[2] == 1);
+            ASSERT1(I[3] == 42);
+
+            i = PartitionByValue(I, 0, L - 1, 64);
+            ASSERT1(i >= 0);
+            ASSERT1(i <= L - 1);
+            for (int j = 0; j < L - 1; j++)
+            {
+                if (j < i)
+                    ASSERT1(I[j] <= I[i]);
+                else if (j > i)
+                    ASSERT1(I[j] >= I[i]);
+            }
+
+            for (int k = 0; k < 10; k++)
+            {
+                Random(I, 100);
+                L = (int)I.size();
+                Logger().Print(I);
+                i = PartitionRandomly(I, 0, L - 1);
+                Logger().WriteInformation("Partition by %d at index %d:\n", I[i], i);
+                Logger().Print(I);
+                ASSERT1(i >= 0);
+                ASSERT1(i <= L - 1);
+                for (int j = 0; j < L - 1; j++)
+                    if (j < i)
+                        ASSERT1(I[j] <= I[i]);
+                    else if (j > i)
+                        ASSERT1(I[j] > I[i]);
+                Logger().WriteInformation("\n");
+            }
+        }
+        {
+            vector<int> I = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            int L = (int)I.size();
+
+            int i = PartitionByOrder(I, 0, 0, 0);
+            ASSERT1(i == 3);
+
+            i = PartitionByOrder(I, L - 1, L - 1, 0);
+            ASSERT1(i == 64);
+
+            i = PartitionByOrder(I, 0, 1, 0);
+            ASSERT1(i == 3);
+            ASSERT1(I[0] == 3);
+            ASSERT1(I[1] == 43);
+
+            i = PartitionByOrder(I, 0, 1, 1);
+            ASSERT1(i == 43);
+            ASSERT1(I[0] == 3);
+            ASSERT1(I[1] == 43);
+
+            i = PartitionByOrder(I, 2, 3, 0);
+            ASSERT1(i == 1);
+            ASSERT1(I[2] == 1);
+            ASSERT1(I[3] == 42);
+
+            i = PartitionByOrder(I, 2, 3, 1);
+            ASSERT1(i == 42);
+            ASSERT1(I[2] == 1);
+            ASSERT1(I[3] == 42);
+
+            for (int p = 0; p < 100; p++)
+            {
+                Random(I, 100);
+                L = (int)I.size();
+                Logger().Print(I);
+                int j = rand() % L;
+                i = PartitionByOrder(I, 0, L - 1, j);
+                Logger().WriteInformation("Partition by %d at index %d:\n", I[j], j);
+                Logger().Print(I);
+                ASSERT1(i == I[j]);
+                for (int k = 0; k < L - 1; k++)
+                    if (k < j)
+                        ASSERT1(I[k] <= I[j]);
+                    else if (k > j)
+                        ASSERT1(I[k] >= I[j]);
+                Logger().WriteInformation("\n");
+            }
+        }
+    });
 }
 
 #endif
