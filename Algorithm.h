@@ -5479,6 +5479,529 @@ static T &PartitionByOrder(vector<T> &input, int low, int high, int i)
     return PartitionByOrder<T, T>(input, low, high, i);
 }
 
+template <class T>
+static void QuickSort(vector<T> &input)
+{
+    int size = (int)input.size();
+    if (size <= 1)
+        return;
+
+    function<void(int, int)>
+        sort = [&](int low, int high) {
+            // Use input[high] as the gate, so it will be moved to input[middle]
+            int middle = PartitionByValue<T, T>(input, low, high, input[high]);
+            // Ignore input[middle] in following sort
+            if (low < middle)
+                sort(low, middle - 1);
+            if (middle < high)
+                sort(middle + 1, high);
+        };
+
+    sort(0, size - 1);
+}
+
+template <class T>
+static void QuickSortInParallel(vector<T> &input)
+{
+    int size = (int)input.size();
+    if (size <= 1)
+        return;
+
+    function<void(int, int)>
+        sort = [&](int low, int high) {
+            // Use input[high] as the gate, so it will be moved to input[middle]
+            int middle = PartitionByValue<T, T>(input, low, high, input[high]);
+            // Ignore input[middle] in following sort
+            parallel_invoke(
+                [&, low, middle] { if (low < middle) sort(low, middle - 1); },
+                [&, middle, high] { if (middle < high) sort(middle + 1, high); });
+        };
+
+    sort(0, size - 1);
+}
+
+template <class T>
+static void QuickSortRandomly(vector<T> &input)
+{
+    int size = (int)input.size();
+    if (size <= 1)
+        return;
+
+    function<void(int, int)>
+        sort = [&](int low, int high) {
+            int middle = PartitionRandomly<T, T>(input, low, high);
+            // Ignore input[middle] in following sort, because
+            // it is guaranteed input[middle] is the maximum in input[low..middle],
+            // and the minimum in input[middle..high]
+            if (low < middle)
+                sort(low, middle - 1);
+            if (middle < high)
+                sort(middle + 1, high);
+        };
+
+    sort(0, size - 1);
+}
+
+template <class T>
+static void RadixSort(vector<vector<T>> &input)
+{
+    if (input.size() == 0)
+        return;
+    if (input[0].size() == 0)
+        return;
+
+    function<function<bool(const vector<T> &, const vector<T> &)>(size_t)>
+        compare = [&](size_t radix) {
+            function<bool(const vector<T> &, const vector<T> &)>
+                c = [=](const vector<T> &left, const vector<T> &right) {
+                    return left[radix] < right[radix];
+                };
+
+            return c;
+        };
+
+    size_t len = input[0].size();
+    for (size_t i = 0; i < len; i++)
+    {
+        function<bool(const vector<T> &, const vector<T> &)> c = compare(i);
+        stable_sort(input.begin(), input.end(), c);
+    }
+}
+
+template <class T>
+static void InsertSort(
+    vector<T> &input,
+    function<bool(const T &, const T &)> greater = [&](const T &x, const T &y) -> bool { return x > y; })
+{
+    for (int i = 1; i < (int)input.size(); i++)
+    {
+        // Record the current key value to insert into input[0..(i-1)]
+        T key = input[i];
+        int j = i - 1;
+        // Shift any values in input[0..(i-1)] greater than the current key to the right,
+        // so that the insert position for the current key is vacant.
+        // Note the default greater is strict,
+        // so the multiple instances of the same value preserve their
+        // orignial orders, i.e., the sorting is stable.
+        while (j >= 0 && greater(input[j], key))
+        {
+            input[j + 1] = input[j];
+            j--;
+        }
+        input[j + 1] = key;
+    }
+}
+
+// Recursively sort input[0..(length-1)] by insertion
+// Use binary search to find the position to insert an element
+template <class T>
+static void InsertSortRecursively(vector<T> &input, size_t length)
+{
+    if (input.size() <= 1 || length <= 1)
+        return;
+
+    // Recursively sort input[0..(length-2)]
+    InsertSortRecursively(input, length - 1);
+
+    // Record the current value to insert into input[0..(length-2)]
+    T key = input[length - 1];
+
+    // Find the last position after which the current value should be inserted.
+    // -1 <= i <= (length-2)
+    int i = PositionToInsert(key, input, 0, (int)length - 2, false);
+
+    // Shift input[(i+1)..(length-2)] so that the position (i+1) for the current value is vacant.
+    for (int j = (int)length - 2; j > i; j--)
+    {
+        input[j + 1] = input[j];
+    }
+
+    // Insert the current value
+    input[i + 1] = key;
+}
+
+template <class T>
+static void SelectSort(
+    vector<T> &input,
+    function<bool(const T &, const T &)> greater = [&](const T &x, const T &y) -> bool { return x > y; })
+{
+    if (input.size() <= 1)
+        return;
+    for (size_t i = 0; i < input.size() - 1; i++)
+    {
+        size_t min = i;
+        for (size_t j = i + 1; j < input.size(); j++)
+        {
+            if (greater(input[min], input[j]))
+            {
+                min = j;
+            }
+        }
+        swap(input[i], input[min]);
+    }
+}
+
+// Assuming input[head..(middle-1)] and input[middle..tail] are already sorted,
+// rearrange elements every step so that input[head..tail] is sorted.
+// In-place and stable.
+template <class T>
+static void Merge(vector<T> &input, int head, int middle, int tail, int step = 1)
+{
+    if (input.size() <= 1 || head < 0 || middle <= 0 || tail < middle || tail <= head || step <= 0)
+        return;
+    // head and middle point to the heads of two sub sorted arrays.
+    while (head < middle && middle <= tail)
+    {
+        if (input[head] <= input[middle])
+        {
+            head += step;
+        }
+        else
+        {
+            T t = input[middle];
+            // Shift input[head..(middle-step)] to input[(head+step)..middle]
+            for (int i = middle; i > head; i -= step)
+            {
+                input[i] = input[i - step];
+            }
+            input[head] = t;
+            // Move to the next pair of elements
+            head += step;
+            middle += step;
+        }
+    }
+}
+
+template <class T>
+static void MergeSort(vector<T> &input, int head, int tail, int step = 1)
+{
+    if (input.size() <= 1 || head < 0 || tail < 0 || tail < head || step <= 0)
+        return;
+    if (head < tail)
+    {
+        int middle = head + (((tail - head) / step) >> 1) * step + step;
+        parallel_invoke(
+            [&input, head, middle, step] { MergeSort(input, head, middle - step, step); },
+            [&input, middle, tail, step] { MergeSort(input, middle, tail, step); });
+        Merge(input, head, middle, tail, step);
+    }
+}
+
+template <class T>
+static void MergeSort(vector<T> &input, int step = 1)
+{
+    MergeSort(input, 0, (int)input.size() - 1, step);
+}
+
+// A comparator betweeb two Element<T> instances
+template <class T>
+struct Greater
+    : public binary_function<
+          const pair<vector<T>, size_t> &,
+          const pair<vector<T>, size_t> &,
+          bool>
+{
+    bool operator()(const pair<vector<T>, size_t> &left, const pair<vector<T>, size_t> &right) const
+    {
+        return left.first[left.second] > right.first[right.second];
+    }
+};
+
+// Implementation of merge-sort multiple sorted arrays
+template <class T>
+void MergeSort(vector<vector<T>> &inputs, vector<T> &output)
+{
+    if (inputs.size() == 0)
+        return;
+
+    // A minimum heap
+    Heap<pair<vector<T>, size_t>, Greater<T>> heap((unsigned long)inputs.size());
+
+    for (size_t i = 0; i < inputs.size(); i++)
+    {
+        if (inputs[i].size() > 0)
+        {
+            // Initialize the heap with the first element in each sorted array
+            heap.Push(make_pair(inputs[i], 0));
+        }
+    }
+
+    while (heap.Size() > 0)
+    {
+        // Extract the minimum element from the heap
+        pair<vector<T>, size_t> min = heap.Pop();
+
+        // append the minum element into the output vector
+        output.push_back(min.first[min.second]);
+
+        // Move to the next element in the same array
+        min.second++;
+
+        if (min.second < min.first.size())
+        {
+            // The array still has elements.
+            // Push the next element into the heap.
+            heap.Push(min);
+        }
+    }
+}
+
+// HeapSort use a max heap
+
+// Rearrange [begin, end] so that it is a heap.
+// The assumption is the subtrees rooted at begin are already heapified.
+// Just need to push down begin if necessary
+template <class T>
+static void HeapifyElement(vector<T> &input, size_t begin, size_t end)
+{
+    assert(input.size() > 0);
+    assert(begin < input.size());
+    assert(end < input.size());
+
+    while (begin < end)
+    {
+        size_t max = begin;
+        size_t l = (begin << 1) + 1;
+        if (l <= end && input[l] > input[max])
+        {
+            max = l;
+        }
+
+        size_t r = (begin << 1) + 2;
+        if (r <= end && input[r] > input[max])
+        {
+            max = r;
+        }
+
+        if (max == begin)
+            break;
+
+        swap(input[begin], input[max]);
+        begin = max;
+    }
+}
+
+// Rearrange [i, length - 1] so that it is a heap. 0 <= i < length
+// The assumption is the subtrees rooted at i are already heapified.
+template <class T>
+static void HeapifyElement(vector<T> &input, size_t begin, size_t end, size_t d)
+{
+    assert(input.size() > 0);
+    assert(begin < input.size());
+    assert(end < input.size());
+    assert(d >= 2);
+
+    while (begin < end)
+    {
+        size_t max = begin;
+
+        for (size_t j = 0; j < d; j++)
+        {
+            size_t c = begin * d + j + 1;
+            if (c <= end && input[c] > input[max])
+            {
+                max = c;
+            }
+        }
+
+        if (max == begin)
+            break;
+
+        swap(input[begin], input[max]);
+        begin = max;
+    }
+}
+
+// Construct the array into a max heap from bottom up
+template <class T>
+static void Heapify(vector<T> &input)
+{
+    if (input.size() <= 1)
+        return;
+
+    size_t height = 0;
+    size_t count = input.size();
+    while (count > 0)
+    {
+        count = count >> 1;
+        height++;
+    }
+
+    // The elements at bottom are indexed in [2^(height - 1) - 1, 2^height - 2]
+    // We only need to heapify elements above them
+    for (long long i = ((1 << (height - 1)) - 2); i >= 0; i--)
+    {
+        HeapifyElement(input, (size_t)i, input.size() - 1);
+    }
+}
+
+// d-ary
+//                                                  0
+//                   1                              2                    ...          d
+// (d+1)                   (d+2) ... (d+d) | (2d+1) (2d+2) ... (2d+d) | (d^2+1) (d^2+2) ... (d^2+d)
+// (d^2+d+1) (d^2+d+2) ...
+// ......
+// Given height h, the number of nodes are [(d^(h-1)-1)/(d-1)+1, (d^h-1)/(d-1)]
+// The indices at height h are [(d^(h-1)-1)/(d-1), (d^h-1)/(d-1)-1]
+//
+// (d^(h-1)-1)/(d-1) < count <= (d^h-1)/(d-1)
+// d^(h-1) - 1 < count * (d-1) <= d^h - 1
+// There are h d-bits and the pattern is between:
+//  1    0    0    ...  0    0    0
+// (d-1)(d-1)(d-1) ... (d-1)(d-1)(d-1)
+template <class T>
+static void Heapify(vector<T> &input, size_t d)
+{
+    if (input.size() <= 1)
+        return;
+
+    assert(d >= 2);
+
+    size_t height = 0;
+    size_t count = input.size() * (d - 1);
+    while (count > 0)
+    {
+        count = count / d;
+        height++;
+    }
+
+    long long index = ((long long)pow(d, height - 1) - 1) / (d - 1) - 1;
+    for (long long i = index; i >= 0; i--)
+    {
+        HeapifyElement(input, (size_t)i, input.size() - 1, d);
+    }
+}
+
+template <class T>
+static void HeapifyInParallel(vector<T> &input)
+{
+    if (input.size() <= 1)
+        return;
+
+    size_t height = 0;
+    size_t count = input.size();
+    while (count > 0)
+    {
+        count = count >> 1;
+        height++;
+    }
+
+    for (long long h = (height - 1); h > 0; h--)
+    {
+        // For h, the index is in [((1 << (h-1)) - 1), ((1 << h) - 2)]
+        parallel_for(
+            size_t((1 << (h - 1)) - 1),
+            size_t((1 << h) - 1),
+            [&](size_t i) { HeapifyElement(input, i, input.size() - 1); });
+    }
+}
+
+template <class T>
+static void HeapifyInParallel(vector<T> &input, size_t d)
+{
+    if (input.size() <= 1)
+        return;
+
+    assert(d >= 2);
+
+    size_t height = 0;
+    size_t count = input.size() * (d - 1);
+    while (count > 0)
+    {
+        count = count / d;
+        height++;
+    }
+
+    for (long long h = height - 1; h > 0; h--)
+    {
+        // For h, the index is in [(d ^ (h - 1) - 1) / (d - 1), (d^h - 1) / (d - 1) - 1]
+        parallel_for(
+            size_t((pow(d, h - 1) - 1) / (d - 1)),
+            size_t((pow(d, h) - 1) / (d - 1)),
+            [&](size_t i) { HeapifyElement(input, i, input.size() - 1, d); });
+    }
+}
+
+template <class T>
+static void HeapSort(vector<T> &input)
+{
+    if (input.size() <= 1)
+        return;
+
+    // Make a heap
+    Heapify(input);
+
+    // Sort
+    for (long long i = input.size() - 1; i > 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        swap(input[0], input[i]);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (size_t)i - 1);
+    }
+}
+
+template <class T>
+static void HeapSort(vector<T> &input, size_t d)
+{
+    if (input.size() <= 1)
+        return;
+
+    // Make a heap
+    Heapify(input, d);
+
+    // Sort
+    for (long long i = input.size() - 1; i > 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        swap(input[0], input[i]);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (size_t)i - 1, d);
+    }
+}
+
+template <class T>
+static void HeapSortInParallel(vector<T> &input)
+{
+    if (input.size() <= 1)
+        return;
+
+    // Make a heap
+    HeapifyInParallel(input);
+
+    // Sort
+    for (long long i = input.size() - 1; i > 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        swap(input[0], input[i]);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (size_t)i - 1);
+    }
+}
+
+template <class T>
+static void HeapSortInParallel(vector<T> &input, size_t d)
+{
+    if (input.size() <= 1)
+        return;
+
+    // Make a heap
+    HeapifyInParallel(input, d);
+
+    // Sort
+    for (long long i = input.size() - 1; i > 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        swap(input[0], input[i]);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (size_t)i - 1, d);
+    }
+}
+
 } // namespace Test
 
 #endif

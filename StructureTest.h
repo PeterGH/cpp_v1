@@ -948,6 +948,305 @@ void StructureTest::Init(void)
         }
     });
 
+    Add("Heap", [&]() {
+        {
+            Heap<int> heap;
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 2);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 2);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == i);
+            }
+
+            ASSERT1(heap.IsHeap());
+        }
+        {
+            Heap<int> heap;
+
+            for (int i = 0; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == i);
+            }
+
+            ASSERT1(heap.IsHeap());
+
+            for (int i = 0; i < 10; i++)
+            {
+                int v = heap.Pop();
+                ASSERT1(heap.IsHeap());
+                ASSERT1(v == (9 - i));
+            }
+        }
+        {
+            vector<int> input;
+
+            for (int i = 0; i < 10; i++)
+            {
+                input.push_back(i);
+            }
+
+            Heap<int> heap(input);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 9);
+        }
+        {
+            Heap<int> heap(1);
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == -1);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == -1);
+            }
+
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == -1);
+        }
+        {
+            // This example shows the heap keeps the smallest two numbers from the input
+
+            Heap<int> heap(2);
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == 0);
+            }
+
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+        }
+        {
+            Heap<int, greater<int>> heap;
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == -1);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == -1);
+            }
+
+            ASSERT1(heap.IsHeap());
+        }
+        {
+            Heap<int, greater<int>> heap;
+
+            for (int i = 0; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == 0);
+            }
+
+            ASSERT1(heap.IsHeap());
+
+            for (int i = 0; i < 10; i++)
+            {
+                int v = heap.Pop();
+                ASSERT1(heap.IsHeap());
+                ASSERT1(v == i);
+            }
+        }
+        {
+            vector<int> input;
+
+            for (int i = 0; i < 10; i++)
+            {
+                input.push_back(i);
+            }
+
+            Heap<int, greater<int>> heap(input);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+        }
+        {
+            Heap<int, greater<int>> heap(1);
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 2);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 2);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == i);
+            }
+
+            ASSERT1(heap.IsHeap());
+        }
+        {
+            // This example shows the heap keeps the greatest two numbers from the input
+
+            Heap<int, greater<int>> heap(2);
+
+            ASSERT1(heap.IsHeap());
+
+            heap.Push(0);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 0);
+
+            heap.Push(2);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            heap.Push(-1);
+            ASSERT1(heap.IsHeap());
+            ASSERT1(heap.Top() == 1);
+
+            for (int i = 3; i < 10; i++)
+            {
+                heap.Push(i);
+                ASSERT1(heap.Top() == (i - 1));
+            }
+
+            ASSERT1(heap.IsHeap());
+        }
+        {
+            less<int> lt;
+            for (int i = 0; i < 100; i++)
+            {
+                int count = 1 + rand() % 1000;
+                Logger().WriteInformation("Run %d: %d elements\n", i, count);
+                Heap<int, less<int>> heap;
+                vector<int> vheap;
+                for (int j = 0; j < count; j++)
+                {
+                    int v = rand() % 1000;
+                    heap.Push(v);
+                    vheap.push_back(v);
+                    push_heap(vheap.begin(), vheap.end(), lt);
+                    ASSERT1(heap.Top() == vheap.front());
+                }
+                for (int j = 0; j < count; j++)
+                {
+                    int h = heap.Pop();
+                    pop_heap(vheap.begin(), vheap.end(), lt);
+                    int vh = vheap.back();
+                    vheap.pop_back();
+                    ASSERT1(h == vh);
+                    if (j < count - 1)
+                        ASSERT1(heap.Top() == vheap.front());
+                }
+            }
+        }
+        {
+            greater<int> gt;
+            for (int i = 0; i < 100; i++)
+            {
+                int count = 1 + rand() % 1000;
+                Logger().WriteInformation("Run %d: %d elements\n", i, count);
+                Heap<int, greater<int>> heap;
+                vector<int> vheap;
+                for (int j = 0; j < count; j++)
+                {
+                    int v = rand() % 1000;
+                    heap.Push(v);
+                    vheap.push_back(v);
+                    push_heap(vheap.begin(), vheap.end(), gt);
+                    ASSERT1(heap.Top() == vheap.front());
+                }
+                for (int j = 0; j < count; j++)
+                {
+                    int h = heap.Pop();
+                    pop_heap(vheap.begin(), vheap.end(), gt);
+                    int vh = vheap.back();
+                    vheap.pop_back();
+                    ASSERT1(h == vh);
+                    if (j < count - 1)
+                        ASSERT1(heap.Top() == vheap.front());
+                }
+            }
+        }
+    });
+
     Add("LRUCache", [&]() {
         {
             Logger().WriteInformation("Cache(1)\n");

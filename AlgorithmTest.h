@@ -329,6 +329,63 @@ void AlgorithmTest::Init(void)
         check(A8, 12, 5, 300);
     });
 
+    Add("RemoveDuplicateChar", [&]() {
+        auto check = [&](char *c, int length, char *e, int el) {
+            Logger().WriteInformation("%s\t", c);
+            int l = RemoveDuplicateChars(c, length);
+            Logger().WriteInformation("%s\n", c);
+            ASSERT1(0 == strcmp(c, e));
+            ASSERT1(l == el);
+        };
+        {
+            char *c;
+            c = nullptr;
+            int l = RemoveDuplicateChars(c, 0);
+            ASSERT1(l == -1);
+        }
+        {
+            char c[] = "Test";
+            char e[] = "Test";
+            check(c, 4, e, 4);
+        }
+        {
+            char c[] = "TTeesstt";
+            char e[] = "Test";
+            check(c, 8, e, 4);
+        }
+        {
+            char c[] = "TestTest";
+            char e[] = "Test";
+            check(c, 8, e, 4);
+        }
+        {
+            char c[] = "";
+            char e[] = "";
+            check(c, 0, e, 0);
+        }
+        {
+            string alphabet = "abcdefghijklmnopqrstuvwxyz";
+            for (int i = 0; i < 100; i++)
+            {
+                size_t length = 1 + (rand() % 100);
+                string s1 = String::Random(alphabet, length);
+                Logger().WriteInformation("Run %d: %s\n", i, s1.c_str());
+                unique_ptr<char[]> s2(new char[length + 1]);
+                memcpy(s2.get(), s1.c_str(), length);
+                s2[length] = '\0';
+                set<char> ss1 = String::UniqueChars(s1);
+                Logger().Print(ss1, "%c");
+                int ls2 = RemoveDuplicateChars(s2.get(), (int)length);
+                Logger().Print(s2.get(), (size_t)ls2, "%c");
+                ASSERT1((int)ss1.size() == ls2);
+                for (int j = 0; j < ls2; j++)
+                {
+                    ASSERT2(ss1.find(s2[j]) != ss1.end(), String::Format("%c is not found in set\n", s2[j]));
+                }
+            }
+        }
+    });
+
     Add("FiniteAutomationInvalidPattern", [&]() {
         ASSERTERROR(FiniteAutomation fa(nullptr), invalid_argument);
         ASSERTERROR(FiniteAutomation fa(""), invalid_argument);
@@ -3906,6 +3963,413 @@ void AlgorithmTest::Init(void)
                     else if (k > j)
                         ASSERT1(I[k] >= I[j]);
                 Logger().WriteInformation("\n");
+            }
+        }
+    });
+
+    Add("QuickSort", [&]() {
+        {
+            vector<int> I = {1};
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+        }
+        {
+            vector<int> I = {2, 1};
+
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 2);
+
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 2);
+
+            I[1] = I[0];
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 1);
+        }
+        {
+            vector<int> I = {3, 2, 1};
+
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 2);
+            ASSERT1(I[2] == 3);
+
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 2);
+            ASSERT1(I[2] == 3);
+
+            I[1] = I[0];
+            I[2] = I[0];
+            QuickSort(I);
+            ASSERT1(I[0] == 1);
+            ASSERT1(I[1] == 1);
+            ASSERT1(I[2] == 1);
+        }
+        {
+            vector<int> V = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            vector<int> I1, I2, I3;
+            Duplicate(V, I1);
+            Duplicate(V, I2);
+            Duplicate(V, I3);
+
+            QuickSort(I1);
+            QuickSortInParallel(I2);
+            QuickSortRandomly(I3);
+
+            std::sort(V.begin(), V.end());
+
+            for (int i = 0; i < V.size(); i++)
+            {
+                ASSERT1(V[i] == I1[i]);
+                ASSERT1(V[i] == I2[i]);
+                ASSERT1(V[i] == I3[i]);
+            }
+        }
+        {
+            vector<int> V = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+            vector<int> I;
+            Duplicate(V, I);
+
+            QuickSort(I);
+            std::sort(V.begin(), V.end());
+
+            for (int i = 0; i < V.size(); i++)
+            {
+                ASSERT1(V[i] == I[i]);
+            }
+        }
+        {
+            vector<int> V = {0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 2};
+            vector<int> I;
+            Duplicate(V, I);
+
+            QuickSort(I);
+            std::sort(V.begin(), V.end());
+
+            for (int i = 0; i < V.size(); i++)
+            {
+                ASSERT1(V[i] == I[i]);
+            }
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> v;
+                Random(v);
+                Logger().WriteInformation("Run %d: %d elements\n", i, v.size());
+
+                vector<int> i1, i2, i3;
+                Duplicate(v, i1);
+                Duplicate(v, i2);
+                Duplicate(v, i3);
+
+                QuickSort(i1);
+                QuickSortInParallel(i2);
+                QuickSortRandomly(i3);
+
+                std::sort(v.begin(), v.end());
+
+                for (int i = 0; i < v.size(); i++)
+                {
+                    ASSERT1(v[i] == i1[i]);
+                    ASSERT1(v[i] == i2[i]);
+                    ASSERT1(v[i] == i3[i]);
+                }
+            }
+        }
+    });
+
+    Add("RadixSort", [&]() {
+        {
+            auto check = [&](vector<vector<int>> v) -> bool {
+                for (int i = 1; i < (int)v.size(); i++)
+                {
+                    for (int j = (int)v[0].size() - 1; j >= 0; j--)
+                    {
+                        if (v[i - 1][j] < v[i][j])
+                            return true;
+                        if (v[i - 1][j] > v[i][j])
+                            return false;
+                    }
+                }
+                return true;
+            };
+
+            for (int i = 0; i < 100; i++)
+            {
+                Logger().WriteInformation("Run %d:\n", i);
+                vector<vector<int>> v;
+                Random(v, 50, 50, 20);
+                Logger().WriteInformation("Input:\n");
+                Logger().Print(v, "%2d");
+                RadixSort(v);
+                Logger().WriteInformation("Sorted:\n");
+                Logger().Print(v, "%2d");
+                ASSERT1(true == check(v));
+            }
+        }
+    });
+
+    Add("PositionToInsert", [&]() {
+        {
+            int e = 2;
+            int n = 100;
+            vector<int> input(n, e);
+            int i = PositionToInsert(e, input);
+            ASSERT1(-1 == i);
+            i = PositionToInsert(e, input, false);
+            ASSERT1(n - 1 == i);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input;
+                Random(input, 200, 200);
+                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                sort(input.begin(), input.end());
+                Logger().Print(input);
+                for (int j = 0; j < 10; j++)
+                {
+                    int e1 = rand() % 50;
+                    int e2 = input[rand() % input.size()];
+                    Logger().WriteInformation("Found %d", e1);
+                    int i1 = PositionToInsert(e1, input);
+                    Logger().WriteInformation(" at %d\n", i1);
+                    Logger().WriteInformation("Found %d", e2);
+                    int i2 = PositionToInsert(e2, input);
+                    Logger().WriteInformation(" at %d\n", i2);
+                    if (i1 >= 0)
+                        ASSERT1(input[i1] < e1);
+                    if (i1 < (int)input.size() - 1)
+                        ASSERT1(e1 <= input[i1 + 1]);
+                    if (i2 >= 0)
+                        ASSERT1(input[i2] < e2);
+                    if (i2 < (int)input.size() - 1)
+                        ASSERT1(e2 <= input[i2 + 1]);
+                }
+            }
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input;
+                Random(input, 200, 200);
+                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                sort(input.begin(), input.end());
+                Logger().Print(input);
+                for (int j = 0; j < 10; j++)
+                {
+                    int e1 = rand() % 50;
+                    int e2 = input[rand() % input.size()];
+                    Logger().WriteInformation("Found %d", e1);
+                    int i1 = PositionToInsert(e1, input, false);
+                    Logger().WriteInformation(" at %d\n", i1);
+                    Logger().WriteInformation("Found %d", e2);
+                    int i2 = PositionToInsert(e2, input, false);
+                    Logger().WriteInformation(" at %d\n", i2);
+                    if (i1 >= 0)
+                        ASSERT1(input[i1] <= e1);
+                    if (i1 < (int)input.size() - 1)
+                        ASSERT1(e1 < input[i1 + 1]);
+                    if (i2 >= 0)
+                        ASSERT1(input[i2] <= e2);
+                    if (i2 < (int)input.size() - 1)
+                        ASSERT1(e2 < input[i2 + 1]);
+                }
+            }
+        }
+    });
+
+    Add("Sort", [&]() {
+        auto check = [&](vector<int> &input) {
+            Logger().WriteInformation("Input:  ");
+            Logger().Print(input);
+            size_t count = 11;
+            vector<vector<int>> inputs(count, vector<int>{});
+            for_each(inputs.begin(), inputs.end(), [&](vector<int> &v) {
+                Duplicate(input, v);
+            });
+
+            sort(input.begin(), input.end());
+            Logger().WriteInformation("Sorted: ");
+            Logger().Print(input);
+
+            QuickSort(inputs[0]);
+            QuickSortInParallel(inputs[1]);
+            QuickSortRandomly(inputs[2]);
+            InsertSort(inputs[3]);
+            InsertSortRecursively(inputs[4], inputs[4].size());
+            SelectSort(inputs[5]);
+            MergeSort(inputs[6]);
+            HeapSort(inputs[7]);
+            HeapSortInParallel(inputs[8]);
+            HeapSort(inputs[9], 3);
+            HeapSortInParallel(inputs[10], 3);
+            for (size_t i = 0; i < input.size(); i++)
+            {
+                for (size_t j = 0; j < count; j++)
+                {
+                    ASSERT2(
+                        inputs[j][i] == input[i],
+                        String::Format("inputs[%d][%d] = %d != %d\n", j, i, inputs[j][i], input[i]));
+                }
+            }
+        };
+        {
+            vector<int> i = {1};
+            check(i);
+        }
+        {
+            vector<int> i = {1, 2};
+            check(i);
+        }
+        {
+            vector<int> i = {2, 1};
+            check(i);
+        }
+        {
+            vector<int> i = {2, 2};
+            check(i);
+        }
+        {
+            vector<int> i = {1, 2, 3};
+            check(i);
+        }
+        {
+            vector<int> i = {2, 1, 3};
+            check(i);
+        }
+        {
+            vector<int> i = {3, 1, 2};
+            check(i);
+        }
+        {
+            vector<int> i = {2, 2, 3};
+            check(i);
+        }
+        {
+            vector<int> i = {2, 3, 2};
+            check(i);
+        }
+        {
+            vector<int> i = {3, 2, 2};
+            check(i);
+        }
+        {
+            vector<int> i = {3, 3, 3};
+            check(i);
+        }
+        {
+            for (int i = 0; i < 1000; i++)
+            {
+                vector<int> input;
+                Random(input, 200, 200);
+                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                check(input);
+            }
+        }
+    });
+
+    Add("MergeSort", [&]() {
+        {
+            vector<vector<int>> inputs = {
+                {0, 5, 9, 11},
+                {0, 1, 2, 3, 5, 6},
+                {6, 7, 8}};
+
+            Logger().Print(inputs);
+
+            vector<int> output;
+
+            MergeSort(inputs, output);
+
+            ASSERT1(is_sorted(output.begin(), output.end()));
+            ASSERT1(output.size() == 13);
+
+            Logger().Print(output);
+            Logger().WriteInformation("\n");
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                int count = 1 + rand() % 10;
+                vector<vector<int>> inputs(count, vector<int>{});
+                size_t size = 0;
+                for (int j = 0; j < count; j++)
+                {
+                    Random(inputs[j], 10, 100);
+                    size += inputs[j].size();
+                    sort(inputs[j].begin(), inputs[j].end());
+                }
+                Logger().WriteInformation("Run %d: %d elements\n", i, size);
+                Logger().Print(inputs);
+                vector<int> output;
+                MergeSort(inputs, output);
+                Logger().Print(output);
+                ASSERT1(is_sorted(output.begin(), output.end()));
+                ASSERT1(output.size() == size);
+            }
+        }
+    });
+
+    Add("HeapSort", [&]() {
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                vector<int> i1;
+                Random(i1);
+                Logger().WriteInformation("Run %d, %d elements\n", j, i1.size());
+                vector<int> i2;
+                Duplicate(i1, i2);
+
+                Heapify(i1);
+                HeapifyInParallel(i2);
+
+                for (size_t i = 0; i < i1.size(); i++)
+                {
+                    ASSERT2(i1[i] == i2[i], String::Format("i1[%d] %d != i2[%d] %d", i, i1[i], i, i2[i]));
+                }
+            }
+        }
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                vector<int> a, v;
+                Random(a);
+                Duplicate(a, v);
+                unsigned int dimension = 2 + (rand() % 100);
+                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j, a.size(), dimension);
+
+                HeapSort(a, dimension);
+                std::make_heap(v.begin(), v.end());
+                std::sort_heap(v.begin(), v.end());
+
+                for (size_t i = 0; i < a.size(); i++)
+                {
+                    ASSERT2(a[i] == v[i], String::Format("i[%d] %d != v[%d] %d", i, a[i], i, v[i]));
+                }
+            }
+        }
+        {
+            for (int j = 0; j < 100; j++)
+            {
+                vector<int> i1, i2;
+                Random(i1);
+                Duplicate(i1, i2);
+                unsigned int dimension = 2 + (rand() % 100);
+                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j, i1.size(), dimension);
+
+                Heapify(i1, dimension);
+                HeapifyInParallel(i2, dimension);
+
+                for (size_t i = 0; i < i1.size(); i++)
+                {
+                    ASSERT2(i1[i] == i2[i], String::Format("i1[%d] %d != i2[%d] %d", i, i1[i], i, i2[i]));
+                }
             }
         }
     });
