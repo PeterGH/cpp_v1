@@ -14,7 +14,7 @@ namespace Test
 template <class T>
 class Argument
 {
-  private:
+private:
     vector<basic_string<T>> _indexedArg;
     map<basic_string<T>, basic_string<T>> _namedArg;
 
@@ -66,7 +66,7 @@ class Argument
         return output;
     }
 
-  public:
+public:
     Argument(int argc, const T *argv[]) { Parse(argc, argv); }
 
     Argument(const Argument &a)
@@ -141,6 +141,19 @@ class Argument
                 ss << T(' ');
         }
         return ss.str();
+    }
+
+    // Get the names of all named arguments
+    const set<basic_string<T>> Keys(void) const
+    {
+        set<basic_string<T>> keys;
+        for (map<basic_string<T>, basic_string<T>>::const_iterator it = _namedArgs.cbegin();
+             it != _namedArgs.cend();
+             it++)
+        {
+            keys.insert(it->first);
+        }
+        return keys;
     }
 };
 } // namespace Test

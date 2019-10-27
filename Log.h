@@ -34,6 +34,7 @@ private:
         char buf[MaxLength];                      \
         va_list args;                             \
         va_start(args, format);                   \
+        /* vsprintf_s(buf, format, args); */      \
         vsnprintf(buf, MaxLength, format, args);  \
         va_end(args);                             \
         if (level <= Level::Warning)              \
