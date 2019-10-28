@@ -1342,6 +1342,48 @@ void StructureTest::Init(void)
         }
     });
 
+    Add("Array1D", [&]() {
+        Array1D<int> A(4);
+        A.Print();
+        A.SetValue(1, 101);
+        A.Print();
+        int v = A.GetValue(1);
+        ASSERT2(101 == v, String::Format("v = %d", v));
+        A[3] = 303;
+        A.Print();
+        v = A[3];
+        ASSERT2(303 == v, String::Format("v = %d", v));
+        v = A.Length();
+        ASSERT2(4 == v, String::Format("v = %d", v));
+    });
+
+    Add("Array2D", [&]() {
+        Array2D<int> A(3, 4);
+        A.Print();
+        A.SetValue(1, 2, 101);
+        A.Print();
+        int v = A.GetValue(1, 2);
+        ASSERT2(101 == v, String::Format("v = %d", v));
+        A.Element(2, 3) = 202;
+        A.Print();
+        v = A.Element(2, 3);
+        ASSERT2(202 == v, String::Format("v = %d", v));
+        v = A.CountRows();
+        ASSERT2(3 == v, String::Format("v = %d", v));
+        v = A.CountCols();
+        ASSERT2(4 == v, String::Format("v = %d", v));
+    });
+
+    Add("Array1DInvalidIndex", [&]() {
+        Array1D<int> A(4);
+        ASSERTERROR(A.GetValue(-1), std::invalid_argument);
+    });
+
+    Add("Array2DInvalidIndices", [&]() {
+        Array2D<int> A(3, 4);
+        ASSERTERROR(A.GetValue(-1, -1), std::invalid_argument);
+    });
+
     Add("Matrix", [&]() {
         Matrix<int> B(3, 4);
         Logger().Print(B);
