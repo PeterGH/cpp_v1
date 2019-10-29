@@ -1878,6 +1878,461 @@ public:
     }
 };
 
+template <class T>
+class SingleLinkList
+{
+private:
+    class Node
+    {
+    public:
+        T data;
+        Node *next;
+        Node(T &d, Node *n) : data(d), next(n) {}
+        Node(T &d) : data(d), next(nullptr) {}
+        ~Node(void) { next = nullptr; }
+    } * _head, *_tail;
+
+public:
+    SingleLinkList(void) : _head(nullptr), _tail(nullptr) {}
+
+    ~SingleLinkList(void)
+    {
+        Node *p;
+        while (nullptr != _head)
+        {
+            p = _head;
+            _head = p->next;
+            delete p;
+        }
+    }
+
+    void Insert(T &data)
+    {
+        Node *node = new Node(data);
+        if (nullptr == _head)
+        {
+            // the list is empty, so initialize the list with the node.
+            _head = node;
+            _tail = node;
+        }
+        else
+        {
+            // the list is not empty, so add the node to the end.
+            _tail->next = node;
+            _tail = node;
+        }
+    }
+
+    void Reverse(void)
+    {
+        Node *p, *n;
+
+        // The list is empty or contains only one node.
+        if (nullptr == _head || nullptr == _head->next)
+            return;
+
+        // Initialize the variables.
+
+        //  ( )->( )->( )->......( )->NULL
+        //   ^                    ^
+        //   |                    |
+        // _head                _tail
+
+        // p to previous node.
+        p = _head;
+
+        //  ( )->( )->( )->......( )->NULL
+        //   ^                    ^
+        //   |                    |
+        // _head=p              _tail
+
+        // header to the middle node.
+        _head = p->next;
+
+        //  ( )->( )->( )->......( )->NULL
+        //   ^    ^               ^
+        //   |    |               |
+        //   p  _head           _tail
+
+        // n to the next node.
+        n = _head->next;
+
+        //  ( )->( )->( )->......( )->NULL
+        //   ^    ^    ^          ^
+        //   |    |    |          |
+        //   p  _head  n        _tail
+
+        // tail points to the last node of the reversed list.
+        _tail = p;
+
+        //  ( )->( )->( )->......( )->NULL
+        //   ^    ^    ^
+        //   |    |    |
+        //   p  _head  n
+        //  =_tail
+
+        // The last node of the reversed list should point to nothing.
+        _tail->next = nullptr;
+
+        // NULL<-( )  ( )->( )->......( )->NULL
+        //        ^    ^    ^
+        //        |    |    |
+        //        p  _head  n
+        //     =_tail
+
+        while (nullptr != n)
+        {
+            // Reverse the link between the previous node and the middle node.
+            _head->next = p;
+
+            // NULL<-( )<-( )  ( )->......( )->NULL
+            //        ^    ^    ^
+            //        |    |    |
+            //        p  _head  n
+            //     =_tail
+
+            // Move forward.
+            p = _head;
+
+            // NULL<-( )<-( )  ( )->......( )->NULL
+            //        ^    ^    ^
+            //        |    |    |
+            //      _tail  p    n
+            //           =_head
+
+            _head = n;
+
+            // NULL<-( )<-( )  ( )->......( )->NULL
+            //        ^    ^    ^
+            //        |    |    |
+            //      _tail  p    n
+            //                =_head
+
+            n = _head->next;
+
+            // NULL<-( )<-( )  ( )->( )......( )->NULL
+            //        ^    ^    ^    ^
+            //        |    |    |    |
+            //      _tail  p  _head  n
+        }
+
+        // NULL<-( )<-( )......( )  ( )->NULL
+        //        ^             ^    ^    ^
+        //        |             |    |    |
+        //      _tail           p  _head  n
+
+        // n is NULL, header points to the last node of the original list.
+        // Reverse the last link.
+        _head->next = p;
+
+        // NULL<-( )<-( )......( )<-( ) NULL
+        //        ^             ^    ^    ^
+        //        |             |    |    |
+        //      _tail           p  _head  n
+    }
+
+    // The middle node is the n-th node, no matter if
+    // the list contain (2n-1) nodes or 2n nodes.
+    const T &Middle(void) const
+    {
+        Node *middle, *p;
+
+        // The list is empty.
+        if (nullptr == _head)
+            throw invalid_argument("Empty list");
+
+        // Start from the first node.
+        middle = _head;
+        p = _head;
+
+        while (nullptr != p->next && nullptr != p->next->next)
+        {
+            // p visits the (2n-1)-th node.
+            p = p->next->next;
+            // middle visits the n-th node.
+            middle = middle->next;
+        }
+        return middle->data;
+    }
+
+    void Print(void) const
+    {
+        Node *p = _head;
+        cout << "Head->";
+        while (nullptr != p)
+        {
+            cout << p->data << "->";
+            p = p->next;
+        }
+        cout << "NULL" << endl;
+    }
+
+    const T &operator[](unsigned int index) const
+    {
+        unsigned int i = 0;
+        Node *p = _head;
+        while (i < index && p != nullptr)
+        {
+            p = p->next;
+            i++;
+        }
+        if (p != nullptr)
+        {
+            // i == index
+            return p->data;
+        }
+
+        throw invalid_argument(String::Format("Invalid index [%d]", index));
+    }
+
+    class iterator;
+    friend class iterator;
+    class iterator
+    {
+    private:
+        unsigned int _index;
+        Node *_pointer;
+        void Check(void) const
+        {
+            if (_pointer == nullptr)
+                throw invalid_argument(String::Format("SingleLinkList<%s>::iterator is not initialized", typeid(T).name()));
+        }
+
+    public:
+        iterator(const SingleLinkList<T> &list) : _index(0), _pointer(list._head) {}
+        iterator(const iterator &it) : _index(it._index), _pointer(it._pointer) {}
+        iterator(void) : _index(0), _pointer(nullptr) {}
+
+        const unsigned int index(void) const { return _index; }
+
+        bool operator++()
+        {
+            Check();
+            if (_pointer->next != nullptr)
+            {
+                _index++;
+                _pointer = _pointer->next;
+            }
+            else
+            {
+                _index = 0;
+                _pointer = nullptr;
+            }
+            return _pointer != nullptr;
+        }
+
+        bool operator++(int) { return operator++(); }
+
+        const T &current() const
+        {
+            Check();
+            T &d = _pointer->data;
+            return d;
+        }
+
+        // Return a pointer so that dereference is on the return type
+        const Node *operator->()
+        {
+            Check();
+            return _pointer;
+        }
+
+        const T &operator*() const { return current(); }
+
+        // Note: There is no return value
+        operator bool() const { return _pointer != nullptr; }
+
+        bool operator==(const iterator &it) const { return _pointer == it._pointer; }
+        bool operator!=(const iterator &it) const { return _pointer != it._pointer; }
+    };
+
+    iterator begin() const { return iterator(*this); }
+    iterator end() const { return iterator(); }
+};
+
+template <class T>
+class BinarySearchTreeNode
+{
+    template <class T>
+    friend class BinarySearchTree;
+
+private:
+    T _content;
+    BinarySearchTreeNode *_parent;
+    BinarySearchTreeNode *_left;
+    BinarySearchTreeNode *_right;
+
+public:
+    BinarySearchTreeNode(T content)
+    {
+        _content = content;
+        _parent = nullptr;
+        _left = nullptr;
+        _right = nullptr;
+    }
+
+    ~BinarySearchTreeNode(void)
+    {
+        auto f = [](BinarySearchTreeNode<T> *p) { if (p != nullptr) { p = nullptr; } };
+        f(_left);
+        f(_right);
+        f(_parent);
+    }
+
+    void Print() { cout << _content << " "; };
+};
+
+template <class T>
+class BinarySearchTree
+{
+private:
+    BinarySearchTreeNode<T> *_root;
+    void PreOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        f(node);
+        PreOrderWalk(node->_left, f);
+        PreOrderWalk(node->_right, f);
+    }
+
+    void InOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        InOrderWalk(node->_left, f);
+        f(node);
+        InOrderWalk(node->_right, f);
+    }
+
+    void PostOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        PostOrderWalk(node->_left, f);
+        PostOrderWalk(node->_right, f);
+        f(node);
+    }
+
+    BinarySearchTreeNode<T> *Search(BinarySearchTreeNode<T> *node, T content)
+    {
+        if (node == nullptr || node->_content == content)
+            return node;
+        if (content < node->_content)
+            return Search(node->_left, content);
+        else
+            return Search(node->_right, content);
+    }
+
+    BinarySearchTreeNode<T> *Min(BinarySearchTreeNode<T> *node)
+    {
+        if (node == nullptr)
+            return node;
+        while (node->_left != nullptr)
+            node = node->_left;
+        return node;
+    }
+
+    BinarySearchTreeNode<T> *Max(BinarySearchTreeNode<T> *node)
+    {
+        if (node == nullptr)
+            return node;
+        while (node->_right != nullptr)
+            node = node->_right;
+        return node;
+    }
+
+public:
+    BinarySearchTree(void) { _root = nullptr; }
+
+    ~BinarySearchTree(void)
+    {
+        Empty();
+    }
+
+    void Insert(T content)
+    {
+        BinarySearchTreeNode<T> *node = new BinarySearchTreeNode<T>(content);
+        BinarySearchTreeNode<T> *parent = nullptr;
+        BinarySearchTreeNode<T> *current = _root;
+        while (current != nullptr)
+        {
+            parent = current;
+            if (node->_content < current->_content)
+            {
+                current = current->_left;
+            }
+            else
+            {
+                current = current->_right;
+            }
+        }
+        node->_parent = parent;
+        if (parent == nullptr)
+        {
+            _root = node;
+        }
+        else if (node->_content < parent->_content)
+        {
+            parent->_left = node;
+        }
+        else
+        {
+            parent->_right = node;
+        }
+    }
+
+    void PreOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { PreOrderWalk(_root, f); };
+    void InOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { InOrderWalk(_root, f); };
+    void PostOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { PostOrderWalk(_root, f); };
+
+    void Empty(void)
+    {
+        PostOrderWalk(_root, [](BinarySearchTreeNode<T> *x) { delete x; });
+        _root = nullptr;
+    }
+
+    BinarySearchTreeNode<T> *Search(T content) { return Search(_root, content); }
+    BinarySearchTreeNode<T> *Min(void) { return Min(_root); }
+    BinarySearchTreeNode<T> *Max(void) { return Max(_root); }
+
+    BinarySearchTreeNode<T> *Successor(BinarySearchTreeNode<T> *node)
+    {
+        if (node == nullptr)
+            return nullptr;
+        if (node->_right != nullptr)
+            return Min(node->_right);
+        BinarySearchTreeNode<T> *parent = node->_parent;
+        while (parent != nullptr && node == parent->_right)
+        {
+            node = parent;
+            parent = parent->_parent;
+        }
+        return parent;
+    }
+
+    BinarySearchTreeNode<T> *Predecessor(BinarySearchTreeNode<T> *node)
+    {
+        if (node == nullptr)
+            return nullptr;
+        if (node->_left != nullptr)
+            return Max(node->_left);
+        BinarySearchTreeNode<T> *parent = node->_parent;
+        while (parent != nullptr && node == parent->_left)
+        {
+            node = parent;
+            parent = parent->_parent;
+        }
+        return parent;
+    }
+
+    void Print()
+    {
+        auto f = [](BinarySearchTreeNode<int> *x) { x->Print(); };
+        PostOrderWalk(f);
+    }
+};
+
 } // namespace Test
 
 #endif
