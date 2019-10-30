@@ -2151,184 +2151,203 @@ public:
 };
 
 template <class T>
-class BinarySearchTreeNode
-{
-    template <class T>
-    friend class BinarySearchTree;
-
-private:
-    T _content;
-    BinarySearchTreeNode *_parent;
-    BinarySearchTreeNode *_left;
-    BinarySearchTreeNode *_right;
-
-public:
-    BinarySearchTreeNode(T content)
-    {
-        _content = content;
-        _parent = nullptr;
-        _left = nullptr;
-        _right = nullptr;
-    }
-
-    ~BinarySearchTreeNode(void)
-    {
-        auto f = [](BinarySearchTreeNode<T> *p) { if (p != nullptr) { p = nullptr; } };
-        f(_left);
-        f(_right);
-        f(_parent);
-    }
-
-    void Print() { cout << _content << " "; };
-};
-
-template <class T>
 class BinarySearchTree
 {
+public:
+    class Node
+    {
+    private:
+        T _data;
+        Node *_parent;
+        Node *_left;
+        Node *_right;
+
+    public:
+        Node(const T &data)
+            : _data(data),
+              _parent(nullptr),
+              _left(nullptr),
+              _right(nullptr)
+        {
+        }
+
+        ~Node(void)
+        {
+            auto f = [](Node *p) { if (p != nullptr) { p = nullptr; } };
+            f(_left);
+            f(_right);
+            f(_parent);
+        }
+
+        void Print(void) { cout << _data << " "; }
+
+        static void PreOrderWalk(Node *node, function<void(Node *)> f)
+        {
+            if (node == nullptr || f == nullptr)
+                return;
+            f(node);
+            PreOrderWalk(node->_left, f);
+            PreOrderWalk(node->_right, f);
+        }
+
+        void PreOrderWalk(function<void(Node *)> f) { Node::PreOrderWalk(this, f); }
+
+        static void InOrderWalk(Node *node, function<void(Node *)> f)
+        {
+            if (node == nullptr || f == nullptr)
+                return;
+            InOrderWalk(node->_left, f);
+            f(node);
+            InOrderWalk(node->_right, f);
+        }
+
+        void InOrderWalk(function<void(Node *)> f) { Node::InOrderWalk(this, f); }
+
+        static void PostOrderWalk(Node *node, function<void(Node *)> f)
+        {
+            if (node == nullptr || f == nullptr)
+                return;
+            PostOrderWalk(node->_left, f);
+            PostOrderWalk(node->_right, f);
+            f(node);
+        }
+
+        void PostOrderWalk(function<void(Node *)> f) { Node::PostOrderWalk(this, f); }
+
+        static Node *Search(Node *node, T data)
+        {
+            if (node == nullptr || node->_data == data)
+                return node;
+            if (data < node->_data)
+                return Search(node->_left, data);
+            else
+                return Search(node->_right, data);
+        }
+
+        Node *Search(T data) { return Node::Search(this, data); }
+
+        static Node *Min(Node *node)
+        {
+            if (node == nullptr)
+                return node;
+            while (node->_left != nullptr)
+                node = node->_left;
+            return node;
+        }
+
+        Node *Min() { return Node::Min(this); }
+
+        static Node *Max(Node *node)
+        {
+            if (node == nullptr)
+                return node;
+            while (node->_right != nullptr)
+                node = node->_right;
+            return node;
+        }
+
+        Node *Max() { return Node::Max(this); }
+
+        static Node *Insert(Node *node, T data)
+        {
+            Node *newNode = new Node(data);
+            Node *parent = node;
+            Node *current = node;
+            while (current != nullptr)
+            {
+                parent = current;
+                if (newNode->_data < current->_data)
+                {
+                    current = current->_left;
+                }
+                else
+                { // newNode->_data >= current->_data
+                    current = current->_right;
+                }
+            }
+            newNode->_parent = parent;
+            if (parent == nullptr)
+            {
+                // This means node is NULL, i.e. it is an empty tree.
+                // Return the new node as it is the first node of a tree.
+                return newNode;
+            }
+            else if (newNode->_data < parent->_data)
+            {
+                parent->_left = newNode;
+            }
+            else
+            {
+                parent->_right = newNode;
+            }
+            // The root of tree.
+            return node;
+        }
+
+        void Insert(T data) { Node::Insert(this, data); }
+
+        static Node *Successor(Node *node)
+        {
+            if (node == nullptr)
+                return nullptr;
+            if (node->_right != nullptr)
+                return Min(node->_right);
+            Node *parent = node->_parent;
+            while (parent != nullptr && node == parent->_right)
+            {
+                node = parent;
+                parent = parent->_parent;
+            }
+            return parent;
+        }
+
+        Node *Successor() { return Node::Successor(this); }
+
+        static Node *Predecessor(Node *node)
+        {
+            if (node == nullptr)
+                return nullptr;
+            if (node->_left != nullptr)
+                return Max(node->_left);
+            Node *parent = node->_parent;
+            while (parent != nullptr && node == parent->_left)
+            {
+                node = parent;
+                parent = parent->_parent;
+            }
+            return parent;
+        }
+
+        Node *Predecessor() { return Node::Predecessor(this); }
+    };
+
 private:
-    BinarySearchTreeNode<T> *_root;
-    void PreOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
-    {
-        if (node == nullptr || f == nullptr)
-            return;
-        f(node);
-        PreOrderWalk(node->_left, f);
-        PreOrderWalk(node->_right, f);
-    }
-
-    void InOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
-    {
-        if (node == nullptr || f == nullptr)
-            return;
-        InOrderWalk(node->_left, f);
-        f(node);
-        InOrderWalk(node->_right, f);
-    }
-
-    void PostOrderWalk(BinarySearchTreeNode<T> *node, function<void(BinarySearchTreeNode<T> *)> f)
-    {
-        if (node == nullptr || f == nullptr)
-            return;
-        PostOrderWalk(node->_left, f);
-        PostOrderWalk(node->_right, f);
-        f(node);
-    }
-
-    BinarySearchTreeNode<T> *Search(BinarySearchTreeNode<T> *node, T content)
-    {
-        if (node == nullptr || node->_content == content)
-            return node;
-        if (content < node->_content)
-            return Search(node->_left, content);
-        else
-            return Search(node->_right, content);
-    }
-
-    BinarySearchTreeNode<T> *Min(BinarySearchTreeNode<T> *node)
-    {
-        if (node == nullptr)
-            return node;
-        while (node->_left != nullptr)
-            node = node->_left;
-        return node;
-    }
-
-    BinarySearchTreeNode<T> *Max(BinarySearchTreeNode<T> *node)
-    {
-        if (node == nullptr)
-            return node;
-        while (node->_right != nullptr)
-            node = node->_right;
-        return node;
-    }
+    Node *_root;
 
 public:
     BinarySearchTree(void) { _root = nullptr; }
 
-    ~BinarySearchTree(void)
-    {
-        Empty();
-    }
+    ~BinarySearchTree(void) { Empty(); }
 
-    void Insert(T content)
-    {
-        BinarySearchTreeNode<T> *node = new BinarySearchTreeNode<T>(content);
-        BinarySearchTreeNode<T> *parent = nullptr;
-        BinarySearchTreeNode<T> *current = _root;
-        while (current != nullptr)
-        {
-            parent = current;
-            if (node->_content < current->_content)
-            {
-                current = current->_left;
-            }
-            else
-            {
-                current = current->_right;
-            }
-        }
-        node->_parent = parent;
-        if (parent == nullptr)
-        {
-            _root = node;
-        }
-        else if (node->_content < parent->_content)
-        {
-            parent->_left = node;
-        }
-        else
-        {
-            parent->_right = node;
-        }
-    }
+    void Insert(T data) { _root = Node::Insert(_root, data); }
 
-    void PreOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { PreOrderWalk(_root, f); };
-    void InOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { InOrderWalk(_root, f); };
-    void PostOrderWalk(function<void(BinarySearchTreeNode<T> *)> f) { PostOrderWalk(_root, f); };
+    void PreOrderWalk(function<void(Node *)> f) { Node::PreOrderWalk(_root, f); };
+    void InOrderWalk(function<void(Node *)> f) { Node::InOrderWalk(_root, f); };
+    void PostOrderWalk(function<void(Node *)> f) { Node::PostOrderWalk(_root, f); };
 
     void Empty(void)
     {
-        PostOrderWalk(_root, [](BinarySearchTreeNode<T> *x) { delete x; });
+        Node::PostOrderWalk(_root, [](Node *x) { delete x; });
         _root = nullptr;
     }
 
-    BinarySearchTreeNode<T> *Search(T content) { return Search(_root, content); }
-    BinarySearchTreeNode<T> *Min(void) { return Min(_root); }
-    BinarySearchTreeNode<T> *Max(void) { return Max(_root); }
-
-    BinarySearchTreeNode<T> *Successor(BinarySearchTreeNode<T> *node)
-    {
-        if (node == nullptr)
-            return nullptr;
-        if (node->_right != nullptr)
-            return Min(node->_right);
-        BinarySearchTreeNode<T> *parent = node->_parent;
-        while (parent != nullptr && node == parent->_right)
-        {
-            node = parent;
-            parent = parent->_parent;
-        }
-        return parent;
-    }
-
-    BinarySearchTreeNode<T> *Predecessor(BinarySearchTreeNode<T> *node)
-    {
-        if (node == nullptr)
-            return nullptr;
-        if (node->_left != nullptr)
-            return Max(node->_left);
-        BinarySearchTreeNode<T> *parent = node->_parent;
-        while (parent != nullptr && node == parent->_left)
-        {
-            node = parent;
-            parent = parent->_parent;
-        }
-        return parent;
-    }
+    Node *Search(T data) { return Node::Search(_root, data); }
+    Node *Min(void) { return Node::Min(_root); }
+    Node *Max(void) { return Node::Max(_root); }
 
     void Print()
     {
-        auto f = [](BinarySearchTreeNode<int> *x) { x->Print(); };
+        auto f = [](Node *x) { x->Print(); };
         PostOrderWalk(f);
     }
 };
