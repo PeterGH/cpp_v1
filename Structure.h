@@ -2290,14 +2290,42 @@ public:
         {
             if (node == nullptr)
                 return nullptr;
+            //  (A)
+            //  / \
+	        // () (B)
+            // The successor of A is the minimum node of subtree B
             if (node->_right != nullptr)
                 return Min(node->_right);
+            //    (B)
+            //   /
+            // (C)
+            //   \
+	        //    ()
+            //      \
+	        //      (A)
+            //      / \
+        	//     () NULL
+            // The successor of A is the lowest ancestor B whose
+            // left child C contains A in its right substree
             Node *parent = node->_parent;
             while (parent != nullptr && node == parent->_right)
             {
                 node = parent;
                 parent = parent->_parent;
             }
+            // parent could be NULL if node is the maximum node of tree, i.e.,
+            //
+            //  (A)
+            //  / \
+	        // () NULL
+            //
+            // or
+            //
+            // ()
+            //   \
+	        //   (A)
+            //   / \
+	        //  () NULL
             return parent;
         }
 
@@ -2307,19 +2335,168 @@ public:
         {
             if (node == nullptr)
                 return nullptr;
+            //   (A)
+            //   /
+            // (B)
+            // The predecessor of A is the maximum node of subtree B
             if (node->_left != nullptr)
                 return Max(node->_left);
+            //     (B)
+            //       \
+	        //       (C)
+            //       /
+            //      ()
+            //     /
+            //   (A)
+            //   / \
+	        // NULL ()
+            // The predecessor of A is the lowest ancestor B whose
+            // right child C contains A in its left substree
             Node *parent = node->_parent;
             while (parent != nullptr && node == parent->_left)
             {
                 node = parent;
                 parent = parent->_parent;
             }
+            // parent could be NULL if node is the minimum node of tree, i.e.,
+            //
+            //   (A)
+            //   / \
+	        // NULL ()
+            //
+            // or
+            //
+            //      ()
+            //     /
+            //   (A)
+            //   / \
+	        // NULL ()
             return parent;
         }
 
         Node *Predecessor() { return Node::Predecessor(this); }
+
+        // Remove left and right subtrees at node
+        static void Empty(Node *node)
+        {
+            PostOrderWalk(node->_left, [](Node *x) { delete x; });
+            PostOrderWalk(node->_right, [](Node *x) { delete x; });
+            node->_left = nullptr;
+            node->_right = nullptr;
+        }
+
+        void Empty() { Empty(this); }
+
+        // Replace dst with src. Return dst.
+        static Node *Transplant(Node *dst, Node *src)
+        {
+            if (dst == nullptr)
+                return nullptr;
+
+            if (dst->_parent == nullptr)
+            {
+                // src becomes the new root
+                if (src != nullptr)
+                    src->_parent = nullptr;
+                return dst;
+            }
+
+            // Link dst->_parent to src
+            if (dst == dst->_parent->_left)
+            {
+                dst->_parent->_left = src;
+            }
+            else
+            {
+                dst->_parent->_right = src;
+            }
+
+            // Link src->_parent to dst->_parent
+            if (src != nullptr)
+                src->_parent = dst->_parent;
+
+            // dst->_parent is not changed. The children of dst are not changed.
+            // It is possible src is still a child of dst, though src->_parent
+            // is now pointing outside of dst tree.
+            return dst;
+        }
     };
+
+    static void Delete(Node *node)
+    {
+        if (node == nullptr)
+            return;
+
+        if (node->_left == nullptr)
+        {
+            //   ()
+            //    |
+            //   (A)
+            //   /  \
+		    // NULL (B)
+            Transplant(node, node->_right);
+            delete node;
+            return;
+        }
+
+        if (node->_right == nullptr)
+        {
+            //   ()
+            //    |
+            //   (A)
+            //   /  \
+		    // (B) NULL
+            Transplant(node, node->_left);
+            delete node;
+            return;
+        }
+
+        Node *successor = Min(node->_right);
+
+        if (successor->_parent != node)
+        {
+            //     ()
+            //     |
+            //    (A)
+            //    / \
+		    //   ()  (D)
+            //        \
+		    //         ()
+            //        /
+            //      (B)
+            //      / \
+	        //    NULL (C)
+            Transplant(successor, successor->_right);
+            //     ()
+            //     |
+            //    (A)
+            //    / \
+		    //   () (D)
+            //        \
+		    //         ()
+            //        /
+            //      (C)           (B)
+            successor->_right = node->_right;
+            successor->_right->_parent = successor;
+            //     ()
+            //     |
+            //    (A)
+            //    /
+            //   ()
+            //       (B)
+            //         \
+		    //         (D)
+            //           \
+		    //            ()
+            //           /
+            //         (C)
+        }
+
+        Transplant(node, successor);
+        successor->_left = node->_left;
+        successor->_left->_parent = successor;
+        delete node;
+    }
 
 private:
     Node *_root;
