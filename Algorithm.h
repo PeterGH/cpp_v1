@@ -14,6 +14,133 @@ using namespace std;
 
 namespace Test
 {
+
+// 1. Assume the input array is not sorted.
+// 2. The input array may contain duplicate elements.
+// 3. The return value is the index of the first occurrence
+// of the value to search in the input array if found, otherwise -1.
+template <class T>
+int LinearSearch(T e, const T *A, int L)
+{
+    if (A == nullptr || L <= 0)
+        return -1;
+    for (int i = 0; i < L; i++)
+    {
+        if (e == A[i])
+            return i;
+    }
+    return -1;
+}
+
+// 1. Assume the input array is already sorted.
+//    We do not want to apply sorting in the implementation of
+//    binary search to enforce the assumption. Instead, sorting
+//    should be the responsibility of the caller of binary search.
+// 2. The input array may contain duplicate elements.
+// 3. The return value is the index of the first occurrence of
+//    the value to search in the sorted input array if found, otherwise -1.
+template <class T>
+int BinarySearch(T e, const T *A, int L)
+{
+    if (A == nullptr || L <= 0)
+        return -1;
+    int low = 0;
+    int high = L - 1;
+    while (low <= high)
+    {
+        int middle = (low + high) >> 1;
+        if (e < A[middle])
+            high = middle - 1;
+        else if (e > A[middle])
+            low = middle + 1;
+        else
+        {
+            // The input array may contain duplicate elements.
+            // The index found so far may not be the first occurrence of the value to search.
+            // So search forward to find the first occurrence.
+            while (middle > 0 && e == A[middle - 1])
+                middle--;
+            return middle;
+        }
+    }
+    return -1;
+}
+
+// 1. Assume the input array is already sorted.
+//    We do not want to apply sorting in the implementation of binary search to enforce the assumption.
+//    Instead, sorting should be the responsibility of the caller of binary search.
+// 2. The input array may contain duplicate elements.
+// 3. The return value is the index of the first occurrence of the value to search in the sorted input array if found, otherwise -1.
+template <class T>
+int BinarySearchRecursively(T e, const T *A, int l, int h)
+{
+    if (A == nullptr || l < 0 || h < 0 || h < l)
+        return -1;
+    int middle = (l + h) >> 1;
+    if (e < A[middle])
+        return BinarySearchRecursively(e, A, l, middle - 1);
+    else if (e > A[middle])
+        return BinarySearchRecursively(e, A, middle + 1, h);
+    else
+    {
+        // The input array may contain duplicate elements.
+        // The index found so far may not be the first occurrence of the value to search.
+        // So search forward to find the first occurrence.
+        while (middle > 0 && e == A[middle - 1])
+        {
+            middle--;
+        }
+        return middle;
+    }
+}
+
+// Assume array A[0..(L-1)] is already sorted and it can contain duplicate elements.
+// Return -1 if e < A[0]
+// Return (L-1) if A[L-1] <= e
+// Return i if A[i] <= e < A[i+1].
+template <class T>
+int PositionToInsert(T e, const T *A, int L)
+{
+    if (A == nullptr || L <= 0)
+        return -2;
+    int low = 0;
+    int high = L - 1;
+    // The loop ensures A[0..(low-1)] < e < A[(high+1)..(L-1)]
+    while (low <= high)
+    {
+        // low <= middle <= high.
+        // The case middle == high could happen when low == high.
+        int middle = (low + high) >> 1;
+        if (e < A[middle])
+        {
+            if (middle == low)
+                return low - 1;
+            else
+                high = middle - 1;
+        }
+        else if (e > A[middle])
+        {
+            if (middle == high)
+                return high;
+            else
+                low = middle + 1;
+        }
+        else
+        {
+            // The input array may contain duplicate elements.
+            // The index found so far may not be the last occurrence of the value to search.
+            // So search backward to find the last occurrence.
+            while (middle < L - 1 && e == A[middle + 1])
+            {
+                middle++;
+            }
+            return middle;
+        }
+    }
+    // We should not hit this line.
+    throw runtime_error("Cannot find position");
+}
+
 // http://leetcode.com/2011/01/ctrla-ctrlc-ctrlv.html
 // Produce the longest string with N keystrokes using four
 // keys: A, Ctrl+A (Select), Ctrl+C (Copy), Ctrl+V (Paste)
@@ -5763,15 +5890,11 @@ static void HeapifyElement(vector<T> &input, size_t begin, size_t end)
         size_t max = begin;
         size_t l = (begin << 1) + 1;
         if (l <= end && input[l] > input[max])
-        {
             max = l;
-        }
 
         size_t r = (begin << 1) + 2;
         if (r <= end && input[r] > input[max])
-        {
             max = r;
-        }
 
         if (max == begin)
             break;
@@ -5799,9 +5922,7 @@ static void HeapifyElement(vector<T> &input, size_t begin, size_t end, size_t d)
         {
             size_t c = begin * d + j + 1;
             if (c <= end && input[c] > input[max])
-            {
                 max = c;
-            }
         }
 
         if (max == begin)
@@ -5819,6 +5940,11 @@ static void Heapify(vector<T> &input)
     if (input.size() <= 1)
         return;
 
+    //         0
+    //    1          2
+    //  3   4     5     6
+    // 7 8 9 10 11 12 13 14
+    // 2^(height - 1) - 1 < count <= 2^height - 1
     size_t height = 0;
     size_t count = input.size();
     while (count > 0)
@@ -5829,10 +5955,11 @@ static void Heapify(vector<T> &input)
 
     // The elements at bottom are indexed in [2^(height - 1) - 1, 2^height - 2]
     // We only need to heapify elements above them
+    // Do not define i as unsigned int, otherwise the for loop will continue forever
+    // because i is unsigned and thus i is always non-negative.
+    // When i = 0, (i --) becomes 4294967295
     for (long long i = ((1 << (height - 1)) - 2); i >= 0; i--)
-    {
         HeapifyElement(input, (size_t)i, input.size() - 1);
-    }
 }
 
 // d-ary
@@ -5867,9 +5994,7 @@ static void Heapify(vector<T> &input, size_t d)
 
     long long index = ((long long)pow(d, height - 1) - 1) / (d - 1) - 1;
     for (long long i = index; i >= 0; i--)
-    {
         HeapifyElement(input, (size_t)i, input.size() - 1, d);
-    }
 }
 
 template <class T>

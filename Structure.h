@@ -1881,6 +1881,10 @@ public:
 template <class T>
 class SingleLinkList
 {
+    // The overloaded operator << is a template
+    // Another valid form is: friend ostream& operator<<<>(ostream &, SingleLinkList<T> &);
+    friend ostream &operator<<<T>(ostream &, SingleLinkList<T> &);
+
 private:
     class Node
     {
@@ -2031,8 +2035,9 @@ public:
         //      _tail           p  _head  n
     }
 
-    // The middle node is the n-th node, no matter if
+    // The middle node is the n-th (1-based) node, no matter if
     // the list contain (2n-1) nodes or 2n nodes.
+    // So returns the median or the lower median.
     const T &Middle(void) const
     {
         Node *middle, *p;
@@ -2055,16 +2060,16 @@ public:
         return middle->data;
     }
 
-    void Print(void) const
+    void Print(ostream &os = cout) const
     {
         Node *p = _head;
-        cout << "Head->";
+        os << "Head->";
         while (nullptr != p)
         {
-            cout << p->data << "->";
+            os << p->data << "->";
             p = p->next;
         }
-        cout << "NULL" << endl;
+        os << "NULL" << endl;
     }
 
     const T &operator[](unsigned int index) const
@@ -2149,6 +2154,13 @@ public:
     iterator begin() const { return iterator(*this); }
     iterator end() const { return iterator(); }
 };
+
+template <class T>
+ostream &operator<<(ostream &os, SingleLinkList<T> &list)
+{
+    list.Print(os);
+    return os;
+}
 
 template <class T>
 class BinarySearchTree
