@@ -19,6 +19,217 @@ public:
 
 void AlgorithmTest::Init(void)
 {
+    Add("BinarySearch", [&]() {
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                int i = BinarySearch(input, n, 0, input.size() - 1);
+                Logger() << input;
+                Logger() << " Found " << n << " at " << i << endl;
+                ASSERT1(n == input[i]);
+                ASSERT1(i == 0);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                int i = BinarySearch(input, n, 0, input.size() - 1, false);
+                Logger() << input;
+                Logger() << " Found " << n << " at " << i << endl;
+                ASSERT1(n == input[i]);
+                ASSERT1(i == input.size() - 1);
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++)
+                {
+                    int e = Util::RandomInt(max);
+                    int i = BinarySearch(input, e, 0, input.size() - 1);
+                    auto it = find(input.begin(), input.end(), e);
+                    if (i == -1)
+                    {
+                        Logger() << "Not found " << e << endl;
+                        ASSERT1(it == input.end());
+                    }
+                    else
+                    {
+                        int i2 = (int)(it - input.begin());
+                        Logger() << "Found " << e << " at (" << i << ", " << i2 << ")" << endl;
+                        ASSERT1(e == input[i]);
+                        ASSERT1(i == i2);
+                    }
+                }
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++)
+                {
+                    int e = Util::RandomInt(max);
+                    int i = BinarySearch(input, e, 0, input.size() - 1, false);
+                    auto it = find(input.begin(), input.end(), e);
+                    if (i == -1)
+                    {
+                        Logger() << "Not found " << e << endl;
+                        ASSERT1(it == input.end());
+                    }
+                    else
+                    {
+                        int i2 = (int)(it - input.begin());
+                        Logger() << "Found " << e << " at (" << i << ", " << i2 << ")" << endl;
+                        ASSERT1(e == input[i]);
+                        ASSERT1(e == input[i2]);
+                        ASSERT1(i >= i2);
+                        for (size_t k = i + 1; k < input.size(); k++)
+                        {
+                            ASSERT1(e != input[k]);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    Add("FindInsertPoint", [&]() {
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n, 0, input.size() - 1);
+                Logger() << input;
+                Logger() << n << " should be inserted at " << i << endl;
+                ASSERT1(i == 0);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n - 1, 0, input.size() - 1);
+                Logger() << input;
+                Logger() << n - 1 << " should be inserted at " << i << endl;
+                ASSERT1(i == 0);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n, 0, input.size() - 1, false);
+                Logger() << input;
+                Logger() << n << " should be inserted at " << i << endl;
+                ASSERT1(i == input.size() - 1);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++)
+            {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n + 1, 0, input.size() - 1, false);
+                Logger() << input;
+                Logger() << n + 1 << " should be inserted at " << i << endl;
+                ASSERT1(i == input.size());
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++)
+                {
+                    int e = Util::RandomInt(max + 10, -10);
+                    size_t i = FindInsertPoint(input, e, 0, input.size() - 1);
+                    Logger() << e << " should be inserted at " << i << endl;
+                    ASSERT1(i >= 0);
+                    ASSERT1(i <= input.size());
+                    if (i < input.size())
+                        ASSERT1(e <= input[i]);
+                    if (i > 0)
+                        ASSERT1(input[i - 1] < e);
+                }
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++)
+            {
+                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++)
+                {
+                    int e = Util::RandomInt(max + 10, -10);
+                    size_t i = FindInsertPoint(input, e, 0, input.size() - 1, false);
+                    Logger() << e << " should be inserted at " << i << endl;
+                    ASSERT1(i >= 0);
+                    ASSERT1(i <= input.size());
+                    if (i < input.size())
+                        ASSERT1(e <= input[i]);
+                    if (i < input.size() - 1)
+                        ASSERT1(e < input[i + 1]);
+                }
+            }
+        }
+    });
+
+    Add("FindShiftPoint", [&]() {
+        auto check = [&](const vector<int> v, size_t d) {
+            Logger() << v;
+            size_t s = Algorithm::Search::FindShiftPoint(v);
+            Logger() << "shifted by " << d << ", " << s << endl;
+            ASSERT1(s == d);
+        };
+        {
+            vector<int> v = {0};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {1, 2};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {2, 1};
+            check(v, 1);
+        }
+        {
+            vector<int> v = {3, 4, 5};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {5, 3, 4};
+            check(v, 1);
+        }
+        {
+            vector<int> v = {4, 5, 3};
+            check(v, 2);
+        }
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                size_t n = Util::RandomInt(100, 1);
+                size_t s = Util::RandomInt(100) % n;
+                vector<int> input = Util::SortedArrayWithShift(n, s);
+                check(input, s);
+            }
+        }
+    });
+
     Add("LongestStringWithKeystrokes", [&]() {
         unsigned long long expect[100] = {
             1, 2, 3, 4, 5, 6, 7, 9, 12, 16,
