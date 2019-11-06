@@ -493,6 +493,399 @@ public:
     const T &Top(void) { return _elements.front(); }
 };
 
+template <class Compare = std::less<>>
+class YoungTableau
+{
+    // A Young tableau is an m x n matrix such that the entries of
+    // each row are in sorted order from left to right and the entries
+    // of each column are in sorted order from top to bottom. A Young
+    // tableau is like a heap and can be used to implement a priority queue.
+
+    // comp is a binary function returning a boolean value.
+    // If comp(first, second) returns true, then the first input should be
+    // to the right or the bottom of the second input.
+    // Default comp is std::less, which forms a max heap.
+
+private:
+    static Compare s_comp;
+
+    // Determine whether lhs is lower than rhs
+    static bool lower(int lhs, int rhs) { return s_comp(lhs, rhs); }
+
+    // Determine whether lhs is equal to rhs
+    static bool equal(int lhs, int rhs) { return !s_comp(lhs, rhs) && !s_comp(rhs, lhs); }
+
+    // Determine whether lhs is higher than rhs
+    static bool higher(int lhs, int rhs) { return s_comp(rhs, lhs); }
+
+public:
+    static void PushUp(vector<vector<int>> &tableau, size_t i, size_t j)
+    {
+        while (true)
+        {
+            size_t mi = i;
+            size_t mj = j;
+            int m = tableau[mi][mj];
+
+            // Check against the upper
+            if (i > 0 && lower(tableau[i - 1][j], m))
+            {
+                mi = i - 1;
+                mj = j;
+                m = tableau[mi][mj];
+            }
+
+            // Check against the left
+            if (j > 0 && lower(tableau[i][j - 1], m))
+            {
+                mi = i;
+                mj = j - 1;
+                m = tableau[mi][mj];
+            }
+
+            if (mi == i && mj == j)
+                break;
+
+            swap(tableau[i][j], tableau[mi][mj]);
+            i = mi;
+            j = mj;
+        }
+    }
+
+    static void PushDown(vector<vector<int>> &tableau, size_t i, size_t j)
+    {
+        while (true)
+        {
+            size_t mi = i;
+            size_t mj = j;
+            int m = tableau[mi][mj];
+
+            // Check against the below
+            if (i + 1 < tableau.size() && lower(m, tableau[i + 1][j]))
+            {
+                mi = i + 1;
+                mj = j;
+                m = tableau[mi][mj];
+            }
+
+            // Check against the right
+            if (j + 1 < tableau[i].size() && lower(m, tableau[i][j + 1]))
+            {
+                mi = i;
+                mj = j + 1;
+                m = tableau[mi][mj];
+            }
+
+            if (mi == i && mj == j)
+                break;
+
+            swap(tableau[i][j], tableau[mi][mj]);
+            i = mi;
+            j = mj;
+        }
+    }
+
+    static void Create(vector<vector<int>> &tableau)
+    {
+        // Complexity is sum(i + j) for i in [0, m - 1] and j in [0, n - 1],
+        // which is O(mn(m+n))
+        for (size_t i = 0; i < tableau.size(); i++)
+        {
+            for (size_t j = 0; j < tableau[i].size(); j++)
+            {
+                PushUp(tableau, i, j);
+            }
+        }
+    }
+
+    static void Create2(vector<vector<int>> &tableau)
+    {
+        // Complecity is m * lg(n) + n * lg(m)
+
+        for (size_t i = 0; i < tableau.size(); i++)
+        {
+            sort(tableau[i].begin(), tableau[i].end(), higher);
+        }
+
+        for (size_t i = 0; i < tableau[0].size(); i++)
+        {
+            // Sort column i
+            MergeSort(tableau, i, higher);
+        }
+    }
+
+    static bool Verify(vector<vector<int>> &tableau)
+    {
+        for (size_t i = 0; i < tableau.size(); i++)
+        {
+            for (size_t j = 0; j < tableau[i].size(); j++)
+            {
+                if (j + 1 < tableau[i].size() && lower(tableau[i][j], tableau[i][j + 1]))
+                {
+                    return false;
+                }
+
+                if (i + 1 < tableau.size() && j < tableau[i + 1].size() && lower(tableau[i][j], tableau[i + 1][j]))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    static pair<int, int> Search(vector<vector<int>> &tableau, const int &value)
+    {
+        // Complexit is O(m + n)
+        int i = 0;
+        int j = tableau[0].size() - 1;
+
+        while (i < (int)tableau.size() && j >= 0)
+        {
+            if (lower(value, tableau[i][j]))
+                i++;
+            else if (lower(tableau[i][j], value))
+                j--;
+            else
+                return make_pair(i, j);
+        }
+
+        return make_pair(-1, -1);
+    }
+
+    static pair<int, int> Search2(vector<vector<int>> &tableau, const int &value)
+    {
+        function<pair<int, int>(int, int, int, int)>
+            search = [&](int i0, int j0, int i1, int j1) -> pair<int, int> {
+            if (i0 == i1)
+            {
+                int j = BinarySearch(tableau[i0], value, j0, j1, true, higher);
+                if (j != -1)
+                    return make_pair(i0, j);
+            }
+            else if (j0 == j1)
+            {
+                // Search column j0
+                int i = BinarySearch(tableau, j0, value, i0, i1, true, higher);
+                if (i != -1)
+                    return make_pair(i, j0);
+            }
+            else
+            {
+                int i = (i0 + i1) >> 1;
+
+                // Find the first j such that value should be to the left of tableau[i][j]
+                int j = FindInsertPoint(tableau[i], value, j0, j1, true, higher);
+
+                if (j <= j1 && equal(tableau[i][j], value))
+                    return make_pair(i, j);
+
+                if (j <= j1 && i0 < i)
+                {
+                    // search top-right area
+                    auto p = search(i0, j, i - 1, j1);
+                    if (p.first != -1 && p.second != -1)
+                        return p;
+                }
+
+                if (j0 < j && i < i1)
+                {
+                    // search bottom-left area
+                    return search(i + 1, j0, i1, j - 1);
+                }
+            }
+            return make_pair(-1, -1);
+        };
+
+        return search(0, 0, tableau.size() - 1, tableau[tableau.size() - 1].size() - 1);
+    }
+
+    // Count elements are to the top-left area of the input value.
+    static unsigned long CountHigherThan(vector<vector<int>> &tableau, const int &value)
+    {
+        function<unsigned long(size_t, size_t, size_t, size_t)>
+            count = [&](size_t i0, size_t j0, size_t i1, size_t j1) -> unsigned long {
+            size_t i = FindInsertPoint(
+                value,
+                i0,
+                i0 + min(i1 - i0, j1 - j0),
+                [&](size_t k) -> int { return tableau[k][j0 + k - i0]; },
+                true,
+                higher);
+            size_t j = j0 + i - i0;
+
+            if (i == i0 && j == j0)
+                return 0;
+
+            unsigned long c = (i - i0) * (j - j0);
+
+            if (j <= j1)
+                c += count(i0, j, i - 1, j1);
+
+            if (i <= i1)
+                c += count(i, j0, i1, j - 1);
+
+            return c;
+        };
+
+        return count(0, 0, tableau.size() - 1, tableau[0].size() - 1);
+    }
+
+    // Count elements are to the top-left area of the input value.
+    static unsigned long CountHigherThan2(vector<vector<int>> &tableau, const int &value)
+    {
+        unsigned long c = 0;
+        int last = -1;
+        for (size_t i = 0; i < tableau.size(); i++)
+        {
+            if (last == -1)
+                last = tableau[i].size();
+            if (last == 0)
+                break;
+            last = FindInsertPoint(tableau[i], value, 0, last - 1, true, higher);
+            c += last;
+        }
+        return c;
+    }
+
+    // Count elements are to the top-left area of the input value.
+    static unsigned long CountHigherThan3(vector<vector<int>> &tableau, const int &value)
+    {
+        unsigned long c = 0;
+        int rows = tableau.size();
+        int cols = tableau[0].size();
+
+        for (int j = 0; j < min(rows, cols); j++)
+        {
+            unsigned int t = 0;
+            for (int i = 0; i <= j; i++)
+            {
+                if (lower(value, tableau[i][j - i]))
+                    t++;
+            }
+            if (t == 0)
+                return c;
+            else
+                c += t;
+        }
+
+        if (rows <= cols)
+        {
+            //  +---------+
+            //  | /      /|
+            //  |/      / |
+            //  +---------+
+            for (int j = rows; j < cols; j++)
+            {
+                unsigned int t = 0;
+                for (int i = 0; i < rows; i++)
+                {
+                    if (lower(value, tableau[i][j - i]))
+                        t++;
+                }
+                if (t == 0)
+                    return c;
+                else
+                    c += t;
+            }
+
+            for (int j = cols; j < cols + rows - 1; j++)
+            {
+                unsigned int t = 0;
+                for (int i = j - cols + 1; i < rows; i++)
+                {
+                    if (lower(value, tableau[i][j - i]))
+                        t++;
+                }
+                if (t == 0)
+                    return c;
+                else
+                    c += t;
+            }
+        }
+        else
+        {
+            //  +---+
+            //  |  /|
+            //  | / |
+            //  |/ /|
+            //  | / |
+            //  |/  |
+            //  +---+
+            for (int i = cols; i < rows; i++)
+            {
+                unsigned int t = 0;
+                for (int j = 0; j < cols; j++)
+                {
+                    if (lower(value, tableau[i - j][j]))
+                        t++;
+                }
+                if (t == 0)
+                    return c;
+                else
+                    c += t;
+            }
+
+            for (int i = rows; i < rows + cols - 1; i++)
+            {
+                unsigned int t = 0;
+                for (int j = i - rows + 1; j < cols; j++)
+                {
+                    if (lower(value, tableau[i - j][j]))
+                        t++;
+                }
+                if (t == 0)
+                    return c;
+                else
+                    c += t;
+            }
+        }
+
+        return c;
+    }
+
+    // Count elements are to the top-left area of the input value.
+    static unsigned long CountHigherThan4(vector<vector<int>> &tableau, const int &value)
+    {
+        unsigned long c = 0;
+        size_t rows = tableau.size();
+        size_t cols = tableau[0].size();
+        size_t topLefti = 0;
+        size_t topLeftj = 0;
+        size_t bottomRighti = 0;
+        size_t bottomRightj = 0;
+
+        while (topLefti < rows)
+        {
+            unsigned int t = 0;
+            for (size_t i = topLefti; i <= bottomRighti; i++)
+            {
+                if (lower(value, tableau[i][topLeftj - i + topLefti]))
+                    t++;
+            }
+            if (t == 0)
+                return c;
+            else
+                c += t;
+            topLefti = topLeftj + 1 < cols ? topLefti : topLefti + 1;
+            topLeftj = topLeftj + 1 < cols ? topLeftj + 1 : topLeftj;
+            bottomRightj = bottomRighti + 1 < rows ? bottomRightj : bottomRightj + 1;
+            bottomRighti = bottomRighti + 1 < rows ? bottomRighti + 1 : bottomRighti;
+        }
+
+        return c;
+    }
+
+    // Find the i-th number in it.
+    static int SearchByOrder(const vector<vector<int>> &tableau, int i)
+    {
+        // Option 1: Heap extract-max i times
+        // Option 2: Use CountHigherThan with BinarySearch
+        return -1;
+    }
+};
+
 class LRUCache
 {
 private:

@@ -349,6 +349,47 @@ static size_t FindShiftPoint(const vector<int> &input)
     throw runtime_error("Unreachable code");
 }
 
+// comp is a binary function returning a boolean value.
+// If comp(first, second) returns true, then the first
+// input should go before the second input. Default comp
+// is std::less, which forms a non-decreasing sequence.
+template <class Compare = std::less<>>
+static void MergeSort(vector<vector<int>> &input, size_t col, Compare comp = std::less<>())
+{
+    function<void(size_t, size_t, size_t)> merge =
+        [&](size_t head1, size_t head2, size_t tail2) {
+            // merge input[head1..(head2 - 1)] with input[head2..tail2]
+            while (head1 < head2 && head2 <= tail2)
+            {
+                if (comp(input[head2][col], input[head1][col]))
+                {
+                    // input[head1][col] > input[head2][col]
+                    int t = input[head2][col];
+                    for (size_t i = head2; i > head1; i--)
+                    {
+                        input[i][col] = input[i - 1][col];
+                    }
+                    input[head1][col] = t;
+                    head2++;
+                }
+                head1++;
+            }
+        };
+
+    function<void(size_t, size_t)> sort =
+        [&](size_t head, size_t tail) {
+            if (head >= tail)
+                return;
+            // midlle is the medium or higher medium
+            size_t middle = head + ((tail - head + 1) >> 1);
+            sort(head, middle - 1);
+            sort(middle, tail);
+            merge(head, middle, tail);
+        };
+
+    sort(0, input.size() - 1);
+}
+
 // http://leetcode.com/2011/01/ctrla-ctrlc-ctrlv.html
 // Produce the longest string with N keystrokes using four
 // keys: A, Ctrl+A (Select), Ctrl+C (Copy), Ctrl+V (Paste)
@@ -5689,6 +5730,35 @@ static string KthPermutation(int n, int k)
     }
 
     return output;
+}
+
+// Partition input into two ranges input[begin..i] and input[(i+1)..end], such that
+// transform(input[begin..i]) < value <= transform(input[(i+1)..end]).
+// Invariant: given j, divide the input into three ranges input[begin..i],
+// input[(i+1)..(j-1)] and input[j..end] using value,
+// such that transform(input[begin..i]) < value <= transform(input[(i+1)..(j-1)]).
+// Return the index i+1
+// If all elements are less than value, then return index end+1
+// If all elements are greater than or equal to value, then return begin
+template <class T, class C, class Compare = std::less<C>>
+static size_t PartitionByValue(
+    vector<T> &input,
+    const C &value,
+    size_t begin,
+    size_t end,
+    Compare comp = std::less<C>(),
+    function<C(T)> transform = [&](T v) -> C { return v; })
+{
+    size_t i = begin;
+    for (size_t j = begin; j <= end; j++)
+    {
+        if (comp(transform(input[j]), value))
+        {
+            if (i++ != j)
+                swap(input[i - 1], input[j]);
+        }
+    }
+    return i;
 }
 
 // Partition input into two ranges input[low..i] and input[(i+1)..high],
