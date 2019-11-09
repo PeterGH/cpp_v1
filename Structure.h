@@ -2277,6 +2277,8 @@ class SingleLinkList
     // The overloaded operator << is a template
     // Another valid form is: friend ostream& operator<<<>(ostream &, SingleLinkList<T> &);
     friend ostream &operator<<<T>(ostream &, SingleLinkList<T> &);
+    template <class T>
+    friend Log &operator<<(Log &, const SingleLinkList<T> &);
 
 private:
     class Node
@@ -2300,6 +2302,47 @@ public:
             p = _head;
             _head = p->next;
             delete p;
+        }
+    }
+
+    // Return the pointer to the first instance of input data
+    virtual Node *Search(const T &data) const
+    {
+        Node *p = _head;
+        while (nullptr != p && p->data != data)
+        {
+            p = p->next;
+        }
+
+        // p == nullptr || p->data == data
+        return p;
+    }
+
+    virtual bool Contain(const T &data) const { return nullptr != Search(data); }
+
+    void Delete(const T &data)
+    {
+        if (nullptr == _head)
+            return;
+
+        Node *p = _head;
+        if (p->data == data)
+        {
+            _head = p->next;
+            delete p;
+            return;
+        }
+
+        while (nullptr != p->next && p->next->data != data)
+        {
+            p = p->next;
+        }
+
+        if (nullptr != p->next)
+        {
+            Node *t = p->next;
+            p->next = t->next;
+            delete t;
         }
     }
 
@@ -2554,6 +2597,266 @@ ostream &operator<<(ostream &os, SingleLinkList<T> &list)
     list.Print(os);
     return os;
 }
+
+template <class T>
+Log &operator<<(Log &log, const SingleLinkList<T> &list)
+{
+    SingleLinkList<T>::Node *p = list.head;
+    log.WriteInformation("Head->");
+    while (nullptr != p)
+    {
+        // This is not accurate as data may not be int type.
+        log.WriteInformation("%d->", p->data);
+        p = p->next;
+    }
+
+    log.WriteInformation("nullptr");
+    return log;
+}
+
+template <class T>
+class SortedSingleLinkList : public SingleLinkList<T>
+{
+public:
+    void Insert(const T &data)
+    {
+        SingleLinkList<T>::Node *node = new SingleLinkList<T>::Node(data);
+        if (nullptr == head)
+        {
+            head = node;
+            return;
+        }
+
+        if (head->data > data)
+        {
+            node->next = head;
+            head = node;
+            return;
+        }
+
+        SingleLinkList<T>::Node *p = head;
+        while (nullptr != p->next && p->next->data <= data)
+        {
+            p = p->next;
+        }
+
+        node->next = p->next;
+        p->next = node;
+    }
+};
+
+template <class T>
+class CircularSingleLinkList : public SingleLinkList<T>
+{
+    template <class T>
+    friend ostream &operator<<(ostream &, const CircularSingleLinkList<T> &);
+    template <class T>
+    friend Log &operator<<(Log &, const CircularSingleLinkList<T> &);
+
+protected:
+    Node *Search(const T &data) const;
+
+public:
+    ~CircularSingleLinkList(void)
+    {
+        if (nullptr == head)
+            return;
+        Node *p = head;
+        head = p->next;
+        p->next = nullptr;
+        SingleLinkList<T>::~SingleLinkList();
+    }
+
+    template <class T>
+    typename SingleLinkList<T>::Node *CircularSingleLinkList<T>::Search(const T &data) const
+    {
+        if (nullptr == head)
+            return nullptr;
+
+        Node *p = head;
+        while (p->data != data && p->next != head)
+        {
+            p = p->next;
+        }
+
+        if (p->data == data)
+            return p;
+        else
+            return nullptr;
+    }
+
+    bool Contain(const T &data) const { return nullptr != Search(data); }
+    void Delete(const T &data)
+    {
+        if (nullptr == head)
+            return;
+
+        Node *p = head;
+        if (p->next == head)
+        {
+            if (p->data == data)
+            {
+                delete p;
+                head = nullptr;
+            }
+
+            return;
+        }
+
+        while (p->next != head && p->next->data != data)
+        {
+            p = p->next;
+        }
+
+        if (p->next->data == data)
+        {
+            Node *t = p->next;
+            p->next = t->next;
+            if (t == head)
+                head = t->next;
+            delete t;
+        }
+    }
+
+    // Insert data between head and head->next, then set head to the new node
+    virtual void Insert(const T &data)
+    {
+        Node *node = new Node(data);
+        if (nullptr == head)
+        {
+            head = node;
+            head->next = head;
+        }
+        else
+        {
+            node->next = head->next;
+            head->next = node;
+            head = node;
+        }
+    }
+
+    const T &operator[](unsigned int index) const
+    {
+        if (nullptr == head)
+            throw invalid_argument("List is empty");
+
+        unsigned int i = 0;
+        Node *p = head;
+        while (i < index)
+        {
+            p = p->next;
+            i++;
+        }
+
+        return p->data;
+    }
+};
+
+template <class T>
+ostream &operator<<(ostream &os, const CircularSingleLinkList<T> &list)
+{
+    SingleLinkList<T>::Node *p = list.head;
+    cout << "Head->";
+    if (list.head == nullptr)
+    {
+        cout << "nullptr" << endl;
+        return;
+    }
+
+    do
+    {
+        cout << p->data << "->";
+        p = p->next;
+    } while (p != list.head);
+
+    cout << "Head" << endl;
+    return os;
+}
+
+template <class T>
+Log &operator<<(Log &log, const CircularSingleLinkList<T> &list)
+{
+    SingleLinkList<T>::Node *p = list.head;
+    log.WriteInformation("Head->");
+    if (list.head == nullptr)
+    {
+        log.WriteInformation("nullptr\n");
+        return log;
+    }
+
+    do
+    {
+        log.WriteInformation("%d->", p->data);
+        p = p->next;
+    } while (p != list.head);
+
+    log.WriteInformation("Head\n");
+    return log;
+}
+
+template <class T>
+class SortedCircularSingleLinkList : public CircularSingleLinkList<T>
+{
+public:
+    // Insert data and update head to the smallest one
+    void Insert(const T &data)
+    {
+        SingleLinkList<T>::Node *node = new SingleLinkList<T>::Node(data);
+
+        if (nullptr == head)
+        {
+            head = node;
+            node->next = head;
+            return;
+        }
+
+        Node *p = head;
+        Node *q = head->next;
+
+        do
+        {
+            if (p->data <= node->data && node->data < q->data)
+            {
+                // Case: p->data < q->data, and node is in between
+                p->next = node;
+                node->next = q;
+                return;
+            }
+
+            if (p->data > q->data && (p->data <= node->data || node->data <= q->data))
+            {
+                // Case: p->data > q->data, and node is in between
+                p->next = node;
+                node->next = q;
+
+                if (node->data <= q->data)
+                {
+                    // node is the smallest one
+                    head = node;
+                }
+
+                return;
+            }
+
+            p = q;
+            q = p->next;
+        } while (p != head);
+
+        // Now we are back at head, and know all nodes are equal,
+        // because neither p->data < q->data or p->data > q->data has happened.
+        // Case: p->data == q->data
+        p->next = node;
+        node->next = q;
+        if (node->data < q->data)
+        {
+            head = node;
+        }
+        else if (node->data > q->data)
+        {
+            head = q;
+        }
+    }
+};
 
 template <class T>
 class BinarySearchTree
@@ -5083,6 +5386,86 @@ ostream &operator<<(ostream &os, SingleNode<T> *list)
     printChar(i + 1, ' ');
     os << "|";
     printChar(j - i - 2, '_');
+    os << "|" << endl;
+    return os;
+}
+
+template <class T>
+class DoubleNode : public Node<T>
+{
+    template <class T>
+    friend ostream &operator<<(ostream &, DoubleNode<T> *);
+
+public:
+    DoubleNode(const T &v) : Node<T>(v, 2) {}
+    virtual ~DoubleNode(void) {}
+
+    // Get the reference of previous node pointer
+    DoubleNode *&Prev(void) { return (DoubleNode *&)this->Neighbor(0); }
+    // Set the previous node pointer
+    void Prev(DoubleNode *prev) { this->Neighbor(0) = prev; }
+
+    // Get the reference of next node pointer
+    DoubleNode *&Next(void) { return (DoubleNode *&)this->Neighbor(1); }
+    // Set the next node pointer
+    void Next(DoubleNode *next) { this->Neighbor(1) = next; }
+
+    // Delete a double link list. The list may be a cycle or not.
+    static void DeleteList(DoubleNode *node)
+    {
+        if (node == nullptr)
+            return;
+        DoubleNode *p;
+        while (node->Next() != nullptr && node->Next() != node)
+        {
+            p = node->Next();
+            node->Next() = p->Next();
+            if (p->Next() != nullptr)
+                p->Next()->Prev() = node;
+            delete p;
+            p = nullptr;
+        }
+        delete node;
+        node = nullptr;
+    }
+};
+
+template <class T>
+ostream &operator<<(ostream &os, DoubleNode<T> *list)
+{
+    os << "head";
+    if (list == nullptr)
+    {
+        os << "->nullptr" << endl;
+        return os;
+    }
+
+    DoubleNode<T> *p = list;
+    string s;
+    int i = 4;
+    do
+    {
+        s = to_string(p->Value());
+        os << "->" << s;
+        i = i + 2 + s.length();
+        p = p->Next();
+    } while (p != nullptr && p != list);
+
+    if (p == nullptr)
+    {
+        os << "->nullptr" << endl;
+        return os;
+    }
+
+    auto printChar = [&](int n, char c) {
+        string chars(n, c);
+        os << chars;
+    };
+
+    os << "-|" << endl;
+    printChar(5, ' ');
+    os << "|";
+    printChar(i - 5, '_');
     os << "|" << endl;
     return os;
 }
