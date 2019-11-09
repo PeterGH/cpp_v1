@@ -6021,18 +6021,196 @@ public:
     }
 
     // Insert a new value using BFS
-    static BinaryNode *Insert(BinaryNode *node, T value);
+    static BinaryNode *Insert(BinaryNode *node, T value)
+    {
+        if (node == nullptr)
+            return new BinaryNode<T>(value);
+        queue<BinaryNode<T> *> q;
+        q.push(node);
+        BinaryNode<T> *n;
+        while (!q.empty())
+        {
+            n = q.front();
+            q.pop();
+            if (n->Left() == nullptr)
+            {
+                n->Left() = new BinaryNode<T>(value);
+                break;
+            }
+            q.push(n->Left());
+            if (n->Right() == nullptr)
+            {
+                n->Right() = new BinaryNode<T>(value);
+                break;
+            }
+            q.push(n->Right());
+        }
+        return node;
+    }
 
     // Create a balanced tree from a single link list
-    static BinaryNode *ToBalancedTree(SingleNode<T> *list);
-    static BinaryNode *ToBalancedTree2(SingleNode<T> *list);
+    static BinaryNode *ToBalancedTree(SingleNode<T> *list)
+    {
+        if (list == nullptr)
+            return nullptr;
+
+        function<BinaryNode<T> *(SingleNode<T> *)>
+            convert = [&](SingleNode<T> *head) -> BinaryNode<T> * {
+            if (head == nullptr)
+                return nullptr;
+
+            if (head->Next() == nullptr)
+            {
+                BinaryNode<T> *tree = new BinaryNode<T>(head->Value());
+                delete head;
+                return tree;
+            }
+
+            SingleNode<T> *first = head;
+            SingleNode<T> *second = head->Next();
+            while (second->Next() != nullptr && second->Next()->Next() != nullptr)
+            {
+                first = first->Next();
+                second = second->Next();
+                second = second->Next();
+            }
+
+            SingleNode<T> *node = first->Next();
+            first->Next() = nullptr;
+            first = node->Next();
+            node->Next() = nullptr;
+
+            BinaryNode<T> *tree = new BinaryNode<T>(node->Value());
+
+            parallel_invoke(
+                [&convert, &tree, head] { tree->Left() = convert(head); },
+                [&convert, &tree, first] { tree->Right() = convert(first); });
+
+            delete node;
+            return tree;
+        };
+
+        return convert(list);
+    }
+
+    static BinaryNode *ToBalancedTree2(SingleNode<T> *list)
+    {
+        if (list == nullptr)
+            return nullptr;
+
+        function<BinaryNode<T> *(SingleNode<T> *&, int, int)>
+            convert = [&](SingleNode<T> *&head, int begin, int end) -> BinaryNode<T> * {
+            if (head == nullptr || begin > end)
+                return nullptr;
+
+            // Choose the median one if there are odd numbers in [begin, end]
+            // Choose the upper median if there are even numbers in [begin, end]
+            int middle = begin + ((1 + end - begin) >> 1);
+
+            BinaryNode<T> *left = convert(head, begin, middle - 1);
+            BinaryNode<T> *node = new BinaryNode<T>(head->Value());
+            node->Left() = left;
+
+            SingleNode<T> *p = head;
+            head = head->Next();
+            delete p;
+
+            node->Right() = convert(head, middle + 1, end);
+
+            return node;
+        };
+
+        SingleNode<T> *p = list;
+        int i = 0;
+        while (p != nullptr)
+        {
+            p = p->Next();
+            i++;
+        }
+
+        return convert(list, 0, i - 1);
+    }
 
     // Return 0 if two trees are equal
-    static int Compare(BinaryNode *first, BinaryNode *second);
-    static int Compare2(BinaryNode *first, BinaryNode *second);
+    static int Compare(BinaryNode *first, BinaryNode *second)
+    {
+        if (first == nullptr && second == nullptr)
+            return 0;
+        if (first == nullptr && second != nullptr)
+            return -1;
+        if (first != nullptr && second == nullptr)
+            return 1;
+        if (first->Value() < second->Value())
+            return -1;
+        if (first->Value() > second->Value())
+            return 1;
+        int v = Compare(first->Left(), second->Left());
+        if (v == 0)
+            v = Compare(first->Right(), second->Right());
+        return v;
+    }
+
+    static int Compare2(BinaryNode *first, BinaryNode *second)
+    {
+        if (first == nullptr && second == nullptr)
+            return 0;
+        if (first == nullptr && second != nullptr)
+            return -1;
+        if (first != nullptr && second == nullptr)
+            return 1;
+        if (first->Value() < second->Value())
+            return -1;
+        if (first->Value() > second->Value())
+            return 1;
+        deque<BinaryNode *> q;
+        q.push_front(first);
+        q.push_back(second);
+        while (!q.empty())
+        {
+            first = q.front();
+            q.pop_front();
+            second = q.back();
+            q.pop_back();
+            if (first->Right() == nullptr && second->Right() != nullptr)
+                return -1;
+            if (first->Right() != nullptr && second->Right() == nullptr)
+                return 1;
+            if (first->Right() != nullptr && second->Right() != nullptr)
+            {
+                if (first->Right()->Value() < second->Right()->Value())
+                    return -1;
+                if (first->Right()->Value() > second->Right()->Value())
+                    return 1;
+                q.push_front(first->Right());
+                q.push_back(second->Right());
+            }
+            if (first->Left() == nullptr && second->Left() != nullptr)
+                return -1;
+            if (first->Left() != nullptr && second->Left() == nullptr)
+                return 1;
+            if (first->Left() != nullptr && second->Left() != nullptr)
+            {
+                if (first->Left()->Value() < second->Left()->Value())
+                    return -1;
+                if (first->Left()->Value() > second->Left()->Value())
+                    return 1;
+                q.push_front(first->Left());
+                q.push_back(second->Left());
+            }
+        }
+        return 0;
+    }
 
     // Recursive
-    static int Height(BinaryNode *node);
+    static int Height(BinaryNode *node)
+    {
+        if (node == nullptr)
+            return 0;
+        int left = Height(node->Left());
+        int right = Height(node->Right());
+        return 1 + std::max<int>(left, right);
+    }
+
     virtual int Height(void) { return Height(this); }
 
     // Get the reference of left child pointer
@@ -6045,56 +6223,458 @@ public:
     // Set the right child pointer
     virtual void Right(BinaryNode *right) { this->Neighbor(1) = right; }
 
-    static int Size(BinaryNode *node);
+    static int Size(BinaryNode *node)
+    {
+        if (node == nullptr)
+            return 0;
+        int left = Size(node->Left());
+        int right = Size(node->Right());
+        return 1 + left + right;
+    }
+
     virtual int Size(void) { return Size(this); }
 
-    static stringstream &ToString(BinaryNode *node, stringstream &output);
-    static stringstream &ToString2(BinaryNode *node, stringstream &output);
+    static stringstream &ToString(BinaryNode *node, stringstream &output)
+    {
+        function<void(BinaryNode *, int, vector<int> &)>
+            toString = [&](
+                           BinaryNode *n, // Current node to print
+                           int x,         // Current node position
+                           vector<int> &y // Positions of unprinted right branch starting points
+                       ) {
+                if (n == nullptr)
+                    return;
 
-    void Print(void);
-    void Print2(void);
+                static string link = "____";
+                string c = String::ToString(n->Value());
+                output << " " << c;
+                x += (1 + c.length());
 
-    static void Serialize(BinaryNode *node, ostream &output);
-    static BinaryNode *Deserialize(istream &input);
+                if (n->Right() != nullptr)
+                {
+                    // Record current x coordinate,
+                    // so it can be used to draw '|'
+                    y.push_back(x);
+                }
+
+                if (n->Left() != nullptr)
+                {
+                    output << link;
+                    toString(n->Left(), x + link.length(), y);
+                }
+
+                if (n->Right() != nullptr)
+                {
+                    output << endl;
+
+                    for (size_t i = 0; i < y.size(); i++)
+                    {
+                        int len = i == 0 ? y[i] : y[i] - y[i - 1];
+                        string blank(len - 1, ' ');
+                        output << blank << '|';
+                    }
+
+                    output << link;
+
+                    // The right child is ready to print
+                    // Remove its coordinate because it is not needed any more
+                    y.pop_back();
+
+                    toString(n->Right(), x + link.length(), y);
+                }
+            };
+
+        vector<int> y;
+        toString(node, 0, y);
+        output << endl;
+        return output;
+    }
+
+    static stringstream &ToString2(BinaryNode *node, stringstream &output)
+    {
+        function<void(stringstream *, int, char)>
+            printChar = [&](stringstream *s, int n, char c) {
+                if (n > 0)
+                {
+                    string chars(n, c);
+                    *s << chars;
+                }
+            };
+
+        function<void(BinaryNode *, unsigned int, int &, int &, vector<stringstream *> &)>
+            toString = [&](
+                           BinaryNode *n,             // current node to print
+                           unsigned int y,            // current node level
+                           int &x,                    // x-axis position of root of last printed sub tree
+                           int &r,                    // x-axis position of right-most boundary of last printed sub tree
+                           vector<stringstream *> &ss // output streams, one per level
+                       ) {
+                if (n == nullptr)
+                    return;
+
+                if (ss.size() <= y)
+                {
+                    ss.push_back(new stringstream());
+                }
+
+                // print left tree, update x and r accordingly
+                toString(n->Left(), y + 1, x, r, ss);
+
+                stringstream *s = ss[y];
+
+                int l = (int)(s->str().length());
+                if (l < x)
+                {
+                    printChar(s, x - l, ' ');
+                }
+
+                if (n->Left() != nullptr && r > x)
+                {
+                    *s << '/';
+                    printChar(s, r - x - 1, '-');
+                }
+
+                string nc = String::ToString(n->Value());
+                *s << nc;
+
+                x = (r + (nc.length() >> 1));
+                r = r + nc.length();
+
+                int rx = r;
+                int rr = r;
+                toString(n->Right(), y + 1, rx, rr, ss);
+
+                if (n->Right() != nullptr && rx >= r)
+                {
+                    printChar(s, rx - r - 1, '-');
+                    *s << '\\';
+                }
+
+                // Update the right most boundary
+                r = rr;
+            };
+
+        vector<stringstream *> streams;
+        int x = 0;
+        int r = 0;
+        toString(node, 0, x, r, streams);
+
+        for_each(streams.begin(), streams.end(), [&](stringstream *s) {
+            output << s->str() << endl;
+            delete s;
+        });
+
+        return output;
+    }
+
+    void Print(void)
+    {
+        stringstream ss;
+        ToString(this, ss);
+        cout << ss.str();
+    }
+
+    void Print2(void)
+    {
+        stringstream ss;
+        ToString2(this, ss);
+        cout << ss.str();
+    }
+
+    static void Serialize(BinaryNode *node, ostream &output)
+    {
+        function<void(BinaryNode<T> *)> serialize = [&](BinaryNode<T> *n) {
+            if (n == nullptr)
+            {
+                output << '#';
+            }
+            else
+            {
+                output << n->Value() << ' ';
+                serialize(n->Left());
+                serialize(n->Right());
+            }
+        };
+
+        serialize(node);
+    }
+
+    static BinaryNode *Deserialize(istream &input)
+    {
+        function<void(BinaryNode<T> *&)> deserialize = [&](BinaryNode<T> *&n) {
+            char c = input.peek();
+            if (c == ' ')
+            {
+                // Two cases: ' '#, or ' 'number
+                // Skip ' ' using seekg. Using input >> c does not work
+                // because the >> operator actually skips ' ' and reads
+                // next charactor, which is either '#' or a digit.
+                input.seekg(1, ios_base::cur);
+                c = input.peek();
+            }
+
+            if (c == '#')
+            {
+                // Eat '#'
+                input >> c;
+                return;
+            }
+
+            T value;
+            // The istream >> operator reads a value and leaves
+            // the next ' ' character in the stream.
+            input >> value;
+            n = new BinaryNode<T>(value);
+            deserialize(n->Left());
+            deserialize(n->Right());
+        };
+
+        BinaryNode<T> *node;
+        deserialize(node);
+        return node;
+    }
 
     // Recursive
-    static void PreOrderWalk(BinaryNode *node, function<void(T)> f);
+    static void PreOrderWalk(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        f(node->Value());
+        PreOrderWalk(node->Left(), f);
+        PreOrderWalk(node->Right(), f);
+    }
+
     void PreOrderWalk(function<void(T)> f) { PreOrderWalk(this, f); }
 
     // Non-recursive with stack
-    static void PreOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    static void PreOrderWalkWithStack(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        while (!path.empty() || node != nullptr)
+        {
+            if (node != nullptr)
+            {
+                f(node->Value());
+                path.push(node);
+                node = node->Left();
+            }
+            else
+            {
+                node = path.top()->Right();
+                path.pop();
+            }
+        }
+    }
+
     void PreOrderWalkWithStack(function<void(T)> f) { PreOrderWalkWithStack(this, f); }
 
     // Non-recursive with stack
-    static void PreOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    static void PreOrderWalkWithStack2(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        path.push(node);
+        while (!path.empty())
+        {
+            BinaryNode *top = path.top();
+            path.pop();
+            f(top->Value());
+            if (top->Right() != nullptr)
+                path.push(top->Right());
+            if (top->Left() != nullptr)
+                path.push(top->Left());
+        }
+    }
+
     void PreOrderWalkWithStack2(function<void(T)> f) { PreOrderWalkWithStack2(this, f); }
 
     // Non-recursive with stack
-    static void PreOrderWalkWithStack3(BinaryNode *node, function<void(T)> f);
+    static void PreOrderWalkWithStack3(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        path.push(node);
+        BinaryNode *prev = node;
+        while (!path.empty())
+        {
+            node = path.top();
+            if (prev == node->Right())
+            {
+                path.pop();
+            }
+            else if (node->Left() != nullptr && node->Left() != prev)
+            {
+                f(node->Value());
+                path.push(node->Left());
+            }
+            else
+            {
+                if (node->Left() != prev)
+                    f(node->Value());
+                if (node->Right() == nullptr)
+                    path.pop();
+                else
+                    path.push(node->Right());
+            }
+            prev = node;
+        }
+    }
+
     void PreOrderWalkWithStack3(function<void(T)> f) { PreOrderWalkWithStack3(this, f); }
 
     // Recursive
-    static void InOrderWalk(BinaryNode *node, function<void(T)> f);
+    static void InOrderWalk(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        InOrderWalk(node->Left(), f);
+        f(node->Value());
+        InOrderWalk(node->Right(), f);
+    }
+
     void InOrderWalk(function<void(T)> f) { InOrderWalk(this, f); }
 
     // Non-recursive with stack
-    static void InOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    static void InOrderWalkWithStack(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        while (!path.empty() || node != nullptr)
+        {
+            if (node != nullptr)
+            {
+                path.push(node);
+                node = node->Left();
+            }
+            else
+            {
+                node = path.top();
+                path.pop();
+                f(node->Value());
+                node = node->Right();
+            }
+        }
+    }
+
     void InOrderWalkWithStack(function<void(T)> f) { InOrderWalkWithStack(this, f); }
 
     // Non-recursive with stack
-    static void InOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    static void InOrderWalkWithStack2(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        path.push(node);
+        BinaryNode *prev = nullptr;
+        while (!path.empty())
+        {
+            node = path.top();
+            if (prev == node->Right())
+            {
+                path.pop();
+            }
+            else if (node->Left() != nullptr && node->Left() != prev)
+            {
+                path.push(node->Left());
+            }
+            else
+            {
+                f(node->Value());
+                if (node->Right() == nullptr)
+                    path.pop();
+                else
+                    path.push(node->Right());
+            }
+            prev = node;
+        }
+    }
+
     void InOrderWalkWithStack2(function<void(T)> f) { InOrderWalkWithStack2(this, f); }
 
     // Recursive
-    static void PostOrderWalk(BinaryNode *node, function<void(T)> f);
+    static void PostOrderWalk(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        PostOrderWalk(node->Left(), f);
+        PostOrderWalk(node->Right(), f);
+        f(node->Value());
+    }
+
     void PostOrderWalk(function<void(T)> f) { PostOrderWalk(this, f); }
 
     // Non-recursive with stack
-    static void PostOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    static void PostOrderWalkWithStack(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        BinaryNode *prev = nullptr;
+        while (!path.empty() || node != nullptr)
+        {
+            if (node != nullptr)
+            {
+                path.push(node);
+                node = node->Left();
+            }
+            else
+            {
+                BinaryNode *top = path.top();
+                if (top->Right() != nullptr && top->Right() != prev)
+                {
+                    node = top->Right();
+                }
+                else
+                {
+                    path.pop();
+                    f(top->Value());
+                    prev = top;
+                }
+            }
+        }
+    }
+
     void PostOrderWalkWithStack(function<void(T)> f) { PostOrderWalkWithStack(this, f); }
 
     // Non-recursive with stack
-    static void PostOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    static void PostOrderWalkWithStack2(BinaryNode *node, function<void(T)> f)
+    {
+        if (node == nullptr || f == nullptr)
+            return;
+        stack<BinaryNode *> path;
+        path.push(node);
+        BinaryNode *prev = node;
+        while (!path.empty())
+        {
+            node = path.top();
+            if (prev == node->Right())
+            {
+                f(node->Value());
+                path.pop();
+            }
+            else if (node->Left() != nullptr && node->Left() != prev)
+            {
+                path.push(node->Left());
+            }
+            else
+            {
+                if (node->Right() != nullptr)
+                    path.push(node->Right());
+                else
+                {
+                    f(node->Value());
+                    path.pop();
+                }
+            }
+            prev = node;
+        }
+    }
+
     void PostOrderWalkWithStack2(function<void(T)> f) { PostOrderWalkWithStack2(this, f); }
 
     static BinaryNode *BuildTreePreOrderInOrder(T *preOrder, int preLength, T *inOrder, int inLength);
