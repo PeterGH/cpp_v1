@@ -5470,6 +5470,808 @@ ostream &operator<<(ostream &os, DoubleNode<T> *list)
     return os;
 }
 
+template <class T>
+class BinaryNode : public Node<T>
+{
+public:
+    BinaryNode(const T &v) : Node<T>(v, 2) {}
+    virtual ~BinaryNode(void) {}
+
+    // Delete a rooted binary tree
+    static void DeleteTree(BinaryNode *node)
+    {
+        if (node == nullptr)
+            return;
+        DeleteTree(node->Left());
+        DeleteTree(node->Right());
+        delete node;
+        node = nullptr;
+    }
+
+    virtual void DeleteTree(void) { DeleteTree(this); }
+
+    // Create a random binary tree
+    // Return nullptr if input is empty
+    static BinaryNode *RandomTreeFromPreOrder(vector<T> &values)
+    {
+        if (values.empty())
+            return nullptr;
+
+        function<BinaryNode<T> *(vector<T> &, int, int)>
+            create = [&](vector<T> &v, int i, int j) -> BinaryNode<T> * {
+            if (i > j)
+                return nullptr;
+            BinaryNode<T> *n = new BinaryNode<T>(v[i]);
+            int k = i + 1 + (rand() % (j - i + 1));
+            n->Left() = create(v, i + 1, k - 1);
+            n->Right() = create(v, k, j);
+            return n;
+        };
+
+        BinaryNode<T> *node = create(values, 0, values.size() - 1);
+        return node;
+    }
+
+    static BinaryNode *RandomTreeFromInOrder(vector<T> &values)
+    {
+        if (values.empty())
+            return nullptr;
+
+        function<BinaryNode<T> *(vector<T> &, int, int)>
+            create = [&](vector<T> &v, int i, int j) -> BinaryNode<T> * {
+            if (i > j)
+                return nullptr;
+            int k = i + (rand() % (j - i + 1));
+            BinaryNode<T> *n = new BinaryNode<T>(v[k]);
+            n->Left() = create(v, i, k - 1);
+            n->Right() = create(v, k + 1, j);
+            return n;
+        };
+
+        BinaryNode<T> *node = create(values, 0, values.size() - 1);
+        return node;
+    }
+
+    static BinaryNode *RandomTreeFromPostOrder(vector<T> &values)
+    {
+        if (values.size() == 0)
+            return nullptr;
+
+        function<BinaryNode<T> *(vector<T> &, int, int)>
+            create = [&](vector<T> &v, int i, int j) -> BinaryNode<T> * {
+            if (i > j)
+                return nullptr;
+            BinaryNode<T> *n = new BinaryNode<T>(v[j]);
+            int k = i - 1 + (rand() % (j - i + 1));
+            n->Left() = create(v, i, k);
+            n->Right() = create(v, k + 1, j - 1);
+            return n;
+        };
+
+        BinaryNode<T> *node = create(values, 0, values.size() - 1);
+        return node;
+    }
+
+    static BinaryNode *RandomTree(vector<T> &values)
+    {
+        if (values.empty())
+            return nullptr;
+
+        function<BinaryNode<T> *(vector<T> &, int, int)>
+            create = [&](vector<T> &v, int i, int j) -> BinaryNode<T> * {
+            if (i > j)
+                return nullptr;
+            BinaryNode<T> *n = nullptr;
+            int k = rand() % 3;
+            switch (k)
+            {
+            case 0:
+                n = new BinaryNode<T>(v[i]);
+                k = i + 1 + (rand() % (j - i + 1));
+                n->Left() = create(v, i + 1, k - 1);
+                n->Right() = create(v, k, j);
+                break;
+            case 1:
+                k = i + (rand() % (j - i + 1));
+                n = new BinaryNode<T>(v[k]);
+                n->Left() = create(v, i, k - 1);
+                n->Right() = create(v, k + 1, j);
+                break;
+            case 2:
+                n = new BinaryNode<T>(v[j]);
+                k = i - 1 + (rand() % (j - i + 1));
+                n->Left() = create(v, i, k);
+                n->Right() = create(v, k + 1, j - 1);
+                break;
+            }
+            return n;
+        };
+
+        BinaryNode<T> *node = create(values, 0, values.size() - 1);
+        return node;
+    }
+
+    // May return nullptr
+    static BinaryNode *RandomTree(size_t maxSize)
+    {
+        vector<T> values;
+        int size = rand() % (maxSize + 1);
+        for (int i = 0; i < size; i++)
+        {
+            values.push_back(rand());
+        }
+        BinaryNode<T> *node = RandomTree(values);
+        return node;
+    }
+
+    // Create all unique binary trees that can be built with a sequence
+    static vector<BinaryNode *> UniqueTreesFromPreOrder(vector<T> &values)
+    {
+        function<vector<BinaryNode *>(int, int)>
+            create = [&](int i, int j) -> vector<BinaryNode *> {
+            vector<BinaryNode *> trees;
+
+            if (i > j)
+                return trees;
+
+            if (i == j)
+            {
+                trees.push_back(new BinaryNode(values[i]));
+                return trees;
+            }
+
+            vector<BinaryNode *> firstTrees = create(i + 1, j);
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                BinaryNode *n = new BinaryNode(values[i]);
+                n->Left() = Clone1(f);
+                trees.push_back(n);
+            });
+
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                BinaryNode *n = new BinaryNode(values[i]);
+                n->Right() = Clone1(f);
+                trees.push_back(n);
+            });
+
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                DeleteTree(f);
+            });
+
+            for (int k = i + 2; k <= j; k++)
+            {
+                vector<BinaryNode *> leftTrees = create(i + 1, k - 1);
+                vector<BinaryNode *> rightTrees = create(k, j);
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                        BinaryNode *n = new BinaryNode(values[i]);
+                        n->Left() = Clone1(l);
+                        n->Right() = Clone1(r);
+                        trees.push_back(n);
+                    });
+                });
+
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    DeleteTree(l);
+                });
+                for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                    DeleteTree(r);
+                });
+            }
+
+            return trees;
+        };
+
+        return create(0, values.size() - 1);
+    }
+
+    static vector<BinaryNode *> UniqueTreesFromInOrder(vector<T> &values)
+    {
+        function<vector<BinaryNode *>(int, int)>
+            create = [&](int i, int j) -> vector<BinaryNode *> {
+            vector<BinaryNode *> trees;
+
+            if (i > j)
+                return trees;
+
+            if (i == j)
+            {
+                trees.push_back(new BinaryNode(values[i]));
+                return trees;
+            }
+
+            if (i + 1 == j)
+            {
+                BinaryNode *n = new BinaryNode(values[j]);
+                n->Left() = new BinaryNode(values[i]);
+                trees.push_back(n);
+                n = new BinaryNode(values[i]);
+                n->Right() = new BinaryNode(values[j]);
+                trees.push_back(n);
+                return trees;
+            }
+
+            vector<BinaryNode *> firstTrees = create(i + 1, j);
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                BinaryNode *n = new BinaryNode(values[i]);
+                n->Right() = f;
+                trees.push_back(n);
+            });
+
+            vector<BinaryNode *> lastTrees = create(i, j - 1);
+            for_each(lastTrees.begin(), lastTrees.end(), [&](BinaryNode *l) {
+                BinaryNode *n = new BinaryNode(values[j]);
+                n->Left() = l;
+                trees.push_back(n);
+            });
+
+            for (int k = i + 1; k < j; k++)
+            {
+                vector<BinaryNode *> leftTrees = create(i, k - 1);
+                vector<BinaryNode *> rightTrees = create(k + 1, j);
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                        BinaryNode *n = new BinaryNode(values[k]);
+                        n->Left() = Clone1(l);
+                        n->Right() = Clone1(r);
+                        trees.push_back(n);
+                    });
+                });
+
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    DeleteTree(l);
+                });
+                for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                    DeleteTree(r);
+                });
+            }
+
+            return trees;
+        };
+
+        return create(0, values.size() - 1);
+    }
+
+    static vector<BinaryNode *> UniqueTreesFromPostOrder(vector<T> &values)
+    {
+        function<vector<BinaryNode *>(int, int)>
+            create = [&](int i, int j) -> vector<BinaryNode *> {
+            vector<BinaryNode *> trees;
+
+            if (i > j)
+                return trees;
+
+            if (i == j)
+            {
+                trees.push_back(new BinaryNode(values[i]));
+                return trees;
+            }
+
+            vector<BinaryNode *> firstTrees = create(i, j - 1);
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                BinaryNode *n = new BinaryNode(values[j]);
+                n->Left() = Clone1(f);
+                trees.push_back(n);
+            });
+
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                BinaryNode *n = new BinaryNode(values[j]);
+                n->Right() = Clone1(f);
+                trees.push_back(n);
+            });
+
+            for_each(firstTrees.begin(), firstTrees.end(), [&](BinaryNode *f) {
+                DeleteTree(f);
+            });
+
+            for (int k = i; k < j - 1; k++)
+            {
+                vector<BinaryNode *> leftTrees = create(i, k);
+                vector<BinaryNode *> rightTrees = create(k + 1, j - 1);
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                        BinaryNode *n = new BinaryNode(values[j]);
+                        n->Left() = Clone1(l);
+                        n->Right() = Clone1(r);
+                        trees.push_back(n);
+                    });
+                });
+
+                for_each(leftTrees.begin(), leftTrees.end(), [&](BinaryNode *l) {
+                    DeleteTree(l);
+                });
+                for_each(rightTrees.begin(), rightTrees.end(), [&](BinaryNode *r) {
+                    DeleteTree(r);
+                });
+            }
+
+            return trees;
+        };
+
+        return create(0, values.size() - 1);
+    }
+
+    // Given a pre-order sequence of n numbers (e.g., 1, 2, 3, ..., n)
+    // count unique binary trees that can be built with the n numbers
+    // Let C[i,j] be the count of unique binary trees using numbers i to j
+    // Then chose a k between i+1 and j and solve sub problems
+    // C[i,j] = 2 * C[i+1, j]
+    //        + C[i+1, k-1] * C[k, j]
+    static unsigned long long CountUniqueTreesFromPreOrderOfSize(int n)
+    {
+        if (n <= 0)
+            return 0;
+
+        UpperTriangularMatrix<unsigned long long> count(n, n);
+
+        for (int i = 0; i < n; i++)
+        {
+            count(i, i) = 1;
+        }
+
+        for (int l = 1; l < n; l++)
+        {
+            for (int i = 0; i < n - l; i++)
+            {
+                int j = i + l;
+                count(i, j) = count(i + 1, j) << 1;
+                for (int k = i + 2; k <= j; k++)
+                {
+                    count(i, j) += count(i + 1, k - 1) * count(k, j);
+                }
+            }
+        }
+
+        return count(0, n - 1);
+    }
+
+    // Given an in-order sequence of n numbers (e.g., 1, 2, 3, ..., n)
+    // count unique binary trees that can be built with the n numbers
+    // Let C[i,j] be the count of unique binary trees using numbers i to j
+    // Then chose a k between i and j and solve sub problems
+    // C[i,j] = C[i+1, j]
+    //        + C[i, j-1]
+    //        + C[i, k-1] * C[k+1, j]
+    static unsigned long long CountUniqueTreesFromInOrderOfSize(int n)
+    {
+        if (n <= 0)
+            return 0;
+
+        UpperTriangularMatrix<unsigned long long> count(n, n);
+
+        for (int i = 0; i < n; i++)
+        {
+            count(i, i) = 1;
+        }
+
+        for (int l = 1; l < n; l++)
+        {
+            for (int i = 0; i < n - l; i++)
+            {
+                int j = i + l;
+                count(i, j) = count(i + 1, j) + count(i, j - 1);
+                for (int k = i + 1; k < j; k++)
+                {
+                    count(i, j) += count(i, k - 1) * count(k + 1, j);
+                }
+            }
+        }
+
+        return count(0, n - 1);
+    }
+
+    // Given a post-order sequence of n numbers (e.g., 1, 2, 3, ..., n)
+    // count unique binary trees that can be built with the n numbers
+    // Let C[i,j] be the count of unique binary trees using numbers i to j
+    // Then chose a k between i+1 and j and solve sub problems
+    // C[i,j] = 2 * C[i, j-1]
+    //        + C[i, k] * C[k+1, j-1]
+    static unsigned long long CountUniqueTreesFromPostOrderOfSize(int n)
+    {
+        if (n <= 0)
+            return 0;
+
+        UpperTriangularMatrix<unsigned long long> count(n, n);
+
+        for (int i = 0; i < n; i++)
+        {
+            count(i, i) = 1;
+        }
+
+        for (int l = 1; l < n; l++)
+        {
+            for (int i = 0; i < n - l; i++)
+            {
+                int j = i + l;
+                count(i, j) = count(i, j - 1) << 1;
+                for (int k = i; k < j - 1; k++)
+                {
+                    count(i, j) += count(i, k) * count(k + 1, j - 1);
+                }
+            }
+        }
+
+        return count(0, n - 1);
+    }
+
+    // Create a complete binary tree
+    static BinaryNode *ToCompleteTree(vector<T> &values)
+    {
+        if (values.size() == 0)
+            return nullptr;
+        BinaryNode<T> *node = new BinaryNode<T>(values[0]);
+        queue<BinaryNode<T> *> q;
+        q.push(node);
+        size_t i = 1;
+        BinaryNode<T> *n;
+        while (!q.empty() && i < values.size())
+        {
+            n = q.front();
+            q.pop();
+            n->Left() = new BinaryNode<T>(values[i++]);
+            if (i == values.size())
+                break;
+            q.push(n->Left());
+            n->Right() = new BinaryNode<T>(values[i++]);
+            if (i == values.size())
+                break;
+            q.push(n->Right());
+        }
+        return node;
+    }
+
+    // Fill missing nodes to make a complete tree
+    static BinaryNode *FillToComplete(BinaryNode *node, vector<T> &values)
+    {
+        if (values.size() == 0)
+            return node;
+        size_t i = 0;
+        if (node == nullptr)
+            node = new BinaryNode<T>(values[i++]);
+        queue<BinaryNode<T> *> q;
+        q.push(node);
+        BinaryNode<T> *n;
+        while (!q.empty() && i < values.size())
+        {
+            n = q.front();
+            q.pop();
+            if (n->Left() == nullptr)
+            {
+                n->Left() = new BinaryNode<T>(values[i++]);
+                if (i == values.size())
+                    break;
+            }
+            q.push(n->Left());
+            if (n->Right() == nullptr)
+            {
+                n->Right() = new BinaryNode<T>(values[i++]);
+                if (i == values.size())
+                    break;
+            }
+            q.push(n->Right());
+        }
+        return node;
+    }
+
+    // May return nullptr
+    static BinaryNode *RandomCompleteTree(size_t maxSize)
+    {
+        int size = rand() % (maxSize + 1);
+        if (size == 0)
+            return nullptr;
+        BinaryNode<T> *node = new BinaryNode<T>(rand());
+        queue<BinaryNode<T> *> q;
+        q.push(node);
+        int i = 1;
+        BinaryNode<T> *n;
+        while (!q.empty() && i < size)
+        {
+            n = q.front();
+            q.pop();
+            n->Left() = new BinaryNode<T>(rand());
+            i++;
+            if (i == size)
+                break;
+            q.push(n->Left());
+            n->Right() = new BinaryNode<T>(rand());
+            i++;
+            if (i == size)
+                break;
+            q.push(n->Right());
+        }
+        return node;
+    }
+
+    static bool IsCompleteTree(BinaryNode *node)
+    {
+        if (node == nullptr)
+            return true;
+        queue<BinaryNode<T> *> q;
+        q.push(node);
+        bool end = false;
+        while (!q.empty())
+        {
+            node = q.front();
+            q.pop();
+            if (node->Left() == nullptr)
+            {
+                if (!end)
+                    end = true;
+            }
+            else
+            {
+                if (end)
+                    return false;
+                else
+                    q.push(node->Left());
+            }
+            if (node->Right() == nullptr)
+            {
+                if (!end)
+                    end = true;
+            }
+            else
+            {
+                if (end)
+                    return false;
+                else
+                    q.push(node->Right());
+            }
+        }
+        return true;
+    }
+
+    // Insert a new value using BFS
+    static BinaryNode *Insert(BinaryNode *node, T value);
+
+    // Create a balanced tree from a single link list
+    static BinaryNode *ToBalancedTree(SingleNode<T> *list);
+    static BinaryNode *ToBalancedTree2(SingleNode<T> *list);
+
+    // Return 0 if two trees are equal
+    static int Compare(BinaryNode *first, BinaryNode *second);
+    static int Compare2(BinaryNode *first, BinaryNode *second);
+
+    // Recursive
+    static int Height(BinaryNode *node);
+    virtual int Height(void) { return Height(this); }
+
+    // Get the reference of left child pointer
+    virtual BinaryNode *&Left(void) { return (BinaryNode *&)this->Neighbor(0); }
+    // Set the left child pointer
+    virtual void Left(BinaryNode *left) { this->Neighbor(0) = left; }
+
+    // Get the reference of right child pointer
+    virtual BinaryNode *&Right(void) { return (BinaryNode *&)this->Neighbor(1); }
+    // Set the right child pointer
+    virtual void Right(BinaryNode *right) { this->Neighbor(1) = right; }
+
+    static int Size(BinaryNode *node);
+    virtual int Size(void) { return Size(this); }
+
+    static stringstream &ToString(BinaryNode *node, stringstream &output);
+    static stringstream &ToString2(BinaryNode *node, stringstream &output);
+
+    void Print(void);
+    void Print2(void);
+
+    static void Serialize(BinaryNode *node, ostream &output);
+    static BinaryNode *Deserialize(istream &input);
+
+    // Recursive
+    static void PreOrderWalk(BinaryNode *node, function<void(T)> f);
+    void PreOrderWalk(function<void(T)> f) { PreOrderWalk(this, f); }
+
+    // Non-recursive with stack
+    static void PreOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    void PreOrderWalkWithStack(function<void(T)> f) { PreOrderWalkWithStack(this, f); }
+
+    // Non-recursive with stack
+    static void PreOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    void PreOrderWalkWithStack2(function<void(T)> f) { PreOrderWalkWithStack2(this, f); }
+
+    // Non-recursive with stack
+    static void PreOrderWalkWithStack3(BinaryNode *node, function<void(T)> f);
+    void PreOrderWalkWithStack3(function<void(T)> f) { PreOrderWalkWithStack3(this, f); }
+
+    // Recursive
+    static void InOrderWalk(BinaryNode *node, function<void(T)> f);
+    void InOrderWalk(function<void(T)> f) { InOrderWalk(this, f); }
+
+    // Non-recursive with stack
+    static void InOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    void InOrderWalkWithStack(function<void(T)> f) { InOrderWalkWithStack(this, f); }
+
+    // Non-recursive with stack
+    static void InOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    void InOrderWalkWithStack2(function<void(T)> f) { InOrderWalkWithStack2(this, f); }
+
+    // Recursive
+    static void PostOrderWalk(BinaryNode *node, function<void(T)> f);
+    void PostOrderWalk(function<void(T)> f) { PostOrderWalk(this, f); }
+
+    // Non-recursive with stack
+    static void PostOrderWalkWithStack(BinaryNode *node, function<void(T)> f);
+    void PostOrderWalkWithStack(function<void(T)> f) { PostOrderWalkWithStack(this, f); }
+
+    // Non-recursive with stack
+    static void PostOrderWalkWithStack2(BinaryNode *node, function<void(T)> f);
+    void PostOrderWalkWithStack2(function<void(T)> f) { PostOrderWalkWithStack2(this, f); }
+
+    static BinaryNode *BuildTreePreOrderInOrder(T *preOrder, int preLength, T *inOrder, int inLength);
+    static BinaryNode *BuildTreePreOrderInOrder2(T *preOrder, int preLength, T *inOrder, int inLength);
+    static BinaryNode *BuildTreeInOrderPostOrder(T *inOrder, int inLength, T *postOrder, int postLength);
+    static BinaryNode *BuildTreeInOrderPostOrder2(T *inOrder, int inLength, T *postOrder, int postLength);
+
+    // Visit level by level, left to right
+    // Breadth-first search
+    static void LevelOrderWalk(BinaryNode *node, function<void(T)> f);
+    virtual void LevelOrderWalk(function<void(T)> f) { LevelOrderWalk(this, f); }
+
+    // Visit level by level, left to right
+    // Depth-first search
+    static void LevelOrderWalk2(BinaryNode *node, function<void(T)> f);
+    virtual void LevelOrderWalk2(function<void(T)> f) { LevelOrderWalk2(this, f); }
+
+    // Visit nodes level by level from bottom up and left to right
+    static void LevelOrderWalkBottomUp(BinaryNode *node, function<void(T)> f);
+    void LevelOrderWalkBottomUp(function<void(T)> f) { LevelOrderWalkBottomUp(this, f); }
+
+    // The boundary values include left-most nodes, leaf nodes and right-most nodes.
+    // A left-most node may be the right child of its parent if its parent is left-most and has no left child.
+    // Same goes to the right-most nodes.
+    static void GetBoundaryValues(BinaryNode *node, vector<T> &values);
+    void GetBoundaryValues(vector<T> &values) { GetBoundaryValues(this, values); }
+
+    static BinaryNode *Search(BinaryNode *node, const T &v);
+    static BinaryNode *Min(BinaryNode *node);
+    static BinaryNode *Max(BinaryNode *node);
+
+    static BinaryNode *LowestCommonAncestor(BinaryNode *node, BinaryNode *first, BinaryNode *second);
+    static BinaryNode *LowestCommonAncestor2(BinaryNode *node, BinaryNode *first, BinaryNode *second);
+
+    // http://leetcode.com/2010/09/printing-binary-tree-in-zig-zag-level_18.html
+    // Breadth-first-search using stack
+    void PrintZigZag(void);
+
+    // Convert a binary tree to a linked list so that the list nodes
+    // are linked by the left and right pointers and are in pre-order of original tree.
+    // e.g.
+    //      1
+    //     / \
+		//    2   5
+    //   / \   \
+		//  3   4   6
+    // to
+    //  1-2-3-4-5-6
+    // This version builds a double-link list by setting node->left also.
+    // If need a single-link list, just remove the statements setting node->left.
+    static BinaryNode *ToPreOrderLinkList(BinaryNode *node);
+    // Convert a binary tree to a linked list so that the list nodes
+    // are linked by the left and right pointers and are in in-order of original tree.
+    // e.g.
+    //      1
+    //     / \
+		//    2   5
+    //   / \   \
+		//  3   4   6
+    // to
+    //  3-2-4-1-5-6
+    // This version builds a double-link list by setting node->left also.
+    // If need a single-link list, just remove the statements setting node->left.
+    static BinaryNode *ToInOrderLinkList(BinaryNode *node);
+    // Convert a binary tree to a linked list so that the list nodes
+    // are linked by the left and right pointers and are in post-order of original tree.
+    // e.g.
+    //      1
+    //     / \
+		//    2   5
+    //   / \   \
+		//  3   4   6
+    // to
+    //  3-4-2-6-5-1
+    // This version builds a double-link list by setting node->left also.
+    // If need a single-link list, just remove the statements setting node->left.
+    static BinaryNode *ToPostOrderLinkList(BinaryNode *node);
+
+    // A tree is balanced if the heights of its left tree and right tree differs no more than 1.
+    static bool IsBalanced(BinaryNode *node);
+    bool IsBalanced(void) { return IsBalanced(this); }
+
+    // A tree is balanced if the heights of its left tree and right tree differs no more than 1.
+    // This algorithm is wrong.
+    static bool IsBalanced2(BinaryNode *node);
+    bool IsBalanced2(void) { return IsBalanced2(this); }
+
+    // Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+    // For example, this binary tree is symmetric:
+    //    1
+    //   / \
+		//  2   2
+    // / \ / \
+		// 3 4 4 3
+    // But the following is not:
+    //   1
+    //  / \
+		// 2   2
+    //  \   \
+		//   3   3
+    static bool IsSymmetric(BinaryNode *node);
+    bool IsSymmetric(void) { return IsSymmetric(this); }
+
+    // Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+    // For example, this binary tree is symmetric:
+    //    1
+    //   / \
+		//  2   2
+    // / \ / \
+		// 3 4 4 3
+    // But the following is not:
+    //   1
+    //  / \
+		// 2   2
+    //  \   \
+		//   3   3
+    static bool IsSymmetric2(BinaryNode *node);
+    bool IsSymmetric2(void) { return IsSymmetric2(this); }
+
+    // Swap values of two nodes
+    static void SwapValues(BinaryNode *first, BinaryNode *second);
+
+    static BinaryNode *Clone1(BinaryNode *node);
+
+    //
+    // BinarySearchTree
+    //
+
+    // Create a random binary search tree
+    // Return nullptr if input is empty
+    static BinaryNode *SearchTreeRandom(vector<T> &values);
+    // May return nullptr
+    static BinaryNode *SearchTreeRandom(size_t maxSize);
+
+    // Insert a new value to binary search tree
+    static BinaryNode *SearchTreeInsert(BinaryNode *node, T value);
+    static BinaryNode *SearchTreeInsert2(BinaryNode *node, T value);
+
+    // Verify if a tree is a binary search tree
+    static bool SearchTreeVerify(BinaryNode *node);
+    static bool SearchTreeVerify2(BinaryNode *node);
+    static bool SearchTreeVerify3(BinaryNode *node);
+
+    // Search a node in binary search tree
+    static BinaryNode *SearchTreeSearch(BinaryNode *node, T value);
+    static BinaryNode *SearchTreeSearch2(BinaryNode *node, T value);
+
+    // Find the minimum node
+    static BinaryNode *SearchTreeMin(BinaryNode *node);
+    // Find the maximum node
+    static BinaryNode *SearchTreeMax(BinaryNode *node);
+
+    // Assume first and second exist in the tree
+    static BinaryNode *SearchTreeLowestCommonAncestor(BinaryNode *node, const T &first, const T &second);
+
+    // Serialize a binary search tree
+    static void SearchTreeSerialize(BinaryNode *node, ostream &output);
+
+    // Deserialize a binary search tree
+    static BinaryNode *SearchTreeDeserialize(istream &input);
+    static BinaryNode *SearchTreeDeserialize2(istream &input);
+    static BinaryNode *SearchTreeDeserialize3(istream &input);
+
+    // Two elements of a binary search tree are swapped by mistake.
+    // Recover the tree without changing its structure.
+    // If we traverse a binary search tree in-order, we will get an increasing
+    // sequence, e.g.,
+    //    1, 2, 3, 4, 5, 6, 7, .......
+    // If two neighboring elements are swapped, we will have one inversion, e.g.,
+    //    1, 2, 4, 3, 5, 6, 7, .......
+    // If two non-neighboring elements are swapped, we will have two inversions, e.g.,
+    //    1, 2, 3, 6, 5, 4, 7, ....... , or
+    //    1, 2, 6, 4, 5, 3, 7, .......
+    static BinaryNode *SearchTreeRecover(BinaryNode *node);
+    static BinaryNode *SearchTreeRecover2(BinaryNode *node);
+};
+
 } // namespace Test
 
 #endif
