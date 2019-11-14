@@ -5337,6 +5337,65 @@ public:
         }
         return list;
     }
+
+    // Sort a single link list or a circular list
+    static void Sort(SingleNode<T> *&list)
+    {
+        if (list == nullptr || list->Next() == nullptr || list->Next() == list)
+            return;
+
+        bool circular = false;
+        SingleNode<T> *e = list;
+        while (e->Next() != nullptr && e->Next() != list)
+        {
+            e = e->Next();
+        }
+        if (e->Next() == list)
+            circular = true;
+
+        SingleNode<T> *q = list;
+        while (q->Next() != nullptr && q->Next() != list)
+        {
+            if (q->Next()->Value() < list->Value())
+            {
+                SingleNode<T> *t = q->Next();
+                if (circular)
+                {
+                    if (t->Next() != list)
+                    {
+                        q->Next() = t->Next();
+                        t->Next() = list;
+                        e->Next() = t;
+                    }
+                }
+                else
+                {
+                    q->Next() = t->Next();
+                    t->Next() = list;
+                }
+                list = t;
+            }
+            else
+            {
+                SingleNode<T> *p = list;
+                while (p != q && q->Next()->Value() >= p->Next()->Value())
+                {
+                    p = p->Next();
+                }
+                if (p == q)
+                {
+                    q = q->Next();
+                }
+                else
+                {
+                    SingleNode<T> *t = q->Next();
+                    q->Next() = t->Next();
+                    t->Next() = p->Next();
+                    p->Next() = t;
+                }
+            }
+        }
+    }
 };
 
 template <class T>
@@ -9267,6 +9326,234 @@ public:
     // Postfix increment
     // it ++
     virtual bool operator++(int) { return false; }
+};
+
+template <class T, template <class T> class N>
+class InOrderBinaryIterator : public BinaryIterator<T, N>
+{
+private:
+    stack<N<T> *> path;
+    N<T> *current;
+
+public:
+    InOrderBinaryIterator(N<T> *p) : BinaryIterator(p), current(p)
+    {
+        this->operator++();
+    }
+
+    InOrderBinaryIterator(const InOrderBinaryIterator &it) : BinaryIterator(it), current(it.pointer)
+    {
+        this->operator++();
+    }
+
+    InOrderBinaryIterator(void) : BinaryIterator(), current(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        if (this->path.empty() && this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        while (!this->path.empty() || this->current != nullptr)
+        {
+            if (this->current != nullptr)
+            {
+                path.push(this->current);
+                this->current = (N<T> *)this->current->Left();
+            }
+            else
+            {
+                this->pointer = this->path.top();
+                this->path.pop();
+                this->current = (N<T> *)this->pointer->Right();
+                break;
+            }
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+template <class T>
+class InOrderBinaryIteratorWithOutStack : public BinaryIterator<T, BinaryNodeWithParent>
+{
+private:
+    BinaryNodeWithParent<T> *current;
+    BinaryNodeWithParent<T> *prev;
+
+public:
+    InOrderBinaryIteratorWithOutStack(BinaryNodeWithParent<T> *p) : BinaryIterator(p), current(p), prev(p)
+    {
+        this->operator++();
+    }
+
+    InOrderBinaryIteratorWithOutStack(const InOrderBinaryIteratorWithOutStack &it) : BinaryIterator(it), current(it.pointer), prev(it.pointer)
+    {
+        this->operator++();
+    }
+
+    InOrderBinaryIteratorWithOutStack(void) : BinaryIterator(), current(nullptr), prev(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        while (this->current != nullptr)
+        {
+            if (this->prev == this->current->Right())
+            {
+                this->prev = this->current;
+                this->current = this->current->Parent();
+            }
+            else if (this->current->Left() != nullptr && this->prev != this->current->Left())
+            {
+                this->prev = this->current;
+                this->current = (BinaryNodeWithParent<T> *)this->current->Left();
+            }
+            else
+            {
+                this->pointer = this->current;
+                this->prev = this->current;
+                if (this->current->Right() != nullptr)
+                {
+                    this->current = (BinaryNodeWithParent<T> *)this->current->Right();
+                }
+                else
+                {
+                    this->current = this->current->Parent();
+                }
+
+                break;
+            }
+        }
+
+        if (this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+// Implement a complete unordered binary tree.
+// Every level except the last one is fully filled.
+template <class T, template <class T> class N>
+class CompleteBinaryTree : public BinaryTree<T, N>
+{
+private:
+    // Total number of nodes
+    int count;
+
+public:
+    CompleteBinaryTree(void) : BinaryTree(), count(0) {}
+    virtual ~CompleteBinaryTree(void)
+    {
+        this->count = 0;
+    }
+
+    //         0
+    //    1          2
+    //  3   4     5     6
+    // 7 8 9 10 11 12 13 14
+    // Given height H, the number of nodes are in [2^(H - 1), 2^H - 1]
+    // The indices of nodes at height H are in [2^(H - 1) - 1, 2^H - 2]
+    // Given node index I, its children are 2*I+1 and 2*I+2
+    static int Height(int index)
+    {
+        unsigned int c = (unsigned int)(index + 1);
+        int h = 0;
+        while (c > 0)
+        {
+            h++;
+            c = c >> 1;
+        }
+
+        return h;
+    }
+
+    // Encode the link from a node to its left child as 0.
+    // Encode the link from a node to its right child as 1.
+    // The the path from the root to and node can be represented with a bit set.
+    static BitSet BrachCode(int index)
+    {
+        int h = Height(index);
+        BitSet branch(h);
+        unsigned int c = (unsigned int)index;
+        while (c > 0)
+        {
+            if (c % 2 == 1)
+            {
+                // index is an odd number, meaning it is the left child of its parent
+                // Encode it as 0
+                branch.Reset(h - 1);
+            }
+            else
+            {
+                // index is an even number, meaning it is the right child of its parent
+                // Encode it as 1
+                branch.Set(h - 1);
+            }
+
+            c = (c - 1) >> 1;
+            h--;
+        }
+
+        return branch;
+    }
+
+    void Insert(T &content)
+    {
+        N<T> *node = new N<T>(content);
+        if (this->root == nullptr)
+        {
+            this->root = node;
+            this->count = 1;
+        }
+        else
+        {
+            // this->count equals to the index for the new node
+            int height = Height(this->count);
+            BitSet branch = BrachCode(this->count);
+
+            N<T> *current = this->root;
+            for (int h = 1; h < height; h++)
+            {
+                if (!branch.Test(h))
+                {
+                    if (current->Left() != nullptr)
+                        current = (N<T> *)current->Left();
+                    else
+                        current->Left() = node;
+                }
+                else if (branch.Test(h))
+                {
+                    if (current->Right() != nullptr)
+                        current = (N<T> *)current->Right();
+                    else
+                        current->Right() = node;
+                }
+            }
+
+            this->count++;
+        }
+    }
+
+    int Height(void)
+    {
+        return BinaryTree<T, N>::Height();
+    }
 };
 } // namespace Test
 

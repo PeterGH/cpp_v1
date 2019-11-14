@@ -1071,6 +1071,179 @@ static void MergeSort(vector<vector<int>> &input, size_t col, Compare comp = std
     sort(0, input.size() - 1);
 }
 
+namespace Count
+{
+// An inversion is a pair {input[i], input[j]} such that input[i] > input[j] when i < j.
+// We can extend the concept to two sub arrays of input, and the set of inversions
+// contains every inversion whose elements each falls into different sub arrays, e.g.,
+// input[i] is in the first sub array while input[j] is in the second.
+// Sorting the two sub arrays separately does not change the count of inversions
+// between the two sub arrays.
+// Assuming input[head..(middle-1)] and input[middle..tail] are already sorted,
+// count inversions between input[head..(middle-1)] and input[middle..tail] by merging
+// them into a sorted array input[head..tail].
+template <class T>
+static int Inversions(T *input, size_t length)
+{
+    if (input == nullptr || length <= 1)
+        return 0;
+
+    // Count inversions between a[h..(m-1)] and a[m..t], assuming both subarrays are sorted
+    function<int(T *, int, int, int)> merge = [&](T *a, int h, int m, int t) -> int {
+        int c = 0;
+        // head and middle point to the heads of two sub sorted arrays.
+        while (h < m && m <= t)
+        {
+            if (a[h] <= a[m])
+            {
+                h++;
+            }
+            else
+            {
+                T x = a[m];
+                for (int i = m; i > (int)h; i--)
+                {
+                    a[i] = a[i - 1];
+                }
+                a[h] = x;
+                // There (m - h) elements moved.
+                // Each of them paired with a[m] is an inversion.
+                c += (m - h);
+                // Move to the next pair of elements
+                h++;
+                m++;
+            }
+        }
+
+        return c;
+    };
+
+    function<int(T *, int, int)> count = [&](T *a, int h, int t) -> int {
+        if (a == nullptr || h >= t)
+            return 0;
+        int c = 0;
+        if (h < t)
+        {
+            int m = h + ((t - h) >> 1) + 1;
+            c += count(a, h, m - 1);
+            c += count(a, m, t);
+            c += merge(a, h, m, t);
+        }
+        return c;
+    };
+
+    return count(input, 0, length - 1);
+}
+} // namespace Count
+
+namespace CountingSort
+{
+static void GetRange(const int *input, int length, int &minValue, int &range)
+{
+    if (input == nullptr || length <= 0)
+    {
+        range = -1;
+        return;
+    }
+
+    int minIndex;
+    int maxIndex;
+    Array::MinMax(input, length, minIndex, maxIndex);
+    if (minIndex < 0 || maxIndex < 0 || minIndex >= length || maxIndex >= length)
+    {
+        range = -1;
+        return;
+    }
+
+    minValue = input[minIndex];
+    int maxValue = input[maxIndex];
+    range = maxValue - minValue + 1;
+}
+
+// Sort input and return the result in output
+// Not in-place. Stable.
+static void Sort(const int *input, int length, int *output)
+{
+    if (input == nullptr || length <= 0 || output == nullptr)
+        return;
+
+    int minValue;
+    int range = -1;
+    GetRange(input, length, minValue, range);
+    if (range == -1)
+        return;
+
+    unique_ptr<int[]> count(new int[range]);
+    memset(count.get(), 0, range * sizeof(int));
+
+    for (int i = 0; i < length; i++)
+    {
+        int delta = input[i] - minValue;
+        count[delta]++;
+    }
+
+    for (int i = 1; i < range; i++)
+    {
+        count[i] += count[i - 1];
+    }
+
+    for (int i = length - 1; i >= 0; i--)
+    {
+        int delta = input[i] - minValue;
+        output[count[delta] - 1] = input[i];
+        count[delta]--;
+    }
+}
+
+// Sort in place
+// In-place sort. Not stable.
+static void Sort(int *input, int length)
+{
+    if (input == nullptr || length <= 0)
+        return;
+
+    int minValue;
+    int range = -1;
+    GetRange(input, length, minValue, range);
+    if (range == -1)
+        return;
+
+    unique_ptr<int[]> count(new int[range]);
+    memset(count.get(), 0, range * sizeof(int));
+
+    for (int i = 0; i < length; i++)
+    {
+        int delta = input[i] - minValue;
+        count[delta]++;
+    }
+
+    for (int i = 1; i < range; i++)
+    {
+        count[i] += count[i - 1];
+    }
+
+    BitSet bits(length);
+    for (int i = length - 1; i >= 0; i--)
+    {
+        if (bits.Test(i))
+            continue;
+        while (true)
+        {
+            // Use input[i] as a temporay place to store the next value to be placed.
+            int delta = input[i] - minValue;
+            int currentIndex = count[delta] - 1;
+            count[delta]--;
+            bits.Set(currentIndex);
+            if (currentIndex == i)
+                break;
+            int nextValue = input[currentIndex];
+            input[currentIndex] = input[i];
+            input[i] = nextValue;
+        }
+    }
+}
+} // namespace CountingSort
+
 // http://leetcode.com/2011/01/ctrla-ctrlc-ctrlv.html
 // Produce the longest string with N keystrokes using four
 // keys: A, Ctrl+A (Select), Ctrl+C (Copy), Ctrl+V (Paste)
