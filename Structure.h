@@ -1676,6 +1676,117 @@ public:
     }
 };
 
+template <class T>
+class Monge : public Matrix<T>
+{
+public:
+    Monge(size_t r, size_t c) : Matrix<T>(r, c) {}
+    static bool IsMonge(Matrix<T> &matrix)
+    {
+        if (matrix.Rows() <= 1 || matrix.Cols() <= 1)
+            return false;
+        for (size_t i = 0; i < matrix.Rows() - 1; i++)
+        {
+            for (size_t j = 0; j < matrix.Cols() - 1; j++)
+            {
+                if (matrix(i, j) + matrix(i + 1, j + 1) > matrix(i, j + 1) + matrix(i + 1, j))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    static void Random(Monge<T> &monge)
+    {
+        auto rnd = [&]() -> int { return rand() >> 2; };
+        for (size_t j = 0; j < monge.Cols(); j++)
+        {
+            monge(0, j) = rnd();
+        }
+        for (size_t i = 1; i < monge.Rows(); i++)
+        {
+            monge(i, 0) = rnd() + monge(i - 1, 0) - monge(i - 1, 1);
+            for (size_t j = 1; j < monge.Cols(); j++)
+            {
+                monge(i, j) = min(rnd(), monge(i - 1, j) + monge(i, j - 1) - monge(i - 1, j - 1));
+                if (j < monge.Cols() - 1)
+                {
+                    int d = monge(i - 1, j) - monge(i - 1, j + 1) - monge(i, j);
+                    if (d > 0)
+                    {
+                        d += (rnd() >> 1);
+                        for (size_t k = 0; k <= j; k++)
+                        {
+                            monge(i, k) += d;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void FindRowMins(vector<size_t> &mins)
+    {
+        if (mins.size() < this->Rows())
+            throw invalid_argument(String::Format("mins length %d is less than %d", mins.size(), this->Rows()));
+
+        function<void(size_t, size_t, size_t, size_t)> find = [&](size_t i1, size_t j1, size_t i2, size_t j2) {
+            if (j1 == j2)
+            {
+                for (size_t i = i1; i <= i2; i++)
+                {
+                    mins[i] = j1;
+                }
+            }
+            else
+            {
+                size_t i = i1 + ((i2 - i1) >> 1);
+                T m = this->operator()(i, j1);
+                mins[i] = j1;
+                for (size_t j = j1 + 1; j <= j2; j++)
+                {
+                    if (this->operator()(i, j) < m)
+                    {
+                        m = this->operator()(i, j);
+                        mins[i] = j;
+                    }
+                }
+                if (i1 < i)
+                {
+                    find(i1, j1, i - 1, mins[i]);
+                }
+                if (i < i2)
+                {
+                    find(i + 1, mins[i], i2, j2);
+                }
+            }
+        };
+
+        find(0, 0, this->Rows() - 1, this->Cols() - 1);
+    }
+
+    void FindRowMins2(vector<size_t> &mins)
+    {
+        if (mins.size() < this->Rows())
+            throw invalid_argument(String::Format("mins length %d is less than %d", mins.size(), this->Rows()));
+
+        size_t k = 0;
+        for (size_t i = 0; i < this->Rows(); i++)
+        {
+            T m = this->operator()(i, k);
+            for (size_t j = k + 1; j < this->Cols(); j++)
+            {
+                if (this->operator()(i, j) < m)
+                {
+                    m = this->operator()(i, j);
+                    k = j;
+                }
+            }
+            mins[i] = k;
+        }
+    }
+};
+
 // Multi-Radix Integer
 // Digits:
 //    d_{n-1} d_{n-2} ...... d_i ...... d_2 d_1 d_0
@@ -4857,6 +4968,92 @@ public:
 };
 
 template <class T>
+class Node1 : public Node<T>
+{
+protected:
+    Node *first;
+
+public:
+    Node1(const T &v) : Node(v), first(nullptr) {}
+
+    virtual ~Node1(void)
+    {
+        if (this->first != nullptr)
+        {
+            this->first = nullptr;
+        }
+    }
+
+    virtual Node1 *Search(const T &v)
+    {
+        Node1 *p = this;
+        while (nullptr != p && p->value != v)
+        {
+            p = (Node1 *)p->first;
+        }
+
+        // p == nullptr || p->value == v
+        return p;
+    }
+    virtual bool Contain(const T &v) { return nullptr != Search(v); }
+};
+
+template <class T>
+class Node2 : public Node1<T>
+{
+protected:
+    Node *second;
+
+public:
+    Node2(const T &v) : Node1(v), second(nullptr) {}
+
+    virtual ~Node2(void)
+    {
+        if (this->second != nullptr)
+        {
+            this->second = nullptr;
+        }
+    }
+
+    static Node2 *Clone(Node2 *node)
+    {
+        if (node == nullptr)
+            return nullptr;
+        queue<Node2<T> *> q;
+        map<Node2<T> *, Node2<T> *> cloned;
+        Node2<T> *nodeCopy = new Node2<T>(node->value);
+        q.push(node);
+        cloned[node] = nodeCopy;
+        while (!q.empty())
+        {
+            node = q.front();
+            q.pop();
+            if (node->first != nullptr)
+            {
+                if (cloned.find((Node2<T> *)node->first) == cloned.end())
+                {
+                    Node2<T> *firstCopy = new Node2<T>(((Node2<T> *)node->first)->value);
+                    cloned[(Node2<T> *)node->first] = firstCopy;
+                    q.push((Node2<T> *)node->first);
+                }
+                cloned[node]->first = cloned[(Node2<T> *)node->first];
+            }
+            if (node->second != nullptr)
+            {
+                if (cloned.find((Node2<T> *)node->second) == cloned.end())
+                {
+                    Node2<T> *secondCopy = new Node2<T>(((Node2<T> *)node->second)->value);
+                    cloned[(Node2<T> *)node->second] = secondCopy;
+                    q.push((Node2<T> *)node->second);
+                }
+                cloned[node]->second = cloned[(Node2<T> *)node->second];
+            }
+        }
+        return nodeCopy;
+    }
+};
+
+template <class T>
 class SingleNode : public Node<T>
 {
     template <class T>
@@ -5448,6 +5645,108 @@ ostream &operator<<(ostream &os, SingleNode<T> *list)
     os << "|" << endl;
     return os;
 }
+
+namespace MergeSort
+{
+// Merge two sorted single link lists
+template <class T>
+static void Merge(SingleNode<T> *&first, SingleNode<T> *second)
+{
+    if (second == nullptr)
+        return;
+
+    if (first == nullptr)
+    {
+        first = second;
+        return;
+    }
+
+    SingleNode<T> *p;
+    if (second->Value() < first->Value())
+    {
+        p = second->Next();
+        second->Next() = first;
+        first = second;
+        second = p;
+    }
+
+    // Now first->Value() <= second->Value()
+
+    p = first;
+    while (p != nullptr && second != nullptr)
+    {
+        while (p->Next() != nullptr && p->Next()->Value() <= second->Value())
+        {
+            p = p->Next();
+        }
+
+        // Now p->Value() <= second->Value()
+
+        if (p->Next() == nullptr)
+        {
+            // first list is done, append rest of second to first
+            p->Next() = second;
+            break;
+        }
+        else
+        {
+            // Insert second between p and p->Next()
+            SingleNode<T> *q = second->Next();
+            second->Next() = p->Next();
+            p->Next() = second;
+            p = second;
+            second = q;
+        }
+    }
+}
+
+// Sort a single link list or a circular list
+template <class T>
+static void Sort(SingleNode<T> *&list)
+{
+    if (list == nullptr || list->Next() == nullptr || list->Next() == list)
+        return;
+
+    SingleNode<T> *m = list;
+    SingleNode<T> *p = list;
+
+    while (p->Next() != nullptr && p->Next() != list && p->Next()->Next() != nullptr && p->Next()->Next() != list)
+    {
+        // p visits the (2n-1)-th node.
+        p = p->Next()->Next();
+        // middle visits the n-th node.
+        m = m->Next();
+    }
+
+    bool circular = false;
+    if (p->Next() == list)
+    {
+        circular = true;
+        p->Next() = nullptr;
+    }
+    else if (p->Next() != nullptr && p->Next()->Next() == list)
+    {
+        circular = true;
+        p->Next()->Next() = nullptr;
+    }
+
+    SingleNode<T> *second = m->Next();
+    m->Next() = nullptr;
+    Sort(list);
+    Sort(second);
+    Merge(list, second);
+
+    if (circular)
+    {
+        p = list;
+        while (p->Next() != nullptr)
+        {
+            p = p->Next();
+        }
+        p->Next() = list;
+    }
+}
+} // namespace MergeSort
 
 template <class T>
 class DoubleNode : public Node<T>
@@ -8129,6 +8428,234 @@ public:
         return node;
     }
 };
+
+// Binary tree branch (root-to-leaf path) represents a number with each node as a digit.
+// Sum all branch numbers.
+// 1____2
+//  |___8
+// 12 + 18 = 30
+static unsigned long long BinaryTreeSumBranches(BinaryNode<unsigned int> *node)
+{
+    if (node == nullptr)
+        return 0;
+    stack<BinaryNode<unsigned int> *> path;
+    map<BinaryNode<unsigned int> *, unsigned long long> number;
+    unsigned long long sum = 0;
+    number[node] = node->Value();
+    path.push(node);
+    while (!path.empty())
+    {
+        node = path.top();
+        path.pop();
+        if (node->Left() == nullptr && node->Right() == nullptr)
+        {
+            sum += number[node];
+        }
+        if (node->Right() != nullptr)
+        {
+            number[node->Right()] = 10 * number[node] + node->Right()->Value();
+            path.push(node->Right());
+        }
+        if (node->Left() != nullptr)
+        {
+            number[node->Left()] = 10 * number[node] + node->Left()->Value();
+            path.push(node->Left());
+        }
+    }
+    return sum;
+}
+
+// In a binary tree find a path where the sum of node values is maximized.
+static long long BinaryTreeMaxPathSum(BinaryNode<int> *root, vector<BinaryNode<int> *> &path)
+{
+    if (root == nullptr)
+        return 0;
+
+    function<void(BinaryNode<int> *, long long &, vector<BinaryNode<int> *> &, long long &, vector<BinaryNode<int> *> &)>
+        search = [&](
+                     BinaryNode<int> *node,
+                     long long &currentSum,
+                     vector<BinaryNode<int> *> &currentPath,
+                     long long &maxSum,
+                     vector<BinaryNode<int> *> &maxPath) {
+            currentSum = 0;
+            currentPath.clear();
+            maxSum = 0;
+            maxPath.clear();
+            if (node == nullptr)
+                return;
+
+            if (node->Left() == nullptr && node->Right() == nullptr)
+            {
+                currentSum = node->Value();
+                currentPath.push_back(node);
+                maxSum = node->Value();
+                maxPath.push_back(node);
+                return;
+            }
+
+            long long leftSum;
+            vector<BinaryNode<int> *> leftPath;
+            long long leftMaxSum;
+            vector<BinaryNode<int> *> leftMaxPath;
+            search(node->Left(), leftSum, leftPath, leftMaxSum, leftMaxPath);
+
+            long long rightSum;
+            vector<BinaryNode<int> *> rightPath;
+            long long rightMaxSum;
+            vector<BinaryNode<int> *> rightMaxPath;
+            search(node->Right(), rightSum, rightPath, rightMaxSum, rightMaxPath);
+
+            if (node->Left() != nullptr && node->Right() == nullptr)
+            {
+                maxSum = leftMaxSum;
+                maxPath.insert(maxPath.begin(), leftMaxPath.begin(), leftMaxPath.end());
+
+                if (leftSum <= 0)
+                {
+                    currentSum = node->Value();
+                    currentPath.push_back(node);
+
+                    if (node->Value() > maxSum)
+                    {
+                        maxSum = node->Value();
+                        maxPath.clear();
+                        maxPath.push_back(node);
+                    }
+                }
+                else
+                {
+                    currentSum = leftSum + node->Value();
+                    currentPath.push_back(node);
+                    currentPath.insert(currentPath.end(), leftPath.begin(), leftPath.end());
+
+                    if (leftSum + node->Value() > maxSum)
+                    {
+                        maxSum = leftSum + node->Value();
+                        maxPath.clear();
+                        maxPath.insert(maxPath.end(), leftPath.rbegin(), leftPath.rend());
+                        maxPath.push_back(node);
+                    }
+                }
+            }
+            else if (node->Left() == nullptr && node->Right() != nullptr)
+            {
+                maxSum = rightMaxSum;
+                maxPath.insert(maxPath.begin(), rightMaxPath.begin(), rightMaxPath.end());
+
+                if (rightSum <= 0)
+                {
+                    currentSum = node->Value();
+                    currentPath.push_back(node);
+
+                    if (node->Value() > maxSum)
+                    {
+                        maxSum = node->Value();
+                        maxPath.clear();
+                        maxPath.push_back(node);
+                    }
+                }
+                else
+                {
+                    currentSum = node->Value() + rightSum;
+                    currentPath.push_back(node);
+                    currentPath.insert(currentPath.end(), rightPath.begin(), rightPath.end());
+
+                    if (node->Value() + rightSum > maxSum)
+                    {
+                        maxSum = node->Value() + rightSum;
+                        maxPath.clear();
+                        maxPath.push_back(node);
+                        maxPath.insert(maxPath.end(), rightPath.begin(), rightPath.end());
+                    }
+                }
+            }
+            else
+            {
+                if (leftMaxSum >= rightMaxSum)
+                {
+                    maxSum = leftMaxSum;
+                    maxPath.insert(maxPath.begin(), leftMaxPath.begin(), leftMaxPath.end());
+                }
+                else
+                {
+                    maxSum = rightMaxSum;
+                    maxPath.insert(maxPath.begin(), rightMaxPath.begin(), rightMaxPath.end());
+                }
+
+                if (leftSum <= 0 && rightSum <= 0)
+                {
+                    currentSum = node->Value();
+                    currentPath.push_back(node);
+
+                    if (node->Value() > maxSum)
+                    {
+                        maxSum = node->Value();
+                        maxPath.clear();
+                        maxPath.push_back(node);
+                    }
+                }
+                else if (leftSum > 0 && rightSum <= 0)
+                {
+                    currentSum = leftSum + node->Value();
+                    currentPath.push_back(node);
+                    currentPath.insert(currentPath.end(), leftPath.begin(), leftPath.end());
+
+                    if (leftSum + node->Value() > maxSum)
+                    {
+                        maxSum = leftSum + node->Value();
+                        maxPath.clear();
+                        maxPath.insert(maxPath.end(), leftPath.rbegin(), leftPath.rend());
+                        maxPath.push_back(node);
+                    }
+                }
+                else if (leftSum <= 0 && rightSum > 0)
+                {
+                    currentSum = node->Value() + rightSum;
+                    currentPath.push_back(node);
+                    currentPath.insert(currentPath.end(), rightPath.begin(), rightPath.end());
+
+                    if (node->Value() + rightSum > maxSum)
+                    {
+                        maxSum = node->Value() + rightSum;
+                        maxPath.clear();
+                        maxPath.push_back(node);
+                        maxPath.insert(maxPath.end(), rightPath.begin(), rightPath.end());
+                    }
+                }
+                else
+                {
+                    if (leftSum >= rightSum)
+                    {
+                        currentSum = leftSum + node->Value();
+                        currentPath.push_back(node);
+                        currentPath.insert(currentPath.end(), leftPath.begin(), leftPath.end());
+                    }
+                    else
+                    {
+                        currentSum = node->Value() + rightSum;
+                        currentPath.push_back(node);
+                        currentPath.insert(currentPath.end(), rightPath.begin(), rightPath.end());
+                    }
+
+                    if (leftSum + node->Value() + rightSum > maxSum)
+                    {
+                        maxSum = leftSum + node->Value() + rightSum;
+                        maxPath.clear();
+                        maxPath.insert(maxPath.end(), leftPath.rbegin(), leftPath.rend());
+                        maxPath.push_back(node);
+                        maxPath.insert(maxPath.end(), rightPath.begin(), rightPath.end());
+                    }
+                }
+            }
+        };
+
+    long long currentSum;
+    vector<BinaryNode<int> *> currentPath;
+    long long max;
+    search(root, currentSum, currentPath, max, path);
+    return max;
+}
 
 template <class T>
 class BinaryNodeWithParent : public BinaryNode<T>
