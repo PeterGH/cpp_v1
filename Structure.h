@@ -12557,6 +12557,693 @@ public:
 
     virtual void Print(void) {}
 };
+
+template <class VertexValueType, class EdgeValueType>
+class ListGraph : public Graph<VertexValueType, EdgeValueType>
+{
+private:
+    class AdjacencyNode
+    {
+    public:
+        AdjacencyNode *next;
+        unsigned int edgeId;
+        AdjacencyNode(unsigned int id) : edgeId(id), next(nullptr) {}
+    };
+
+    class AdjacencyHead
+    {
+    public:
+        AdjacencyNode *head;
+        unsigned int vertexId;
+        AdjacencyHead(unsigned int id) : vertexId(id), head(nullptr) {}
+    };
+
+    // [TODO] Get rid of AdjacencyHead. Use AdjacencyNode only.
+    map<unsigned int, AdjacencyHead *> list;
+
+public:
+    // Default the graph is directed
+    ListGraph(void) : Graph() {}
+    ListGraph(bool directed) : Graph(directed) {}
+    ~ListGraph(void)
+    {
+        map<unsigned int, AdjacencyHead *>::iterator it;
+        for (it = this->list.begin(); it != this->list.end(); it++)
+        {
+            AdjacencyNode *h = it->second->head;
+            if (h != nullptr)
+            {
+                AdjacencyNode *n;
+                while (h->next != nullptr)
+                {
+                    n = h;
+                    h = n->next;
+                    delete n;
+                }
+
+                delete h;
+            }
+
+            delete it->second;
+        }
+    }
+
+    void InsertVertex(unsigned int id, VertexValueType value = 1)
+    {
+        Graph::InsertVertex(id, value);
+        this->list[id] = new AdjacencyHead(id);
+    }
+
+    void InsertEdge(unsigned int id, unsigned int from, unsigned int to, EdgeValueType value = 1)
+    {
+        Graph::InsertEdge(id, from, to, value);
+        function<void(unsigned int)> link = [&](unsigned int f) {
+            AdjacencyNode *n = this->list[f]->head;
+            if (n == nullptr)
+            {
+                this->list[f]->head = new AdjacencyNode(id);
+            }
+            else
+            {
+                while (n->next != nullptr)
+                {
+                    n = n->next;
+                }
+
+                n->next = new AdjacencyNode(id);
+            }
+        };
+
+        link(from);
+        if (!this->directed && from != to)
+        {
+            // This will not be executed if
+            // 1. It is a directed graph, or
+            // 2. The edge is a circle
+
+            // Note the neighboring vertex is edge->from
+            link(to);
+        }
+    }
+
+    int OutDegree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        AdjacencyNode *n = this->list[id]->head;
+        int i = 0;
+        while (n != nullptr)
+        {
+            // If the graph is undirected, then check if the edge is out or in.
+            if (this->edges[n->edgeId]->from == id)
+                i++;
+            n = n->next;
+        }
+
+        return i;
+    }
+
+    int InDegree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        int i = 0;
+        if (!this->directed)
+        {
+            AdjacencyNode *n = this->list[id]->head;
+            while (n != nullptr)
+            {
+                if (this->edges[n->edgeId]->to == id)
+                    i++;
+                n = n->next;
+            }
+        }
+        else
+        {
+            // Directed graph. Have to enumerate all the edges.
+            i = Graph::InDegree(id);
+        }
+
+        return i;
+    }
+
+    int Degree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        int i = 0;
+        if (!this->directed)
+        {
+            AdjacencyNode *n = this->list[id]->head;
+            while (n != nullptr)
+            {
+                if (this->edges[n->edgeId]->from == id)
+                    i++;
+                if (this->edges[n->edgeId]->to == id)
+                    i++;
+                n = n->next;
+            }
+        }
+        else
+        {
+            i = Graph::Degree(id);
+        }
+
+        return i;
+    }
+
+    void OutNeighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        AdjacencyNode *n = this->list[id]->head;
+        while (n != nullptr)
+        {
+            Edge *e = this->edges[n->edgeId];
+            // If the graph is undirected, then check if the edge is out or in.
+            if (e->from == id && e->to != id)
+                neighbors.push_back(e->to);
+            n = n->next;
+        }
+    }
+
+    void InNeighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        if (!this->directed)
+        {
+            AdjacencyNode *n = this->list[id]->head;
+            while (n != nullptr)
+            {
+                Edge *e = this->edges[n->edgeId];
+                // If the graph is undirected, then check if the edge is out or in.
+                if (e->from != id && e->to == id)
+                    neighbors.push_back(e->from);
+                n = n->next;
+            }
+        }
+        else
+        {
+            Graph::InNeighbors(id, neighbors);
+        }
+    }
+
+    void Neighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        if (!this->directed)
+        {
+            AdjacencyNode *n = this->list[id]->head;
+            while (n != nullptr)
+            {
+                Edge *e = this->edges[n->edgeId];
+                // If the graph is undirected, then check if the edge is out or in.
+                if (e->from == id && e->to != id)
+                    neighbors.push_back(e->to);
+                if (e->from != id && e->to == id)
+                    neighbors.push_back(e->from);
+                n = n->next;
+            }
+        }
+        else
+        {
+            Graph::Neighbors(id, neighbors);
+        }
+    }
+
+    void Print(void)
+    {
+        map<unsigned int, AdjacencyHead *>::iterator it;
+        for (it = this->list.begin(); it != this->list.end(); it++)
+        {
+            unsigned int vid = it->second->vertexId;
+            cout << vid;
+            AdjacencyNode *n = it->second->head;
+            while (n != nullptr)
+            {
+                unsigned int eid = n->edgeId;
+                // Depending on if the graph is directed or not,
+                // the neighboring vertex id can be edge->from or edge->to
+                unsigned int tid = vid == this->edges[eid]->from ? this->edges[eid]->to : this->edges[eid]->from;
+                cout << "->" << tid;
+                n = n->next;
+            }
+
+            cout << endl;
+        }
+    }
+};
+
+template <class VertexValueType, class EdgeValueType>
+class MatrixGraph : public Graph<VertexValueType, EdgeValueType>
+{
+private:
+    struct Less : binary_function<pair<unsigned int, unsigned int>, pair<unsigned int, unsigned int>, bool>
+    {
+        bool operator()(const pair<unsigned int, unsigned int> &first, const pair<unsigned int, unsigned int> &second)
+        {
+            if (first.first < second.first)
+                return true;
+            if (first.first == second.first && first.second < second.second)
+                return true;
+            return false;
+        }
+    };
+
+    map<pair<unsigned int, unsigned int>, unsigned int, Less> matrix;
+
+public:
+    // Default the graph is directed
+    MatrixGraph(void) : Graph() {}
+    MatrixGraph(bool directed) : Graph(directed) {}
+    ~MatrixGraph(void) {}
+
+    void InsertEdge(unsigned int id, unsigned int from, unsigned int to, EdgeValueType value = 1)
+    {
+        Graph::InsertEdge(id, from, to, value);
+        pair<unsigned int, unsigned int> key = make_pair(from, to);
+        this->matrix[key] = id;
+        if (!this->directed && from != to)
+        {
+            key = make_pair(to, from);
+            this->matrix[key] = id;
+        }
+    }
+
+    int OutDegree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        map<unsigned int, Vertex *>::iterator to;
+        pair<unsigned int, unsigned int> key;
+        int i = 0;
+        for (to = this->vertices.begin(); to != this->vertices.end(); to++)
+        {
+            key = make_pair(id, to->first);
+            if (this->matrix.find(key) != this->matrix.end())
+            {
+                int edgeId = this->matrix[key];
+                if (this->edges[edgeId]->from == id)
+                    i++;
+            }
+        }
+
+        return i;
+    }
+
+    int InDegree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        map<unsigned int, Vertex *>::iterator from;
+        pair<unsigned int, unsigned int> key;
+        int i = 0;
+        for (from = this->vertices.begin(); from != this->vertices.end(); from++)
+        {
+            key = make_pair(from->first, id);
+            if (this->matrix.find(key) != this->matrix.end())
+            {
+                int edgeId = this->matrix[key];
+                if (this->edges[edgeId]->to == id)
+                    i++;
+            }
+        }
+
+        return i;
+    }
+
+    int Degree(unsigned int id)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        int i = 0;
+        if (!this->directed)
+        {
+            map<unsigned int, Vertex *>::iterator it;
+            pair<unsigned int, unsigned int> key;
+            for (it = this->vertices.begin(); it != this->vertices.end(); it++)
+            {
+                key = make_pair(id, it->first);
+                if (this->matrix.find(key) != this->matrix.end())
+                {
+                    int edgeId = this->matrix[key];
+                    if (this->edges[edgeId]->from == id)
+                        i++;
+                    if (this->edges[edgeId]->to == id)
+                        i++;
+                }
+            }
+        }
+        else
+        {
+            i += OutDegree(id);
+            i += InDegree(id);
+        }
+
+        return i;
+    }
+
+    void OutNeighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        map<unsigned int, Vertex *>::iterator to;
+        pair<unsigned int, unsigned int> key;
+        for (to = this->vertices.begin(); to != this->vertices.end(); to++)
+        {
+            if (to->first == id)
+                continue;
+            key = make_pair(id, to->first);
+            if (this->matrix.find(key) != this->matrix.end())
+            {
+                int edgeId = this->matrix[key];
+                if (this->edges[edgeId]->from == id)
+                    neighbors.push_back(this->edges[edgeId]->to);
+            }
+        }
+    }
+
+    void InNeighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        map<unsigned int, Vertex *>::iterator from;
+        pair<unsigned int, unsigned int> key;
+        for (from = this->vertices.begin(); from != this->vertices.end(); from++)
+        {
+            if (from->first == id)
+                continue;
+            key = make_pair(from->first, id);
+            if (this->matrix.find(key) != this->matrix.end())
+            {
+                int edgeId = this->matrix[key];
+                if (this->edges[edgeId]->to == id)
+                    neighbors.push_back(this->edges[edgeId]->from);
+            }
+        }
+    }
+
+    void Neighbors(unsigned int id, vector<unsigned int> &neighbors)
+    {
+        if (this->vertices.find(id) == this->vertices.end())
+            throw invalid_argument(String::Format("Vertex id %d does not exist", id));
+
+        if (!this->directed)
+        {
+            map<unsigned int, Vertex *>::iterator it;
+            pair<unsigned int, unsigned int> key;
+            for (it = this->vertices.begin(); it != this->vertices.end(); it++)
+            {
+                if (it->first == id)
+                    continue;
+                key = make_pair(id, it->first);
+                if (this->matrix.find(key) != this->matrix.end())
+                {
+                    int edgeId = this->matrix[key];
+                    if (this->edges[edgeId]->from == id)
+                        neighbors.push_back(this->edges[edgeId]->to);
+                    if (this->edges[edgeId]->to == id)
+                        neighbors.push_back(this->edges[edgeId]->from);
+                }
+            }
+        }
+        else
+        {
+            OutNeighbors(id, neighbors);
+            InNeighbors(id, neighbors);
+        }
+    }
+
+    void Print(void)
+    {
+        map<unsigned int, Vertex *>::iterator to;
+        for (to = this->vertices.begin(); to != this->vertices.end(); to++)
+        {
+            cout << "\t" << to->first;
+        }
+
+        cout << endl;
+
+        map<unsigned int, Vertex *>::iterator from;
+        pair<unsigned int, unsigned int> key;
+        for (from = this->vertices.begin(); from != this->vertices.end(); from++)
+        {
+            cout << from->first;
+            for (to = this->vertices.begin(); to != this->vertices.end(); to++)
+            {
+                key = make_pair(from->first, to->first);
+                cout << "\t";
+                if (this->matrix.find(key) != this->matrix.end())
+                {
+                    cout << this->edges[this->matrix[key]]->value;
+                }
+            }
+
+            cout << endl;
+        }
+    }
+};
+
+class GraphSearchTree
+{
+private:
+    class Node
+    {
+    public:
+        Node *parent;
+        vector<Node *> children;
+        unsigned int id;
+        unsigned int distance;
+
+        Node(unsigned int id, unsigned int d, Node *p) : id(id), distance(d), parent(p) {}
+        Node(unsigned int id, unsigned int d) : id(id), distance(d), parent(nullptr) {}
+        Node(unsigned int id) : id(id), distance(0), parent(nullptr) {}
+        ~Node(void)
+        {
+            this->parent = nullptr;
+            this->children.clear();
+        }
+
+        static void PostOrderWalk(Node *node, function<void(Node *)> f)
+        {
+            if (node == nullptr || f == nullptr)
+                return;
+            stack<Node *> path;
+            map<Node *, vector<Node *>::iterator> next;
+            path.push(node);
+            next[node] = node->children.begin();
+            while (!path.empty())
+            {
+                Node *top = path.top();
+                vector<Node *>::iterator it = next[top];
+                if (it == top->children.end())
+                {
+                    // Either top has no children, or
+                    // all the children have been visited.
+                    if (top->parent != nullptr)
+                        next[top->parent]++;
+                    f(top);
+                    path.pop();
+                }
+                else
+                {
+                    path.push(*it);
+                    next[*it] = (*it)->children.begin();
+                }
+            }
+        }
+
+        static Node *Search(Node *node, unsigned int id)
+        {
+            if (node == nullptr)
+                return nullptr;
+            if (node->id == id)
+                return node;
+            queue<Node *> q;
+            q.push(node);
+            while (!q.empty())
+            {
+                Node *n = q.front();
+                q.pop();
+                for (unsigned int i = 0; i < n->children.size(); i++)
+                {
+                    Node *c = n->children[i];
+                    if (c->id == id)
+                        return c;
+                    q.push(c);
+                }
+            }
+
+            return nullptr;
+        }
+
+        static stringstream &ToString(stringstream &ss, Node *node, int x, vector<int> &y)
+        {
+            static string link = "____";
+            string c = String::Format(" %d:%d ", node->id, node->distance);
+            ss << c;
+
+            if (node->children.size() == 0)
+                return ss;
+
+            x += c.length();
+            if (node->children.size() > 1)
+            {
+                // Record current x coordinate,
+                // so it can be used to draw '|'
+                y.push_back(x);
+            }
+
+            vector<Node *>::iterator it = node->children.begin();
+            ss << link;
+            ToString(ss, *it, x + link.length(), y);
+            it++;
+            while (it != node->children.end())
+            {
+                ss << endl;
+                for (size_t i = 0; i < y.size(); i++)
+                {
+                    int len = i == 0 ? y[i] : y[i] - y[i - 1];
+                    string blank(len - 1, ' ');
+                    ss << blank << '|';
+                }
+
+                if (it + 1 == node->children.end())
+                {
+                    // The last child is ready to print
+                    // Remove its coordinate because it is not needed any more
+                    y.pop_back();
+                }
+
+                ss << link;
+                ToString(ss, *it, x + link.length(), y);
+                it++;
+            }
+
+            return ss;
+        }
+
+    } * root;
+
+    unsigned int rootId;
+
+public:
+    GraphSearchTree(unsigned int id)
+    {
+        this->rootId = id;
+        this->root = new Node(rootId);
+    }
+
+    ~GraphSearchTree(void)
+    {
+        Node::PostOrderWalk(this->root, [&](Node *n) { delete n; });
+    }
+
+    void Visit(unsigned int parentId, unsigned int childId)
+    {
+        if (childId == this->rootId)
+            return;
+        Node *p = Node::Search(this->root, parentId);
+        if (p == nullptr)
+            return;
+        Node *c = new Node(childId, p->distance + 1, p);
+        p->children.push_back(c);
+    }
+
+    template <class VertexValueType, class EdgeValueType>
+    void BreadthFirstSearch(Graph<VertexValueType, EdgeValueType> &g)
+    {
+        function<void(unsigned int, unsigned int)> v = [&](unsigned int p, unsigned int c) {
+            Visit(p, c);
+        };
+
+        g.BreadthFirstSearch(this->rootId, v);
+    }
+
+    template <class VertexValueType, class EdgeValueType>
+    void DepthFirstSearch(Graph<VertexValueType, EdgeValueType> &g)
+    {
+        function<void(unsigned int, unsigned int)> v = [&](unsigned int p, unsigned int c) {
+            Visit(p, c);
+        };
+
+        g.DepthFirstSearch(this->rootId, v);
+    }
+
+    void Print(void)
+    {
+        stringstream ss;
+        vector<int> y;
+        Node::ToString(ss, this->root, 0, y);
+        ss << endl;
+        cout << ss.str();
+    }
+};
+
+namespace NodeGraph
+{
+class Node
+{
+public:
+    Node(void) {}
+    virtual ~Node(void) {}
+
+    // Contain pointers to neighboring nodes
+    vector<Node *> neighbors;
+
+    // Get a cloned copy, not including neighbors
+    virtual Node *Clone(void)
+    {
+        Node *n = new Node();
+        return n;
+    }
+
+    // Clone the graph at node.
+    // Return the pointer to the copy of input node.
+    // Use map to return the mapping of graph nodes and their clones.
+    static Node *CloneGraph(Node *node, map<Node *, Node *> &map)
+    {
+        if (node == nullptr)
+            return nullptr;
+
+        Node *copy = node->Clone();
+        map[node] = copy;
+        queue<Node *> q;
+        q.push(node);
+
+        while (!q.empty())
+        {
+            Node *n = q.front();
+            q.pop();
+
+            for_each(n->neighbors.begin(), n->neighbors.end(), [&](Node *c) {
+                if (map.find(c) == map.end())
+                {
+                    map[c] = c->Clone();
+                    q.push(c);
+                }
+
+                map[n]->neighbors.push_back(map[c]);
+            });
+        }
+
+        return copy;
+    }
+};
+} // namespace NodeGraph
 } // namespace Test
 
 #endif
