@@ -16,6 +16,96 @@ using namespace std;
 
 namespace Test
 {
+class Random
+{
+private:
+    Random()
+    {
+        // Seed the random-number generator with the current time so that
+        // the numbers will be different every time we run.
+        srand((unsigned)time(NULL));
+    }
+
+    ~Random() {}
+
+public:
+    // Call rand() to get a random number in [0, RAND_MAX]
+    static int Next(void)
+    {
+        return rand();
+    }
+
+    // Return a random value in [0, max]
+    static int Next(int max)
+    {
+        if (max < 0)
+            throw invalid_argument(String::Format("%d is less than zero", max));
+        if (max > RAND_MAX)
+            throw invalid_argument(String::Format("%d is greater than RAND_MAX", max));
+
+        // +--------+--------+--------+-- ........ --+--------+--------+--------+
+        // 0        1        2        3             max-2    max-1    max     RAND_MAX
+
+        double d = (double)RAND_MAX / (max + 1);
+        int r = (int)(rand() / d);
+        if (r > max)
+            r = max;
+        return r;
+    }
+
+    // Return a value in [min, max]
+    static int Next(int min, int max)
+    {
+        if (min > max)
+            throw invalid_argument(String::Format("%d is larger than %d", min, max));
+        if (max - min > RAND_MAX)
+            throw invalid_argument(String::Format("%d - %d is greater than RAND_MAX", max, min));
+        int r = min + Next(max - min);
+        return r;
+    }
+
+    // Select m samples from [0, n-1] in
+    // which each m samples is equally likely.
+    // The algorithm is described in exercise 5.3-7 in MIT Introduction to Algorithm, Third Edition.
+    static void Sample(unsigned int n, unsigned int m, vector<unsigned int> &samples)
+    {
+        if (m == 0)
+            return;
+        if (m > n)
+            throw invalid_argument(String::Format("%d is less than %d", n, m));
+        Sample(n - 1, m - 1, samples);
+        unsigned int i = (unsigned int)Next(n - 1);
+        if (find(samples.begin(), samples.end(), i) == samples.end())
+        {
+            samples.push_back(i);
+        }
+        else
+        {
+            samples.push_back(n - 1);
+        }
+    }
+
+    static void Sample2(unsigned int n, unsigned int m, vector<unsigned int> &samples)
+    {
+        if (m == 0)
+            return;
+        if (m > n)
+            throw invalid_argument(String::Format("%d is less than %d", n, m));
+        for (unsigned int j = n - m; j < n; j++)
+        {
+            unsigned int i = (unsigned int)Next(j);
+            if (find(samples.begin(), samples.end(), i) == samples.end())
+            {
+                samples.push_back(i);
+            }
+            else
+            {
+                samples.push_back(j);
+            }
+        }
+    }
+};
+
 // Standard C++ Library contains a class bitset<N> to manipulate a set of
 // bits. The difference is bitset<N> requires N to be set explicitly during
 // compile time while BitSet can be defined during runtime. Like bitset,
@@ -9856,6 +9946,134 @@ public:
 };
 
 template <class T, template <class T> class N>
+class PreOrderBinaryIterator : public BinaryIterator<T, N>
+{
+private:
+    stack<N<T> *> path;
+    N<T> *current;
+
+public:
+    PreOrderBinaryIterator(N<T> *p) : BinaryIterator(p), current(p)
+    {
+        this->operator++();
+    }
+
+    PreOrderBinaryIterator(const PreOrderBinaryIterator &it) : BinaryIterator(it), current(it.pointer)
+    {
+        this->operator++();
+    }
+
+    PreOrderBinaryIterator(void) : BinaryIterator(), current(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        while (!this->path.empty() || this->current != nullptr)
+        {
+            if (this->current != nullptr)
+            {
+                this->pointer = this->current;
+                path.push(this->current);
+                this->current = (N<T> *)this->current->Left();
+                break;
+            }
+            else
+            {
+                this->current = (N<T> *)this->path.top()->Right();
+                this->path.pop();
+            }
+        }
+
+        if (this->path.empty() && this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+template <class T>
+class PreOrderBinaryIteratorWithOutStack : public BinaryIterator<T, BinaryNodeWithParent>
+{
+private:
+    BinaryNodeWithParent<T> *current;
+    BinaryNodeWithParent<T> *prev;
+
+public:
+    PreOrderBinaryIteratorWithOutStack(BinaryNodeWithParent<T> *p) : BinaryIterator(p), current(p), prev(p)
+    {
+        this->operator++();
+    }
+
+    PreOrderBinaryIteratorWithOutStack(const PreOrderBinaryIteratorWithOutStack &it) : BinaryIterator(it), current(it.pointer), prev(it.pointer)
+    {
+        this->operator++();
+    }
+
+    PreOrderBinaryIteratorWithOutStack(void) : BinaryIterator(), current(nullptr), prev(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        while (this->current != nullptr)
+        {
+            if (this->prev == this->current->Right())
+            {
+                this->prev = this->current;
+                this->current = this->current->Parent();
+            }
+            else if (this->current->Left() != nullptr && this->prev != this->current->Left())
+            {
+                this->pointer = this->current;
+                this->prev = this->current;
+                this->current = (BinaryNodeWithParent<T> *)this->current->Left();
+                break;
+            }
+            else
+            {
+                if (this->current->Left() == nullptr)
+                {
+                    this->pointer = this->current;
+                }
+
+                this->prev = this->current;
+                if (this->current->Right() != nullptr)
+                {
+                    this->current = (BinaryNodeWithParent<T> *)this->current->Right();
+                }
+                else
+                {
+                    this->current = this->current->Parent();
+                }
+
+                if (this->pointer == this->prev)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+template <class T, template <class T> class N>
 class InOrderBinaryIterator : public BinaryIterator<T, N>
 {
 private:
@@ -9964,6 +10182,134 @@ public:
         if (this->current == nullptr)
         {
             this->pointer = nullptr;
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+template <class T, template <class T> class N>
+class PostOrderBinaryIterator : public BinaryIterator<T, N>
+{
+private:
+    stack<N<T> *> path;
+    N<T> *current;
+    N<T> *prev;
+
+public:
+    PostOrderBinaryIterator(N<T> *p) : BinaryIterator(p), current(p), prev(nullptr)
+    {
+        this->operator++();
+    }
+
+    PostOrderBinaryIterator(const PostOrderBinaryIterator &it) : BinaryIterator(it), current(it.pointer), prev(nullptr)
+    {
+        this->operator++();
+    }
+
+    PostOrderBinaryIterator(void) : BinaryIterator(), current(nullptr), prev(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        if (this->path.empty() && this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        while (!this->path.empty() || this->current != nullptr)
+        {
+            if (this->current != nullptr)
+            {
+                this->path.push(this->current);
+                this->current = (N<T> *)this->current->Left();
+            }
+            else
+            {
+                if (this->path.top()->Right() != nullptr && this->path.top()->Right() != this->prev)
+                {
+                    this->current = (N<T> *)this->path.top()->Right();
+                }
+                else
+                {
+                    this->pointer = this->path.top();
+                    this->path.pop();
+                    this->prev = this->pointer;
+                    break;
+                }
+            }
+        }
+
+        return this->pointer != nullptr;
+    }
+
+    // Postfix increment
+    // it ++
+    bool operator++(int) { return operator++(); }
+};
+
+template <class T>
+class PostOrderBinaryIteratorWithOutStack : public BinaryIterator<T, BinaryNodeWithParent>
+{
+private:
+    BinaryNodeWithParent<T> *current;
+    BinaryNodeWithParent<T> *prev;
+
+public:
+    PostOrderBinaryIteratorWithOutStack(BinaryNodeWithParent<T> *p) : BinaryIterator(p), current(p), prev(p)
+    {
+        this->operator++();
+    }
+
+    PostOrderBinaryIteratorWithOutStack(const PostOrderBinaryIteratorWithOutStack &it) : BinaryIterator(it), current(it.pointer), prev(it.pointer)
+    {
+        this->operator++();
+    }
+
+    PostOrderBinaryIteratorWithOutStack(void) : BinaryIterator(), current(nullptr), prev(nullptr) {}
+
+    // Prefix increment
+    // ++ it
+    bool operator++()
+    {
+        if (this->current == nullptr)
+        {
+            this->pointer = nullptr;
+        }
+
+        while (this->current != nullptr)
+        {
+            if (this->prev == this->current->Right())
+            {
+                this->pointer = this->current;
+                this->prev = this->current;
+                this->current = this->current->Parent();
+                break;
+            }
+            else if (this->current->Left() != nullptr && this->prev != this->current->Left())
+            {
+                this->prev = this->current;
+                this->current = (BinaryNodeWithParent<T> *)this->current->Left();
+            }
+            else
+            {
+                this->prev = this->current;
+                if (this->current->Right() != nullptr)
+                {
+                    this->current = (BinaryNodeWithParent<T> *)this->current->Right();
+                }
+                else
+                {
+                    this->pointer = this->current;
+                    this->current = this->current->Parent();
+                    break;
+                }
+            }
         }
 
         return this->pointer != nullptr;

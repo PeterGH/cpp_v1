@@ -1030,6 +1030,103 @@ static size_t FindShiftPoint(const vector<int> &input)
     throw runtime_error("Unreachable code");
 }
 
+namespace Search
+{
+// Find a subarray of contiguous elements whose sum is maximized
+// If array contains both positive and negative numbers, return the maximum subarray
+// If array contains positive numbers, return entire array A
+// If array contains non-positive numbers, return the maximum number
+// Parameter sum is the summation of the returned subarray
+// Parameters start and end are the start and end indices of the returned subarray
+template <class T>
+static void MaxSum(const T *input, int length, int &start, int &end, T &sum)
+{
+    start = -1;
+    end = -1;
+    sum = INT_MIN;
+
+    if (input == nullptr || length <= 0)
+        return;
+
+    // Track the last maximum sum so far
+    start = 0;
+    end = 0;
+    sum = 0;
+
+    // Track the current streak
+    int l = 0;   // Beginning
+    T c = 0;     // Cumulative sum up to current element
+    int max = 0; // The index of the maximum element seen so far
+
+    for (int i = 0; i < length; i++)
+    {
+        c += input[i];
+
+        if (c > sum)
+        {
+            // Current element is positive and the current sum is larger than the last one.
+            // Update the last seen maximum sum
+            start = l;
+            end = i;
+            sum = c;
+        }
+        else if (c <= 0)
+        {
+            // Current element is negative and everything cancel out
+            // Reset and start from the next element
+            l = i + 1;
+            c = 0;
+        }
+
+        // Record the max element so far
+        if (input[i] >= input[max])
+            max = i;
+    }
+
+    if (sum <= 0)
+    {
+        // All elements are zero or negative
+        // Return the maximum element
+        start = max;
+        end = max;
+        sum = input[max];
+    }
+}
+
+template <class T>
+static void MaxSum2(const T *input, int length, int &start, int &end, T &sum)
+{
+    start = -1;
+    end = -1;
+    sum = INT_MIN;
+
+    if (input == nullptr || length <= 0)
+        return;
+
+    int minIndex = -1;
+    int minSum = 0; // sum[0..minIndex]
+    int s = 0;      // sum[0..i]
+    for (int i = 0; i < length; i++)
+    {
+        s += input[i];
+        int d = s - minSum;
+        if (d >= sum)
+        {
+            start = minIndex + 1;
+            if (d != sum || input[i] != 0 || sum == 0)
+                end = i;
+            sum = d;
+        }
+        if (s <= minSum)
+        {
+            minSum = s;
+            minIndex = i;
+        }
+    }
+}
+
+} // namespace Search
+
 // comp is a binary function returning a boolean value.
 // If comp(first, second) returns true, then the first
 // input should go before the second input. Default comp
@@ -6586,6 +6683,275 @@ static string KthPermutation(int n, int k)
     return output;
 }
 
+class Permutation
+{
+
+private:
+    // Keep the permutation state
+    MRInteger *_counter;
+    template <class T>
+    static void Swap(T *buffer, unsigned int position1, unsigned int position2)
+    {
+        if (position1 != position2)
+        {
+            T t = buffer[position1];
+            buffer[position1] = buffer[position2];
+            buffer[position2] = t;
+        }
+    }
+
+public:
+    Permutation(unsigned int length)
+    {
+        std::unique_ptr<unsigned int[]> bases(new unsigned int[length]);
+        for (unsigned int i = 0; i < length; i++)
+        {
+            bases[i] = i + 1;
+        }
+
+        _counter = new MRInteger(bases.get(), length);
+    }
+
+    ~Permutation(void)
+    {
+        delete _counter;
+    }
+
+    // Permutation the buffer.
+    template <class T>
+    void Next(T *buffer, int length)
+    {
+        int len = min(length, (int)_counter->Length());
+        for (int i = len - 1; i >= 0; i--)
+        {
+            Swap(buffer, i, i - (*_counter)[i]);
+        }
+
+        // Prepare for the next permutation
+        (*_counter)++;
+    }
+
+    template <class T>
+    void Next(T *input, T *output, int length)
+    {
+        memcpy(output, input, length * sizeof(T));
+        Next(output, length);
+    }
+
+    template <class T>
+    static void Random(T *buffer, int length)
+    {
+        for (int i = length - 1; i >= 0; i--)
+        {
+            // The rand function returns a pseudorandom integer
+            // in the range 0 (inclusive) to RAND_MAX (32767).
+            // We need r in [0, i]
+            int r = Random::Next(i);
+            Swap(buffer, i, i - r);
+        }
+    }
+
+    template <class T>
+    static void Random(T *input, T *output, int length)
+    {
+        memcpy(output, input, length * sizeof(T));
+        Random(output, length);
+    }
+
+    // Current counter value at position index
+    const unsigned int operator[](unsigned int index) const { return (*_counter)[index]; }
+    // maximum number of permutations
+    const unsigned long Max(void) const { return _counter->Max(); }
+
+    // Given a collection of numbers, return all possible permutations. For example,
+    // [1,2,3] have the following permutations:
+    // [1,2,3], [1,3,2], [2,1,3], [2,3,1], [3,1,2], and [3,2,1].
+    template <class T>
+    static vector<vector<T>> All(vector<T> &input)
+    {
+        if (input.size() == 0)
+            return vector<vector<T>>{};
+
+        // Compute all permutations starting at index i
+        function<void(vector<T> &, size_t, vector<vector<T>> &)>
+            permute = [&](vector<T> &n, size_t i, vector<vector<T>> &o) {
+                if (i == n.size() - 1)
+                {
+                    o.push_back(n);
+                    return;
+                }
+                for (size_t j = i; j < n.size(); j++)
+                {
+                    vector<T> m(n);
+                    if (j != i)
+                    {
+                        // Should just swap m[i] and m[j]
+                        // But we erase and insert, which effectively push m[i] one more positin to the right.
+                        // This way keeps the lexicographical order
+                        T t = m[j];
+                        m.erase(m.begin() + j);
+                        m.insert(m.begin() + i, t);
+                    }
+                    permute(m, i + 1, o);
+                }
+            };
+
+        vector<vector<T>> output;
+        permute(input, 0, output);
+        return output;
+    }
+
+    // Given a collection of numbers that might contain duplicates,
+    // return all possible unique permutations. For example,
+    // [1,1,2] have the following unique permutations:
+    // [1,1,2], [1,2,1], and [2,1,1].
+    template <class T>
+    static vector<vector<T>> Unique(vector<T> &input)
+    {
+        if (input.size() == 0)
+            return vector<vector<T>>{};
+
+        function<void(vector<T> &, size_t, vector<vector<T>> &)>
+            permute = [&](vector<T> &n, size_t i, vector<vector<T>> &o) {
+                if (i == n.size() - 1)
+                {
+                    o.push_back(n);
+                    return;
+                }
+                unordered_set<T> swapped;
+                swapped.insert(n[i]);
+                for (size_t j = i; j < n.size(); j++)
+                {
+                    if (j != i && swapped.find(n[j]) != swapped.end())
+                    {
+                        continue;
+                    }
+                    swapped.insert(n[j]);
+                    vector<T> m(n);
+                    if (j != i)
+                    {
+                        T t = m[j];
+                        m.erase(m.begin() + j);
+                        m.insert(m.begin() + i, t);
+                    }
+                    permute(m, i + 1, o);
+                }
+            };
+
+        vector<vector<T>> output;
+        permute(input, 0, output);
+        return output;
+    }
+
+    // The set {1, 2, 3, ..., n} contains a total of n! unique permutations.
+    // By listing and labeling all of the permutations in order,
+    // We get the following sequence (ie, for n = 3):
+    // 1. "123"
+    // 2. "132"
+    // 3. "213"
+    // 4. "231"
+    // 5. "312"
+    // 6. "321"
+    // Given n and k, return the k-th permutation sequence.
+    // Note: Given n will be between 1 and 9 inclusive.
+    static string GetPermutation(int n, int k)
+    {
+        if (n <= 0 || k <= 0)
+            return string();
+
+        int i = 1; // Count number of digits to permute
+        int m = 1; // Count number of permutations of i digits, i.e. i!
+
+        while (m < k && i < n)
+        {
+            i++;
+            m *= i;
+        }
+
+        if (m < k)
+            return string(); // k > n!
+
+        // Now m = i!, and (i-1)! < k <= i!
+
+        // 1 2 3 ...... n-i n-i+1 n-i+2 ...... n-1 n
+        // ~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~
+        //     not permute         permute i digits
+
+        string output;
+
+        // append {1, 2, 3, ..., n-i}
+        for (int j = 1; j <= n - i; j++)
+        {
+            output.append(1, '0' + j);
+        }
+
+        // Permute the last i digits
+        vector<int> permute;
+
+        // Initialize with {n-i+1, ..., n}
+        for (int j = n - i + 1; j <= n; j++)
+        {
+            permute.push_back(j);
+        }
+
+        while (i > 0)
+        {
+            // For each loop, the variables are defined as:
+            //   i, number of digits to permute
+            //   m, number of permutations of i digits
+            //   k, index (1-based) of target in m permutations
+
+            if (i == 1)
+            {
+                // k = 1 since k <= m = i! = 1
+                output.append(1, '0' + permute[permute.size() - 1]);
+                break;
+            }
+            else if (i == 2)
+            {
+                if (k == 1)
+                {
+                    output.append(1, '0' + permute[permute.size() - 2]);
+                    output.append(1, '0' + permute[permute.size() - 1]);
+                }
+                else
+                { // k = 2
+                    output.append(1, '0' + permute[permute.size() - 1]);
+                    output.append(1, '0' + permute[permute.size() - 2]);
+                }
+                break;
+            }
+
+            // Permute 1 2 3 4 5 ...... i-1 i, will get i ranges determined by the first digit
+            //   1 ......
+            //   1 ......
+            //   2 ......
+            //   2 ......
+            //   ......
+            //   ......
+            //   i-1 ......
+            //   i-1 ......
+            //   i ......
+            //   i ......
+
+            m = m / i; // Count permutations per range
+
+            int j = (k - 1) / m + 1; // Get the range index (1-based) which k falls into
+
+            // 1 2 3 4 5 ... j-1 j   j+1 ... i-1 i
+            // j 1 2 3 4 5 ...   j-1 j+1 ... i-1 i
+            int t = permute[j - 1];
+            permute.erase(permute.begin() + j - 1);
+            output.append(1, '0' + t);
+
+            i--;                   // Move on to the rest i - 1 digits
+            k = ((k - 1) % m) + 1; // Get the index in the j-th range
+        }
+
+        return output;
+    }
+};
+
 // Partition input into two ranges input[begin..i] and input[(i+1)..end], such that
 // transform(input[begin..i]) < value <= transform(input[(i+1)..end]).
 // Invariant: given j, divide the input into three ranges input[begin..i],
@@ -7005,6 +7371,186 @@ void MergeSort(vector<vector<T>> &inputs, vector<T> &output)
     }
 }
 
+namespace Heap
+{
+// Rearrange [i, length - 1] so that it is a heap. 0 <= i < length
+// The assumption is the subtrees rooted at i are already heapified.
+template <class T>
+static void HeapifyElement(T *input, unsigned int i, unsigned int length)
+{
+    if (i >= length)
+        return;
+    unsigned int max = i;
+    unsigned int l = Math::Tree::Left(i);
+    if (l < length && input[l] > input[max])
+    {
+        max = l;
+    }
+
+    unsigned int r = Math::Tree::Right(i);
+    if (r < length && input[r] > input[max])
+    {
+        max = r;
+    }
+
+    if (max != i)
+    {
+        Array::Swap(input, i, max);
+        HeapifyElement(input, max, length);
+    }
+}
+// Construct the array into a max heap from bottom up
+template <class T>
+static void Heapify(T *input, unsigned int length)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+
+    unsigned int height = Math::Tree::Height(length);
+
+    // The elements at bottom are indexed in [2^(height - 1) - 1, 2^height - 2]
+    // We only need to heapify elements above them
+    for (long i = ((1 << (height - 1)) - 2); i >= 0; i--)
+    {
+        HeapifyElement(input, (unsigned int)i, length);
+    }
+}
+
+template <class T>
+static void ParallelHeapify(T *input, unsigned int length)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+
+    unsigned height = Math::Tree::Height(length);
+
+    for (long long h = (height - 1); h > 0; h--)
+    {
+        // For h, the index is in [((1 << (h-1)) - 1), ((1 << h) - 2)]
+        parallel_for(
+            unsigned int((1 << (h - 1)) - 1),
+            unsigned int((1 << h) - 1),
+            [&](unsigned int i) { HeapifyElement(input, (unsigned int)i, length); });
+    }
+}
+
+template <class T>
+static void Sort(T *input, unsigned int length)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+
+    // Make a heap
+    Heapify(input, length);
+
+    // Sort
+    for (long long i = length - 1; i >= 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        Array::Swap(input, 0, (unsigned int)i);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (unsigned int)i);
+    }
+}
+
+// Rearrange [i, length - 1] so that it is a heap. 0 <= i < length
+// The assumption is the subtrees rooted at i are already heapified.
+template <class T>
+static void HeapifyElement(T *input, unsigned int i, unsigned int length, unsigned int d)
+{
+    if (i >= length)
+        return;
+    unsigned int max = i;
+
+    for (unsigned int j = 0; j < d; j++)
+    {
+        unsigned int c = Math::Tree::Child(i, j, d);
+        if (c < length && input[c] > input[max])
+        {
+            max = c;
+        }
+    }
+
+    if (max != i)
+    {
+        Array::Swap(input, i, max);
+        HeapifyElement(input, max, length, d);
+    }
+}
+
+// Construct the array into a max d-ary heap from bottom up
+template <class T>
+static void Heapify(T *input, unsigned int length, unsigned int d)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+    if (d <= 1)
+        throw invalid_argument(String::Format("d %d is invalid", d));
+
+    unsigned int height = Math::Tree::Height(length, d);
+    long long index = ((long long)pow(d, height - 1) - 1) / (d - 1) - 1;
+    for (long long i = index; i >= 0; i--)
+    {
+        HeapifyElement(input, (unsigned int)i, length, d);
+    }
+}
+
+template <class T>
+static void ParallelHeapify(T *input, unsigned int length, unsigned int d)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+    if (d <= 1)
+        throw invalid_argument(String::Format("d %d is invalid", d));
+
+    unsigned int height = Math::Tree::Height(length, d);
+
+    for (long long h = height - 1; h > 0; h--)
+    {
+        // For h, the index is in [(d ^ (h - 1) - 1) / (d - 1), (d^h - 1) / (d - 1) - 1]
+        parallel_for(
+            unsigned int((pow(d, h - 1) - 1) / (d - 1)),
+            unsigned int((pow(d, h) - 1) / (d - 1)),
+            [&](unsigned int i) { HeapifyElement(input, (unsigned int)i, length, d); });
+    }
+}
+
+template <class T>
+static void Sort(T *input, unsigned int length, unsigned int d)
+{
+    if (input == nullptr)
+        throw invalid_argument("input is nullptr");
+    if (length <= 0)
+        throw invalid_argument(String::Format("length %d is invalid", length));
+    if (d <= 1)
+        throw invalid_argument(String::Format("d %d is invalid", d));
+
+    // Make A a heap
+    Heapify(input, length, d);
+
+    // Sort
+    for (long i = length - 1; i >= 0; i--)
+    {
+        // Swap the current maximum value, which is at position 0, to position i.
+        // The range [i, length - 1] is sorted.
+        Array::Swap(input, 0, (unsigned int)i);
+        // Rearrange [0, i - 1] so that it is a heap
+        HeapifyElement(input, 0, (unsigned int)i, d);
+    }
+}
+} // namespace Heap
+
 // HeapSort use a max heap
 
 // Rearrange [begin, end] so that it is a heap.
@@ -7391,6 +7937,95 @@ void PrintResult(vector<double> &utility)
     cout << endl;
 }
 } // namespace RodCutting
+
+// Give a matrix, a seam is a path from one side to the other such that
+// successiv elements are adjacent vertically or diagnoally. The sum of
+// elements of a seam is of interesting, and people usually wants to find
+// a seam with minimum sum. This is useful in many image processing applications.
+namespace SeamCarving
+{
+template <class T>
+static void ComputeSeams(Matrix<T> &input, Matrix<T> &seams)
+{
+    int rows = input.Rows();
+    int cols = input.Cols();
+    for (int i = 0; i < cols; i++)
+    {
+        seams(0, i) = input(0, i);
+    }
+
+    T min;
+    for (int i = 1; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            if (j - 1 >= 0)
+            {
+                min = seams(i - 1, j - 1);
+                if (seams(i - 1, j) < min)
+                    min = seams(i - 1, j);
+            }
+            else
+            {
+                min = seams(i - 1, j);
+            }
+
+            if (j + 1 < cols && input(i - 1, j + 1) < min)
+                min = seams(i - 1, j + 1);
+
+            seams(i, j) = input(i, j) + min;
+        }
+    }
+}
+template <class T>
+static void MinSeam(Matrix<T> &input, vector<pair<size_t, size_t>> &seam)
+{
+    int rows = input.Rows();
+    int cols = input.Cols();
+    Matrix<T> seams(rows, cols);
+    ComputeSeams(input, seams);
+    int j = 0;
+    T min = seams(rows - 1, 0);
+    for (int i = 1; i < cols; i++)
+    {
+        if (seams(rows - 1, i) < min)
+        {
+            min = seams(rows - 1, i);
+            j = i;
+        }
+    }
+
+    seam.insert(seam.begin(), make_pair(rows - 1, j));
+
+    int k = j;
+    for (int i = rows - 2; i >= 0; i--)
+    {
+        if (j - 1 >= 0)
+        {
+            min = seams(i, j - 1);
+            k = j - 1;
+            if (seams(i, j) < min)
+            {
+                min = seams(i, j);
+                k = j;
+            }
+        }
+        else
+        {
+            min = seams(i, j);
+            k = j;
+        }
+
+        if (j + 1 < cols && seams(i, j + 1) < min)
+        {
+            k = j + 1;
+        }
+
+        seam.insert(seam.begin(), make_pair(i, k));
+        j = k;
+    }
+}
+} // namespace SeamCarving
 
 namespace Tree
 {
