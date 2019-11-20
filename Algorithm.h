@@ -1127,6 +1127,83 @@ static void MaxSum2(const T *input, int length, int &start, int &end, T &sum)
 
 } // namespace Search
 
+// This is similar to standard c++ function partial_sum in <numeric>
+static vector<int> PartialSum(const vector<int> &input)
+{
+    vector<int> output;
+    int sum = 0;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        sum += input[i];
+        output.push_back(sum);
+    }
+
+    return output;
+}
+
+// For each input[i] compute the sum of range elements before input[i], inclusively.
+static vector<int> PartialSum(const vector<int> &input, unsigned int range)
+{
+    range = range > input.size() ? input.size() : range;
+    vector<int> output(input);
+    for (int i = 1; i < (int)range; i++)
+    {
+        for (int j = (int)input.size() - 1; j >= i; j--)
+        {
+            output[j] += input[j - i];
+        }
+    }
+
+    return output;
+}
+static vector<int> PartialSum2(const vector<int> &input, unsigned int range)
+{
+    range = range > input.size() ? input.size() : range;
+    vector<int> output;
+    int sum = 0;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        sum += input[i];
+        if (i >= range)
+        {
+            sum -= input[i - range];
+        }
+
+        output.push_back(sum);
+    }
+
+    return output;
+}
+static void PartialSum3(vector<int> &input, unsigned int range)
+{
+    range = range > input.size() ? input.size() : range;
+
+    // sum A[n-k .. n-1]
+    int sum = 0;
+    for (int i = input.size() - 1; i >= (int)(input.size() - range); i--)
+    {
+        sum += input[i];
+    }
+
+    int last = 0;
+    for (int i = input.size() - range - 1; i >= 0; i--)
+    {
+        last = sum;
+        sum -= input[i + range];
+        input[i + range] = last;
+        sum += input[i];
+    }
+
+    // Now sum = A[0 .. k-1]
+
+    for (int i = range - 1; i >= 0; i--)
+    {
+        last = sum;
+        sum -= input[i];
+        input[i] = last;
+    }
+}
+
 // comp is a binary function returning a boolean value.
 // If comp(first, second) returns true, then the first
 // input should go before the second input. Default comp
