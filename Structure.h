@@ -583,6 +583,119 @@ public:
     const T &Top(void) { return _elements.front(); }
 };
 
+template <class T>
+class HeapD
+{
+private:
+    unsigned int d;
+    //                                                  0
+    //                   1                              2                    ...          d
+    // (d+1)                   (d+2) ... (d+d) | (2d+1) (2d+2) ... (2d+d) | (d^2+1) (d^2+2) ... (d^2+d)
+    // (d^2+d+1) (d^2+d+2) ...
+    // ......
+    // Given height h, the number of nodes are [(d^(h-1)-1)/(d-1)+1, (d^h-1)/(d-1)]
+    // The indices at height h are [(d^(h-1)-1)/(d-1), (d^h-1)/(d-1)-1]
+
+    // Return the index of the parent of node i
+    unsigned int Parent(unsigned int i) { return (i - 1) / this->d; }
+
+    // Return the index of the j-th child of node i. j is zero based.
+    unsigned int Child(unsigned int i, unsigned int j)
+    {
+        if (j >= this->d)
+            throw invalid_argument("HeapD::Child(i,j): j must be in [0, d-1].");
+
+        return i * this->d + j + 1;
+    }
+
+    // (d^(h-1)-1)/(d-1) < length <= (d^h-1)/(d-1)
+    // There are h d-bits and the pattern is between:
+    // 1    0    0    0     ... 0    0    0
+    // (d-1)(d-1)(d-1)(d-1) ... (d-1)(d-1)(d-1)
+    unsigned int Height(unsigned int length)
+    {
+        unsigned int x = length * (this->d - 1);
+        unsigned int h = 0;
+        while (x > 0)
+        {
+            x = x / (this->d);
+            h++;
+        }
+
+        return h;
+    }
+
+    static void Swap(T *A, unsigned int i, unsigned int j)
+    {
+        if (i == j)
+            return;
+        T temp = A[i];
+        A[i] = A[j];
+        A[j] = temp;
+    }
+
+    // Rearrange [i, length - 1] so that it is a heap. 0 <= i < length
+    // The assumption is the subtrees rooted at i are already heapified.
+    void Heapify(T *A, unsigned int i, unsigned int L)
+    {
+        if (i >= L)
+            return;
+        unsigned int max = i;
+
+        for (unsigned int j = 0; j < this->d; j++)
+        {
+            unsigned int c = Child(i, j);
+            if (c < L && A[c] > A[max])
+            {
+                max = c;
+            }
+        }
+
+        if (max != i)
+        {
+            Swap(A, i, max);
+            Heapify(A, max, L);
+        }
+    }
+
+public:
+    HeapD(unsigned int d)
+    {
+        if (d == 0)
+            throw invalid_argument("HeapD(d): d cannot be zero.");
+
+        this->d = d;
+    }
+
+    // Construct the array into a heap
+    void Heapify(T *A, unsigned int L)
+    {
+        unsigned int height = Height(L);
+        long long index = ((long long)pow(this->d, height - 1) - 1) / (this->d - 1) - 1;
+        // Do not define i as unsigned int, otherwise the for loop will continue forever
+        for (long long i = index; i >= 0; i--)
+        {
+            Heapify(A, (unsigned int)i, L);
+        }
+    }
+
+    void Sort(T *A, unsigned int L)
+    {
+        // Make A a heap
+        Heapify(A, L);
+
+        // Sort
+        for (long long i = L - 1; i >= 0; i--)
+        {
+            // Swap the current maximum value, which is at position 0, to position i.
+            // The range [i, length - 1] is sorted.
+            Swap(A, 0, (unsigned int)i);
+            // Rearrange [0, i - 1] so that it is a heap
+            Heapify(A, 0, (unsigned int)i);
+        }
+    }
+};
+
 template <class Compare = std::less<>>
 class YoungTableau
 {
@@ -12406,6 +12519,97 @@ public:
         return BinaryTree<T, N>::Height();
     }
 };
+
+//Breadth-First Search
+//	Use a queue to track the frontier of vertices between the vertices
+//  that have been explored and those have not been explored.
+//
+//	The first implementation works when visiting a vertex does not depend
+//  on its predecessor. The queue here contains the vertices that have not
+//  been visited. This means when enqueue an unvisited vertex, we need to
+//  check if it is already in the queue.
+//	void BreadthFirstSearch1(Graph g, Vertex v)
+//	{
+//		queue<Vertex> frontier;
+//		frontier.enqueue(v);
+//		while (!frontier.empty()) {
+//			Vertex u = frontire.dequeue();
+//			Visit(u);
+//			u.Visited = true;
+//			for_each (
+//				u.AdjacentVertices.begin(),
+//				u.AdjacentVertices.end(),
+//				[&](Vertex & n)->void{
+//					if (!n.Visited & !frontier.contains(n)) {
+//						frontier.enqueue(n);
+//					}
+//				}
+//			);
+//		}
+//	}
+//
+//	The second implementation works when visiting a vertex depends on
+//  its predecessor. The queue here contains the vertices that have been
+//  visited.
+//	void BreadthFirstSearch2(Graph g, Vertex v)
+//	{
+//		queue<Vertex> frontier;
+//		Visit(null, v);
+//		v.Visited = true;
+//		frontier.enqueue(v);
+//		while (!frontier.empty()) {
+//			Vertex u = frontire.dequeue();
+//			for_each (
+//				u.AdjacentVertices.begin(),
+//				u.AdjacentVertices.end(),
+//				[&](Vertex & n)->void {
+//					if (!n.Visited) {
+//						Visit(u, n);
+//						n.Visited = true;
+//						frontier.enqueue(n);
+//					}
+//				}
+//			);
+//		}
+//	}
+
+//Depth-First Search
+//	Use a stack to track the path from the starting vertex to the
+//  current vertex. The stack contains the vertices visited so far.
+//
+//	void DepthFisrtSearch1(Graph g, Vertex v)
+//	{
+//		Visit(v);
+//		v.Visited = true;
+//		for_each (
+//			v.AdjacentVertices.begin(),
+//			v.AdjacentVertices.end(),
+//			[&](Vertex & n)->void {
+//				if (!n.Visited) {
+//					DepthFirstSearch1(n);
+//				}
+//			}
+//		);
+//	}
+//
+//	void DepthFisrtSearch2(Graph g, Vertex v)
+//	{
+//		stack<Vertex> path;
+//		Visit(v);
+//		v.Visited = true;
+//		path.push(v);
+//		while (!path.empty()) {
+//			Vertex c = path.top();
+//			Vertex n = c.AdjacentVertices.iterator.next();
+//			if (n == null) {
+//				path.pop();
+//			} else if (!n.Visited) {
+//				Visit(n);
+//				n.Visited = true;
+//				path.push(n);
+//			}
+//		}
+//	}
 
 template <class VertexValueType, class EdgeValueType>
 class Graph

@@ -1310,6 +1310,118 @@ static int Inversions(T *input, size_t length)
 }
 } // namespace Count
 
+namespace InsertionSort
+{
+// Insertion sort is in-place, stable.
+template <class T>
+static void Sort(T *A, int L)
+{
+    if (A == nullptr || L <= 0)
+        return;
+    // Cannot compute the length of A by sizeof(A) / sizeof(A[0])
+    // Have to use an additional parameter L
+    for (int i = 1; i < L; i++)
+    {
+        // Record the current value to insert into A[0..(i-1)]
+        T key = A[i];
+        // Shift any values in A[0..(i-1)] greater than the current value,
+        // so that the right position for the current value is vacant.
+        int j = i - 1;
+        // Note the comparison is strict,
+        // so the multiple instances of the same value preserve their
+        // orignial orders, i.e., the sorting is stable.
+        while (j >= 0 && A[j] > key)
+        {
+            // Right shift A[j] to A[j+1],
+            // so that A[j+1] is vacant for insertion
+            A[j + 1] = A[j];
+            j--;
+        }
+        // Insert the current value
+        A[j + 1] = key;
+    }
+}
+
+// Recursively sort A[0..(L-1)] by insertion
+// Use binary search to find the position to insert an element
+template <class T>
+static void RecursiveSort(T *A, int L)
+{
+    // Invalid input
+    if (A == nullptr || L <= 0)
+        return;
+    // Only one element. no need to recurse
+    if (L == 1)
+        return;
+    // Recursively sort A[0..(L-2)]
+    RecursiveSort(A, L - 1);
+    // Record the current value to insert into A[0..(L-2)]
+    T key = A[L - 1];
+    // Find the position after which the current value should be inserted
+    // -1 <= i <= (L-2)
+    int i = BinarySearch<T>::FindPositionToInsert(key, A, L - 1);
+    // Shift A[(i+1)..(L-2)] so that the position (i+1) for the current value is vacant.
+    for (int j = L - 2; j > i; j--)
+    {
+        A[j + 1] = A[j];
+    }
+    // Insert the current value
+    A[i + 1] = key;
+}
+} // namespace InsertionSort
+
+// minIndex will be the index of the minimum value (first index if there are more than on minimum value
+// maxIndex will be the index of the maximum value (last index if there are more than on maximum value
+template <class T>
+void GetMinMax<T>(const T *input, int length, int &minIndex, int &maxIndex)
+{
+    minIndex = -1;
+    maxIndex = -1;
+    if (input == nullptr || length <= 0)
+        return;
+
+    int startIndex = 0;
+    if (length % 2 == 1)
+    {
+        minIndex = 0;
+        maxIndex = 0;
+        startIndex = 1;
+    }
+    else
+    {
+        if (input[0] <= input[1])
+        {
+            minIndex = 0;
+            maxIndex = 1;
+        }
+        else
+        {
+            minIndex = 1;
+            maxIndex = 0;
+        }
+
+        startIndex = 2;
+    }
+
+    for (int i = startIndex; i < length; i += 2)
+    {
+        if (input[i] <= input[i + 1])
+        {
+            if (input[i] < input[minIndex])
+                minIndex = i;
+            if (input[i + 1] >= input[maxIndex])
+                maxIndex = i + 1;
+        }
+        else
+        {
+            if (input[i + 1] < input[minIndex])
+                minIndex = i + 1;
+            if (input[i] >= input[maxIndex])
+                maxIndex = i;
+        }
+    }
+}
+
 namespace CountingSort
 {
 static void GetRange(const int *input, int length, int &minValue, int &range)
@@ -2419,6 +2531,99 @@ private:
 
     // For current state i, given a character c determine the next state j
     map<int, map<char, int> *> transition;
+};
+
+class FiniteAutomationWithWildChar
+{
+public:
+    FiniteAutomationWithWildChar(char *pattern, int length)
+    {
+        if (pattern == nullptr)
+            return;
+        if (length <= 0)
+            return;
+
+        int i = 0;
+        for (int j = 0; j < length; j++)
+        {
+            if (pattern[j] != FiniteAutomationWithWildChar::WildChar)
+            {
+                if (j > 0 && pattern[j - 1] == FiniteAutomationWithWildChar::WildChar)
+                {
+                    i = j;
+                }
+
+                if (j == length - 1)
+                {
+                    this->patterns.push_back(unique_ptr<FiniteAutomation>(new FiniteAutomation(&pattern[i], j - i + 1)));
+                }
+            }
+            else
+            {
+                if (j > 0 && pattern[j - 1] != FiniteAutomationWithWildChar::WildChar)
+                {
+                    this->patterns.push_back(unique_ptr<FiniteAutomation>(new FiniteAutomation(&pattern[i], j - i)));
+                }
+            }
+        }
+    }
+
+    ~FiniteAutomationWithWildChar(void) {}
+    void Print(void)
+    {
+        for_each(this->patterns.begin(), this->patterns.end(), [&](unique_ptr<FiniteAutomation> &it) {
+            it->Print();
+        });
+    }
+
+    multimap<int, int> SearchString(char *input, int length)
+    {
+        multimap<int, int> indices;
+
+        vector<unique_ptr<FiniteAutomation>>::iterator it = this->patterns.begin();
+
+        vector<int> found = (*it)->SearchString(input, length);
+        int patternLength = (*it)->PatternLength();
+        vector<unique_ptr<FiniteAutomation>>::iterator next = it;
+        next++;
+        if (next == this->patterns.end())
+        {
+            for_each(found.begin(), found.end(), [&](int p) {
+                indices.insert(pair<int, int>(p, (p + patternLength - 1)));
+            });
+        }
+        else
+        {
+            for_each(found.begin(), found.end(), [&](int p) {
+                SearchString(next, input, p + patternLength, length - p - patternLength, p, indices);
+            });
+        }
+
+        return indices;
+    }
+
+private:
+    void SearchString(const vector<unique_ptr<FiniteAutomation>>::iterator &it, char *input, int start, int length, int first, multimap<int, int> &indices)
+    {
+        vector<int> found = (*it)->SearchString(&input[start], length);
+        int patternLength = (*it)->PatternLength();
+        vector<unique_ptr<FiniteAutomation>>::iterator next = it;
+        next++;
+        if (next == this->patterns.end())
+        {
+            for_each(found.begin(), found.end(), [&](int p) {
+                indices.insert(pair<int, int>(first, (start + p + patternLength - 1)));
+            });
+        }
+        else
+        {
+            for_each(found.begin(), found.end(), [&](int p) {
+                SearchString(next, input, start + p + patternLength, length - p - patternLength, first, indices);
+            });
+        }
+    }
+    static const char WildChar = '*';
+    vector<unique_ptr<FiniteAutomation>> patterns;
 };
 
 class KMP
@@ -7028,6 +7233,44 @@ public:
         return output;
     }
 };
+
+namespace PowerSet
+{
+// The powerset of any set S is the set of all subsets of S, including the empty set and S itself.
+
+template <class T>
+static vector<vector<T>> ComputeRecursively(typename vector<T>::iterator &begin, typename vector<T>::iterator &end)
+{
+    if (begin == end)
+    {
+        // Create an empty element
+        vector<T> empty;
+        // Note the return vector contains one element, which is an empty vector.
+        return vector<vector<T>>(1, empty);
+    }
+
+    T first = *begin;
+
+    begin++;
+    // Compute the powerset using the elements excluding the first one
+    vector<vector<T>> s = ComputeRecursively(begin, end);
+
+    vector<vector<T>> ps(s.begin(), s.end());
+
+    for_each(s.begin(), s.end(), [&](vector<T> &v) -> void {
+        v.push_back(first);
+        ps.push_back(v);
+    });
+
+    return ps;
+}
+
+template <class T>
+static vector<vector<T>> Compute(vector<T> &set)
+{
+    return ComputeRecursively(set.begin(), set.end());
+}
+} // namespace PowerSet
 
 // Partition input into two ranges input[begin..i] and input[(i+1)..end], such that
 // transform(input[begin..i]) < value <= transform(input[(i+1)..end]).
