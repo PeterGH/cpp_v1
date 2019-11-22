@@ -2383,6 +2383,25 @@ public:
             this->_digits[i] = rand() % this->_bases[i];
         }
     }
+
+    // Assume all the MRInteger instances in the vector have the same bases.
+    static void Sort(std::vector<MRInteger> &numbers)
+    {
+        std::function<std::function<bool(const MRInteger &, const MRInteger &)>(int)> compare = [](int radix) {
+            std::function<bool(const MRInteger &, const MRInteger &)> c = [=](const MRInteger &left, const MRInteger &right) -> bool {
+                // It will fail if I change < to <=
+                return left[radix] < right[radix];
+            };
+
+            return c;
+        };
+
+        for (unsigned int i = 0; i < numbers.front().Length(); i++)
+        {
+            std::function<bool(const MRInteger &, const MRInteger &)> c = compare(i);
+            std::stable_sort(numbers.begin(), numbers.end(), c);
+        }
+    }
 };
 
 class PermutationGenerator

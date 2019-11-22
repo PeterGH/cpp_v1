@@ -402,6 +402,23 @@ static void RotateRight2(T *input, const int length, int distance)
     Reverse(input, 0, length - 1);
 }
 
+// Rotate an input array to the right by a distance. The elements rotated
+// out are shifted into the left. MSB (input[length-1]) is on the right side.
+template <class T>
+static void RotateRight3(T *input, const int length, int distance)
+{
+    if (input == nullptr)
+        return;
+    if (length <= 0)
+        return;
+    if (distance <= 0)
+        return;
+    distance = distance % length;
+    if (distance == 0)
+        return;
+    RotateLeft(input, length, length - distance);
+}
+
 // Transpose a two dimensional matrix in place
 // Given an MxN array
 //     (0,0)   (0,1)   (0,2)   ...... (0,M-2)   (0,M-1)   (0,M)   (0,M+1)   ...... (0,N-2)   (0,N-1)
