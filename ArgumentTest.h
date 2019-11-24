@@ -2,6 +2,7 @@
 #define _ARGUMENTTEST_H_
 
 #include "Argument.h"
+#include "String.h"
 #include "Test.h"
 
 using namespace Test;

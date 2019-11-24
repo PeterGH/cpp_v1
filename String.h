@@ -78,6 +78,18 @@ static wstring ToWString(const T &v)
     return ss.str();
 }
 
+template <class T>
+static basic_string<T> ToLower(const basic_string<T> &input)
+{
+    basic_string<T> output;
+    for (size_t i = 0; i < input.length(); i++)
+    {
+        output.append(1, tolower(input[i]));
+    }
+
+    return output;
+}
+
 // Check if string input1 starts with string input2
 template <class T>
 static bool StartsWith(const basic_string<T> &input1, const basic_string<T> &input2)
@@ -119,18 +131,6 @@ static wstring Format(const wchar_t *format, ...)
     vswprintf(buffer, MaxLength, format, args);
     va_end(args);
     return wstring(buffer);
-}
-
-template <class T>
-static basic_string<T> ToLower(const basic_string<T> &input)
-{
-    basic_string<T> output;
-    for (size_t i = 0; i < input.length(); i++)
-    {
-        output.append(1, tolower(input[i]));
-    }
-
-    return output;
 }
 
 template <class T>

@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 using namespace std;
@@ -66,6 +67,12 @@ private:
         return output;
     }
 
+    static string ToString(const basic_string<T> &input)
+    {
+        string output(input.begin(), input.end());
+        return output;
+    }
+
 public:
     Argument(int argc, const T *argv[]) { Parse(argc, argv); }
 
@@ -96,8 +103,8 @@ public:
             _namedArg.find(namel);
         if (it != _namedArg.end())
             return it->second;
-        basic_stringstream<T> ss;
-        ss << "Invalid argument name '" << name << "'";
+        ostringstream ss;
+        ss << "Invalid argument name '" << ToString(name) << "'";
         throw invalid_argument(ss.str());
     }
 
@@ -105,7 +112,7 @@ public:
     {
         if (index < _indexedArg.size())
             return _indexedArg[index];
-        basic_stringstream<T> ss;
+        ostringstream ss;
         ss << "Invalid argument index '" << index << "'";
         throw invalid_argument(ss.str());
     }
@@ -147,8 +154,8 @@ public:
     const set<basic_string<T>> Keys(void) const
     {
         set<basic_string<T>> keys;
-        for (map<basic_string<T>, basic_string<T>>::const_iterator it = _namedArgs.cbegin();
-             it != _namedArgs.cend();
+        for (typename map<basic_string<T>, basic_string<T>>::const_iterator it = _namedArg.cbegin();
+             it != _namedArg.cend();
              it++)
         {
             keys.insert(it->first);

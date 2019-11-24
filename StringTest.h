@@ -1,6 +1,7 @@
 #ifndef _STRINGTEST_H_
 #define _STRINGTEST_H_
 
+#include <string.h>
 #include "String.h"
 #include "Test.h"
 

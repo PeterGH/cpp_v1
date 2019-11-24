@@ -1,12 +1,12 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-#include <functional>
-#include <iostream>
 #include <map>
+#include <iostream>
 #include <stdarg.h>
 #include <string>
 #include <vector>
+// #include "Structure.h"
 
 using namespace std;
 
@@ -208,6 +208,120 @@ public:
             Print(v[i], format, sep);
         }
         WriteInformation("}\n");
+    }
+
+    template <class T>
+    void Print(Matrix<T> &matrix, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                WriteInformation(format, matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(Matrix<T> &matrix, function<void(Log &, T &)> format, const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                format(*this, matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(LowerTriangularMatrix<T> &matrix, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                WriteInformation(format, i < j ? 0 : matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(LowerTriangularMatrix<T> &matrix, function<void(Log &, T)> format, const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                format(*this, i < j ? 0 : matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(UpperTriangularMatrix<T> &matrix, const char *format = "%d", const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                WriteInformation(format, i > j ? 0 : matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
+    }
+
+    template <class T>
+    void Print(UpperTriangularMatrix<T> &matrix, function<void(Log &, T)> format, const char *sep = ", ")
+    {
+        WriteInformation("[\n");
+        for (size_t i = 0; i < matrix.Rows(); i++)
+        {
+            for (size_t j = 0; j < matrix.Cols(); j++)
+            {
+                if (j == 0)
+                    WriteInformation(" ");
+                else
+                    WriteInformation(sep);
+                format(*this, i > j ? 0 : matrix(i, j));
+            }
+            WriteInformation("\n");
+        }
+        WriteInformation("]\n");
     }
 
     template <class K, class V>
