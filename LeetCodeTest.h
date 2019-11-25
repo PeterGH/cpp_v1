@@ -79,5 +79,89 @@ void LeetCodeTest::Init(void)
             ASSERT1(l == l3);
         }
     });
+
+    Add("5. Longest Palindromic Substring", [&]() {
+        auto check = [&](const string &s, const string &es = "") {
+            string p = longestPalindrome(s);
+            string p2 = longestPalindrome2(s);
+            string p3 = longestPalindrome3(s);
+            string p4 = longestPalindrome4(s);
+            Logger() << s << ", '" << p << "', '" << p2 << "', '" << p3 << "', '" << p4 << "'" << endl;
+            if (es.empty())
+            {
+                ASSERT1(p == p2);
+                ASSERT1(p == p3);
+                ASSERT1(p == p4);
+            }
+            else
+            {
+                ASSERT1(p == es);
+                ASSERT1(p2 == es);
+                ASSERT1(p3 == es);
+                ASSERT1(p4 == es);
+            }
+        };
+
+        check("babad", "bab");
+        check("cbbd", "bb");
+        check("a", "a");
+        check("bb", "bb");
+        check("ab", "a");
+        check("abc", "a");
+        check("aab", "aa");
+        check("bcc", "cc");
+        check("aba", "aba");
+        check("aabb", "aa");
+        check("aaab", "aaa");
+        check("abbb", "bbb");
+        check("abab", "aba");
+        check("abba", "abba");
+        for (int i = 0; i < 100; i++)
+        {
+            size_t len = 1 + (rand() % 100);
+            string s = Random::String<char>(len, "abcde");
+            check(s);
+        }
+    });
+
+    Add("6. ZigZag Conversion", [&]() {
+        auto check = [&](const string &s, int r, const string &es = "") {
+            string z = convert(s, r);
+            string z2 = convert2(s, r);
+            Logger() << s << ", " << z << ", " << z2 << endl;
+            if (es.empty())
+            {
+                ASSERT1(z == z2);
+            }
+            else
+            {
+                ASSERT1(z == es);
+                ASSERT1(z2 == es);
+            }
+        };
+        check("PAYPALISHIRING", 3, "PAHNAPLSIIGYIR");
+        check("PAYPALISHIRING", 4, "PINALSIGYAHRPI");
+        check("A", 1, "A");
+        check("A", 2, "A");
+        check("AB", 1, "AB");
+        check("AB", 2, "AB");
+        check("AB", 3, "AB");
+        check("ABC", 2, "ACB");
+        check("ABC", 3, "ABC");
+        check("ABC", 4, "ABC");
+        check("ABCD", 2, "ACBD");
+        check("ABCD", 3, "ABDC");
+        check("ABCD", 4, "ABCD");
+        check("ABCDE", 4, "ABCED");
+        for (int i = 0; i < 100; i++)
+        {
+            size_t len = 1 + (rand() % 50);
+            string s = Random::String(len);
+            for (int r = 1; r <= (int)s.size(); r++)
+            {
+                check(s, r);
+            }
+        }
+    });
 }
 #endif
