@@ -35,7 +35,7 @@ namespace LeetCode
 // Output: 3
 // Explanation: The answer is "wke", with the length of 3.
 // Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
-static int lengthOfLongestSubstring(const string &s)
+int lengthOfLongestSubstring(const string &s)
 {
     map<char, int> m;
     int l = 0;
@@ -57,7 +57,7 @@ static int lengthOfLongestSubstring(const string &s)
     l = max(l, j - i);
     return l;
 }
-static int lengthOfLongestSubstring2(const string &s)
+int lengthOfLongestSubstring2(const string &s)
 {
     set<char> chars;
     int i = 0;
@@ -323,7 +323,7 @@ string convert(const string &s, int numRows)
     }
     return ss.str();
 }
-static string convert2(const string &s, int numRows)
+string convert2(const string &s, int numRows)
 {
     string output;
     int len = s.size();
@@ -341,6 +341,62 @@ static string convert2(const string &s, int numRows)
     return output;
 }
 
+// 7. Reverse Integer
+// Given a 32-bit signed integer, reverse digits of an integer.
+// Example 1:
+// Input: 123
+// Output: 321
+// Example 2:
+// Input: -123
+// Output: -321
+// Example 3:
+// Input: 120
+// Output: 21
+// Note:
+// Assume we are dealing with an environment which could only store
+// integers within the 32-bit signed integer range: [−2^31,  2^31 − 1].
+// For the purpose of this problem, assume that your function returns 0
+// when the reversed integer overflows.
+int reverse(int x)
+{
+    long long y = x;
+    bool isNegative = false;
+    if (y < 0)
+    {
+        isNegative = true;
+        y = -y;
+    }
+    long long z = 0;
+    while (y > 0)
+    {
+        z = z * 10 + (y % 10);
+        if (isNegative && -z < INT_MIN)
+            return 0;
+        else if (z > INT_MAX)
+            return 0;
+        y = y / 10;
+    }
+    return isNegative ? -z : z;
+}
+int reverse2(int x)
+{
+    int minh = -214748364; // INT_MIN / 10 = 18284266;
+    int mind = -8; // INT_MIN % 10 = -8;
+    int maxh = 214748364; // INT_MAX / 10 = 214748364;
+    int maxd = 7; // INT_MAX % 10 = 7;
+    int y = 0;
+    while (x != 0)
+    {
+        int d = x % 10; // d < 0 if x < 0
+        if (y < minh || (y == minh && d < mind))
+            return 0;
+        else if (y > maxh || (y == maxh && d > maxd))
+            return 0;
+        y = y * 10 + d;
+        x = x / 10;
+    }
+    return y;
+}
 } // namespace LeetCode
 } // namespace Test
 

@@ -163,5 +163,37 @@ void LeetCodeTest::Init(void)
             }
         }
     });
+
+    Add("7. Reverse Integer", [&]() {
+        auto check = [&](int x, int e, bool ignoreE = false) {
+            int y = reverse(x);
+            int y2 = reverse2(x);
+            if (ignoreE)
+            {
+                Logger() << x << ", " << y << ", " << y2 << endl;
+                ASSERT1(y == y2);
+            }
+            else
+            {
+                Logger() << x << ", " << y << ", " << y2 << ", " << e << endl;
+                ASSERT1(y == e);
+                ASSERT1(y2 == e);
+            }
+        };
+        check(123, 321);
+        check(-123, -321);
+        check(120, 21);
+        check(INT_MIN, 0);
+        check(INT_MAX, 0);
+        check(0, 0);
+        for (int i = 0; i < 100; i++)
+        {
+            int r = rand();
+            check(INT_MIN + r, 0, true);
+            check(-r, 0, true);
+            check(r, 0, true);
+            check(INT_MAX - r, 0, true);
+        }
+    });
 }
 #endif
