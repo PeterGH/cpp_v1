@@ -195,5 +195,51 @@ void LeetCodeTest::Init(void)
             check(INT_MAX - r, 0, true);
         }
     });
+
+    Add("8. String to Integer (atoi)", [&]() {
+        auto check = [&](const string &s, int e, bool ignoreE = false) {
+            int r = myAtoi(s);
+            int r2 = myAtoi2(s);
+            int r3 = myAtoi3(s);
+            if (ignoreE)
+            {
+                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3 << endl;
+                ASSERT1(r == r2);
+                ASSERT1(r == r3);
+            }
+            else
+            {
+                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3 << ", " << e << endl;
+                ASSERT1(r == e);
+                ASSERT1(r2 == e);
+                ASSERT1(r3 == e);
+            }
+        };
+        check("", 0);
+        check(" ", 0);
+        check("  ", 0);
+        check("1", 1);
+        check(" 2 ", 2);
+        check("   33", 33);
+        check("     3 4", 3);
+        check(" 5w", 5);
+        check("+5w", 5);
+        check("-5w", -5);
+        check(" + 6", 0);
+        check(" -  6", 0);
+        check("asd", 0);
+        check("asd124", 0);
+        check("-2147483647", -2147483647);
+        check("-2147483648", -2147483648);
+        check("-2147483649", -2147483648);
+        check(" 2147483647", 2147483647);
+        check(" 2147483648", 2147483647);
+        for (int i = 0; i < 100; i++)
+        {
+            size_t len = Random::Int(20, 1);
+            string str = Random::String<char>(len, "0123456789     abcde");
+            check(str, 0, true);
+        }
+    });
 }
 #endif
