@@ -241,5 +241,41 @@ void LeetCodeTest::Init(void)
             check(str, 0, true);
         }
     });
+
+    Add("9. Palindrome Number", [&]() {
+        auto check = [&](int n, bool e, bool ignoreE = false) {
+            bool r = isPalindrome(n);
+            bool r2 = isPalindrome2(n);
+            bool r3 = isPalindrome3(n);
+            if (ignoreE)
+            {
+                Logger() << n << ", " << r << ", " << r2 << ", " << r3 << endl;
+                ASSERT1(r == r2);
+                ASSERT1(r == r3);
+            }
+            else
+            {
+                Logger() << n << ", " << r << ", " << r2 << ", " << r3 << ", " << e << endl;
+                ASSERT1(r == e);
+                ASSERT1(r2 == e);
+                ASSERT1(r3 == e);
+            }
+        };
+        check(3, true);
+        check(33, true);
+        check(23, false);
+        check(232, true);
+        check(1231, false);
+        check(12344321, true);
+        check(123454321, true);
+        check(1234567, false);
+        check(INT_MIN, false);
+        check(INT_MAX, false);
+        check(1000000001, true);
+        for (int i = 0; i < 100; i++)
+        {
+            check(rand(), false, true);
+        }
+    });
 }
 #endif

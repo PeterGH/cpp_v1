@@ -546,6 +546,92 @@ int myAtoi3(string str)
     return negative ? -r : r;
 }
 
+// 9. Palindrome Number
+// Determine whether an integer is a palindrome. An integer is a palindrome
+// when it reads the same backward as forward.
+// Example 1:
+// Input: 121
+// Output: true
+// Example 2:
+// Input: -121
+// Output: false
+// Explanation: From left to right, it reads -121. From right to left,
+// it becomes 121-. Therefore it is not a palindrome.
+// Example 3:
+// Input: 10
+// Output: false
+// Explanation: Reads 01 from right to left. Therefore it is not a palindrome.
+// Follow up:
+// Coud you solve it without converting the integer to a string?
+bool isPalindrome(int x)
+{
+    if (x < 0)
+        return false;
+    int d = 1;
+    // 10 * d will overflow if d is too large, e.g. when x = 1000000001
+    // while (10 * d <= x)
+    //     d *= 10;
+    int y = x;
+    while (y >= 10)
+    {
+        d *= 10;
+        y /= 10;
+    }
+    while (x > 0)
+    {
+        int l = x % 10;
+        int h = x / d;
+        if (h != l)
+            return false;
+        x = (x % d) / 10;
+        d /= 100;
+    }
+    return true;
+}
+bool isPalindrome2(int x)
+{
+    if (x < 0)
+        return false;
+    long long y = x;
+    long long d = 1;
+    while (y >= 10 * d)
+        d *= 10;
+    int l = 0;
+    int r = 0;
+    while (y > 0)
+    {
+        l = y >= d ? (y / d) : 0; // what if just l = y / d ?
+        r = y % 10;
+        if (l != r)
+            return false;
+        y = (y % d) / 10;
+        d /= 100;
+    }
+    return true;
+}
+bool isPalindrome3(unsigned int number)
+{
+    if (number < 10)
+        return true;
+    unsigned int base = 1;
+    while ((number / base) >= 10)
+        base *= 10;
+    // Compare the most significant digit (MSD) and
+    // the least significant digit (LSD)
+    while (number >= 10)
+    {
+        if ((number / base) != (number % 10))
+        {
+            // MSD is different from LSD
+            return false;
+        }
+        // Peel off MSD and LSD
+        number = (number % base) / 10;
+        base /= 100;
+    }
+    return true;
+}
+
 } // namespace LeetCode
 } // namespace Test
 
