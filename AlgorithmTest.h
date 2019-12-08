@@ -1,28 +1,25 @@
 #ifndef _ALGORITHMTEST_H_
 #define _ALGORITHMTEST_H_
 
-#include <limits.h>
 #include "Algorithm.h"
 #include "Array.h"
 #include "Random.h"
 #include "Test.h"
+#include <limits.h>
 
 using namespace Test;
 
-class AlgorithmTest : public TestClass
-{
-public:
+class AlgorithmTest : public TestClass {
+  public:
     AlgorithmTest(Log &log) : TestClass(log) {}
     ~AlgorithmTest(void) {}
     void Init(void);
 };
 
-void AlgorithmTest::Init(void)
-{
+void AlgorithmTest::Init(void) {
     Add("BinarySearch", [&]() {
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
                 int i = BinarySearch(input, n, 0, input.size() - 1);
                 Logger() << input;
@@ -32,8 +29,7 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
                 int i = BinarySearch(input, n, 0, input.size() - 1, false);
                 Logger() << input;
@@ -44,25 +40,22 @@ void AlgorithmTest::Init(void)
         }
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(1000, 1), max);
                 sort(input.begin(), input.end());
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max);
                     int i = BinarySearch(input, e, 0, input.size() - 1);
                     auto it = find(input.begin(), input.end(), e);
-                    if (i == -1)
-                    {
+                    if (i == -1) {
                         Logger() << "Not found " << e << endl;
                         ASSERT1(it == input.end());
-                    }
-                    else
-                    {
+                    } else {
                         int i2 = (int)(it - input.begin());
-                        Logger() << "Found " << e << " at (" << i << ", " << i2 << ")" << endl;
+                        Logger() << "Found " << e << " at (" << i << ", " << i2
+                                 << ")" << endl;
                         ASSERT1(e == input[i]);
                         ASSERT1(i == i2);
                     }
@@ -71,30 +64,26 @@ void AlgorithmTest::Init(void)
         }
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(1000, 1), max);
                 sort(input.begin(), input.end());
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max);
                     int i = BinarySearch(input, e, 0, input.size() - 1, false);
                     auto it = find(input.begin(), input.end(), e);
-                    if (i == -1)
-                    {
+                    if (i == -1) {
                         Logger() << "Not found " << e << endl;
                         ASSERT1(it == input.end());
-                    }
-                    else
-                    {
+                    } else {
                         int i2 = (int)(it - input.begin());
-                        Logger() << "Found " << e << " at (" << i << ", " << i2 << ")" << endl;
+                        Logger() << "Found " << e << " at (" << i << ", " << i2
+                                 << ")" << endl;
                         ASSERT1(e == input[i]);
                         ASSERT1(e == input[i2]);
                         ASSERT1(i >= i2);
-                        for (size_t k = i + 1; k < input.size(); k++)
-                        {
+                        for (size_t k = i + 1; k < input.size(); k++) {
                             ASSERT1(e != input[k]);
                         }
                     }
@@ -105,8 +94,7 @@ void AlgorithmTest::Init(void)
 
     Add("FindInsertPoint", [&]() {
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
                 size_t i = FindInsertPoint(input, n, 0, input.size() - 1);
                 Logger() << input;
@@ -115,8 +103,7 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
                 size_t i = FindInsertPoint(input, n - 1, 0, input.size() - 1);
                 Logger() << input;
@@ -125,20 +112,20 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
-                size_t i = FindInsertPoint(input, n, 0, input.size() - 1, false);
+                size_t i =
+                    FindInsertPoint(input, n, 0, input.size() - 1, false);
                 Logger() << input;
                 Logger() << n << " should be inserted at " << i << endl;
                 ASSERT1(i == input.size() - 1);
             }
         }
         {
-            for (int n = 1; n < 10; n++)
-            {
+            for (int n = 1; n < 10; n++) {
                 vector<int> input(n, n);
-                size_t i = FindInsertPoint(input, n + 1, 0, input.size() - 1, false);
+                size_t i =
+                    FindInsertPoint(input, n + 1, 0, input.size() - 1, false);
                 Logger() << input;
                 Logger() << n + 1 << " should be inserted at " << i << endl;
                 ASSERT1(i == input.size());
@@ -146,13 +133,12 @@ void AlgorithmTest::Init(void)
         }
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(1000, 1), max);
                 sort(input.begin(), input.end());
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max + 10, -10);
                     size_t i = FindInsertPoint(input, e, 0, input.size() - 1);
                     Logger() << e << " should be inserted at " << i << endl;
@@ -167,15 +153,15 @@ void AlgorithmTest::Init(void)
         }
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(1000, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(1000, 1), max);
                 sort(input.begin(), input.end());
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max + 10, -10);
-                    size_t i = FindInsertPoint(input, e, 0, input.size() - 1, false);
+                    size_t i =
+                        FindInsertPoint(input, e, 0, input.size() - 1, false);
                     Logger() << e << " should be inserted at " << i << endl;
                     ASSERT1(i >= 0);
                     ASSERT1(i <= input.size());
@@ -220,8 +206,7 @@ void AlgorithmTest::Init(void)
             check(v, 2);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t n = Util::RandomInt(100, 1);
                 size_t s = Util::RandomInt(100) % n;
                 vector<int> input = Util::SortedArrayWithShift(n, s);
@@ -231,7 +216,8 @@ void AlgorithmTest::Init(void)
     });
 
     Add("Median 0", [&]() {
-        int I[] = {1, 1, 3, 3, 7, 8, 34, 35, 42, 43, 64, 445, 3556, 8769, 96656532};
+        int I[] = {1,  1,  3,  3,   7,    8,    34,      35,
+                   42, 43, 64, 445, 3556, 8769, 96656532};
         int L = sizeof(I) / sizeof(I[0]);
         ASSERT1(1 == Test::BinarySearch::FindMedian(I, 1));
         ASSERT1(1 == Test::BinarySearch::FindMedian(I, 2));
@@ -859,50 +845,54 @@ void AlgorithmTest::Init(void)
     });
 
     Add("Median Random", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int length = 1 + Test::Random::Next();
             unique_ptr<int[]> input(new int[length]);
-            for (int j = 0; j < length; j++)
-            {
+            for (int j = 0; j < length; j++) {
                 input[j] = Test::Random::Next();
             }
 
             int len0 = 1 + Test::Random::Next(length - 2);
 
-            Logger().WriteInformation("Run %d: %d and %d elements\n", i, len0, length - len0);
+            Logger().WriteInformation("Run %d: %d and %d elements\n", i, len0,
+                                      length - len0);
 
             Test::Sort::Merge::Sort<int>(input.get(), 0, len0 - 1);
             Test::Sort::Merge::Sort<int>(input.get(), len0, length - 1);
 
-            int median = Test::BinarySearch::FindMedian<int>(input.get(), len0, (input.get() + len0), length - len0);
+            int median = Test::BinarySearch::FindMedian<int>(
+                input.get(), len0, (input.get() + len0), length - len0);
 
             Test::Sort::Merge::Sort<int>(input.get(), length);
-            int median2 = Test::BinarySearch::FindMedian<int>(input.get(), length);
+            int median2 =
+                Test::BinarySearch::FindMedian<int>(input.get(), length);
 
             ASSERT1(median == median2);
         }
     });
 
     Add("K-th", [&]() {
-        auto check = [&](int e, int k, int *input1, int length1, int *input2, int length2) {
+        auto check = [&](int e, int k, int *input1, int length1, int *input2,
+                         int length2) {
             Logger().WriteInformation("\n");
             Logger().WriteInformation("Input1:");
-            for (int i = 0; i < length1; i++)
-            {
+            for (int i = 0; i < length1; i++) {
                 Logger().WriteInformation(" %d", input1[i]);
             }
             Logger().WriteInformation("\n");
             Logger().WriteInformation("Input2:");
-            for (int i = 0; i < length2; i++)
-            {
+            for (int i = 0; i < length2; i++) {
                 Logger().WriteInformation(" %d", input2[i]);
             }
             Logger().WriteInformation("\n");
 
-            int v = Test::BinarySearch::FindKthOrder<int>(k, input1, length1, input2, length2);
-            int v2 = Test::BinarySearch::FindKthOrder2<int>(k, input1, length1, input2, length2);
-            Logger().WriteInformation("%d-th order: %d %s %d, %d %s %d\n", k, v, v == e ? "==" : "!=", e, v2, v2 == e ? "==" : "!=", e);
+            int v = Test::BinarySearch::FindKthOrder<int>(k, input1, length1,
+                                                          input2, length2);
+            int v2 = Test::BinarySearch::FindKthOrder2<int>(k, input1, length1,
+                                                            input2, length2);
+            Logger().WriteInformation("%d-th order: %d %s %d, %d %s %d\n", k, v,
+                                      v == e ? "==" : "!=", e, v2,
+                                      v2 == e ? "==" : "!=", e);
             ASSERT1(v == e);
             ASSERT1(v2 == e);
         };
@@ -1126,51 +1116,51 @@ void AlgorithmTest::Init(void)
 
     Add("K-th Random", [&]() {
         auto print = [&](int *input, int length) {
-            for (int i = 0; i < length; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 Logger().WriteInformation(" %d", input[i]);
             }
             Logger().WriteInformation("\n");
         };
 
-        auto check = [&](int k, int *input1, int length1, int *input2, int length2) {
+        auto check = [&](int k, int *input1, int length1, int *input2,
+                         int length2) {
             // Logger().WriteInformation("\nInput1:");
             // print(input1, length1);
             // Logger().WriteInformation("\nInput2:");
             // print(input2, length2);
 
-            int v = Test::BinarySearch::FindKthOrder<int>(k, input1, length1, input2, length2);
-            int v2 = Test::BinarySearch::FindKthOrder2<int>(k, input1, length1, input2, length2);
-            Logger().WriteInformation("%d-th order: %d %s %d\n", k, v, v == v2 ? "==" : "!=", v2);
+            int v = Test::BinarySearch::FindKthOrder<int>(k, input1, length1,
+                                                          input2, length2);
+            int v2 = Test::BinarySearch::FindKthOrder2<int>(k, input1, length1,
+                                                            input2, length2);
+            Logger().WriteInformation("%d-th order: %d %s %d\n", k, v,
+                                      v == v2 ? "==" : "!=", v2);
             ASSERT1(v == v2);
         };
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int length = 1 + Test::Random::Next();
             int length1 = 1 + Test::Random::Next(length - 2);
             int length2 = length - length1;
 
             unique_ptr<int[]> input(new int[length]);
-            for (int j = 0; j < length; j++)
-            {
+            for (int j = 0; j < length; j++) {
                 input[j] = Test::Random::Next();
             }
 
             int k = 1;
-            do
-            {
-                Logger().WriteInformation("Run %d: %d-th order statics from %d and %d elements\n", i, k, length1, length2);
+            do {
+                Logger().WriteInformation(
+                    "Run %d: %d-th order statics from %d and %d elements\n", i,
+                    k, length1, length2);
                 Test::Sort::Merge::Sort<int>(input.get(), 0, length1 - 1);
                 Test::Sort::Merge::Sort<int>(input.get(), length1, length - 1);
-                check(k, input.get(), length1, (input.get() + length1), length2);
+                check(k, input.get(), length1, (input.get() + length1),
+                      length2);
 
-                if (k >= length - 100 && k < length)
-                {
+                if (k >= length - 100 && k < length) {
                     k = length;
-                }
-                else
-                {
+                } else {
                     k += (1 + Test::Random::Next(99));
                 }
             } while (k <= length);
@@ -1179,8 +1169,7 @@ void AlgorithmTest::Init(void)
 
     Add("Intersection", [&]() {
         auto print = [&](int *input, int length) {
-            for (int i = 0; i < length; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 Logger().WriteInformation("  %d", input[i]);
             }
             Logger().WriteInformation("\n");
@@ -1191,30 +1180,32 @@ void AlgorithmTest::Init(void)
             // print(input1, length1);
             // Logger().WriteInformation("input2: ");
             // print(input2, length2);
-            pair<int, int> indices = Test::BinarySearch::FindIntersection<int>(input1, length1, input2, length2);
-            pair<int, int> indices2 = Test::BinarySearch::FindIntersection2<int>(input1, length1, input2, length2);
-            if (indices.first != -1 && indices.second != -1)
-            {
+            pair<int, int> indices = Test::BinarySearch::FindIntersection<int>(
+                input1, length1, input2, length2);
+            pair<int, int> indices2 =
+                Test::BinarySearch::FindIntersection2<int>(input1, length1,
+                                                           input2, length2);
+            if (indices.first != -1 && indices.second != -1) {
                 Logger().WriteInformation("input1[%d] = %d, input2[%d] = %d\n",
-                                          indices.first, input1[indices.first], indices.second, input2[indices.second]);
+                                          indices.first, input1[indices.first],
+                                          indices.second,
+                                          input2[indices.second]);
+            } else {
+                Logger().WriteInformation("input1[%d], input2[%d]\n",
+                                          indices.first, indices.second);
             }
-            else
-            {
-                Logger().WriteInformation("input1[%d], input2[%d]\n", indices.first, indices.second);
-            }
-            if (indices2.first != -1 && indices2.second != -1)
-            {
-                Logger().WriteInformation("input1[%d] = %d, input2[%d] = %d\n",
-                                          indices2.first, input1[indices2.first], indices2.second, input2[indices2.second]);
-            }
-            else
-            {
-                Logger().WriteInformation("input1[%d], input2[%d]\n", indices2.first, indices2.second);
+            if (indices2.first != -1 && indices2.second != -1) {
+                Logger().WriteInformation(
+                    "input1[%d] = %d, input2[%d] = %d\n", indices2.first,
+                    input1[indices2.first], indices2.second,
+                    input2[indices2.second]);
+            } else {
+                Logger().WriteInformation("input1[%d], input2[%d]\n",
+                                          indices2.first, indices2.second);
             }
             ASSERT1(indices.first == indices2.first);
             ASSERT1(indices.second == indices2.second);
-            if (indices.first != -1 && indices2.second != -1)
-            {
+            if (indices.first != -1 && indices2.second != -1) {
                 ASSERT1(input1[indices.first] == input2[indices.second]);
             }
         };
@@ -1244,19 +1235,19 @@ void AlgorithmTest::Init(void)
             check(A, 3, B, 2);
         }
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int length = 1 + Test::Random::Next();
             int length1 = 1 + Test::Random::Next(length - 2);
             int length2 = length - length1;
 
             unique_ptr<int[]> input(new int[length]);
-            for (int j = 0; j < length; j++)
-            {
+            for (int j = 0; j < length; j++) {
                 input[j] = Test::Random::Next();
             }
 
-            Logger().WriteInformation("\nRun %d: intersection from %d and %d elements\n", i, length1, length2);
+            Logger().WriteInformation(
+                "\nRun %d: intersection from %d and %d elements\n", i, length1,
+                length2);
             Test::Sort::Merge::Sort<int>(input.get(), 0, length1 - 1);
             Test::Sort::Merge::Sort<int>(input.get(), length1, length - 1);
             check(input.get(), length1, (input.get() + length1), length2);
@@ -1266,23 +1257,21 @@ void AlgorithmTest::Init(void)
     Add("Partition", [&]() {
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(200, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(200, 1), max);
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max + 10, -10);
-                    size_t i = Algorithm::Partition::PartitionByValue(input, e, 0, input.size() - 1);
+                    size_t i = Algorithm::Partition::PartitionByValue(
+                        input, e, 0, input.size() - 1);
                     Logger() << e << " partion at " << i << endl;
                     ASSERT1(i >= 0);
                     ASSERT1(i <= input.size());
-                    for (size_t k = 0; k < i; k++)
-                    {
+                    for (size_t k = 0; k < i; k++) {
                         ASSERT1(input[k] < e);
                     }
-                    for (size_t k = i; k < input.size(); k++)
-                    {
+                    for (size_t k = i; k < input.size(); k++) {
                         ASSERT1(input[k] >= e);
                     }
                 }
@@ -1290,23 +1279,21 @@ void AlgorithmTest::Init(void)
         }
         {
             int max = 50;
-            for (int i = 0; i < 100; i++)
-            {
-                vector<int> input = Util::RandomVector(Util::RandomInt(200, 1), max);
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Util::RandomVector(Util::RandomInt(200, 1), max);
                 Logger() << input;
-                for (int j = 0; j < 100; j++)
-                {
+                for (int j = 0; j < 100; j++) {
                     int e = Util::RandomInt(max + 10, -10);
-                    size_t i = Algorithm::Partition::PartitionByValue(input, e, 0, input.size() - 1, std::greater<>());
+                    size_t i = Algorithm::Partition::PartitionByValue(
+                        input, e, 0, input.size() - 1, std::greater<>());
                     Logger() << e << " partion at " << i << endl;
                     ASSERT1(i >= 0);
                     ASSERT1(i <= input.size());
-                    for (size_t k = 0; k < i; k++)
-                    {
+                    for (size_t k = 0; k < i; k++) {
                         ASSERT1(input[k] > e);
                     }
-                    for (size_t k = i; k < input.size(); k++)
-                    {
+                    for (size_t k = i; k < input.size(); k++) {
                         ASSERT1(input[k] <= e);
                     }
                 }
@@ -1316,12 +1303,8 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.Push", [&]() {
         {
-            vector<vector<int>> m =
-                {
-                    {10, 9, 5, 4},
-                    {8, 6, 3, -2},
-                    {7, 2, -1, -3},
-                    {1, 0, -4, 20}};
+            vector<vector<int>> m = {
+                {10, 9, 5, 4}, {8, 6, 3, -2}, {7, 2, -1, -3}, {1, 0, -4, 20}};
 
             Logger() << m;
             Algorithm::YoungTableau<>::PushUp(m, 3, 3);
@@ -1329,12 +1312,8 @@ void AlgorithmTest::Init(void)
             ASSERT1(m[0][0] == 20);
         }
         {
-            vector<vector<int>> m =
-                {
-                    {0, 1, 5, 6},
-                    {2, 4, 7, 12},
-                    {3, 8, 11, 13},
-                    {9, 10, 14, -10}};
+            vector<vector<int>> m = {
+                {0, 1, 5, 6}, {2, 4, 7, 12}, {3, 8, 11, 13}, {9, 10, 14, -10}};
 
             Logger() << m;
             Algorithm::YoungTableau<greater<>>::PushUp(m, 3, 3);
@@ -1342,12 +1321,8 @@ void AlgorithmTest::Init(void)
             ASSERT1(m[0][0] == -10);
         }
         {
-            vector<vector<int>> m =
-                {
-                    {-10, 9, 5, 4},
-                    {8, 6, 3, -2},
-                    {7, 2, -1, -3},
-                    {1, 0, -4, -5}};
+            vector<vector<int>> m = {
+                {-10, 9, 5, 4}, {8, 6, 3, -2}, {7, 2, -1, -3}, {1, 0, -4, -5}};
 
             Logger() << m;
             Algorithm::YoungTableau<>::PushDown(m, 0, 0);
@@ -1356,12 +1331,8 @@ void AlgorithmTest::Init(void)
             ASSERT1(m[3][3] == -10);
         }
         {
-            vector<vector<int>> m =
-                {
-                    {20, 1, 5, 6},
-                    {2, 4, 7, 12},
-                    {3, 8, 11, 13},
-                    {9, 10, 14, 15}};
+            vector<vector<int>> m = {
+                {20, 1, 5, 6}, {2, 4, 7, 12}, {3, 8, 11, 13}, {9, 10, 14, 15}};
 
             Logger() << m;
             Algorithm::YoungTableau<greater<>>::PushDown(m, 0, 0);
@@ -1401,8 +1372,7 @@ void AlgorithmTest::Init(void)
             Algorithm::YoungTableau<greater<>>::Verify(m);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(100, 1);
                 size_t n = Util::RandomInt(100, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
@@ -1413,8 +1383,7 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(100, 1);
                 size_t n = Util::RandomInt(100, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
@@ -1428,86 +1397,120 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.Search1", [&]() {
         {
-            vector<vector<int>> matrix =
-                {
-                    {100, 98, 97, 96, 95, 95, 84, 81, 74, 72, 68, 65, 62, 61, 55, 54, 51, 43, 36, 35, 32, 29, 24, 22},
-                    {100, 97, 97, 96, 94, 90, 83, 79, 73, 69, 66, 64, 58, 56, 55, 49, 46, 40, 36, 34, 32, 28, 22, 18},
-                    {100, 97, 96, 94, 92, 87, 83, 78, 72, 68, 65, 62, 58, 54, 50, 48, 46, 40, 35, 33, 31, 28, 20, 9},
-                    {100, 97, 95, 94, 88, 86, 83, 77, 72, 67, 63, 61, 57, 52, 47, 47, 42, 39, 35, 33, 30, 28, 17, 8},
-                    {100, 97, 95, 91, 87, 84, 83, 76, 72, 67, 61, 60, 57, 52, 46, 45, 42, 37, 33, 31, 26, 20, 15, 7},
-                    {100, 96, 95, 90, 86, 84, 81, 76, 71, 67, 60, 57, 54, 51, 46, 42, 40, 37, 32, 30, 24, 20, 15, 6},
-                    {99, 96, 93, 90, 86, 83, 80, 76, 69, 66, 60, 57, 53, 51, 46, 42, 38, 37, 31, 29, 23, 17, 14, 6},
-                    {99, 96, 93, 90, 85, 83, 80, 74, 69, 64, 60, 56, 51, 50, 45, 40, 38, 33, 31, 27, 22, 15, 11, 6},
-                    {99, 96, 93, 89, 84, 82, 78, 73, 69, 64, 59, 55, 51, 49, 44, 40, 37, 32, 30, 26, 22, 15, 11, 5},
-                    {99, 96, 92, 89, 84, 82, 77, 73, 68, 63, 59, 54, 49, 48, 44, 39, 36, 32, 28, 25, 21, 14, 9, 5},
-                    {99, 95, 92, 88, 84, 81, 75, 72, 68, 63, 58, 54, 49, 46, 42, 38, 36, 30, 28, 24, 19, 13, 8, 5},
-                    {98, 95, 91, 88, 83, 80, 75, 70, 67, 63, 57, 53, 48, 46, 40, 37, 33, 30, 24, 23, 18, 12, 7, 3},
-                    {98, 94, 91, 87, 83, 79, 75, 70, 66, 62, 57, 53, 47, 46, 39, 37, 33, 29, 23, 23, 17, 12, 7, 3},
-                    {98, 94, 90, 87, 83, 78, 73, 70, 65, 61, 57, 53, 47, 44, 39, 36, 33, 29, 23, 22, 17, 12, 7, 3},
-                    {97, 94, 89, 86, 82, 75, 72, 69, 63, 61, 55, 51, 46, 44, 38, 36, 32, 28, 23, 22, 16, 12, 6, 2},
-                    {97, 94, 89, 86, 80, 74, 71, 69, 63, 60, 54, 50, 46, 41, 38, 36, 32, 28, 23, 22, 14, 11, 6, 2},
-                    {97, 93, 89, 86, 80, 74, 71, 67, 62, 60, 53, 49, 44, 41, 37, 34, 31, 27, 23, 21, 14, 11, 6, 2},
-                    {97, 93, 88, 86, 79, 74, 71, 67, 62, 58, 53, 49, 44, 40, 36, 34, 30, 27, 22, 20, 13, 10, 5, 2},
-                    {97, 92, 87, 84, 79, 73, 68, 67, 62, 57, 52, 48, 43, 40, 36, 33, 29, 25, 21, 17, 13, 9, 5, 2},
-                    {96, 91, 87, 84, 79, 72, 68, 63, 62, 57, 52, 47, 43, 40, 36, 32, 28, 25, 20, 17, 13, 9, 5, 1},
-                    {96, 90, 86, 84, 79, 71, 67, 63, 59, 55, 51, 47, 42, 40, 35, 31, 28, 25, 19, 15, 12, 9, 5, 1},
-                    {96, 90, 86, 83, 78, 71, 67, 63, 58, 54, 51, 45, 42, 39, 34, 30, 27, 23, 18, 15, 12, 8, 5, 1},
-                    {96, 90, 85, 82, 76, 70, 67, 62, 58, 53, 51, 45, 41, 39, 34, 30, 26, 20, 18, 14, 12, 8, 4, 1},
-                    {95, 90, 84, 80, 76, 70, 65, 62, 57, 52, 49, 45, 41, 38, 33, 27, 25, 19, 16, 13, 11, 8, 4, 1},
-                    {94, 89, 83, 80, 75, 68, 65, 62, 56, 52, 47, 44, 41, 38, 33, 27, 25, 19, 16, 12, 10, 7, 3, 1},
-                    {94, 89, 83, 78, 73, 67, 64, 60, 56, 50, 47, 44, 41, 37, 33, 27, 24, 19, 15, 12, 10, 7, 2, 0},
-                    {92, 88, 82, 77, 72, 66, 63, 60, 55, 50, 45, 43, 39, 36, 31, 26, 21, 19, 14, 11, 9, 6, 2, 0},
-                    {89, 87, 80, 77, 69, 66, 58, 58, 55, 49, 45, 43, 38, 33, 29, 23, 20, 19, 14, 11, 9, 5, 2, 0},
-                    {89, 87, 79, 76, 67, 61, 56, 56, 54, 48, 43, 39, 38, 24, 23, 21, 20, 18, 12, 11, 7, 3, 1, 0},
-                    {86, 79, 78, 74, 58, 58, 54, 50, 48, 46, 34, 30, 24, 24, 22, 20, 19, 18, 9, 7, 7, 2, 1, 0}};
+            vector<vector<int>> matrix = {
+                {100, 98, 97, 96, 95, 95, 84, 81, 74, 72, 68, 65,
+                 62,  61, 55, 54, 51, 43, 36, 35, 32, 29, 24, 22},
+                {100, 97, 97, 96, 94, 90, 83, 79, 73, 69, 66, 64,
+                 58,  56, 55, 49, 46, 40, 36, 34, 32, 28, 22, 18},
+                {100, 97, 96, 94, 92, 87, 83, 78, 72, 68, 65, 62,
+                 58,  54, 50, 48, 46, 40, 35, 33, 31, 28, 20, 9},
+                {100, 97, 95, 94, 88, 86, 83, 77, 72, 67, 63, 61,
+                 57,  52, 47, 47, 42, 39, 35, 33, 30, 28, 17, 8},
+                {100, 97, 95, 91, 87, 84, 83, 76, 72, 67, 61, 60,
+                 57,  52, 46, 45, 42, 37, 33, 31, 26, 20, 15, 7},
+                {100, 96, 95, 90, 86, 84, 81, 76, 71, 67, 60, 57,
+                 54,  51, 46, 42, 40, 37, 32, 30, 24, 20, 15, 6},
+                {99, 96, 93, 90, 86, 83, 80, 76, 69, 66, 60, 57,
+                 53, 51, 46, 42, 38, 37, 31, 29, 23, 17, 14, 6},
+                {99, 96, 93, 90, 85, 83, 80, 74, 69, 64, 60, 56,
+                 51, 50, 45, 40, 38, 33, 31, 27, 22, 15, 11, 6},
+                {99, 96, 93, 89, 84, 82, 78, 73, 69, 64, 59, 55,
+                 51, 49, 44, 40, 37, 32, 30, 26, 22, 15, 11, 5},
+                {99, 96, 92, 89, 84, 82, 77, 73, 68, 63, 59, 54,
+                 49, 48, 44, 39, 36, 32, 28, 25, 21, 14, 9,  5},
+                {99, 95, 92, 88, 84, 81, 75, 72, 68, 63, 58, 54,
+                 49, 46, 42, 38, 36, 30, 28, 24, 19, 13, 8,  5},
+                {98, 95, 91, 88, 83, 80, 75, 70, 67, 63, 57, 53,
+                 48, 46, 40, 37, 33, 30, 24, 23, 18, 12, 7,  3},
+                {98, 94, 91, 87, 83, 79, 75, 70, 66, 62, 57, 53,
+                 47, 46, 39, 37, 33, 29, 23, 23, 17, 12, 7,  3},
+                {98, 94, 90, 87, 83, 78, 73, 70, 65, 61, 57, 53,
+                 47, 44, 39, 36, 33, 29, 23, 22, 17, 12, 7,  3},
+                {97, 94, 89, 86, 82, 75, 72, 69, 63, 61, 55, 51,
+                 46, 44, 38, 36, 32, 28, 23, 22, 16, 12, 6,  2},
+                {97, 94, 89, 86, 80, 74, 71, 69, 63, 60, 54, 50,
+                 46, 41, 38, 36, 32, 28, 23, 22, 14, 11, 6,  2},
+                {97, 93, 89, 86, 80, 74, 71, 67, 62, 60, 53, 49,
+                 44, 41, 37, 34, 31, 27, 23, 21, 14, 11, 6,  2},
+                {97, 93, 88, 86, 79, 74, 71, 67, 62, 58, 53, 49,
+                 44, 40, 36, 34, 30, 27, 22, 20, 13, 10, 5,  2},
+                {97, 92, 87, 84, 79, 73, 68, 67, 62, 57, 52, 48,
+                 43, 40, 36, 33, 29, 25, 21, 17, 13, 9,  5,  2},
+                {96, 91, 87, 84, 79, 72, 68, 63, 62, 57, 52, 47,
+                 43, 40, 36, 32, 28, 25, 20, 17, 13, 9,  5,  1},
+                {96, 90, 86, 84, 79, 71, 67, 63, 59, 55, 51, 47,
+                 42, 40, 35, 31, 28, 25, 19, 15, 12, 9,  5,  1},
+                {96, 90, 86, 83, 78, 71, 67, 63, 58, 54, 51, 45,
+                 42, 39, 34, 30, 27, 23, 18, 15, 12, 8,  5,  1},
+                {96, 90, 85, 82, 76, 70, 67, 62, 58, 53, 51, 45,
+                 41, 39, 34, 30, 26, 20, 18, 14, 12, 8,  4,  1},
+                {95, 90, 84, 80, 76, 70, 65, 62, 57, 52, 49, 45,
+                 41, 38, 33, 27, 25, 19, 16, 13, 11, 8,  4,  1},
+                {94, 89, 83, 80, 75, 68, 65, 62, 56, 52, 47, 44,
+                 41, 38, 33, 27, 25, 19, 16, 12, 10, 7,  3,  1},
+                {94, 89, 83, 78, 73, 67, 64, 60, 56, 50, 47, 44,
+                 41, 37, 33, 27, 24, 19, 15, 12, 10, 7,  2,  0},
+                {92, 88, 82, 77, 72, 66, 63, 60, 55, 50, 45, 43,
+                 39, 36, 31, 26, 21, 19, 14, 11, 9,  6,  2,  0},
+                {89, 87, 80, 77, 69, 66, 58, 58, 55, 49, 45, 43,
+                 38, 33, 29, 23, 20, 19, 14, 11, 9,  5,  2,  0},
+                {89, 87, 79, 76, 67, 61, 56, 56, 54, 48, 43, 39,
+                 38, 24, 23, 21, 20, 18, 12, 11, 7,  3,  1,  0},
+                {86, 79, 78, 74, 58, 58, 54, 50, 48, 46, 34, 30,
+                 24, 24, 22, 20, 19, 18, 9,  7,  7,  2,  1,  0}};
 
             Logger() << matrix;
             int value = 88;
             auto p = Algorithm::YoungTableau<>::Search2(matrix, value);
-            Logger() << value << " is at (" << p.first << ", " << p.second << ")" << endl;
+            Logger() << value << " is at (" << p.first << ", " << p.second
+                     << ")" << endl;
             ASSERT1(matrix[p.first][p.second] == value);
         }
     });
 
     Add("YoungTableau.Search2", [&]() {
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(50, 1);
                 size_t n = Util::RandomInt(50, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
                 Algorithm::YoungTableau<>::Create2(matrix);
                 Logger() << matrix;
                 Algorithm::YoungTableau<>::Verify(matrix);
-                for (size_t j = 0; j < m; j++)
-                {
-                    for (size_t k = 0; k < matrix[j].size(); k++)
-                    {
-                        auto p0 = Algorithm::YoungTableau<>::Search(matrix, matrix[j][k]);
-                        auto p2 = Algorithm::YoungTableau<>::Search2(matrix, matrix[j][k]);
-                        Logger() << matrix[j][k] << " is at (" << p0.first << ", " << p0.second << "), (" << p2.first << ", " << p2.second << ")" << endl;
-                        ASSERT1(matrix[p0.first][p0.second] == matrix[p2.first][p2.second]);
+                for (size_t j = 0; j < m; j++) {
+                    for (size_t k = 0; k < matrix[j].size(); k++) {
+                        auto p0 = Algorithm::YoungTableau<>::Search(
+                            matrix, matrix[j][k]);
+                        auto p2 = Algorithm::YoungTableau<>::Search2(
+                            matrix, matrix[j][k]);
+                        Logger() << matrix[j][k] << " is at (" << p0.first
+                                 << ", " << p0.second << "), (" << p2.first
+                                 << ", " << p2.second << ")" << endl;
+                        ASSERT1(matrix[p0.first][p0.second] ==
+                                matrix[p2.first][p2.second]);
                     }
                 }
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(50, 1);
                 size_t n = Util::RandomInt(50, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
                 Algorithm::YoungTableau<greater<>>::Create2(matrix);
                 Logger() << matrix;
                 Algorithm::YoungTableau<greater<>>::Verify(matrix);
-                for (size_t j = 0; j < m; j++)
-                {
-                    for (size_t k = 0; k < matrix[j].size(); k++)
-                    {
-                        auto p0 = Algorithm::YoungTableau<greater<>>::Search(matrix, matrix[j][k]);
-                        auto p2 = Algorithm::YoungTableau<greater<>>::Search2(matrix, matrix[j][k]);
-                        Logger() << matrix[j][k] << " is at (" << p0.first << ", " << p0.second << "), (" << p2.first << ", " << p2.second << ")" << endl;
-                        ASSERT1(matrix[p0.first][p0.second] == matrix[p2.first][p2.second]);
+                for (size_t j = 0; j < m; j++) {
+                    for (size_t k = 0; k < matrix[j].size(); k++) {
+                        auto p0 = Algorithm::YoungTableau<greater<>>::Search(
+                            matrix, matrix[j][k]);
+                        auto p2 = Algorithm::YoungTableau<greater<>>::Search2(
+                            matrix, matrix[j][k]);
+                        Logger() << matrix[j][k] << " is at (" << p0.first
+                                 << ", " << p0.second << "), (" << p2.first
+                                 << ", " << p2.second << ")" << endl;
+                        ASSERT1(matrix[p0.first][p0.second] ==
+                                matrix[p2.first][p2.second]);
                     }
                 }
             }
@@ -1516,55 +1519,96 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.CountHigherThan1", [&]() {
         {
-            vector<vector<int>> matrix =
-                {
-                    {100, 99, 97, 97, 92, 90, 80, 79, 74, 68, 65, 63, 61, 51, 49, 41, 41, 22},
-                    {100, 98, 97, 94, 92, 83, 79, 79, 73, 67, 64, 63, 56, 48, 44, 38, 25, 18},
-                    {100, 98, 97, 93, 90, 82, 78, 77, 71, 66, 60, 59, 48, 46, 38, 34, 24, 11},
-                    {100, 98, 95, 93, 87, 81, 78, 72, 71, 66, 59, 51, 45, 44, 34, 31, 22, 9},
-                    {100, 98, 95, 92, 84, 81, 77, 71, 69, 62, 55, 51, 44, 38, 32, 26, 20, 8},
-                    {100, 97, 94, 91, 83, 80, 75, 70, 67, 59, 52, 51, 43, 33, 31, 24, 15, 8},
-                    {100, 97, 92, 91, 82, 80, 74, 69, 67, 59, 51, 48, 42, 32, 30, 24, 13, 7},
-                    {99, 97, 92, 87, 82, 78, 73, 69, 65, 57, 51, 45, 40, 32, 30, 24, 13, 6},
-                    {99, 96, 92, 87, 80, 74, 71, 68, 62, 54, 48, 45, 39, 32, 28, 21, 12, 5},
-                    {99, 96, 90, 85, 78, 74, 71, 67, 62, 53, 48, 44, 39, 32, 25, 19, 12, 5},
-                    {99, 95, 89, 84, 77, 73, 70, 65, 61, 53, 47, 44, 38, 32, 25, 19, 11, 4},
-                    {99, 94, 88, 83, 76, 72, 69, 64, 57, 51, 46, 43, 37, 31, 25, 18, 11, 4},
-                    {98, 94, 88, 82, 76, 72, 67, 63, 57, 51, 46, 42, 35, 28, 24, 17, 11, 4},
-                    {98, 94, 87, 80, 76, 71, 65, 61, 52, 49, 45, 41, 33, 28, 23, 17, 10, 4},
-                    {98, 94, 86, 80, 76, 71, 64, 58, 52, 49, 44, 37, 33, 26, 23, 15, 10, 4},
-                    {98, 94, 86, 80, 75, 70, 63, 57, 52, 48, 44, 35, 32, 25, 21, 15, 10, 4},
-                    {98, 93, 85, 79, 74, 67, 63, 56, 52, 47, 42, 35, 31, 24, 21, 14, 9, 3},
-                    {96, 93, 84, 79, 73, 66, 62, 56, 51, 47, 39, 35, 29, 24, 20, 14, 9, 3},
-                    {96, 92, 83, 77, 72, 66, 62, 55, 51, 47, 39, 34, 29, 24, 20, 13, 8, 3},
-                    {96, 90, 83, 77, 72, 66, 61, 53, 50, 46, 39, 34, 29, 24, 20, 12, 8, 3},
-                    {96, 90, 82, 77, 71, 65, 60, 53, 49, 45, 38, 33, 27, 23, 20, 12, 8, 3},
-                    {96, 90, 82, 76, 71, 65, 59, 52, 48, 42, 38, 33, 26, 22, 19, 12, 8, 3},
-                    {95, 90, 82, 76, 70, 65, 59, 52, 47, 41, 38, 33, 25, 22, 19, 11, 8, 2},
-                    {95, 89, 81, 76, 69, 64, 59, 52, 46, 40, 35, 32, 25, 22, 18, 11, 7, 2},
-                    {95, 89, 81, 74, 69, 63, 58, 49, 45, 40, 35, 32, 25, 22, 17, 11, 7, 2},
-                    {95, 89, 80, 74, 69, 63, 58, 49, 44, 40, 34, 31, 24, 21, 17, 10, 7, 1},
-                    {95, 88, 80, 74, 68, 61, 57, 48, 43, 39, 34, 30, 23, 21, 16, 10, 6, 1},
-                    {95, 87, 80, 73, 68, 61, 55, 47, 42, 39, 34, 30, 22, 21, 16, 9, 5, 1},
-                    {94, 86, 79, 73, 67, 61, 55, 47, 41, 38, 32, 28, 22, 21, 16, 9, 4, 1},
-                    {94, 86, 78, 72, 67, 60, 55, 47, 41, 36, 32, 25, 22, 21, 15, 9, 4, 1},
-                    {93, 85, 77, 71, 67, 60, 52, 46, 40, 36, 32, 24, 22, 20, 14, 9, 4, 1},
-                    {92, 83, 77, 71, 67, 60, 52, 45, 39, 36, 31, 23, 19, 19, 14, 8, 3, 1},
-                    {92, 83, 77, 71, 67, 59, 52, 43, 39, 35, 30, 22, 18, 18, 14, 8, 3, 1},
-                    {92, 82, 76, 71, 64, 59, 50, 42, 38, 34, 27, 22, 18, 16, 14, 8, 3, 0},
-                    {92, 82, 76, 71, 64, 53, 49, 42, 38, 33, 26, 21, 16, 15, 13, 7, 3, 0},
-                    {90, 82, 75, 71, 61, 53, 47, 41, 38, 32, 26, 21, 16, 14, 12, 6, 3, 0},
-                    {89, 81, 74, 70, 60, 53, 44, 41, 37, 32, 25, 21, 16, 13, 10, 6, 2, 0},
-                    {87, 81, 72, 69, 60, 52, 44, 41, 34, 28, 24, 20, 15, 13, 10, 5, 2, 0},
-                    {86, 80, 69, 68, 59, 49, 42, 40, 29, 26, 23, 20, 14, 13, 9, 4, 1, 0},
-                    {86, 79, 67, 65, 55, 43, 42, 33, 29, 26, 22, 19, 14, 13, 8, 4, 1, 0},
-                    {84, 76, 65, 51, 45, 42, 39, 33, 28, 26, 22, 17, 13, 12, 5, 4, 1, 0},
-                    {82, 72, 56, 50, 44, 35, 34, 31, 22, 18, 18, 17, 13, 6, 5, 3, 1, 0}};
+            vector<vector<int>> matrix = {{100, 99, 97, 97, 92, 90, 80, 79, 74,
+                                           68, 65, 63, 61, 51, 49, 41, 41, 22},
+                                          {100, 98, 97, 94, 92, 83, 79, 79, 73,
+                                           67, 64, 63, 56, 48, 44, 38, 25, 18},
+                                          {100, 98, 97, 93, 90, 82, 78, 77, 71,
+                                           66, 60, 59, 48, 46, 38, 34, 24, 11},
+                                          {100, 98, 95, 93, 87, 81, 78, 72, 71,
+                                           66, 59, 51, 45, 44, 34, 31, 22, 9},
+                                          {100, 98, 95, 92, 84, 81, 77, 71, 69,
+                                           62, 55, 51, 44, 38, 32, 26, 20, 8},
+                                          {100, 97, 94, 91, 83, 80, 75, 70, 67,
+                                           59, 52, 51, 43, 33, 31, 24, 15, 8},
+                                          {100, 97, 92, 91, 82, 80, 74, 69, 67,
+                                           59, 51, 48, 42, 32, 30, 24, 13, 7},
+                                          {99, 97, 92, 87, 82, 78, 73, 69, 65,
+                                           57, 51, 45, 40, 32, 30, 24, 13, 6},
+                                          {99, 96, 92, 87, 80, 74, 71, 68, 62,
+                                           54, 48, 45, 39, 32, 28, 21, 12, 5},
+                                          {99, 96, 90, 85, 78, 74, 71, 67, 62,
+                                           53, 48, 44, 39, 32, 25, 19, 12, 5},
+                                          {99, 95, 89, 84, 77, 73, 70, 65, 61,
+                                           53, 47, 44, 38, 32, 25, 19, 11, 4},
+                                          {99, 94, 88, 83, 76, 72, 69, 64, 57,
+                                           51, 46, 43, 37, 31, 25, 18, 11, 4},
+                                          {98, 94, 88, 82, 76, 72, 67, 63, 57,
+                                           51, 46, 42, 35, 28, 24, 17, 11, 4},
+                                          {98, 94, 87, 80, 76, 71, 65, 61, 52,
+                                           49, 45, 41, 33, 28, 23, 17, 10, 4},
+                                          {98, 94, 86, 80, 76, 71, 64, 58, 52,
+                                           49, 44, 37, 33, 26, 23, 15, 10, 4},
+                                          {98, 94, 86, 80, 75, 70, 63, 57, 52,
+                                           48, 44, 35, 32, 25, 21, 15, 10, 4},
+                                          {98, 93, 85, 79, 74, 67, 63, 56, 52,
+                                           47, 42, 35, 31, 24, 21, 14, 9, 3},
+                                          {96, 93, 84, 79, 73, 66, 62, 56, 51,
+                                           47, 39, 35, 29, 24, 20, 14, 9, 3},
+                                          {96, 92, 83, 77, 72, 66, 62, 55, 51,
+                                           47, 39, 34, 29, 24, 20, 13, 8, 3},
+                                          {96, 90, 83, 77, 72, 66, 61, 53, 50,
+                                           46, 39, 34, 29, 24, 20, 12, 8, 3},
+                                          {96, 90, 82, 77, 71, 65, 60, 53, 49,
+                                           45, 38, 33, 27, 23, 20, 12, 8, 3},
+                                          {96, 90, 82, 76, 71, 65, 59, 52, 48,
+                                           42, 38, 33, 26, 22, 19, 12, 8, 3},
+                                          {95, 90, 82, 76, 70, 65, 59, 52, 47,
+                                           41, 38, 33, 25, 22, 19, 11, 8, 2},
+                                          {95, 89, 81, 76, 69, 64, 59, 52, 46,
+                                           40, 35, 32, 25, 22, 18, 11, 7, 2},
+                                          {95, 89, 81, 74, 69, 63, 58, 49, 45,
+                                           40, 35, 32, 25, 22, 17, 11, 7, 2},
+                                          {95, 89, 80, 74, 69, 63, 58, 49, 44,
+                                           40, 34, 31, 24, 21, 17, 10, 7, 1},
+                                          {95, 88, 80, 74, 68, 61, 57, 48, 43,
+                                           39, 34, 30, 23, 21, 16, 10, 6, 1},
+                                          {95, 87, 80, 73, 68, 61, 55, 47, 42,
+                                           39, 34, 30, 22, 21, 16, 9, 5, 1},
+                                          {94, 86, 79, 73, 67, 61, 55, 47, 41,
+                                           38, 32, 28, 22, 21, 16, 9, 4, 1},
+                                          {94, 86, 78, 72, 67, 60, 55, 47, 41,
+                                           36, 32, 25, 22, 21, 15, 9, 4, 1},
+                                          {93, 85, 77, 71, 67, 60, 52, 46, 40,
+                                           36, 32, 24, 22, 20, 14, 9, 4, 1},
+                                          {92, 83, 77, 71, 67, 60, 52, 45, 39,
+                                           36, 31, 23, 19, 19, 14, 8, 3, 1},
+                                          {92, 83, 77, 71, 67, 59, 52, 43, 39,
+                                           35, 30, 22, 18, 18, 14, 8, 3, 1},
+                                          {92, 82, 76, 71, 64, 59, 50, 42, 38,
+                                           34, 27, 22, 18, 16, 14, 8, 3, 0},
+                                          {92, 82, 76, 71, 64, 53, 49, 42, 38,
+                                           33, 26, 21, 16, 15, 13, 7, 3, 0},
+                                          {90, 82, 75, 71, 61, 53, 47, 41, 38,
+                                           32, 26, 21, 16, 14, 12, 6, 3, 0},
+                                          {89, 81, 74, 70, 60, 53, 44, 41, 37,
+                                           32, 25, 21, 16, 13, 10, 6, 2, 0},
+                                          {87, 81, 72, 69, 60, 52, 44, 41, 34,
+                                           28, 24, 20, 15, 13, 10, 5, 2, 0},
+                                          {86, 80, 69, 68, 59, 49, 42, 40, 29,
+                                           26, 23, 20, 14, 13, 9, 4, 1, 0},
+                                          {86, 79, 67, 65, 55, 43, 42, 33, 29,
+                                           26, 22, 19, 14, 13, 8, 4, 1, 0},
+                                          {84, 76, 65, 51, 45, 42, 39, 33, 28,
+                                           26, 22, 17, 13, 12, 5, 4, 1, 0},
+                                          {82, 72, 56, 50, 44, 35, 34, 31, 22,
+                                           18, 18, 17, 13, 6, 5, 3, 1, 0}};
 
             Logger() << matrix;
 
             int value = 100;
-            unsigned int c = Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
+            unsigned int c =
+                Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
             Logger() << c << " elements are higher than " << value << endl;
             ASSERT1(c == 0);
             value = 11;
@@ -1575,63 +1619,159 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.CountHigherThan2", [&]() {
         {
-            vector<vector<int>> matrix =
-                {
-                    {100, 100, 100, 99, 96, 96, 94, 92, 90, 89, 87, 86, 84, 84, 80, 75, 73, 67, 65, 61, 57, 57, 54, 52, 49, 48, 46, 42, 41, 40, 38, 33, 25, 23, 20, 16, 14},
-                    {100, 100, 99, 98, 96, 95, 94, 92, 89, 87, 85, 84, 83, 79, 74, 74, 70, 66, 63, 61, 56, 55, 52, 50, 45, 43, 42, 39, 38, 35, 30, 29, 23, 23, 17, 14, 9},
-                    {100, 100, 99, 98, 96, 93, 91, 90, 88, 86, 84, 83, 81, 77, 74, 72, 68, 62, 62, 60, 55, 52, 50, 48, 45, 43, 40, 39, 37, 32, 28, 23, 23, 19, 17, 13, 7},
-                    {100, 99, 98, 97, 94, 93, 91, 90, 87, 82, 82, 81, 76, 75, 72, 71, 63, 61, 59, 59, 53, 52, 50, 47, 45, 42, 40, 35, 35, 31, 28, 23, 22, 17, 17, 12, 7},
-                    {100, 99, 98, 97, 93, 92, 90, 90, 85, 82, 82, 78, 76, 74, 72, 68, 63, 60, 59, 55, 53, 51, 49, 47, 44, 42, 37, 35, 32, 30, 27, 22, 20, 17, 14, 11, 6},
-                    {100, 99, 98, 96, 93, 92, 90, 86, 84, 81, 80, 77, 75, 72, 70, 67, 62, 59, 58, 55, 52, 50, 49, 47, 43, 42, 36, 34, 31, 29, 26, 22, 19, 16, 13, 10, 5},
-                    {100, 99, 97, 96, 93, 92, 90, 85, 83, 80, 79, 77, 75, 72, 70, 66, 61, 59, 57, 54, 52, 49, 49, 46, 42, 39, 36, 34, 31, 29, 26, 21, 18, 14, 12, 9, 4},
-                    {100, 99, 97, 95, 93, 91, 87, 85, 83, 79, 78, 77, 75, 72, 69, 65, 61, 58, 57, 54, 52, 49, 48, 45, 40, 39, 36, 34, 29, 28, 25, 19, 18, 14, 12, 9, 4},
-                    {100, 99, 97, 95, 93, 91, 86, 84, 83, 79, 78, 76, 73, 71, 68, 65, 60, 58, 56, 53, 50, 49, 48, 44, 39, 38, 35, 33, 29, 27, 23, 19, 18, 14, 12, 8, 4},
-                    {100, 99, 96, 94, 92, 91, 86, 84, 81, 78, 77, 75, 73, 71, 68, 64, 60, 57, 54, 53, 50, 48, 48, 44, 39, 37, 34, 32, 28, 26, 22, 19, 17, 13, 11, 7, 4},
-                    {100, 99, 96, 94, 92, 90, 86, 84, 80, 78, 77, 75, 71, 70, 67, 61, 60, 57, 54, 53, 50, 48, 45, 44, 39, 37, 33, 30, 27, 26, 20, 18, 15, 13, 11, 6, 3},
-                    {100, 99, 96, 94, 91, 90, 85, 84, 80, 77, 75, 75, 71, 69, 66, 61, 59, 56, 54, 53, 49, 48, 45, 44, 38, 36, 32, 29, 27, 25, 19, 18, 15, 13, 9, 6, 3},
-                    {100, 98, 96, 94, 91, 89, 85, 82, 80, 77, 75, 73, 70, 68, 65, 60, 59, 56, 54, 53, 49, 46, 44, 44, 38, 36, 32, 28, 27, 25, 19, 17, 15, 13, 9, 6, 3},
-                    {100, 98, 96, 93, 90, 89, 85, 82, 79, 76, 75, 73, 70, 68, 65, 60, 58, 55, 53, 51, 49, 46, 44, 43, 38, 36, 30, 28, 26, 24, 19, 16, 14, 12, 9, 5, 3},
-                    {100, 98, 96, 93, 89, 89, 85, 81, 79, 76, 75, 72, 70, 67, 63, 60, 58, 55, 53, 50, 49, 46, 43, 40, 37, 35, 30, 28, 26, 24, 19, 16, 14, 11, 9, 5, 3},
-                    {100, 98, 96, 93, 89, 88, 85, 81, 79, 76, 74, 72, 70, 66, 63, 59, 57, 54, 53, 49, 48, 45, 41, 40, 37, 35, 30, 28, 25, 22, 18, 15, 13, 11, 8, 5, 2},
-                    {100, 98, 95, 93, 89, 88, 85, 81, 78, 76, 74, 72, 70, 65, 62, 58, 57, 54, 51, 49, 48, 45, 41, 40, 36, 34, 30, 27, 25, 22, 18, 15, 13, 11, 8, 4, 2},
-                    {100, 98, 95, 92, 89, 87, 85, 81, 78, 76, 74, 70, 68, 65, 62, 58, 57, 54, 51, 48, 48, 43, 41, 39, 36, 33, 29, 27, 25, 21, 18, 14, 13, 10, 7, 4, 2},
-                    {99, 98, 95, 92, 89, 87, 85, 80, 78, 75, 74, 70, 67, 65, 61, 58, 57, 54, 50, 48, 48, 42, 41, 38, 36, 33, 28, 26, 24, 21, 17, 14, 12, 10, 7, 4, 2},
-                    {99, 98, 95, 91, 88, 87, 84, 80, 78, 75, 72, 69, 66, 62, 61, 58, 56, 53, 49, 48, 47, 42, 40, 38, 36, 32, 27, 26, 24, 21, 17, 14, 12, 9, 7, 4, 2},
-                    {99, 98, 95, 91, 88, 87, 84, 80, 78, 75, 72, 68, 65, 62, 61, 57, 56, 53, 49, 48, 45, 42, 40, 37, 35, 32, 27, 25, 24, 21, 17, 14, 12, 9, 6, 4, 2},
-                    {99, 98, 94, 91, 88, 86, 83, 80, 78, 75, 71, 67, 65, 62, 60, 57, 56, 51, 48, 48, 45, 42, 40, 37, 35, 32, 27, 25, 23, 21, 16, 13, 12, 9, 6, 4, 2},
-                    {99, 97, 94, 91, 87, 86, 83, 80, 78, 74, 69, 67, 65, 62, 60, 57, 55, 51, 48, 47, 45, 41, 40, 36, 34, 30, 27, 24, 22, 20, 16, 13, 11, 9, 6, 4, 2},
-                    {99, 97, 94, 91, 87, 86, 82, 79, 78, 74, 69, 67, 64, 61, 60, 56, 54, 51, 48, 47, 45, 41, 39, 36, 34, 30, 27, 24, 22, 19, 16, 13, 11, 8, 6, 4, 1},
-                    {99, 97, 94, 91, 87, 85, 82, 79, 77, 73, 69, 67, 64, 61, 59, 56, 53, 50, 48, 45, 44, 41, 39, 36, 32, 30, 25, 24, 21, 19, 16, 13, 11, 7, 6, 3, 1},
-                    {99, 97, 94, 91, 87, 84, 82, 79, 77, 73, 68, 67, 63, 60, 59, 56, 53, 50, 48, 45, 43, 40, 38, 35, 32, 30, 25, 23, 21, 19, 15, 12, 10, 7, 5, 3, 1},
-                    {99, 97, 94, 90, 85, 83, 82, 79, 76, 72, 68, 66, 63, 60, 59, 55, 52, 50, 47, 45, 43, 40, 37, 33, 31, 30, 25, 23, 20, 18, 14, 12, 10, 7, 5, 3, 1},
-                    {99, 97, 93, 89, 85, 83, 81, 78, 76, 71, 68, 64, 63, 60, 59, 55, 52, 49, 46, 45, 43, 40, 37, 33, 30, 28, 24, 23, 20, 17, 14, 12, 9, 7, 5, 3, 1},
-                    {99, 96, 93, 89, 85, 83, 81, 78, 75, 71, 68, 64, 63, 59, 58, 53, 51, 48, 46, 44, 42, 38, 37, 33, 30, 27, 24, 23, 19, 16, 13, 12, 9, 7, 5, 3, 1},
-                    {99, 96, 93, 89, 84, 83, 81, 77, 74, 71, 67, 64, 63, 59, 57, 53, 51, 48, 46, 44, 42, 38, 36, 32, 30, 27, 23, 22, 18, 16, 13, 11, 9, 7, 5, 3, 1},
-                    {99, 96, 92, 89, 84, 83, 81, 77, 74, 70, 67, 63, 61, 59, 56, 53, 50, 48, 45, 43, 41, 37, 36, 32, 29, 27, 23, 22, 17, 16, 13, 10, 9, 6, 4, 2, 1},
-                    {98, 96, 92, 89, 84, 82, 80, 77, 74, 69, 67, 63, 61, 59, 56, 52, 49, 47, 45, 43, 41, 36, 35, 30, 29, 27, 23, 19, 17, 16, 12, 10, 8, 6, 4, 2, 1},
-                    {98, 96, 91, 89, 84, 81, 80, 77, 73, 69, 67, 63, 61, 57, 55, 51, 49, 46, 45, 42, 40, 36, 35, 30, 29, 27, 23, 19, 17, 15, 12, 10, 8, 5, 4, 2, 1},
-                    {98, 95, 91, 88, 84, 81, 79, 76, 73, 69, 66, 62, 60, 57, 54, 51, 48, 46, 45, 42, 39, 35, 34, 30, 29, 25, 23, 18, 16, 15, 12, 10, 8, 5, 4, 2, 0},
-                    {98, 95, 91, 87, 84, 81, 79, 76, 73, 68, 65, 62, 59, 56, 53, 51, 48, 46, 45, 42, 39, 35, 33, 30, 28, 24, 21, 18, 16, 14, 11, 10, 8, 5, 4, 2, 0},
-                    {97, 95, 90, 86, 83, 79, 78, 75, 71, 68, 65, 62, 59, 55, 52, 50, 48, 46, 44, 41, 39, 34, 31, 30, 28, 24, 20, 18, 16, 13, 10, 9, 7, 5, 4, 1, 0},
-                    {97, 94, 89, 86, 82, 78, 77, 73, 71, 68, 65, 61, 55, 54, 52, 50, 47, 45, 43, 41, 39, 34, 30, 29, 27, 23, 20, 18, 16, 13, 10, 9, 7, 5, 4, 1, 0},
-                    {97, 93, 89, 86, 81, 78, 75, 73, 70, 68, 65, 60, 55, 54, 52, 50, 47, 45, 43, 40, 37, 34, 30, 29, 25, 23, 19, 18, 15, 13, 10, 9, 7, 5, 4, 1, 0},
-                    {97, 93, 88, 85, 81, 77, 75, 73, 70, 68, 65, 59, 55, 54, 51, 49, 47, 45, 42, 39, 37, 33, 30, 29, 25, 22, 19, 18, 15, 13, 10, 9, 7, 5, 3, 1, 0},
-                    {96, 93, 88, 85, 79, 77, 74, 72, 69, 66, 63, 59, 55, 53, 50, 49, 46, 43, 41, 39, 35, 32, 30, 26, 25, 21, 19, 17, 14, 12, 9, 8, 7, 5, 3, 1, 0},
-                    {96, 92, 87, 85, 79, 75, 72, 71, 64, 62, 62, 57, 55, 53, 50, 48, 46, 42, 39, 38, 34, 30, 29, 26, 24, 21, 18, 17, 13, 11, 9, 7, 7, 5, 3, 1, 0},
-                    {96, 92, 85, 85, 79, 75, 72, 68, 63, 62, 60, 57, 54, 53, 49, 48, 45, 40, 39, 38, 34, 29, 28, 25, 22, 20, 18, 17, 12, 11, 9, 7, 6, 4, 3, 1, 0},
-                    {95, 91, 85, 82, 78, 75, 72, 64, 62, 61, 59, 56, 54, 53, 49, 48, 42, 40, 39, 37, 33, 28, 27, 24, 21, 19, 18, 14, 12, 11, 9, 5, 5, 4, 2, 1, 0},
-                    {94, 87, 84, 79, 77, 73, 68, 64, 62, 60, 58, 56, 54, 52, 48, 47, 42, 39, 38, 33, 32, 23, 23, 22, 21, 18, 17, 13, 12, 10, 8, 5, 5, 3, 2, 1, 0},
-                    {89, 86, 83, 76, 67, 65, 64, 62, 61, 60, 57, 56, 53, 51, 48, 44, 40, 37, 31, 29, 26, 23, 22, 20, 19, 15, 13, 13, 10, 9, 7, 5, 4, 3, 2, 0, 0},
-                    {87, 82, 72, 71, 63, 60, 60, 60, 55, 54, 54, 53, 52, 50, 46, 44, 34, 31, 29, 29, 24, 23, 21, 20, 18, 14, 13, 12, 9, 8, 6, 5, 4, 2, 1, 0, 0}};
+            vector<vector<int>> matrix = {
+                {100, 100, 100, 99, 96, 96, 94, 92, 90, 89, 87, 86, 84,
+                 84,  80,  75,  73, 67, 65, 61, 57, 57, 54, 52, 49, 48,
+                 46,  42,  41,  40, 38, 33, 25, 23, 20, 16, 14},
+                {100, 100, 99, 98, 96, 95, 94, 92, 89, 87, 85, 84, 83,
+                 79,  74,  74, 70, 66, 63, 61, 56, 55, 52, 50, 45, 43,
+                 42,  39,  38, 35, 30, 29, 23, 23, 17, 14, 9},
+                {100, 100, 99, 98, 96, 93, 91, 90, 88, 86, 84, 83, 81,
+                 77,  74,  72, 68, 62, 62, 60, 55, 52, 50, 48, 45, 43,
+                 40,  39,  37, 32, 28, 23, 23, 19, 17, 13, 7},
+                {100, 99, 98, 97, 94, 93, 91, 90, 87, 82, 82, 81, 76,
+                 75,  72, 71, 63, 61, 59, 59, 53, 52, 50, 47, 45, 42,
+                 40,  35, 35, 31, 28, 23, 22, 17, 17, 12, 7},
+                {100, 99, 98, 97, 93, 92, 90, 90, 85, 82, 82, 78, 76,
+                 74,  72, 68, 63, 60, 59, 55, 53, 51, 49, 47, 44, 42,
+                 37,  35, 32, 30, 27, 22, 20, 17, 14, 11, 6},
+                {100, 99, 98, 96, 93, 92, 90, 86, 84, 81, 80, 77, 75,
+                 72,  70, 67, 62, 59, 58, 55, 52, 50, 49, 47, 43, 42,
+                 36,  34, 31, 29, 26, 22, 19, 16, 13, 10, 5},
+                {100, 99, 97, 96, 93, 92, 90, 85, 83, 80, 79, 77, 75,
+                 72,  70, 66, 61, 59, 57, 54, 52, 49, 49, 46, 42, 39,
+                 36,  34, 31, 29, 26, 21, 18, 14, 12, 9,  4},
+                {100, 99, 97, 95, 93, 91, 87, 85, 83, 79, 78, 77, 75,
+                 72,  69, 65, 61, 58, 57, 54, 52, 49, 48, 45, 40, 39,
+                 36,  34, 29, 28, 25, 19, 18, 14, 12, 9,  4},
+                {100, 99, 97, 95, 93, 91, 86, 84, 83, 79, 78, 76, 73,
+                 71,  68, 65, 60, 58, 56, 53, 50, 49, 48, 44, 39, 38,
+                 35,  33, 29, 27, 23, 19, 18, 14, 12, 8,  4},
+                {100, 99, 96, 94, 92, 91, 86, 84, 81, 78, 77, 75, 73,
+                 71,  68, 64, 60, 57, 54, 53, 50, 48, 48, 44, 39, 37,
+                 34,  32, 28, 26, 22, 19, 17, 13, 11, 7,  4},
+                {100, 99, 96, 94, 92, 90, 86, 84, 80, 78, 77, 75, 71,
+                 70,  67, 61, 60, 57, 54, 53, 50, 48, 45, 44, 39, 37,
+                 33,  30, 27, 26, 20, 18, 15, 13, 11, 6,  3},
+                {100, 99, 96, 94, 91, 90, 85, 84, 80, 77, 75, 75, 71,
+                 69,  66, 61, 59, 56, 54, 53, 49, 48, 45, 44, 38, 36,
+                 32,  29, 27, 25, 19, 18, 15, 13, 9,  6,  3},
+                {100, 98, 96, 94, 91, 89, 85, 82, 80, 77, 75, 73, 70,
+                 68,  65, 60, 59, 56, 54, 53, 49, 46, 44, 44, 38, 36,
+                 32,  28, 27, 25, 19, 17, 15, 13, 9,  6,  3},
+                {100, 98, 96, 93, 90, 89, 85, 82, 79, 76, 75, 73, 70,
+                 68,  65, 60, 58, 55, 53, 51, 49, 46, 44, 43, 38, 36,
+                 30,  28, 26, 24, 19, 16, 14, 12, 9,  5,  3},
+                {100, 98, 96, 93, 89, 89, 85, 81, 79, 76, 75, 72, 70,
+                 67,  63, 60, 58, 55, 53, 50, 49, 46, 43, 40, 37, 35,
+                 30,  28, 26, 24, 19, 16, 14, 11, 9,  5,  3},
+                {100, 98, 96, 93, 89, 88, 85, 81, 79, 76, 74, 72, 70,
+                 66,  63, 59, 57, 54, 53, 49, 48, 45, 41, 40, 37, 35,
+                 30,  28, 25, 22, 18, 15, 13, 11, 8,  5,  2},
+                {100, 98, 95, 93, 89, 88, 85, 81, 78, 76, 74, 72, 70,
+                 65,  62, 58, 57, 54, 51, 49, 48, 45, 41, 40, 36, 34,
+                 30,  27, 25, 22, 18, 15, 13, 11, 8,  4,  2},
+                {100, 98, 95, 92, 89, 87, 85, 81, 78, 76, 74, 70, 68,
+                 65,  62, 58, 57, 54, 51, 48, 48, 43, 41, 39, 36, 33,
+                 29,  27, 25, 21, 18, 14, 13, 10, 7,  4,  2},
+                {99, 98, 95, 92, 89, 87, 85, 80, 78, 75, 74, 70, 67,
+                 65, 61, 58, 57, 54, 50, 48, 48, 42, 41, 38, 36, 33,
+                 28, 26, 24, 21, 17, 14, 12, 10, 7,  4,  2},
+                {99, 98, 95, 91, 88, 87, 84, 80, 78, 75, 72, 69, 66,
+                 62, 61, 58, 56, 53, 49, 48, 47, 42, 40, 38, 36, 32,
+                 27, 26, 24, 21, 17, 14, 12, 9,  7,  4,  2},
+                {99, 98, 95, 91, 88, 87, 84, 80, 78, 75, 72, 68, 65,
+                 62, 61, 57, 56, 53, 49, 48, 45, 42, 40, 37, 35, 32,
+                 27, 25, 24, 21, 17, 14, 12, 9,  6,  4,  2},
+                {99, 98, 94, 91, 88, 86, 83, 80, 78, 75, 71, 67, 65,
+                 62, 60, 57, 56, 51, 48, 48, 45, 42, 40, 37, 35, 32,
+                 27, 25, 23, 21, 16, 13, 12, 9,  6,  4,  2},
+                {99, 97, 94, 91, 87, 86, 83, 80, 78, 74, 69, 67, 65,
+                 62, 60, 57, 55, 51, 48, 47, 45, 41, 40, 36, 34, 30,
+                 27, 24, 22, 20, 16, 13, 11, 9,  6,  4,  2},
+                {99, 97, 94, 91, 87, 86, 82, 79, 78, 74, 69, 67, 64,
+                 61, 60, 56, 54, 51, 48, 47, 45, 41, 39, 36, 34, 30,
+                 27, 24, 22, 19, 16, 13, 11, 8,  6,  4,  1},
+                {99, 97, 94, 91, 87, 85, 82, 79, 77, 73, 69, 67, 64,
+                 61, 59, 56, 53, 50, 48, 45, 44, 41, 39, 36, 32, 30,
+                 25, 24, 21, 19, 16, 13, 11, 7,  6,  3,  1},
+                {99, 97, 94, 91, 87, 84, 82, 79, 77, 73, 68, 67, 63,
+                 60, 59, 56, 53, 50, 48, 45, 43, 40, 38, 35, 32, 30,
+                 25, 23, 21, 19, 15, 12, 10, 7,  5,  3,  1},
+                {99, 97, 94, 90, 85, 83, 82, 79, 76, 72, 68, 66, 63,
+                 60, 59, 55, 52, 50, 47, 45, 43, 40, 37, 33, 31, 30,
+                 25, 23, 20, 18, 14, 12, 10, 7,  5,  3,  1},
+                {99, 97, 93, 89, 85, 83, 81, 78, 76, 71, 68, 64, 63,
+                 60, 59, 55, 52, 49, 46, 45, 43, 40, 37, 33, 30, 28,
+                 24, 23, 20, 17, 14, 12, 9,  7,  5,  3,  1},
+                {99, 96, 93, 89, 85, 83, 81, 78, 75, 71, 68, 64, 63,
+                 59, 58, 53, 51, 48, 46, 44, 42, 38, 37, 33, 30, 27,
+                 24, 23, 19, 16, 13, 12, 9,  7,  5,  3,  1},
+                {99, 96, 93, 89, 84, 83, 81, 77, 74, 71, 67, 64, 63,
+                 59, 57, 53, 51, 48, 46, 44, 42, 38, 36, 32, 30, 27,
+                 23, 22, 18, 16, 13, 11, 9,  7,  5,  3,  1},
+                {99, 96, 92, 89, 84, 83, 81, 77, 74, 70, 67, 63, 61,
+                 59, 56, 53, 50, 48, 45, 43, 41, 37, 36, 32, 29, 27,
+                 23, 22, 17, 16, 13, 10, 9,  6,  4,  2,  1},
+                {98, 96, 92, 89, 84, 82, 80, 77, 74, 69, 67, 63, 61,
+                 59, 56, 52, 49, 47, 45, 43, 41, 36, 35, 30, 29, 27,
+                 23, 19, 17, 16, 12, 10, 8,  6,  4,  2,  1},
+                {98, 96, 91, 89, 84, 81, 80, 77, 73, 69, 67, 63, 61,
+                 57, 55, 51, 49, 46, 45, 42, 40, 36, 35, 30, 29, 27,
+                 23, 19, 17, 15, 12, 10, 8,  5,  4,  2,  1},
+                {98, 95, 91, 88, 84, 81, 79, 76, 73, 69, 66, 62, 60,
+                 57, 54, 51, 48, 46, 45, 42, 39, 35, 34, 30, 29, 25,
+                 23, 18, 16, 15, 12, 10, 8,  5,  4,  2,  0},
+                {98, 95, 91, 87, 84, 81, 79, 76, 73, 68, 65, 62, 59,
+                 56, 53, 51, 48, 46, 45, 42, 39, 35, 33, 30, 28, 24,
+                 21, 18, 16, 14, 11, 10, 8,  5,  4,  2,  0},
+                {97, 95, 90, 86, 83, 79, 78, 75, 71, 68, 65, 62, 59,
+                 55, 52, 50, 48, 46, 44, 41, 39, 34, 31, 30, 28, 24,
+                 20, 18, 16, 13, 10, 9,  7,  5,  4,  1,  0},
+                {97, 94, 89, 86, 82, 78, 77, 73, 71, 68, 65, 61, 55,
+                 54, 52, 50, 47, 45, 43, 41, 39, 34, 30, 29, 27, 23,
+                 20, 18, 16, 13, 10, 9,  7,  5,  4,  1,  0},
+                {97, 93, 89, 86, 81, 78, 75, 73, 70, 68, 65, 60, 55,
+                 54, 52, 50, 47, 45, 43, 40, 37, 34, 30, 29, 25, 23,
+                 19, 18, 15, 13, 10, 9,  7,  5,  4,  1,  0},
+                {97, 93, 88, 85, 81, 77, 75, 73, 70, 68, 65, 59, 55,
+                 54, 51, 49, 47, 45, 42, 39, 37, 33, 30, 29, 25, 22,
+                 19, 18, 15, 13, 10, 9,  7,  5,  3,  1,  0},
+                {96, 93, 88, 85, 79, 77, 74, 72, 69, 66, 63, 59, 55,
+                 53, 50, 49, 46, 43, 41, 39, 35, 32, 30, 26, 25, 21,
+                 19, 17, 14, 12, 9,  8,  7,  5,  3,  1,  0},
+                {96, 92, 87, 85, 79, 75, 72, 71, 64, 62, 62, 57, 55,
+                 53, 50, 48, 46, 42, 39, 38, 34, 30, 29, 26, 24, 21,
+                 18, 17, 13, 11, 9,  7,  7,  5,  3,  1,  0},
+                {96, 92, 85, 85, 79, 75, 72, 68, 63, 62, 60, 57, 54,
+                 53, 49, 48, 45, 40, 39, 38, 34, 29, 28, 25, 22, 20,
+                 18, 17, 12, 11, 9,  7,  6,  4,  3,  1,  0},
+                {95, 91, 85, 82, 78, 75, 72, 64, 62, 61, 59, 56, 54,
+                 53, 49, 48, 42, 40, 39, 37, 33, 28, 27, 24, 21, 19,
+                 18, 14, 12, 11, 9,  5,  5,  4,  2,  1,  0},
+                {94, 87, 84, 79, 77, 73, 68, 64, 62, 60, 58, 56, 54,
+                 52, 48, 47, 42, 39, 38, 33, 32, 23, 23, 22, 21, 18,
+                 17, 13, 12, 10, 8,  5,  5,  3,  2,  1,  0},
+                {89, 86, 83, 76, 67, 65, 64, 62, 61, 60, 57, 56, 53,
+                 51, 48, 44, 40, 37, 31, 29, 26, 23, 22, 20, 19, 15,
+                 13, 13, 10, 9,  7,  5,  4,  3,  2,  0,  0},
+                {87, 82, 72, 71, 63, 60, 60, 60, 55, 54, 54, 53, 52,
+                 50, 46, 44, 34, 31, 29, 29, 24, 23, 21, 20, 18, 14,
+                 13, 12, 9,  8,  6,  5,  4,  2,  1,  0,  0}};
 
             Logger() << matrix;
 
             int value = 100;
-            unsigned int c1 = Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
-            unsigned int c2 = Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
-            unsigned int c3 = Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
-            unsigned int c4 = Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
-            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ") elements are higher than " << value << endl;
+            unsigned int c1 =
+                Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
+            unsigned int c2 =
+                Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
+            unsigned int c3 =
+                Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
+            unsigned int c4 =
+                Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
+            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4
+                     << ") elements are higher than " << value << endl;
             ASSERT1(c1 == c2);
             ASSERT1(c1 == c3);
             ASSERT1(c1 == c4);
@@ -1640,59 +1780,104 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.CountHigherThan3", [&]() {
         {
-            vector<vector<int>> matrix =
-                {
-                    {100, 99, 97, 97, 92, 90, 80, 79, 74, 68, 65, 63, 61, 51, 49, 41, 41, 22},
-                    {100, 98, 97, 94, 92, 83, 79, 79, 73, 67, 64, 63, 56, 48, 44, 38, 25, 18},
-                    {100, 98, 97, 93, 90, 82, 78, 77, 71, 66, 60, 59, 48, 46, 38, 34, 24, 11},
-                    {100, 98, 95, 93, 87, 81, 78, 72, 71, 66, 59, 51, 45, 44, 34, 31, 22, 9},
-                    {100, 98, 95, 92, 84, 81, 77, 71, 69, 62, 55, 51, 44, 38, 32, 26, 20, 8},
-                    {100, 97, 94, 91, 83, 80, 75, 70, 67, 59, 52, 51, 43, 33, 31, 24, 15, 8},
-                    {100, 97, 92, 91, 82, 80, 74, 69, 67, 59, 51, 48, 42, 32, 30, 24, 13, 7},
-                    {99, 97, 92, 87, 82, 78, 73, 69, 65, 57, 51, 45, 40, 32, 30, 24, 13, 6},
-                    {99, 96, 92, 87, 80, 74, 71, 68, 62, 54, 48, 45, 39, 32, 28, 21, 12, 5},
-                    {99, 96, 90, 85, 78, 74, 71, 67, 62, 53, 48, 44, 39, 32, 25, 19, 12, 5},
-                    {99, 95, 89, 84, 77, 73, 70, 65, 61, 53, 47, 44, 38, 32, 25, 19, 11, 4},
-                    {99, 94, 88, 83, 76, 72, 69, 64, 57, 51, 46, 43, 37, 31, 25, 18, 11, 4},
-                    {98, 94, 88, 82, 76, 72, 67, 63, 57, 51, 46, 42, 35, 28, 24, 17, 11, 4},
-                    {98, 94, 87, 80, 76, 71, 65, 61, 52, 49, 45, 41, 33, 28, 23, 17, 10, 4},
-                    {98, 94, 86, 80, 76, 71, 64, 58, 52, 49, 44, 37, 33, 26, 23, 15, 10, 4},
-                    {98, 94, 86, 80, 75, 70, 63, 57, 52, 48, 44, 35, 32, 25, 21, 15, 10, 4},
-                    {98, 93, 85, 79, 74, 67, 63, 56, 52, 47, 42, 35, 31, 24, 21, 14, 9, 3},
-                    {96, 93, 84, 79, 73, 66, 62, 56, 51, 47, 39, 35, 29, 24, 20, 14, 9, 3},
-                    {96, 92, 83, 77, 72, 66, 62, 55, 51, 47, 39, 34, 29, 24, 20, 13, 8, 3},
-                    {96, 90, 83, 77, 72, 66, 61, 53, 50, 46, 39, 34, 29, 24, 20, 12, 8, 3},
-                    {96, 90, 82, 77, 71, 65, 60, 53, 49, 45, 38, 33, 27, 23, 20, 12, 8, 3},
-                    {96, 90, 82, 76, 71, 65, 59, 52, 48, 42, 38, 33, 26, 22, 19, 12, 8, 3},
-                    {95, 90, 82, 76, 70, 65, 59, 52, 47, 41, 38, 33, 25, 22, 19, 11, 8, 2},
-                    {95, 89, 81, 76, 69, 64, 59, 52, 46, 40, 35, 32, 25, 22, 18, 11, 7, 2},
-                    {95, 89, 81, 74, 69, 63, 58, 49, 45, 40, 35, 32, 25, 22, 17, 11, 7, 2},
-                    {95, 89, 80, 74, 69, 63, 58, 49, 44, 40, 34, 31, 24, 21, 17, 10, 7, 1},
-                    {95, 88, 80, 74, 68, 61, 57, 48, 43, 39, 34, 30, 23, 21, 16, 10, 6, 1},
-                    {95, 87, 80, 73, 68, 61, 55, 47, 42, 39, 34, 30, 22, 21, 16, 9, 5, 1},
-                    {94, 86, 79, 73, 67, 61, 55, 47, 41, 38, 32, 28, 22, 21, 16, 9, 4, 1},
-                    {94, 86, 78, 72, 67, 60, 55, 47, 41, 36, 32, 25, 22, 21, 15, 9, 4, 1},
-                    {93, 85, 77, 71, 67, 60, 52, 46, 40, 36, 32, 24, 22, 20, 14, 9, 4, 1},
-                    {92, 83, 77, 71, 67, 60, 52, 45, 39, 36, 31, 23, 19, 19, 14, 8, 3, 1},
-                    {92, 83, 77, 71, 67, 59, 52, 43, 39, 35, 30, 22, 18, 18, 14, 8, 3, 1},
-                    {92, 82, 76, 71, 64, 59, 50, 42, 38, 34, 27, 22, 18, 16, 14, 8, 3, 0},
-                    {92, 82, 76, 71, 64, 53, 49, 42, 38, 33, 26, 21, 16, 15, 13, 7, 3, 0},
-                    {90, 82, 75, 71, 61, 53, 47, 41, 38, 32, 26, 21, 16, 14, 12, 6, 3, 0},
-                    {89, 81, 74, 70, 60, 53, 44, 41, 37, 32, 25, 21, 16, 13, 10, 6, 2, 0},
-                    {87, 81, 72, 69, 60, 52, 44, 41, 34, 28, 24, 20, 15, 13, 10, 5, 2, 0},
-                    {86, 80, 69, 68, 59, 49, 42, 40, 29, 26, 23, 20, 14, 13, 9, 4, 1, 0},
-                    {86, 79, 67, 65, 55, 43, 42, 33, 29, 26, 22, 19, 14, 13, 8, 4, 1, 0},
-                    {84, 76, 65, 51, 45, 42, 39, 33, 28, 26, 22, 17, 13, 12, 5, 4, 1, 0},
-                    {82, 72, 56, 50, 44, 35, 34, 31, 22, 18, 18, 17, 13, 6, 5, 3, 1, 0}};
+            vector<vector<int>> matrix = {{100, 99, 97, 97, 92, 90, 80, 79, 74,
+                                           68, 65, 63, 61, 51, 49, 41, 41, 22},
+                                          {100, 98, 97, 94, 92, 83, 79, 79, 73,
+                                           67, 64, 63, 56, 48, 44, 38, 25, 18},
+                                          {100, 98, 97, 93, 90, 82, 78, 77, 71,
+                                           66, 60, 59, 48, 46, 38, 34, 24, 11},
+                                          {100, 98, 95, 93, 87, 81, 78, 72, 71,
+                                           66, 59, 51, 45, 44, 34, 31, 22, 9},
+                                          {100, 98, 95, 92, 84, 81, 77, 71, 69,
+                                           62, 55, 51, 44, 38, 32, 26, 20, 8},
+                                          {100, 97, 94, 91, 83, 80, 75, 70, 67,
+                                           59, 52, 51, 43, 33, 31, 24, 15, 8},
+                                          {100, 97, 92, 91, 82, 80, 74, 69, 67,
+                                           59, 51, 48, 42, 32, 30, 24, 13, 7},
+                                          {99, 97, 92, 87, 82, 78, 73, 69, 65,
+                                           57, 51, 45, 40, 32, 30, 24, 13, 6},
+                                          {99, 96, 92, 87, 80, 74, 71, 68, 62,
+                                           54, 48, 45, 39, 32, 28, 21, 12, 5},
+                                          {99, 96, 90, 85, 78, 74, 71, 67, 62,
+                                           53, 48, 44, 39, 32, 25, 19, 12, 5},
+                                          {99, 95, 89, 84, 77, 73, 70, 65, 61,
+                                           53, 47, 44, 38, 32, 25, 19, 11, 4},
+                                          {99, 94, 88, 83, 76, 72, 69, 64, 57,
+                                           51, 46, 43, 37, 31, 25, 18, 11, 4},
+                                          {98, 94, 88, 82, 76, 72, 67, 63, 57,
+                                           51, 46, 42, 35, 28, 24, 17, 11, 4},
+                                          {98, 94, 87, 80, 76, 71, 65, 61, 52,
+                                           49, 45, 41, 33, 28, 23, 17, 10, 4},
+                                          {98, 94, 86, 80, 76, 71, 64, 58, 52,
+                                           49, 44, 37, 33, 26, 23, 15, 10, 4},
+                                          {98, 94, 86, 80, 75, 70, 63, 57, 52,
+                                           48, 44, 35, 32, 25, 21, 15, 10, 4},
+                                          {98, 93, 85, 79, 74, 67, 63, 56, 52,
+                                           47, 42, 35, 31, 24, 21, 14, 9, 3},
+                                          {96, 93, 84, 79, 73, 66, 62, 56, 51,
+                                           47, 39, 35, 29, 24, 20, 14, 9, 3},
+                                          {96, 92, 83, 77, 72, 66, 62, 55, 51,
+                                           47, 39, 34, 29, 24, 20, 13, 8, 3},
+                                          {96, 90, 83, 77, 72, 66, 61, 53, 50,
+                                           46, 39, 34, 29, 24, 20, 12, 8, 3},
+                                          {96, 90, 82, 77, 71, 65, 60, 53, 49,
+                                           45, 38, 33, 27, 23, 20, 12, 8, 3},
+                                          {96, 90, 82, 76, 71, 65, 59, 52, 48,
+                                           42, 38, 33, 26, 22, 19, 12, 8, 3},
+                                          {95, 90, 82, 76, 70, 65, 59, 52, 47,
+                                           41, 38, 33, 25, 22, 19, 11, 8, 2},
+                                          {95, 89, 81, 76, 69, 64, 59, 52, 46,
+                                           40, 35, 32, 25, 22, 18, 11, 7, 2},
+                                          {95, 89, 81, 74, 69, 63, 58, 49, 45,
+                                           40, 35, 32, 25, 22, 17, 11, 7, 2},
+                                          {95, 89, 80, 74, 69, 63, 58, 49, 44,
+                                           40, 34, 31, 24, 21, 17, 10, 7, 1},
+                                          {95, 88, 80, 74, 68, 61, 57, 48, 43,
+                                           39, 34, 30, 23, 21, 16, 10, 6, 1},
+                                          {95, 87, 80, 73, 68, 61, 55, 47, 42,
+                                           39, 34, 30, 22, 21, 16, 9, 5, 1},
+                                          {94, 86, 79, 73, 67, 61, 55, 47, 41,
+                                           38, 32, 28, 22, 21, 16, 9, 4, 1},
+                                          {94, 86, 78, 72, 67, 60, 55, 47, 41,
+                                           36, 32, 25, 22, 21, 15, 9, 4, 1},
+                                          {93, 85, 77, 71, 67, 60, 52, 46, 40,
+                                           36, 32, 24, 22, 20, 14, 9, 4, 1},
+                                          {92, 83, 77, 71, 67, 60, 52, 45, 39,
+                                           36, 31, 23, 19, 19, 14, 8, 3, 1},
+                                          {92, 83, 77, 71, 67, 59, 52, 43, 39,
+                                           35, 30, 22, 18, 18, 14, 8, 3, 1},
+                                          {92, 82, 76, 71, 64, 59, 50, 42, 38,
+                                           34, 27, 22, 18, 16, 14, 8, 3, 0},
+                                          {92, 82, 76, 71, 64, 53, 49, 42, 38,
+                                           33, 26, 21, 16, 15, 13, 7, 3, 0},
+                                          {90, 82, 75, 71, 61, 53, 47, 41, 38,
+                                           32, 26, 21, 16, 14, 12, 6, 3, 0},
+                                          {89, 81, 74, 70, 60, 53, 44, 41, 37,
+                                           32, 25, 21, 16, 13, 10, 6, 2, 0},
+                                          {87, 81, 72, 69, 60, 52, 44, 41, 34,
+                                           28, 24, 20, 15, 13, 10, 5, 2, 0},
+                                          {86, 80, 69, 68, 59, 49, 42, 40, 29,
+                                           26, 23, 20, 14, 13, 9, 4, 1, 0},
+                                          {86, 79, 67, 65, 55, 43, 42, 33, 29,
+                                           26, 22, 19, 14, 13, 8, 4, 1, 0},
+                                          {84, 76, 65, 51, 45, 42, 39, 33, 28,
+                                           26, 22, 17, 13, 12, 5, 4, 1, 0},
+                                          {82, 72, 56, 50, 44, 35, 34, 31, 22,
+                                           18, 18, 17, 13, 6, 5, 3, 1, 0}};
 
             Logger() << matrix;
 
             int value = 80;
-            unsigned int c1 = Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
-            unsigned int c2 = Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
-            unsigned int c3 = Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
-            unsigned int c4 = Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
-            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ") elements are higher than " << value << endl;
+            unsigned int c1 =
+                Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
+            unsigned int c2 =
+                Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
+            unsigned int c3 =
+                Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
+            unsigned int c4 =
+                Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
+            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4
+                     << ") elements are higher than " << value << endl;
             ASSERT1(c1 == c2);
             ASSERT1(c1 == c3);
             ASSERT1(c1 == c4);
@@ -1701,46 +1886,79 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.CountHigherThan4", [&]() {
         {
-            vector<vector<int>> matrix =
-                {
-                    {100, 100, 98, 96, 92, 88, 87, 86, 86, 81, 81, 77, 68, 65, 64, 62, 62, 62, 56, 51, 50, 41, 37, 33, 32, 27, 22, 16, 14},
-                    {100, 100, 97, 95, 91, 86, 83, 83, 80, 77, 76, 70, 65, 65, 62, 62, 57, 55, 53, 49, 44, 37, 35, 32, 28, 21, 18, 15, 9},
-                    {100, 99, 96, 93, 90, 85, 83, 81, 75, 75, 70, 69, 65, 64, 62, 59, 55, 51, 50, 48, 43, 37, 33, 30, 24, 21, 17, 12, 8},
-                    {100, 99, 96, 92, 89, 85, 83, 78, 75, 73, 69, 67, 65, 61, 59, 55, 53, 51, 49, 45, 38, 36, 32, 29, 23, 20, 17, 11, 7},
-                    {100, 99, 96, 92, 89, 84, 83, 78, 75, 73, 69, 66, 63, 60, 58, 55, 52, 49, 46, 42, 38, 36, 31, 27, 22, 20, 13, 9, 7},
-                    {100, 98, 95, 92, 89, 84, 81, 77, 74, 73, 69, 64, 63, 58, 58, 53, 52, 48, 43, 41, 36, 35, 30, 26, 21, 16, 13, 9, 5},
-                    {100, 97, 95, 92, 88, 84, 80, 76, 74, 72, 69, 64, 62, 58, 57, 52, 50, 47, 43, 41, 36, 35, 29, 25, 21, 16, 13, 9, 4},
-                    {100, 97, 94, 91, 87, 83, 79, 76, 74, 72, 67, 64, 61, 57, 56, 50, 47, 44, 43, 40, 34, 32, 28, 24, 20, 16, 13, 8, 4},
-                    {100, 97, 94, 90, 86, 83, 79, 76, 73, 72, 67, 63, 60, 56, 53, 50, 47, 44, 42, 38, 34, 31, 27, 24, 19, 14, 12, 8, 3},
-                    {99, 96, 94, 89, 86, 83, 79, 75, 73, 72, 66, 62, 59, 55, 51, 49, 45, 44, 42, 37, 33, 30, 25, 23, 18, 14, 12, 8, 3},
-                    {99, 96, 93, 88, 85, 83, 79, 75, 72, 71, 66, 62, 58, 54, 51, 47, 45, 43, 39, 36, 32, 29, 25, 23, 17, 14, 11, 7, 2},
-                    {99, 96, 93, 88, 85, 83, 78, 75, 72, 70, 65, 61, 58, 54, 51, 47, 44, 39, 39, 35, 32, 28, 25, 23, 16, 14, 11, 6, 2},
-                    {99, 96, 93, 88, 85, 81, 78, 74, 71, 70, 65, 61, 56, 53, 50, 47, 44, 39, 37, 34, 31, 27, 25, 22, 16, 13, 10, 6, 2},
-                    {99, 96, 92, 88, 85, 81, 78, 74, 71, 68, 64, 60, 55, 53, 50, 47, 43, 38, 36, 33, 30, 26, 24, 21, 15, 12, 9, 6, 2},
-                    {99, 96, 92, 88, 84, 81, 78, 74, 71, 68, 63, 60, 55, 52, 50, 47, 42, 37, 36, 33, 29, 26, 22, 20, 14, 12, 9, 6, 2},
-                    {98, 95, 91, 87, 84, 80, 77, 74, 70, 68, 63, 59, 55, 52, 49, 46, 42, 37, 36, 33, 28, 26, 22, 19, 14, 12, 8, 5, 2},
-                    {98, 95, 91, 87, 84, 80, 77, 73, 70, 67, 63, 59, 54, 51, 49, 44, 42, 37, 35, 32, 28, 25, 22, 18, 14, 11, 8, 4, 2},
-                    {98, 94, 91, 87, 84, 80, 76, 73, 70, 66, 62, 58, 54, 51, 48, 44, 39, 37, 35, 31, 28, 25, 21, 18, 14, 10, 7, 4, 2},
-                    {97, 93, 90, 87, 84, 79, 76, 71, 70, 65, 62, 58, 53, 51, 46, 43, 38, 36, 33, 31, 26, 24, 21, 18, 13, 10, 7, 4, 2},
-                    {97, 93, 90, 86, 83, 79, 76, 70, 69, 65, 62, 58, 53, 50, 46, 41, 38, 35, 33, 30, 26, 24, 21, 17, 13, 9, 7, 3, 2},
-                    {97, 93, 88, 86, 83, 78, 75, 70, 69, 65, 61, 56, 53, 50, 45, 41, 37, 35, 33, 30, 26, 23, 20, 16, 12, 9, 7, 3, 2},
-                    {96, 93, 87, 85, 82, 77, 75, 70, 65, 64, 61, 56, 53, 49, 45, 39, 37, 34, 31, 28, 26, 22, 20, 16, 12, 8, 7, 3, 2},
-                    {96, 92, 87, 85, 82, 76, 75, 68, 65, 64, 61, 55, 53, 49, 44, 38, 36, 33, 31, 27, 25, 22, 18, 15, 12, 8, 6, 3, 2},
-                    {96, 92, 86, 85, 81, 76, 71, 66, 65, 63, 60, 54, 52, 48, 43, 38, 34, 32, 30, 27, 24, 19, 17, 15, 11, 8, 4, 3, 1},
-                    {95, 91, 85, 82, 79, 75, 71, 65, 63, 61, 60, 54, 52, 48, 43, 37, 34, 30, 29, 26, 23, 16, 16, 14, 11, 7, 4, 2, 1},
-                    {95, 90, 84, 81, 78, 75, 70, 64, 61, 61, 57, 53, 50, 43, 42, 37, 33, 30, 29, 24, 23, 15, 15, 13, 9, 7, 4, 2, 0},
-                    {94, 86, 83, 80, 76, 73, 68, 64, 61, 58, 56, 53, 48, 43, 40, 36, 31, 29, 27, 24, 17, 15, 15, 12, 9, 7, 4, 2, 0},
-                    {93, 85, 82, 79, 72, 72, 65, 61, 58, 57, 54, 50, 47, 40, 37, 35, 30, 28, 27, 21, 17, 14, 13, 12, 8, 6, 3, 2, 0},
-                    {85, 83, 78, 77, 70, 70, 64, 61, 53, 50, 49, 45, 44, 40, 28, 24, 24, 21, 18, 17, 17, 13, 12, 8, 8, 2, 2, 1, 0}};
+            vector<vector<int>> matrix = {
+                {100, 100, 98, 96, 92, 88, 87, 86, 86, 81, 81, 77, 68, 65, 64,
+                 62,  62,  62, 56, 51, 50, 41, 37, 33, 32, 27, 22, 16, 14},
+                {100, 100, 97, 95, 91, 86, 83, 83, 80, 77, 76, 70, 65, 65, 62,
+                 62,  57,  55, 53, 49, 44, 37, 35, 32, 28, 21, 18, 15, 9},
+                {100, 99, 96, 93, 90, 85, 83, 81, 75, 75, 70, 69, 65, 64, 62,
+                 59,  55, 51, 50, 48, 43, 37, 33, 30, 24, 21, 17, 12, 8},
+                {100, 99, 96, 92, 89, 85, 83, 78, 75, 73, 69, 67, 65, 61, 59,
+                 55,  53, 51, 49, 45, 38, 36, 32, 29, 23, 20, 17, 11, 7},
+                {100, 99, 96, 92, 89, 84, 83, 78, 75, 73, 69, 66, 63, 60, 58,
+                 55,  52, 49, 46, 42, 38, 36, 31, 27, 22, 20, 13, 9,  7},
+                {100, 98, 95, 92, 89, 84, 81, 77, 74, 73, 69, 64, 63, 58, 58,
+                 53,  52, 48, 43, 41, 36, 35, 30, 26, 21, 16, 13, 9,  5},
+                {100, 97, 95, 92, 88, 84, 80, 76, 74, 72, 69, 64, 62, 58, 57,
+                 52,  50, 47, 43, 41, 36, 35, 29, 25, 21, 16, 13, 9,  4},
+                {100, 97, 94, 91, 87, 83, 79, 76, 74, 72, 67, 64, 61, 57, 56,
+                 50,  47, 44, 43, 40, 34, 32, 28, 24, 20, 16, 13, 8,  4},
+                {100, 97, 94, 90, 86, 83, 79, 76, 73, 72, 67, 63, 60, 56, 53,
+                 50,  47, 44, 42, 38, 34, 31, 27, 24, 19, 14, 12, 8,  3},
+                {99, 96, 94, 89, 86, 83, 79, 75, 73, 72, 66, 62, 59, 55, 51,
+                 49, 45, 44, 42, 37, 33, 30, 25, 23, 18, 14, 12, 8,  3},
+                {99, 96, 93, 88, 85, 83, 79, 75, 72, 71, 66, 62, 58, 54, 51,
+                 47, 45, 43, 39, 36, 32, 29, 25, 23, 17, 14, 11, 7,  2},
+                {99, 96, 93, 88, 85, 83, 78, 75, 72, 70, 65, 61, 58, 54, 51,
+                 47, 44, 39, 39, 35, 32, 28, 25, 23, 16, 14, 11, 6,  2},
+                {99, 96, 93, 88, 85, 81, 78, 74, 71, 70, 65, 61, 56, 53, 50,
+                 47, 44, 39, 37, 34, 31, 27, 25, 22, 16, 13, 10, 6,  2},
+                {99, 96, 92, 88, 85, 81, 78, 74, 71, 68, 64, 60, 55, 53, 50,
+                 47, 43, 38, 36, 33, 30, 26, 24, 21, 15, 12, 9,  6,  2},
+                {99, 96, 92, 88, 84, 81, 78, 74, 71, 68, 63, 60, 55, 52, 50,
+                 47, 42, 37, 36, 33, 29, 26, 22, 20, 14, 12, 9,  6,  2},
+                {98, 95, 91, 87, 84, 80, 77, 74, 70, 68, 63, 59, 55, 52, 49,
+                 46, 42, 37, 36, 33, 28, 26, 22, 19, 14, 12, 8,  5,  2},
+                {98, 95, 91, 87, 84, 80, 77, 73, 70, 67, 63, 59, 54, 51, 49,
+                 44, 42, 37, 35, 32, 28, 25, 22, 18, 14, 11, 8,  4,  2},
+                {98, 94, 91, 87, 84, 80, 76, 73, 70, 66, 62, 58, 54, 51, 48,
+                 44, 39, 37, 35, 31, 28, 25, 21, 18, 14, 10, 7,  4,  2},
+                {97, 93, 90, 87, 84, 79, 76, 71, 70, 65, 62, 58, 53, 51, 46,
+                 43, 38, 36, 33, 31, 26, 24, 21, 18, 13, 10, 7,  4,  2},
+                {97, 93, 90, 86, 83, 79, 76, 70, 69, 65, 62, 58, 53, 50, 46,
+                 41, 38, 35, 33, 30, 26, 24, 21, 17, 13, 9,  7,  3,  2},
+                {97, 93, 88, 86, 83, 78, 75, 70, 69, 65, 61, 56, 53, 50, 45,
+                 41, 37, 35, 33, 30, 26, 23, 20, 16, 12, 9,  7,  3,  2},
+                {96, 93, 87, 85, 82, 77, 75, 70, 65, 64, 61, 56, 53, 49, 45,
+                 39, 37, 34, 31, 28, 26, 22, 20, 16, 12, 8,  7,  3,  2},
+                {96, 92, 87, 85, 82, 76, 75, 68, 65, 64, 61, 55, 53, 49, 44,
+                 38, 36, 33, 31, 27, 25, 22, 18, 15, 12, 8,  6,  3,  2},
+                {96, 92, 86, 85, 81, 76, 71, 66, 65, 63, 60, 54, 52, 48, 43,
+                 38, 34, 32, 30, 27, 24, 19, 17, 15, 11, 8,  4,  3,  1},
+                {95, 91, 85, 82, 79, 75, 71, 65, 63, 61, 60, 54, 52, 48, 43,
+                 37, 34, 30, 29, 26, 23, 16, 16, 14, 11, 7,  4,  2,  1},
+                {95, 90, 84, 81, 78, 75, 70, 64, 61, 61, 57, 53, 50, 43, 42,
+                 37, 33, 30, 29, 24, 23, 15, 15, 13, 9,  7,  4,  2,  0},
+                {94, 86, 83, 80, 76, 73, 68, 64, 61, 58, 56, 53, 48, 43, 40,
+                 36, 31, 29, 27, 24, 17, 15, 15, 12, 9,  7,  4,  2,  0},
+                {93, 85, 82, 79, 72, 72, 65, 61, 58, 57, 54, 50, 47, 40, 37,
+                 35, 30, 28, 27, 21, 17, 14, 13, 12, 8,  6,  3,  2,  0},
+                {85, 83, 78, 77, 70, 70, 64, 61, 53, 50, 49, 45, 44, 40, 28,
+                 24, 24, 21, 18, 17, 17, 13, 12, 8,  8,  2,  2,  1,  0}};
 
             Logger() << matrix;
 
             int value = 81;
-            unsigned int c1 = Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
-            unsigned int c2 = Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
-            unsigned int c3 = Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
-            unsigned int c4 = Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
-            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ") elements are higher than " << value << endl;
+            unsigned int c1 =
+                Algorithm::YoungTableau<>::CountHigherThan(matrix, value);
+            unsigned int c2 =
+                Algorithm::YoungTableau<>::CountHigherThan2(matrix, value);
+            unsigned int c3 =
+                Algorithm::YoungTableau<>::CountHigherThan3(matrix, value);
+            unsigned int c4 =
+                Algorithm::YoungTableau<>::CountHigherThan4(matrix, value);
+            Logger() << "(" << c1 << ", " << c2 << ", " << c3 << ", " << c4
+                     << ") elements are higher than " << value << endl;
             ASSERT1(c1 == c2);
             ASSERT1(c1 == c3);
             ASSERT1(c1 == c4);
@@ -1749,23 +1967,31 @@ void AlgorithmTest::Init(void)
 
     Add("YoungTableau.CountHigherThan5", [&]() {
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(50, 1);
                 size_t n = Util::RandomInt(50, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
                 Algorithm::YoungTableau<>::Create2(matrix);
                 Logger() << matrix;
                 Algorithm::YoungTableau<>::Verify(matrix);
-                for (size_t j = 0; j < m; j++)
-                {
-                    for (size_t k = 0; k < matrix[j].size(); k++)
-                    {
-                        unsigned long c1 = Algorithm::YoungTableau<>::CountHigherThan(matrix, matrix[j][k]);
-                        unsigned long c2 = Algorithm::YoungTableau<>::CountHigherThan2(matrix, matrix[j][k]);
-                        unsigned long c3 = Algorithm::YoungTableau<>::CountHigherThan3(matrix, matrix[j][k]);
-                        unsigned long c4 = Algorithm::YoungTableau<>::CountHigherThan4(matrix, matrix[j][k]);
-                        Logger() << "Run (" << j << ", " << k << "): (" << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ") elements are higher than " << matrix[j][k] << endl;
+                for (size_t j = 0; j < m; j++) {
+                    for (size_t k = 0; k < matrix[j].size(); k++) {
+                        unsigned long c1 =
+                            Algorithm::YoungTableau<>::CountHigherThan(
+                                matrix, matrix[j][k]);
+                        unsigned long c2 =
+                            Algorithm::YoungTableau<>::CountHigherThan2(
+                                matrix, matrix[j][k]);
+                        unsigned long c3 =
+                            Algorithm::YoungTableau<>::CountHigherThan3(
+                                matrix, matrix[j][k]);
+                        unsigned long c4 =
+                            Algorithm::YoungTableau<>::CountHigherThan4(
+                                matrix, matrix[j][k]);
+                        Logger() << "Run (" << j << ", " << k << "): (" << c1
+                                 << ", " << c2 << ", " << c3 << ", " << c4
+                                 << ") elements are higher than "
+                                 << matrix[j][k] << endl;
                         ASSERT1(c1 == c2);
                         ASSERT1(c1 == c3);
                         ASSERT1(c1 == c4);
@@ -1774,23 +2000,28 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t m = Util::RandomInt(50, 1);
                 size_t n = Util::RandomInt(50, 1);
                 vector<vector<int>> matrix = Util::RandomMatrix(m, n, 100);
                 Algorithm::YoungTableau<greater<>>::Create2(matrix);
                 Logger() << matrix;
                 Algorithm::YoungTableau<greater<>>::Verify(matrix);
-                for (size_t j = 0; j < m; j++)
-                {
-                    for (size_t k = 0; k < matrix[j].size(); k++)
-                    {
-                        unsigned long c1 = Algorithm::YoungTableau<greater<>>::CountHigherThan(matrix, matrix[j][k]);
-                        unsigned long c2 = Algorithm::YoungTableau<greater<>>::CountHigherThan2(matrix, matrix[j][k]);
-                        unsigned long c3 = Algorithm::YoungTableau<greater<>>::CountHigherThan3(matrix, matrix[j][k]);
-                        unsigned long c4 = Algorithm::YoungTableau<greater<>>::CountHigherThan4(matrix, matrix[j][k]);
-                        Logger() << "Run (" << j << ", " << k << "): (" << c1 << ", " << c2 << ", " << c3 << ", " << c4 << ") elements are higher than " << matrix[j][k] << endl;
+                for (size_t j = 0; j < m; j++) {
+                    for (size_t k = 0; k < matrix[j].size(); k++) {
+                        unsigned long c1 =
+                            Algorithm::YoungTableau<greater<>>::CountHigherThan(
+                                matrix, matrix[j][k]);
+                        unsigned long c2 = Algorithm::YoungTableau<
+                            greater<>>::CountHigherThan2(matrix, matrix[j][k]);
+                        unsigned long c3 = Algorithm::YoungTableau<
+                            greater<>>::CountHigherThan3(matrix, matrix[j][k]);
+                        unsigned long c4 = Algorithm::YoungTableau<
+                            greater<>>::CountHigherThan4(matrix, matrix[j][k]);
+                        Logger() << "Run (" << j << ", " << k << "): (" << c1
+                                 << ", " << c2 << ", " << c3 << ", " << c4
+                                 << ") elements are higher than "
+                                 << matrix[j][k] << endl;
                         ASSERT1(c1 == c2);
                         ASSERT1(c1 == c3);
                         ASSERT1(c1 == c4);
@@ -1802,53 +2033,50 @@ void AlgorithmTest::Init(void)
 
     Add("Sort Grid", [&]() {
         auto check = [&](vector<vector<int>> &g) {
-            Logger() << "Before sort " << endl
-                     << g;
+            Logger() << "Before sort " << endl << g;
             Util::SortGrid(g);
-            Logger() << "After sort " << endl
-                     << g;
+            Logger() << "After sort " << endl << g;
         };
         {
-            vector<vector<int>> g =
-                {
-                    {3, 2, 1},
-                    {2, 1},
-                    {3, 1},
-                    {3, 2},
-                    {2},
-                    {1}};
+            vector<vector<int>> g = {{3, 2, 1}, {2, 1}, {3, 1},
+                                     {3, 2},    {2},    {1}};
             check(g);
         }
         {
-            vector<vector<int>> g =
-                {
-                    {1, 2, 3},
-                    {1, 2},
-                    {1, 3},
-                    {2, 3},
-                    {2},
-                    {1}};
+            vector<vector<int>> g = {{1, 2, 3}, {1, 2}, {1, 3},
+                                     {2, 3},    {2},    {1}};
             check(g);
         }
     });
 
     Add("LongestStringWithKeystrokes", [&]() {
         unsigned long long expect[100] = {
-            1, 2, 3, 4, 5, 6, 7, 9, 12, 16,
-            20, 25, 30, 36, 48, 64, 80, 100, 125, 150,
-            192, 256, 320, 400, 500, 625, 768, 1024, 1280, 1600,
-            2000, 2500, 3125, 4096, 5120, 6400, 8000, 10000, 12500, 16384,
-            20480, 25600, 32000, 40000, 50000, 65536, 81920, 102400, 128000, 160000,
-            200000, 262144, 327680, 409600, 512000, 640000, 800000, 1048576, 1310720, 1638400,
-            2048000, 2560000, 3200000, 4194304, 5242880, 6553600, 8192000, 10240000, 12800000, 16777216,
-            20971520, 26214400, 32768000, 40960000, 51200000, 67108864, 83886080, 104857600, 131072000, 163840000,
-            204800000, 268435456, 335544320, 419430400, 524288000, 655360000, 819200000, 1073741824, 1342177280, 1677721600,
-            2097152000, 2621440000, 3276800000, 4294967296, 5368709120, 6710886400, 8388608000, 10485760000, 13107200000, 17179869184};
+            1,          2,          3,           4,           5,
+            6,          7,          9,           12,          16,
+            20,         25,         30,          36,          48,
+            64,         80,         100,         125,         150,
+            192,        256,        320,         400,         500,
+            625,        768,        1024,        1280,        1600,
+            2000,       2500,       3125,        4096,        5120,
+            6400,       8000,       10000,       12500,       16384,
+            20480,      25600,      32000,       40000,       50000,
+            65536,      81920,      102400,      128000,      160000,
+            200000,     262144,     327680,      409600,      512000,
+            640000,     800000,     1048576,     1310720,     1638400,
+            2048000,    2560000,    3200000,     4194304,     5242880,
+            6553600,    8192000,    10240000,    12800000,    16777216,
+            20971520,   26214400,   32768000,    40960000,    51200000,
+            67108864,   83886080,   104857600,   131072000,   163840000,
+            204800000,  268435456,  335544320,   419430400,   524288000,
+            655360000,  819200000,  1073741824,  1342177280,  1677721600,
+            2097152000, 2621440000, 3276800000,  4294967296,  5368709120,
+            6710886400, 8388608000, 10485760000, 13107200000, 17179869184};
         unsigned long long actual[100];
         LongestStringWithKeystrokes(100, actual);
-        for (int i = 0; i < 100; i++)
-        {
-            Logger().WriteInformation("%d: %llu %s %llu\n", i + 1, actual[i], actual[i] == expect[i] ? "==" : "!=", expect[i]);
+        for (int i = 0; i < 100; i++) {
+            Logger().WriteInformation(
+                "%d: %llu %s %llu\n", i + 1, actual[i],
+                actual[i] == expect[i] ? "==" : "!=", expect[i]);
             ASSERT1(actual[i] == expect[i]);
         }
     });
@@ -1998,27 +2226,24 @@ void AlgorithmTest::Init(void)
         memset(cost, 0, 36 * sizeof(int));
         memset(split, 0, 36 * sizeof(int));
 
-        MatrixChain::ComputeCostTable(dimension, count, &cost[0][0], &split[0][0]);
+        MatrixChain::ComputeCostTable(dimension, count, &cost[0][0],
+                                      &split[0][0]);
 
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             cout << "\t" << dimension[i] << "x" << dimension[i + 1];
         }
 
         cout << endl;
 
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             cout << "\t" << i;
         }
 
         cout << endl;
 
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             cout << i;
-            for (int j = 0; j < 6; j++)
-            {
+            for (int j = 0; j < 6; j++) {
                 cout << "\t";
                 if (j >= i)
                     cout << cost[i][j];
@@ -2029,11 +2254,9 @@ void AlgorithmTest::Init(void)
 
         cout << endl;
 
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             cout << i;
-            for (int j = 0; j < 6; j++)
-            {
+            for (int j = 0; j < 6; j++) {
                 cout << "\t";
                 if (j >= i)
                     cout << split[i][j];
@@ -2052,67 +2275,67 @@ void AlgorithmTest::Init(void)
             Matrix<double> count2(rows, cols);
             Maze::CountUniquePaths(rows, cols, count);
             Maze::CountUniquePaths2(rows, cols, count2);
-            Logger().WriteInformation(" unique paths (%f, %f)\n", count(0, 0), count2(0, 0));
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
+            Logger().WriteInformation(" unique paths (%f, %f)\n", count(0, 0),
+                                      count2(0, 0));
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
                     ASSERT1(count(i, j) == count2(i, j));
                 }
             }
         };
 
         // overflow may happen if the maze is too large
-        for (int i = 1; i <= 15; i++)
-        {
-            for (int j = 1; j <= 15; j++)
-            {
+        for (int i = 1; i <= 15; i++) {
+            for (int j = 1; j <= 15; j++) {
                 check(i, j);
             }
         }
     });
 
     Add("MinMaxPartitionSum", [&]() {
-        auto check = [&](int *input, int length, int partitions, int expectedSum) {
+        auto check = [&](int *input, int length, int partitions,
+                         int expectedSum) {
             Logger().WriteInformation("\nInput:");
-            for (int i = 0; i < length; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 Logger().WriteInformation(" %d", input[i]);
             }
             Logger().WriteInformation("\n%d partitions\n", partitions);
 
             unique_ptr<int[]> indices(new int[partitions]);
             unique_ptr<int[]> indices2(new int[partitions]);
-            int sum = MinMaxPartitionSum::Solve(input, length, indices.get(), partitions);
-            int sum2 = MinMaxPartitionSum::Solve2(input, length, indices2.get(), partitions);
+            int sum = MinMaxPartitionSum::Solve(input, length, indices.get(),
+                                                partitions);
+            int sum2 = MinMaxPartitionSum::Solve2(input, length, indices2.get(),
+                                                  partitions);
 
             auto print = [&](unique_ptr<int[]> &indicesArray) {
-                for (int j = 0; j < partitions; j++)
-                {
+                for (int j = 0; j < partitions; j++) {
                     int b = indicesArray[j];
-                    int e = j == partitions - 1 ? length - 1 : indicesArray[j + 1] - 1;
+                    int e = j == partitions - 1 ? length - 1
+                                                : indicesArray[j + 1] - 1;
                     int s = 0;
-                    for (int i = b; i <= e; i++)
-                    {
+                    for (int i = b; i <= e; i++) {
                         s += input[i];
                     }
-                    Logger().WriteInformation("  %d = sum{A[%d..%d]} = ", s, b, e);
-                    for (int i = b; i <= e; i++)
-                    {
-                        Logger().WriteInformation("%s%d", i == b ? "" : " + ", input[i]);
+                    Logger().WriteInformation("  %d = sum{A[%d..%d]} = ", s, b,
+                                              e);
+                    for (int i = b; i <= e; i++) {
+                        Logger().WriteInformation("%s%d", i == b ? "" : " + ",
+                                                  input[i]);
                     }
                     Logger().WriteInformation("\n");
                 }
             };
 
-            Logger().WriteInformation("\nSolution using dynamic programming: %d\n", sum);
+            Logger().WriteInformation(
+                "\nSolution using dynamic programming: %d\n", sum);
             print(indices);
-            Logger().WriteInformation("\nSolution using binary search: %d\n", sum2);
+            Logger().WriteInformation("\nSolution using binary search: %d\n",
+                                      sum2);
             print(indices2);
             ASSERT1(sum == expectedSum);
             ASSERT1(sum2 == expectedSum);
-            for (int i = 0; i < partitions; i++)
-            {
+            for (int i = 0; i < partitions; i++) {
                 ASSERT1(indices[i] == indices2[i]);
             }
         };
@@ -2178,8 +2401,7 @@ void AlgorithmTest::Init(void)
         }
         {
             string alphabet = "abcdefghijklmnopqrstuvwxyz";
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 size_t length = 1 + (rand() % 100);
                 string s1 = String::Random(alphabet, length);
                 Logger().WriteInformation("Run %d: %s\n", i, s1.c_str());
@@ -2191,9 +2413,9 @@ void AlgorithmTest::Init(void)
                 int ls2 = RemoveDuplicateChars(s2.get(), (int)length);
                 Logger().Print(s2.get(), (size_t)ls2, "%c");
                 ASSERT1((int)ss1.size() == ls2);
-                for (int j = 0; j < ls2; j++)
-                {
-                    ASSERT2(ss1.find(s2[j]) != ss1.end(), String::Format("%c is not found in set\n", s2[j]));
+                for (int j = 0; j < ls2; j++) {
+                    ASSERT2(ss1.find(s2[j]) != ss1.end(),
+                            String::Format("%c is not found in set\n", s2[j]));
                 }
             }
         }
@@ -2288,19 +2510,18 @@ void AlgorithmTest::Init(void)
     });
 
     Add("KMP", [&]() {
-        for (int i = 0; i < 50; i++)
-        {
+        for (int i = 0; i < 50; i++) {
             Logger().WriteInformation("Run %d\n", i);
             string pattern = Random::String(1 + rand() % 5, string("abcdefg"));
             string input = Random::String(1 + rand() % 1000, string("abcdefg"));
             KMP kmp(pattern.c_str());
             // kmp.Print();
-            vector<int> indices = kmp.SearchString(input.c_str(), strlen(input.c_str()));
+            vector<int> indices =
+                kmp.SearchString(input.c_str(), strlen(input.c_str()));
             printf("Pattern: %s\n", pattern.c_str());
             printf("Input: %s\n", input.c_str());
-            for_each(indices.begin(), indices.end(), [](int i) {
-                printf("Found a match at index %d\n", i);
-            });
+            for_each(indices.begin(), indices.end(),
+                     [](int i) { printf("Found a match at index %d\n", i); });
         }
     });
 
@@ -2333,16 +2554,14 @@ void AlgorithmTest::Init(void)
 
     Add("AddBits", [&]() {
         auto toArray = [&](int n, size_t l, int *a) {
-            for (size_t i = 0; i < l; i++)
-            {
+            for (size_t i = 0; i < l; i++) {
                 a[i] = n & 0x1;
                 n = n >> 1;
             }
         };
         auto toNum = [&](int *a, size_t l) -> int {
             int n = 0;
-            for (size_t i = 0; i < l; i++)
-            {
+            for (size_t i = 0; i < l; i++) {
                 if (a[i] == 1)
                     n = n + (0x1 << i);
             }
@@ -2365,8 +2584,7 @@ void AlgorithmTest::Init(void)
         check(2, 1, 3);
         check(3, 1, 4);
         check(3, 2, 5);
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             int n0 = 1 + rand();
             int n1 = 1 + rand();
             check(n0, n1, n0 + n1);
@@ -2402,32 +2620,32 @@ void AlgorithmTest::Init(void)
         check("AAA", 702);
         check("AAB", 703);
         check("AAZ", 727);
-        for (unsigned long long i = 0; i < 1000; i++)
-        {
+        for (unsigned long long i = 0; i < 1000; i++) {
             string code = Math::EncodeExcel(i);
             unsigned long long decode = Math::DecodeExcel(code);
-            Logger().WriteInformation("%llu, %s, %llu\n", i, code.c_str(), decode);
+            Logger().WriteInformation("%llu, %s, %llu\n", i, code.c_str(),
+                                      decode);
             ASSERT1(decode == i);
         }
-        for (unsigned int i = 0; i < 1000; i++)
-        {
+        for (unsigned int i = 0; i < 1000; i++) {
             unsigned long long n = rand();
             string code = Math::EncodeExcel(n);
             unsigned long long decode = Math::DecodeExcel(code);
-            Logger().WriteInformation("%llu, %s, %llu\n", n, code.c_str(), decode);
+            Logger().WriteInformation("%llu, %s, %llu\n", n, code.c_str(),
+                                      decode);
             ASSERT1(decode == n);
         }
     });
 
     Add("ExclusiveMultiplication", [&]() {
-        auto check = [&](int *input, int length, long long *output, long long *expect) {
+        auto check = [&](int *input, int length, long long *output,
+                         long long *expect) {
             Math::ExclusiveMultiplication(input, length, output);
             Logger().WriteInformation("Input:  ");
             Logger().Print<int>(input, length, "%4d", " ");
             Logger().WriteInformation("Output: ");
             Logger().Print<long long>(output, length, "%4ld", " ");
-            for (int i = 0; i < length; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 ASSERT1(output[i] == expect[i]);
             }
         };
@@ -2477,7 +2695,8 @@ void AlgorithmTest::Init(void)
             int r3 = SingleNumber::FindOutOfThree(input, length);
             int r4 = SingleNumber::FindLOutOfK(input, length, 3, 1);
             int r5 = SingleNumber::FindLOutOfK2(input, length, 3, 1);
-            Logger().WriteInformation("Single number: %d, %d, %d, %d, %d\n", r1, r2, r3, r4, r5);
+            Logger().WriteInformation("Single number: %d, %d, %d, %d, %d\n", r1,
+                                      r2, r3, r4, r5);
             ASSERT1(r1 == expect);
             ASSERT1(r2 == expect);
             ASSERT1(r3 == expect);
@@ -2502,14 +2721,12 @@ void AlgorithmTest::Init(void)
             check(A, 7, 99);
         }
         {
-            for (int j = 0; j < 100; j++)
-            {
+            for (int j = 0; j < 100; j++) {
                 int k = 2 + rand() % 10;
                 int l = 1 + rand() % (k - 1);
                 vector<int> n;
                 int c;
-                for (int i = 0; i < 10; i++)
-                {
+                for (int i = 0; i < 10; i++) {
                     c = 1 + rand() % INT_MAX;
                     n.insert(n.end(), k, c);
                 }
@@ -2520,8 +2737,11 @@ void AlgorithmTest::Init(void)
                 unique_ptr<int[]> input(new int[n.size()]);
                 ToArray(n, input.get());
                 int r = SingleNumber::FindLOutOfK(input.get(), n.size(), k, l);
-                int r2 = SingleNumber::FindLOutOfK2(input.get(), n.size(), k, l);
-                Logger().WriteInformation("Run %d: Single (%d, %d out of %d): %d, %d\n", j, c, l, k, r, r2);
+                int r2 =
+                    SingleNumber::FindLOutOfK2(input.get(), n.size(), k, l);
+                Logger().WriteInformation(
+                    "Run %d: Single (%d, %d out of %d): %d, %d\n", j, c, l, k,
+                    r, r2);
                 ASSERT1(r == c);
                 ASSERT1(r2 == c);
             }
@@ -2574,7 +2794,9 @@ void AlgorithmTest::Init(void)
             OverLap::Range r1 = make_pair(b1, e1);
             OverLap::Range r2 = make_pair(b2, e2);
             bool r = OverLap::IsOverlap(r1, r2);
-            Logger().WriteInformation("(%.2f, %.2f) and (%.2f, %.2f) %s overlap\n", b1, e1, b2, e2, r ? "" : "not");
+            Logger().WriteInformation(
+                "(%.2f, %.2f) and (%.2f, %.2f) %s overlap\n", b1, e1, b2, e2,
+                r ? "" : "not");
             ASSERT1(r == o);
         };
 
@@ -2584,15 +2806,16 @@ void AlgorithmTest::Init(void)
     });
 
     Add("Rectangle", [&]() {
-        auto check = [&](
-                         double b1, double e1, double b2, double e2,
-                         double b3, double e3, double b4, double e4,
-                         bool o) {
-            OverLap::Rectangle r1 = make_pair(make_pair(b1, e1), make_pair(b2, e2));
-            OverLap::Rectangle r2 = make_pair(make_pair(b3, e3), make_pair(b4, e4));
+        auto check = [&](double b1, double e1, double b2, double e2, double b3,
+                         double e3, double b4, double e4, bool o) {
+            OverLap::Rectangle r1 =
+                make_pair(make_pair(b1, e1), make_pair(b2, e2));
+            OverLap::Rectangle r2 =
+                make_pair(make_pair(b3, e3), make_pair(b4, e4));
             bool r = OverLap::IsOverlap(r1, r2);
             Logger().WriteInformation(
-                "((%.2f, %.2f), (%.2f, %.2f)) and ((%.2f, %.2f), (%.2f, %.2f)) %s overlap\n",
+                "((%.2f, %.2f), (%.2f, %.2f)) and ((%.2f, %.2f), (%.2f, %.2f)) "
+                "%s overlap\n",
                 b1, e1, b2, e2, b3, e3, b4, e4, r ? "" : "not");
             ASSERT1(r == o);
         };
@@ -2640,12 +2863,9 @@ void AlgorithmTest::Init(void)
 
     Add("IntPoint", [&]() {
         vector<PointsOnALine::IntPoint> points = {
-            PointsOnALine::IntPoint{3, 1},
-            PointsOnALine::IntPoint{3, 1},
-            PointsOnALine::IntPoint{0, 2},
-            PointsOnALine::IntPoint{0, 1},
-            PointsOnALine::IntPoint{-1, 0},
-            PointsOnALine::IntPoint{0, 0}};
+            PointsOnALine::IntPoint{3, 1},  PointsOnALine::IntPoint{3, 1},
+            PointsOnALine::IntPoint{0, 2},  PointsOnALine::IntPoint{0, 1},
+            PointsOnALine::IntPoint{-1, 0}, PointsOnALine::IntPoint{0, 0}};
         sort(points.begin(), points.end());
         for_each(points.begin(), points.end(), [&](PointsOnALine::IntPoint &p) {
             Logger().WriteInformation("  (%d, %d)", p.x, p.y);
@@ -2668,16 +2888,18 @@ void AlgorithmTest::Init(void)
     Add("MaxPointsOnLine", [&]() {
         auto check = [&](vector<PointsOnALine::IntPoint> &points, int expect) {
             Logger().WriteInformation("Input %d points:\n", points.size());
-            for_each(points.begin(), points.end(), [&](const PointsOnALine::IntPoint &p) {
-                Logger().WriteInformation("  (%d, %d)", p.x, p.y);
-            });
+            for_each(points.begin(), points.end(),
+                     [&](const PointsOnALine::IntPoint &p) {
+                         Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+                     });
             Logger().WriteInformation("\n");
             set<PointsOnALine::IntPoint> output;
             int count = PointsOnALine::MaxPointsOnALine(points, output);
             Logger().WriteInformation("Max points on a line: %d\n", count);
-            for_each(output.begin(), output.end(), [&](const PointsOnALine::IntPoint &p) {
-                Logger().WriteInformation("  (%d, %d)", p.x, p.y);
-            });
+            for_each(output.begin(), output.end(),
+                     [&](const PointsOnALine::IntPoint &p) {
+                         Logger().WriteInformation("  (%d, %d)", p.x, p.y);
+                     });
             Logger().WriteInformation("\n");
             ASSERT1(count == expect);
         };
@@ -2688,58 +2910,45 @@ void AlgorithmTest::Init(void)
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{1, 1},
-                PointsOnALine::IntPoint{1, 2}};
+                PointsOnALine::IntPoint{1, 1}, PointsOnALine::IntPoint{1, 2}};
             check(points, 2);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{1, 1},
-                PointsOnALine::IntPoint{2, 1}};
+                PointsOnALine::IntPoint{1, 1}, PointsOnALine::IntPoint{2, 1}};
             check(points, 2);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{2, 3},
-                PointsOnALine::IntPoint{4, 5}};
+                PointsOnALine::IntPoint{2, 3}, PointsOnALine::IntPoint{4, 5}};
             check(points, 2);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{1, 2},
-                PointsOnALine::IntPoint{2, 2},
-                PointsOnALine::IntPoint{1, 1},
-                PointsOnALine::IntPoint{2, 1}};
+                PointsOnALine::IntPoint{1, 2}, PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{1, 1}, PointsOnALine::IntPoint{2, 1}};
             check(points, 2);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{1, 2},
-                PointsOnALine::IntPoint{2, 2},
-                PointsOnALine::IntPoint{1, 1},
-                PointsOnALine::IntPoint{2, 1},
+                PointsOnALine::IntPoint{1, 2}, PointsOnALine::IntPoint{2, 2},
+                PointsOnALine::IntPoint{1, 1}, PointsOnALine::IntPoint{2, 1},
                 PointsOnALine::IntPoint{3, 1}};
             check(points, 3);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{2, 3},
-                PointsOnALine::IntPoint{1, 2},
-                PointsOnALine::IntPoint{2, 2},
-                PointsOnALine::IntPoint{1, 1},
+                PointsOnALine::IntPoint{2, 3}, PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2}, PointsOnALine::IntPoint{1, 1},
                 PointsOnALine::IntPoint{2, 1}};
             check(points, 3);
         }
         {
             vector<PointsOnALine::IntPoint> points = {
-                PointsOnALine::IntPoint{1, 4},
-                PointsOnALine::IntPoint{1, 3},
-                PointsOnALine::IntPoint{2, 3},
-                PointsOnALine::IntPoint{1, 2},
-                PointsOnALine::IntPoint{2, 2},
-                PointsOnALine::IntPoint{3, 2},
-                PointsOnALine::IntPoint{2, 1},
-                PointsOnALine::IntPoint{3, 1},
+                PointsOnALine::IntPoint{1, 4}, PointsOnALine::IntPoint{1, 3},
+                PointsOnALine::IntPoint{2, 3}, PointsOnALine::IntPoint{1, 2},
+                PointsOnALine::IntPoint{2, 2}, PointsOnALine::IntPoint{3, 2},
+                PointsOnALine::IntPoint{2, 1}, PointsOnALine::IntPoint{3, 1},
                 PointsOnALine::IntPoint{4, 1}};
             check(points, 4);
         }
@@ -2771,8 +2980,7 @@ void AlgorithmTest::Init(void)
 
             ASSERT1(v == v2);
             ASSERT1(indices.size() == indices2.size());
-            for (unsigned int i = 0; i < indices.size(); i++)
-            {
+            for (unsigned int i = 0; i < indices.size(); i++) {
                 ASSERT1(indices[i] == indices2[i]);
             }
         };
@@ -2785,8 +2993,7 @@ void AlgorithmTest::Init(void)
         int l2 = sizeof(c2) / sizeof(c2[0]);
         check(c2, l2);
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int length = 1 + rand() % 100;
             unique_ptr<int[]> input(new int[length]);
             Random::Array(input.get(), length);
@@ -2796,7 +3003,8 @@ void AlgorithmTest::Init(void)
     });
 
     Add("SearchWord", [&]() {
-        auto check = [&](const vector<vector<char>> &m, const string &w, bool e) {
+        auto check = [&](const vector<vector<char>> &m, const string &w,
+                         bool e) {
             Logger().Print(m, "%c", " ");
             Logger().WriteInformation("%s\n", w.c_str());
             bool r = SearchWord::Existed(m, w);
@@ -2805,144 +3013,123 @@ void AlgorithmTest::Init(void)
             ASSERT1(r2 == e);
         };
         {
-            vector<vector<char>> m =
-                {
-                    {'x', 'x', 'x'},
-                    {'x', 'h', 'e'},
-                    {'o', 'l', 'x'},
-                    {'x', 'l', 'x'}};
+            vector<vector<char>> m = {{'x', 'x', 'x'},
+                                      {'x', 'h', 'e'},
+                                      {'o', 'l', 'x'},
+                                      {'x', 'l', 'x'}};
             check(m, "hello", true);
         }
         {
-            vector<vector<char>> m =
-                {
-                    {'x', 'x', 'x'},
-                    {'x', 'h', 'e'},
-                    {'o', 'l', 'x'},
-                    {'x', 'l', 'x'}};
+            vector<vector<char>> m = {{'x', 'x', 'x'},
+                                      {'x', 'h', 'e'},
+                                      {'o', 'l', 'x'},
+                                      {'x', 'l', 'x'}};
             check(m, "hillo", false);
         }
         {
             // This will fail
-            vector<vector<char>> m =
-                {
-                    {'x', 'w', 'h', 'b'},
-                    {'u', 'k', 'o', 'm'},
-                    {'z', 'w', 'v', 'a'},
-                    {'t', 'd', 'k', 'n'}};
+            vector<vector<char>> m = {{'x', 'w', 'h', 'b'},
+                                      {'u', 'k', 'o', 'm'},
+                                      {'z', 'w', 'v', 'a'},
+                                      {'t', 'd', 'k', 'n'}};
             // check(m, "owuxwhm", true);
         }
         {
-            vector<vector<char>> m =
-                {
-                    {'w', 'x', 'x'},
-                    {'x', 'w', 'x'},
-                    {'x', 'x', 'x'}};
+            vector<vector<char>> m = {
+                {'w', 'x', 'x'}, {'x', 'w', 'x'}, {'x', 'x', 'x'}};
             check(m, "www", true);
         }
         {
-            vector<vector<char>> m =
-                {
-                    {'w', 'y', 'x'},
-                    {'x', 'w', 'x'},
-                    {'x', 'x', 'x'}};
+            vector<vector<char>> m = {
+                {'w', 'y', 'x'}, {'x', 'w', 'x'}, {'x', 'x', 'x'}};
             check(m, "wwwy", true);
         }
         {
-            vector<vector<char>> m =
-                {
-                    {'x', 'x', 'x'},
-                    {'w', 'y', 'x'},
-                    {'x', 'w', 'x'}};
+            vector<vector<char>> m = {
+                {'x', 'x', 'x'}, {'w', 'y', 'x'}, {'x', 'w', 'x'}};
             check(m, "wwwy", true);
         }
         {
-            vector<vector<char>> m =
-                {
-                    {'y', 'x', 'x'},
-                    {'w', 'x', 'x'},
-                    {'x', 'w', 'x'}};
+            vector<vector<char>> m = {
+                {'y', 'x', 'x'}, {'w', 'x', 'x'}, {'x', 'w', 'x'}};
             check(m, "wwwy", true);
         }
         /*
-		{
-			for (int i = 0; i < 10; i++) {
-				string word = String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() % 10));
-				vector<vector<char>> matrix = MatrixProblem::Generator::RandomWithoutWord(word);
-				check(matrix, word, false);
-			}
-		}
-		{
-			for (int i = 0; i < 10; i++) {
-				string word = String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() % 10));
-				vector<vector<char>> matrix = MatrixProblem::Generator::RandomWithWord(word);
-				check(matrix, word, true);
-			}
-		}
-		*/
+                {
+                        for (int i = 0; i < 10; i++) {
+                                string word =
+           String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() %
+           10)); vector<vector<char>> matrix =
+           MatrixProblem::Generator::RandomWithoutWord(word); check(matrix,
+           word, false);
+                        }
+                }
+                {
+                        for (int i = 0; i < 10; i++) {
+                                string word =
+           String::Random(string("abcdefghijklmnopqrstuvwxyz"), 1 + (rand() %
+           10)); vector<vector<char>> matrix =
+           MatrixProblem::Generator::RandomWithWord(word); check(matrix, word,
+           true);
+                        }
+                }
+                */
     });
 
     Add("SurroundedRegion", [&]() {
         auto verify = [&](vector<vector<char>> &board) {
             int height = board.size();
             int width = board[0].size();
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    if (board[i][j] == 'O')
-                    {
-                        bool boundary = i == 0 || i == height - 1 || j == 0 || j == width - 1;
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (board[i][j] == 'O') {
+                        bool boundary = i == 0 || i == height - 1 || j == 0 ||
+                                        j == width - 1;
                         pair<int, int> p = make_pair(i, j);
                         set<pair<int, int>> region;
                         queue<pair<int, int>> q;
                         region.insert(p);
                         q.push(p);
-                        while (!q.empty())
-                        {
+                        while (!q.empty()) {
                             p = q.front();
                             q.pop();
                             pair<int, int> n;
-                            if (p.first > 0 && board[p.first - 1][p.second] == 'O')
-                            {
+                            if (p.first > 0 &&
+                                board[p.first - 1][p.second] == 'O') {
                                 if (p.first - 1 == 0)
                                     boundary = true;
                                 n = make_pair(p.first - 1, p.second);
-                                if (region.find(n) == region.end())
-                                {
+                                if (region.find(n) == region.end()) {
                                     region.insert(n);
                                     q.push(n);
                                 }
                             }
-                            if (p.second > 0 && board[p.first][p.second - 1] == 'O')
-                            {
+                            if (p.second > 0 &&
+                                board[p.first][p.second - 1] == 'O') {
                                 if (p.second - 1 == 0)
                                     boundary = true;
                                 n = make_pair(p.first, p.second - 1);
-                                if (region.find(n) == region.end())
-                                {
+                                if (region.find(n) == region.end()) {
                                     region.insert(n);
                                     q.push(n);
                                 }
                             }
-                            if (p.second < width - 1 && board[p.first][p.second + 1] == 'O')
-                            {
+                            if (p.second < width - 1 &&
+                                board[p.first][p.second + 1] == 'O') {
                                 if (p.second + 1 == width - 1)
                                     boundary = true;
                                 n = make_pair(p.first, p.second + 1);
-                                if (region.find(n) == region.end())
-                                {
+                                if (region.find(n) == region.end()) {
                                     region.insert(n);
                                     q.push(n);
                                 }
                             }
-                            if (p.first < height - 1 && board[p.first + 1][p.second] == 'O')
-                            {
+                            if (p.first < height - 1 &&
+                                board[p.first + 1][p.second] == 'O') {
                                 if (p.first + 1 == height - 1)
                                     boundary = true;
                                 n = make_pair(p.first + 1, p.second);
-                                if (region.find(n) == region.end())
-                                {
+                                if (region.find(n) == region.end()) {
                                     region.insert(n);
                                     q.push(n);
                                 }
@@ -2955,7 +3142,8 @@ void AlgorithmTest::Init(void)
             }
         };
 
-        auto check = [&](vector<vector<char>> &board, vector<vector<char>> &board2) {
+        auto check = [&](vector<vector<char>> &board,
+                         vector<vector<char>> &board2) {
             Logger().WriteInformation("Input:\n");
             Logger().Print(board, "%c");
             SurroundedRegion::Capture(board);
@@ -2973,10 +3161,8 @@ void AlgorithmTest::Init(void)
             int width2 = board[0].size();
             ASSERT1(height == height2);
             ASSERT1(width == width2);
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
                     ASSERT1(board[i][j] == board2[i][j]);
                 }
             }
@@ -3087,45 +3273,48 @@ void AlgorithmTest::Init(void)
             check(board, board2);
         }
         {
-            vector<vector<char>> board = {{'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
-            vector<vector<char>> board2 = {{'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board = {
+                {'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {
+                {'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
             check(board, board2);
         }
         {
-            vector<vector<char>> board = {{'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
-            vector<vector<char>> board2 = {{'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board = {
+                {'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {
+                {'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
             check(board, board2);
         }
         {
-            vector<vector<char>> board = {{'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
-            vector<vector<char>> board2 = {{'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board = {
+                {'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {
+                {'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
             check(board, board2);
         }
         {
-            vector<vector<char>> board = {{'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
-            vector<vector<char>> board2 = {{'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board = {
+                {'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            vector<vector<char>> board2 = {
+                {'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
             check(board, board2);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int height = 1 + rand() % 100;
                 int width = 1 + rand() % 100;
-                Logger().WriteInformation("Run %d, %d X %d\n", i, height, width);
+                Logger().WriteInformation("Run %d, %d X %d\n", i, height,
+                                          width);
                 vector<vector<char>> board;
                 vector<vector<char>> board2;
-                for (int j = 0; j < height; j++)
-                {
+                for (int j = 0; j < height; j++) {
                     vector<char> row;
-                    for (int k = 0; k < width; k++)
-                    {
+                    for (int k = 0; k < width; k++) {
                         int v = rand();
-                        if ((v & 0x1) == 1)
-                        {
+                        if ((v & 0x1) == 1) {
                             row.push_back('X');
-                        }
-                        else
-                        {
+                        } else {
                             row.push_back('O');
                         }
                     }
@@ -3208,7 +3397,8 @@ void AlgorithmTest::Init(void)
     Add("PalindromeNumber", [&]() {
         auto check = [&](unsigned int n, bool e) {
             bool r = Palindrome::IsPalindrom(n);
-            Logger().WriteInformation("%d is %s palindrome\n", n, r ? "" : "not");
+            Logger().WriteInformation("%d is %s palindrome\n", n,
+                                      r ? "" : "not");
             ASSERT1(r == e);
         };
 
@@ -3225,7 +3415,8 @@ void AlgorithmTest::Init(void)
     Add("PalindromeString", [&]() {
         auto check = [&](const string &s, bool e) {
             bool r = Palindrome::IsPalindrom(s);
-            Logger().WriteInformation("\"%s\" is %s palindrome\n", s.c_str(), r ? "" : "not");
+            Logger().WriteInformation("\"%s\" is %s palindrome\n", s.c_str(),
+                                      r ? "" : "not");
             ASSERT1(r == e);
         };
 
@@ -3299,28 +3490,28 @@ void AlgorithmTest::Init(void)
             vector<vector<string>> partitions = Palindrome::Partition(input);
             vector<string> mincut = Palindrome::MinCutPartition(input);
             size_t mincutSize2 = (size_t)Palindrome::MinCutPartition2(input);
-            Logger().WriteInformation("    %d partitions:\n", partitions.size());
+            Logger().WriteInformation("    %d partitions:\n",
+                                      partitions.size());
             size_t mincutSize = input.length();
-            for_each(partitions.begin(), partitions.end(), [&](vector<string> &partition) {
-                if (partition.size() < mincutSize)
-                    mincutSize = partition.size();
-                Logger().WriteInformation("      [");
-                for (size_t i = 0; i < partition.size(); i++)
-                {
-                    if (i != 0)
-                    {
-                        Logger().WriteInformation(", ");
-                    }
-                    Logger().WriteInformation("%s", partition[i].c_str());
-                }
-                Logger().WriteInformation("]\n");
-            });
-            Logger().WriteInformation("    Min cuts: %d, %d\n", mincut.size() - 1, mincutSize2);
+            for_each(partitions.begin(), partitions.end(),
+                     [&](vector<string> &partition) {
+                         if (partition.size() < mincutSize)
+                             mincutSize = partition.size();
+                         Logger().WriteInformation("      [");
+                         for (size_t i = 0; i < partition.size(); i++) {
+                             if (i != 0) {
+                                 Logger().WriteInformation(", ");
+                             }
+                             Logger().WriteInformation("%s",
+                                                       partition[i].c_str());
+                         }
+                         Logger().WriteInformation("]\n");
+                     });
+            Logger().WriteInformation("    Min cuts: %d, %d\n",
+                                      mincut.size() - 1, mincutSize2);
             Logger().WriteInformation("      [");
-            for (size_t i = 0; i < mincut.size(); i++)
-            {
-                if (i != 0)
-                {
+            for (size_t i = 0; i < mincut.size(); i++) {
+                if (i != 0) {
                     Logger().WriteInformation(", ");
                 }
                 Logger().WriteInformation("%s", mincut[i].c_str());
@@ -3503,64 +3694,40 @@ void AlgorithmTest::Init(void)
             ASSERT1(B12[1] < B12[2]);
             ASSERT1(B12[2] == 3);
 
-            int B13[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int B13[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                             {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 Partition::PartitionArrayByOrders(B13[i], 0, 2, I4, 0, 1);
                 ASSERT1(B13[i][0] == 1);
                 ASSERT1(B13[i][1] == 2);
                 ASSERT1(B13[i][2] == 3);
             }
 
-            int B14[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int B14[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                             {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 Partition::PartitionArrayByOrders(B14[i], 0, 2, I5, 0, 1);
                 ASSERT1(B14[i][0] == 1);
                 ASSERT1(B14[i][1] == 2);
                 ASSERT1(B14[i][2] == 3);
             }
 
-            int B15[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int B15[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                             {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 Partition::PartitionArrayByOrders(B15[i], 0, 2, I6, 0, 1);
                 ASSERT1(B15[i][0] == 1);
                 ASSERT1(B15[i][1] == 2);
                 ASSERT1(B15[i][2] == 3);
             }
 
-            int B16[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int B16[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                             {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 Partition::PartitionArrayByOrders(B16[i], 0, 2, I7, 0, 2);
                 ASSERT1(B16[i][0] == 1);
                 ASSERT1(B16[i][1] == 2);
@@ -3568,36 +3735,34 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int length = 1 + rand();
                 int len = 1 + (rand() % (length - 1));
 
-                Logger().WriteInformation("Run %d: %d elements %d indices\n", i, length, len);
+                Logger().WriteInformation("Run %d: %d elements %d indices\n", i,
+                                          length, len);
 
                 unique_ptr<int[]> input(new int[length]);
-                for (int j = 0; j < length; j++)
-                {
+                for (int j = 0; j < length; j++) {
                     input[j] = rand();
                 }
 
                 int delta = length / len;
                 unique_ptr<int[]> indices(new int[len]);
                 indices[0] = rand() % (delta + 1);
-                for (int j = 1; j < len; j++)
-                {
+                for (int j = 1; j < len; j++) {
                     indices[j] = indices[j - 1] + 1 + (rand() % delta);
                 }
 
                 ASSERT1(indices[len - 1] < length);
 
-                Partition::PartitionArrayByOrders((int *)input.get(), 0, length - 1, (int *)indices.get(), 0, len - 1);
+                Partition::PartitionArrayByOrders(
+                    (int *)input.get(), 0, length - 1, (int *)indices.get(), 0,
+                    len - 1);
 
                 int index = 0;
-                for (int j = 0; j < length; j++)
-                {
-                    if (j == indices[index])
-                    {
+                for (int j = 0; j < length; j++) {
+                    if (j == indices[index]) {
                         index++;
                     }
 
@@ -3634,16 +3799,10 @@ void AlgorithmTest::Init(void)
             ASSERT1(I2[0] == 1);
         }
         {
-            int A1[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A1[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 int I[1];
                 Partition::PartitionArrayByQuantiles(A1[i], 3, I, 2);
                 ASSERT1(A1[i][0] == 1);
@@ -3652,16 +3811,10 @@ void AlgorithmTest::Init(void)
                 ASSERT1(I[0] == 1);
             }
 
-            int A2[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A2[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 int I[2];
                 Partition::PartitionArrayByQuantiles(A2[i], 3, I, 3);
                 ASSERT1(A2[i][0] == 1);
@@ -3672,35 +3825,32 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int length = 1 + rand();
                 int len = 1 + (rand() % length);
 
-                Logger().WriteInformation("Run %d: %d elements %d indices\n", i, length, len - 1);
+                Logger().WriteInformation("Run %d: %d elements %d indices\n", i,
+                                          length, len - 1);
 
                 unique_ptr<int[]> input(new int[length]);
-                for (int j = 0; j < length; j++)
-                {
+                for (int j = 0; j < length; j++) {
                     input[j] = rand();
                 }
 
                 unique_ptr<int[]> indices(new int[len - 1]);
 
-                Partition::PartitionArrayByQuantiles((int *)input.get(), length, (int *)indices.get(), len);
+                Partition::PartitionArrayByQuantiles((int *)input.get(), length,
+                                                     (int *)indices.get(), len);
 
-                for (int i = 0; i < len - 3; i++)
-                {
+                for (int i = 0; i < len - 3; i++) {
                     int d1 = indices[i + 1] - indices[i];
                     int d2 = indices[i + 2] - indices[i + 1];
                     ASSERT1(abs(d1 - d2) <= 1);
                 }
 
                 int index = 0;
-                for (int j = 0; j < length; j++)
-                {
-                    if (j == indices[index])
-                    {
+                for (int j = 0; j < length; j++) {
+                    if (j == indices[index]) {
                         index++;
                     }
 
@@ -4324,14 +4474,14 @@ void AlgorithmTest::Init(void)
             ASSERT1(m == 50);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> input0 = Random::Vector(100);
                 int len0 = (int)input0.size();
                 vector<int> input1 = Random::Vector(100);
                 int len1 = (int)input1.size();
 
-                Logger().WriteInformation("Run %d: %d and %d elements\n", i, len0, len1);
+                Logger().WriteInformation("Run %d: %d and %d elements\n", i,
+                                          len0, len1);
 
                 sort(input0.begin(), input0.end());
                 unique_ptr<int[]> array0(new int[len0]);
@@ -4341,7 +4491,8 @@ void AlgorithmTest::Init(void)
                 unique_ptr<int[]> array1(new int[len1]);
                 ToArray(input1, array1.get());
 
-                int median = FindMedian<int>(array0.get(), len0, array1.get(), len1);
+                int median =
+                    FindMedian<int>(array0.get(), len0, array1.get(), len1);
 
                 vector<int> input(input0.begin(), input0.end());
                 input.insert(input.end(), input1.begin(), input1.end());
@@ -4382,105 +4533,75 @@ void AlgorithmTest::Init(void)
             ASSERT1(A1[1] == 1);
         }
         {
-            int A1[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A1[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 SelectClosestNeighbors(A1[i], 3, 0, 0);
                 ASSERT1(A1[i][0] == 1);
             }
 
-            int A2[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A2[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 SelectClosestNeighbors(A2[i], 3, 0, 1);
                 ASSERT1(A2[i][0] == 1);
                 ASSERT1(A2[i][1] == 2);
             }
 
-            int A3[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A3[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 SelectClosestNeighbors(A3[i], 3, 1, 0);
                 ASSERT1(A3[i][0] == 2);
             }
 
-            int A4[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A4[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 SelectClosestNeighbors(A4[i], 3, 2, 0);
                 ASSERT1(A4[i][0] == 3);
             }
 
-            int A5[6][3] = {
-                {1, 2, 3},
-                {1, 3, 2},
-                {2, 1, 3},
-                {2, 3, 1},
-                {3, 1, 2},
-                {3, 2, 1}};
+            int A5[6][3] = {{1, 2, 3}, {1, 3, 2}, {2, 1, 3},
+                            {2, 3, 1}, {3, 1, 2}, {3, 2, 1}};
 
-            for (int i = 0; i < 6; i++)
-            {
+            for (int i = 0; i < 6; i++) {
                 SelectClosestNeighbors(A5[i], 3, 2, 1);
                 ASSERT1(A5[i][0] == 3);
                 ASSERT1(A5[i][1] == 2);
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int length = 1 + rand();
                 int pivotIndex = rand() % length;
                 int countNeighbors = rand() % length;
 
-                Logger().WriteInformation("Run %d: %d elements, select %d elements closest to pivotIndex %d\n", i, length, countNeighbors, pivotIndex);
+                Logger().WriteInformation("Run %d: %d elements, select %d "
+                                          "elements closest to pivotIndex %d\n",
+                                          i, length, countNeighbors,
+                                          pivotIndex);
 
                 unique_ptr<int[]> input(new int[length]);
-                for (int j = 0; j < length; j++)
-                {
+                for (int j = 0; j < length; j++) {
                     input[j] = rand();
                 }
 
-                int pivot = SelectClosestNeighbors((int *)input.get(), length, pivotIndex, countNeighbors);
+                int pivot = SelectClosestNeighbors((int *)input.get(), length,
+                                                   pivotIndex, countNeighbors);
 
                 int maxDistance = 0;
-                for (int i = 0; i <= countNeighbors; i++)
-                {
+                for (int i = 0; i <= countNeighbors; i++) {
                     int d = abs(input[i] - pivot);
                     if (d > maxDistance)
                         maxDistance = d;
                 }
 
-                for (int i = countNeighbors + 1; i < length; i++)
-                {
+                for (int i = countNeighbors + 1; i < length; i++) {
                     int d = abs(input[i] - pivot);
                     ASSERT1(d >= maxDistance);
                 }
@@ -4490,15 +4611,20 @@ void AlgorithmTest::Init(void)
 
     Add("KthOrder", [&]() {
         {
-            auto check = [&](int e, int k, int *input1, int length1, int *input2, int length2) {
+            auto check = [&](int e, int k, int *input1, int length1,
+                             int *input2, int length2) {
                 Logger().WriteInformation("\n");
                 Logger().WriteInformation("Input1:");
                 Logger().Print(input1, length1);
                 Logger().WriteInformation("Input2:");
                 Logger().Print(input2, length2);
-                int v = KthOrder::Solve<int>(k, input1, length1, input2, length2);
-                int v2 = KthOrder::Solve2<int>(k, input1, length1, input2, length2);
-                Logger().WriteInformation("%d-th order: %d %s %d, %d %s %d\n", k, v, v == e ? "==" : "!=", e, v2, v2 == e ? "==" : "!=", e);
+                int v =
+                    KthOrder::Solve<int>(k, input1, length1, input2, length2);
+                int v2 =
+                    KthOrder::Solve2<int>(k, input1, length1, input2, length2);
+                Logger().WriteInformation("%d-th order: %d %s %d, %d %s %d\n",
+                                          k, v, v == e ? "==" : "!=", e, v2,
+                                          v2 == e ? "==" : "!=", e);
                 ASSERT1(v == e);
                 ASSERT1(v2 == e);
             };
@@ -4720,15 +4846,18 @@ void AlgorithmTest::Init(void)
             check(5, 5, A29, 3, B29, 2);
         }
         {
-            auto check = [&](int k, int *input1, int length1, int *input2, int length2) {
-                int v = KthOrder::Solve<int>(k, input1, length1, input2, length2);
-                int v2 = KthOrder::Solve2<int>(k, input1, length1, input2, length2);
-                Logger().WriteInformation("%d-th order: %d %s %d\n", k, v, v == v2 ? "==" : "!=", v2);
+            auto check = [&](int k, int *input1, int length1, int *input2,
+                             int length2) {
+                int v =
+                    KthOrder::Solve<int>(k, input1, length1, input2, length2);
+                int v2 =
+                    KthOrder::Solve2<int>(k, input1, length1, input2, length2);
+                Logger().WriteInformation("%d-th order: %d %s %d\n", k, v,
+                                          v == v2 ? "==" : "!=", v2);
                 ASSERT1(v == v2);
             };
 
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> v0 = Random::Vector(100); // Array::RandomSorted();
                 vector<int> v1 = Random::Vector(100); // Array::RandomSorted();
                 unique_ptr<int[]> input0(new int[v0.size()]);
@@ -4737,17 +4866,15 @@ void AlgorithmTest::Init(void)
                 ToArray(v1, input1.get());
                 int k = 1;
                 int length = v0.size() + v1.size();
-                do
-                {
-                    Logger().WriteInformation("Run %d: %d-th order statics from %d and %d elements\n", i, k, v0.size(), v1.size());
+                do {
+                    Logger().WriteInformation(
+                        "Run %d: %d-th order statics from %d and %d elements\n",
+                        i, k, v0.size(), v1.size());
                     check(k, input0.get(), v0.size(), input1.get(), v1.size());
 
-                    if (k >= length - 100 && k < length)
-                    {
+                    if (k >= length - 100 && k < length) {
                         k = length;
-                    }
-                    else
-                    {
+                    } else {
                         k += (1 + (rand() % 99));
                     }
                 } while (k <= length);
@@ -4757,29 +4884,30 @@ void AlgorithmTest::Init(void)
 
     Add("Intersection", [&]() {
         auto check = [&](int *input1, int length1, int *input2, int length2) {
-            pair<int, int> indices = Intersection::Solve<int>(input1, length1, input2, length2);
-            pair<int, int> indices2 = Intersection::Solve<int>(input1, length1, input2, length2);
-            if (indices.first != -1 && indices.second != -1)
-            {
+            pair<int, int> indices =
+                Intersection::Solve<int>(input1, length1, input2, length2);
+            pair<int, int> indices2 =
+                Intersection::Solve<int>(input1, length1, input2, length2);
+            if (indices.first != -1 && indices.second != -1) {
                 Logger().WriteInformation("input1[%d] = %d, input2[%d] = %d\n",
-                                          indices.first, input1[indices.first], indices.second, input2[indices.second]);
+                                          indices.first, input1[indices.first],
+                                          indices.second,
+                                          input2[indices.second]);
+            } else {
+                Logger().WriteInformation("input1[%d], input2[%d]\n",
+                                          indices.first, indices.second);
             }
-            else
-            {
-                Logger().WriteInformation("input1[%d], input2[%d]\n", indices.first, indices.second);
-            }
-            if (indices2.first != -1 && indices2.second != -1)
-            {
-                Logger().WriteInformation("input1[%d] = %d, input2[%d] = %d\n",
-                                          indices2.first, input1[indices2.first], indices2.second, input2[indices2.second]);
-            }
-            else
-            {
-                Logger().WriteInformation("input1[%d], input2[%d]\n", indices2.first, indices2.second);
+            if (indices2.first != -1 && indices2.second != -1) {
+                Logger().WriteInformation(
+                    "input1[%d] = %d, input2[%d] = %d\n", indices2.first,
+                    input1[indices2.first], indices2.second,
+                    input2[indices2.second]);
+            } else {
+                Logger().WriteInformation("input1[%d], input2[%d]\n",
+                                          indices2.first, indices2.second);
             }
             ASSERT1(indices == indices2);
-            if (indices.first != -1 && indices2.second != -1)
-            {
+            if (indices.first != -1 && indices2.second != -1) {
                 ASSERT1(input1[indices.first] == input2[indices.second]);
             }
         };
@@ -4809,14 +4937,15 @@ void AlgorithmTest::Init(void)
             check(A, 3, B, 2);
         }
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int length = 1 + rand();
             int length1 = 1 + (rand() % (length - 2));
             int length2 = length - length1;
             unique_ptr<int[]> input(new int[length]);
             Random::Array(input.get(), length);
-            Logger().WriteInformation("\nRun %d: intersection from %d and %d elements\n", i, length1, length2);
+            Logger().WriteInformation(
+                "\nRun %d: intersection from %d and %d elements\n", i, length1,
+                length2);
             // Sort::MergeSort::Sort<int>(input.get(), 0, length1 - 1);
             // Sort::MergeSort::Sort<int>(input.get(), length1, length - 1);
             check(input.get(), length1, (input.get() + length1), length2);
@@ -4829,8 +4958,7 @@ void AlgorithmTest::Init(void)
             const int columns = 18;
             const int length = rows * columns;
             int A[length];
-            for (int i = 0; i < length; i++)
-            {
+            for (int i = 0; i < length; i++) {
                 A[i] = length - i;
             }
 
@@ -4838,38 +4966,50 @@ void AlgorithmTest::Init(void)
             ASSERT1(RowSort::IsSorted(A, length, columns));
         }
         {
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 // srand((unsigned)time(NULL));
                 const int rows = rand() % 100 + 1;
                 const int columns = 2 * rows * rows;
                 const int length = rows * columns;
-                Logger().WriteInformation("Run %d: %d X %d\n", i, rows, columns);
+                Logger().WriteInformation("Run %d: %d X %d\n", i, rows,
+                                          columns);
 
                 unique_ptr<int[]> A(new int[length]);
                 Random::Array(A.get(), length);
                 unique_ptr<int[]> B(new int[length]);
-                memcpy_s(B.get(), length * sizeof(int), A.get(), length * sizeof(int));
+                memcpy_s(B.get(), length * sizeof(int), A.get(),
+                         length * sizeof(int));
 
                 long tick = GetTickCount();
                 bool sortedA = RowSort::IsSorted(A.get(), length, columns);
-                Logger().WriteInformation("Serialized: %ssorted, %d ticks\n", sortedA ? "" : "not ", GetTickCount() - tick);
+                Logger().WriteInformation("Serialized: %ssorted, %d ticks\n",
+                                          sortedA ? "" : "not ",
+                                          GetTickCount() - tick);
                 tick = GetTickCount();
                 RowSort::Sort<int>(A.get(), length, columns);
-                Logger().WriteInformation("Serialized: sort took %d ticks\n", GetTickCount() - tick);
+                Logger().WriteInformation("Serialized: sort took %d ticks\n",
+                                          GetTickCount() - tick);
                 tick = GetTickCount();
                 sortedA = RowSort::IsSorted(A.get(), length, columns);
-                Logger().WriteInformation("Serialized: %ssorted, %d ticks\n", sortedA ? "" : "not ", GetTickCount() - tick);
+                Logger().WriteInformation("Serialized: %ssorted, %d ticks\n",
+                                          sortedA ? "" : "not ",
+                                          GetTickCount() - tick);
 
                 tick = GetTickCount();
-                bool sortedB = RowSort::ParallelIsSorted(B.get(), length, columns);
-                Logger().WriteInformation("Parallel: %ssorted, %d ticks\n", sortedB ? "" : "not ", GetTickCount() - tick);
+                bool sortedB =
+                    RowSort::ParallelIsSorted(B.get(), length, columns);
+                Logger().WriteInformation("Parallel: %ssorted, %d ticks\n",
+                                          sortedB ? "" : "not ",
+                                          GetTickCount() - tick);
                 tick = GetTickCount();
                 RowSort::ParallelSort<int>(B.get(), length, columns);
-                Logger().WriteInformation("Parallel: sort took %d ticks\n", GetTickCount() - tick);
+                Logger().WriteInformation("Parallel: sort took %d ticks\n",
+                                          GetTickCount() - tick);
                 tick = GetTickCount();
                 sortedB = RowSort::IsSorted(B.get(), length, columns);
-                Logger().WriteInformation("Parallel: %ssorted, %d ticks\n", sortedB ? "" : "not ", GetTickCount() - tick);
+                Logger().WriteInformation("Parallel: %ssorted, %d ticks\n",
+                                          sortedB ? "" : "not ",
+                                          GetTickCount() - tick);
 
                 bool equal = Equal(A.get(), B.get(), length);
                 ASSERT1(sortedA == true);
@@ -4896,11 +5036,11 @@ void AlgorithmTest::Init(void)
             ASSERT1(IsSorted(A, L));
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int size = 1 + rand() % 1000;
                 int range = rand() % 100;
-                Logger().WriteInformation("Run %d %d elements in [-%d, %d]\n", i, size, range, range);
+                Logger().WriteInformation("Run %d %d elements in [-%d, %d]\n",
+                                          i, size, range, range);
                 unique_ptr<int[]> A(new int[size]);
                 Random::Array(A.get(), size, -range, range);
                 CountingSort::Sort(A.get(), size);
@@ -4910,12 +5050,12 @@ void AlgorithmTest::Init(void)
     });
 
     Add("WordLadder", [&]() {
-        auto check = [&](const string &start, const string &end, const unordered_set<string> &dict, int expect) {
+        auto check = [&](const string &start, const string &end,
+                         const unordered_set<string> &dict, int expect) {
             Logger().WriteInformation("Dictionary: [");
             int i = 0;
             for_each(dict.begin(), dict.end(), [&](string w) {
-                if (i != 0)
-                {
+                if (i != 0) {
                     Logger().WriteInformation(" ");
                 }
                 Logger().WriteInformation("%s", w.c_str());
@@ -4927,17 +5067,20 @@ void AlgorithmTest::Init(void)
             int length = WordLadder::Solve(start, end, dict);
             int length2 = WordLadder::Solve2(start, end, dict);
             int length3 = WordLadder::Solve3(start, end, dict);
-            vector<vector<string>> ladders = WordLadder::WordLadders(start, end, dict);
-            Logger().WriteInformation("    Length:  %d %s %d\n", length, length == expect ? "==" : "!=", expect);
-            Logger().WriteInformation("    Length2: %d %s %d\n", length2, length2 == expect ? "==" : "!=", expect);
-            Logger().WriteInformation("    Length3: %d %s %d\n", length3, length3 == expect ? "==" : "!=", expect);
+            vector<vector<string>> ladders =
+                WordLadder::WordLadders(start, end, dict);
+            Logger().WriteInformation("    Length:  %d %s %d\n", length,
+                                      length == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length2: %d %s %d\n", length2,
+                                      length2 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length3: %d %s %d\n", length3,
+                                      length3 == expect ? "==" : "!=", expect);
             Logger().WriteInformation("    Ladders:\n");
             for_each(ladders.begin(), ladders.end(), [&](vector<string> &l) {
                 Logger().WriteInformation("            [");
                 int i = 0;
                 for_each(l.begin(), l.end(), [&](string w) {
-                    if (i != 0)
-                    {
+                    if (i != 0) {
                         Logger().WriteInformation(" ");
                     }
                     Logger().WriteInformation("%s", w.c_str());
@@ -4958,19 +5101,23 @@ void AlgorithmTest::Init(void)
             check("hit", "cog", dict, 5);
         }
         {
-            unordered_set<string> dict = {"ted", "tex", "red", "tax", "tad", "den", "rex", "pee"};
+            unordered_set<string> dict = {"ted", "tex", "red", "tax",
+                                          "tad", "den", "rex", "pee"};
             check("red", "tax", dict, 4);
         }
     });
 
     Add("MatchSubsequence", [&]() {
-        auto check = [&](const string &input, const string &pattern, int expect) {
+        auto check = [&](const string &input, const string &pattern,
+                         int expect) {
             Logger().WriteInformation("Input:   %s\n", input.c_str());
             Logger().WriteInformation("Pattern: %s\n", pattern.c_str());
             int count2 = MatchSubsequence::Count2(input, pattern);
-            Logger().WriteInformation("Matches: %d %s %d\n", count2, count2 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Matches: %d %s %d\n", count2,
+                                      count2 == expect ? "==" : "!=", expect);
             int count = MatchSubsequence::Count(input, pattern);
-            Logger().WriteInformation("Matches: %d %s %d\n", count, count == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Matches: %d %s %d\n", count,
+                                      count == expect ? "==" : "!=", expect);
             ASSERT1(count == expect);
             ASSERT1(count2 == expect);
         };
@@ -4984,8 +5131,12 @@ void AlgorithmTest::Init(void)
         check("rrrr", "rr", 6);
         check("rrrrr", "rr", 10);
         check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 861);
-        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 5151);
-        check("aabdbaabeeadcbbdedacbbeecbabebaeeecaeabaedadcbdbcdaabebdadbbaeabdadeaabbabbecebbebcaddaacccebeaeedababedeacdeaaaeeaecbe", "bddabdcae", 10582116);
+        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+              "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+              "rr", 5151);
+        check("aabdbaabeeadcbbdedacbbeecbabebaeeecaeabaedadcbdbcdaabebdadbbaeab"
+              "dadeaabbabbecebbebcaddaacccebeaeedababedeacdeaaaeeaecbe",
+              "bddabdcae", 10582116);
     });
 
     Add("Join", [&]() {
@@ -5009,12 +5160,12 @@ void AlgorithmTest::Init(void)
     });
 
     Add("WordLadder", [&]() {
-        auto check = [&](const string &start, const string &end, const unordered_set<string> &dict, int expect) {
+        auto check = [&](const string &start, const string &end,
+                         const unordered_set<string> &dict, int expect) {
             Logger().WriteInformation("Dictionary: [");
             int i = 0;
             for_each(dict.begin(), dict.end(), [&](string w) {
-                if (i != 0)
-                {
+                if (i != 0) {
                     Logger().WriteInformation(" ");
                 }
                 Logger().WriteInformation("%s", w.c_str());
@@ -5026,17 +5177,20 @@ void AlgorithmTest::Init(void)
             int length = Test::String::WordLadder(start, end, dict);
             int length2 = Test::String::WordLadder2(start, end, dict);
             int length3 = Test::String::WordLadder2(start, end, dict);
-            vector<vector<string>> ladders = Test::String::WordLadders(start, end, dict);
-            Logger().WriteInformation("    Length:  %d %s %d\n", length, length == expect ? "==" : "!=", expect);
-            Logger().WriteInformation("    Length2: %d %s %d\n", length2, length2 == expect ? "==" : "!=", expect);
-            Logger().WriteInformation("    Length3: %d %s %d\n", length3, length3 == expect ? "==" : "!=", expect);
+            vector<vector<string>> ladders =
+                Test::String::WordLadders(start, end, dict);
+            Logger().WriteInformation("    Length:  %d %s %d\n", length,
+                                      length == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length2: %d %s %d\n", length2,
+                                      length2 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("    Length3: %d %s %d\n", length3,
+                                      length3 == expect ? "==" : "!=", expect);
             Logger().WriteInformation("    Ladders:\n");
             for_each(ladders.begin(), ladders.end(), [&](vector<string> &l) {
                 Logger().WriteInformation("            [");
                 int i = 0;
                 for_each(l.begin(), l.end(), [&](string w) {
-                    if (i != 0)
-                    {
+                    if (i != 0) {
                         Logger().WriteInformation(" ");
                     }
                     Logger().WriteInformation("%s", w.c_str());
@@ -5057,19 +5211,23 @@ void AlgorithmTest::Init(void)
             check("hit", "cog", dict, 5);
         }
         {
-            unordered_set<string> dict = {"ted", "tex", "red", "tax", "tad", "den", "rex", "pee"};
+            unordered_set<string> dict = {"ted", "tex", "red", "tax",
+                                          "tad", "den", "rex", "pee"};
             check("red", "tax", dict, 4);
         }
     });
 
     Add("MatchSubsequence", [&]() {
-        auto check = [&](const string &input, const string &pattern, int expect) {
+        auto check = [&](const string &input, const string &pattern,
+                         int expect) {
             Logger().WriteInformation("Input:   %s\n", input.c_str());
             Logger().WriteInformation("Pattern: %s\n", pattern.c_str());
             int count = Test::String::MatchSubsequence(input, pattern);
             int count2 = Test::String::MatchSubsequence2(input, pattern);
-            Logger().WriteInformation("Matches: %d %s %d\n", count, count == expect ? "==" : "!=", expect);
-            Logger().WriteInformation("Matches: %d %s %d\n", count2, count2 == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Matches: %d %s %d\n", count,
+                                      count == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Matches: %d %s %d\n", count2,
+                                      count2 == expect ? "==" : "!=", expect);
             ASSERT1(count == expect);
             ASSERT1(count2 == expect);
         };
@@ -5083,8 +5241,12 @@ void AlgorithmTest::Init(void)
         check("rrrr", "rr", 6);
         check("rrrrr", "rr", 10);
         check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 861);
-        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr", "rr", 5151);
-        check("aabdbaabeeadcbbdedacbbeecbabebaeeecaeabaedadcbdbcdaabebdadbbaeabdadeaabbabbecebbebcaddaacccebeaeedababedeacdeaaaeeaecbe", "bddabdcae", 10582116);
+        check("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
+              "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+              "rr", 5151);
+        check("aabdbaabeeadcbbdedacbbeecbabebaeeecaeabaedadcbdbcdaabebdadbbaeab"
+              "dadeaabbabbecebbebcaddaacccebeaeedababedeacdeaaaeeaecbe",
+              "bddabdcae", 10582116);
     });
 
     Add("BreakString", [&]() {
@@ -5107,13 +5269,13 @@ void AlgorithmTest::Init(void)
     Add("MinPathSum", [&]() {
         auto check = [&](vector<vector<int>> &triangle, int expect) {
             for_each(triangle.begin(), triangle.end(), [&](vector<int> &r) {
-                for_each(r.begin(), r.end(), [&](int i) {
-                    Logger().WriteInformation(" %d", i);
-                });
+                for_each(r.begin(), r.end(),
+                         [&](int i) { Logger().WriteInformation(" %d", i); });
                 Logger().WriteInformation("\n");
             });
             int sum = MinPathSum::Solve(triangle);
-            Logger().WriteInformation("Sum: %d %s %d\n", sum, sum == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Sum: %d %s %d\n", sum,
+                                      sum == expect ? "==" : "!=", expect);
             ASSERT1(sum == expect);
         };
         {
@@ -5121,17 +5283,11 @@ void AlgorithmTest::Init(void)
             check(t, -10);
         }
         {
-            vector<vector<int>> t = {
-                {-10},
-                {1, 2}};
+            vector<vector<int>> t = {{-10}, {1, 2}};
             check(t, -9);
         }
         {
-            vector<vector<int>> t = {
-                {2},
-                {3, 4},
-                {6, 5, 7},
-                {4, 1, 8, 3}};
+            vector<vector<int>> t = {{2}, {3, 4}, {6, 5, 7}, {4, 1, 8, 3}};
             check(t, 11);
         }
     });
@@ -5140,8 +5296,10 @@ void AlgorithmTest::Init(void)
         auto check = [&](char *s, char *p, bool e) {
             bool m1 = IsMatch1(s, p);
             bool m2 = IsMatch2(s, p);
-            Logger().WriteInformation("IsMatch:\t%s %s %s\n", s, m1 ? "==" : "!=", p);
-            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", s, m2 ? "==" : "!=", p);
+            Logger().WriteInformation("IsMatch:\t%s %s %s\n", s,
+                                      m1 ? "==" : "!=", p);
+            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", s,
+                                      m2 ? "==" : "!=", p);
             ASSERT1(m1 == e);
             ASSERT1(m2 == e);
         };
@@ -5174,16 +5332,17 @@ void AlgorithmTest::Init(void)
         check("abcbcd", "a.*c.*d", true);
         const string ab1 = "ab";
         const string ab2 = "ab.*";
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len1 = 1 + rand() % 5;
             string input = Random::String(len1, ab1);
             size_t len2 = 1 + rand() % 5;
             string pattern = Random::String(len2, ab2);
             bool m1 = IsMatch1(input.c_str(), pattern.c_str());
             bool m2 = IsMatch2(input.c_str(), pattern.c_str());
-            Logger().WriteInformation("IsMatch1:\t%s %s %s\n", input.c_str(), m1 ? "==" : "!=", pattern.c_str());
-            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", input.c_str(), m2 ? "==" : "!=", pattern.c_str());
+            Logger().WriteInformation("IsMatch1:\t%s %s %s\n", input.c_str(),
+                                      m1 ? "==" : "!=", pattern.c_str());
+            Logger().WriteInformation("IsMatch2:\t%s %s %s\n", input.c_str(),
+                                      m2 ? "==" : "!=", pattern.c_str());
             ASSERT1(m1 == m2);
         }
     });
@@ -5195,26 +5354,14 @@ void AlgorithmTest::Init(void)
             LongestSubStringWithUniqueChars1(ss, ai1, al1);
             size_t ai2, al2;
             LongestSubStringWithUniqueChars1(ss, ai2, al2);
-            Logger().WriteInformation(
-                "%s, (%d%s%d, %d%s%d), %s\n",
-                ss.c_str(),
-                ai1,
-                ai1 == i ? "==" : "!=",
-                i,
-                al1,
-                al1 == l ? "==" : "!=",
-                l,
-                ss.substr(ai1, al1).c_str());
-            Logger().WriteInformation(
-                "%s, (%d%s%d, %d%s%d), %s\n",
-                ss.c_str(),
-                ai2,
-                ai2 == i ? "==" : "!=",
-                i,
-                al2,
-                al2 == l ? "==" : "!=",
-                l,
-                ss.substr(ai2, al2).c_str());
+            Logger().WriteInformation("%s, (%d%s%d, %d%s%d), %s\n", ss.c_str(),
+                                      ai1, ai1 == i ? "==" : "!=", i, al1,
+                                      al1 == l ? "==" : "!=", l,
+                                      ss.substr(ai1, al1).c_str());
+            Logger().WriteInformation("%s, (%d%s%d, %d%s%d), %s\n", ss.c_str(),
+                                      ai2, ai2 == i ? "==" : "!=", i, al2,
+                                      al2 == l ? "==" : "!=", l,
+                                      ss.substr(ai2, al2).c_str());
             ASSERT1(ai1 == i);
             ASSERT1(al1 == l);
             ASSERT1(ai2 == i);
@@ -5237,26 +5384,17 @@ void AlgorithmTest::Init(void)
         check("abcad", 1, 4);
         check("aaabcd", 2, 4);
         check("abcabcbb", 0, 3);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len = 1 + (rand() % 100);
             string ss = Random::String(len);
             size_t ai1, al1;
             LongestSubStringWithUniqueChars1(ss, ai1, al1);
             size_t ai2, al2;
             LongestSubStringWithUniqueChars1(ss, ai2, al2);
-            Logger().WriteInformation(
-                "%s, (%d, %d), %s\n",
-                ss.c_str(),
-                ai1,
-                al1,
-                ss.substr(ai1, al1).c_str());
-            Logger().WriteInformation(
-                "%s, (%d, %d), %s\n",
-                ss.c_str(),
-                ai2,
-                al2,
-                ss.substr(ai2, al2).c_str());
+            Logger().WriteInformation("%s, (%d, %d), %s\n", ss.c_str(), ai1,
+                                      al1, ss.substr(ai1, al1).c_str());
+            Logger().WriteInformation("%s, (%d, %d), %s\n", ss.c_str(), ai2,
+                                      al2, ss.substr(ai2, al2).c_str());
             ASSERT1(ai1 == ai2);
             ASSERT1(al1 == al2);
         }
@@ -5264,29 +5402,46 @@ void AlgorithmTest::Init(void)
 
     Add("ShortestSubStringContainingGivenChars", [&]() {
         {
-            auto check = [&](const string &input, const string &chars, const string &expect) {
+            auto check = [&](const string &input, const string &chars,
+                             const string &expect) {
                 int index1;
                 int length1;
-                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
-                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                ShortestSubStringContainingGivenChars::Solve1(chars, input,
+                                                              index1, length1);
+                string match1 =
+                    index1 == -1 ? "" : input.substr(index1, length1);
                 int index2;
                 int length2;
-                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
-                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                ShortestSubStringContainingGivenChars::Solve2(chars, input,
+                                                              index2, length2);
+                string match2 =
+                    index2 == -1 ? "" : input.substr(index2, length2);
                 int index3;
                 int length3;
-                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars1(chars, input, index3, length3);
-                string match3 = index3 == -1 ? "" : input.substr(index3, length3);
+                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars1(
+                    chars, input, index3, length3);
+                string match3 =
+                    index3 == -1 ? "" : input.substr(index3, length3);
                 int index4;
                 int length4;
-                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars2(chars, input, index4, length4);
-                string match4 = index4 == -1 ? "" : input.substr(index4, length4);
+                ShortestSubStringContainingGivenChars::SolveGivenUniqueChars2(
+                    chars, input, index4, length4);
+                string match4 =
+                    index4 == -1 ? "" : input.substr(index4, length4);
                 Logger().WriteInformation("Input: %s\n", input.c_str());
                 Logger().WriteInformation("Chars: %s\n", chars.c_str());
-                Logger().WriteInformation("Match1: %s %s %s\n", match1.c_str(), match1 == expect ? "==" : "!=", expect.c_str());
-                Logger().WriteInformation("Match2: %s %s %s\n", match2.c_str(), match2 == expect ? "==" : "!=", expect.c_str());
-                Logger().WriteInformation("Match3: %s %s %s\n", match3.c_str(), match3 == expect ? "==" : "!=", expect.c_str());
-                Logger().WriteInformation("Match4: %s %s %s\n", match4.c_str(), match4 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match1: %s %s %s\n", match1.c_str(),
+                    match1 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match2: %s %s %s\n", match2.c_str(),
+                    match2 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match3: %s %s %s\n", match3.c_str(),
+                    match3 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match4: %s %s %s\n", match4.c_str(),
+                    match4 == expect ? "==" : "!=", expect.c_str());
                 ASSERT1(match1 == expect);
                 ASSERT1(match2 == expect);
                 ASSERT1(match3 == expect);
@@ -5310,22 +5465,33 @@ void AlgorithmTest::Init(void)
             check("aabbbccaa", "abc", "bcca");
             check("aabbbccbaa", "abc", "cba");
             check("bcdfdefdcfeecgfacecdeagadcb", "dcgab", "gadcb");
-            check("cfegdgbddacafeaccceccedgagfcbagcfbcdfdefdcfeecgfacecdeagadcbeddcacadebafcdcga", "dcgab", "gadcb");
+            check("cfegdgbddacafeaccceccedgagfcbagcfbcdfdefdcfeecgfacecdeagadcb"
+                  "eddcacadebafcdcga",
+                  "dcgab", "gadcb");
         }
         {
-            auto check = [&](const string &input, const string &chars, const string &expect) {
+            auto check = [&](const string &input, const string &chars,
+                             const string &expect) {
                 int index1;
                 int length1;
-                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
-                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                ShortestSubStringContainingGivenChars::Solve1(chars, input,
+                                                              index1, length1);
+                string match1 =
+                    index1 == -1 ? "" : input.substr(index1, length1);
                 int index2;
                 int length2;
-                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
-                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                ShortestSubStringContainingGivenChars::Solve2(chars, input,
+                                                              index2, length2);
+                string match2 =
+                    index2 == -1 ? "" : input.substr(index2, length2);
                 Logger().WriteInformation("Input: %s\n", input.c_str());
                 Logger().WriteInformation("Chars: %s\n", chars.c_str());
-                Logger().WriteInformation("Match1: %s %s %s\n", match1.c_str(), match1 == expect ? "==" : "!=", expect.c_str());
-                Logger().WriteInformation("Match2: %s %s %s\n", match2.c_str(), match2 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match1: %s %s %s\n", match1.c_str(),
+                    match1 == expect ? "==" : "!=", expect.c_str());
+                Logger().WriteInformation(
+                    "Match2: %s %s %s\n", match2.c_str(),
+                    match2 == expect ? "==" : "!=", expect.c_str());
                 ASSERT1(match1 == expect);
                 ASSERT1(match2 == expect);
             };
@@ -5348,42 +5514,52 @@ void AlgorithmTest::Init(void)
             check("aabbbccbaa", "aabcc", "ccbaa");
         }
         {
-            auto length = [&](int max) -> int {
-                return 1 + rand() % max;
-            };
+            auto length = [&](int max) -> int { return 1 + rand() % max; };
             string alphabet = "abcdefg";
             auto random = [&](int len) -> string {
                 string output = Random::String(len, alphabet);
                 return output;
             };
-            for (int i = 0; i < 1000; i++)
-            {
+            for (int i = 0; i < 1000; i++) {
                 string chars = random(length(10));
                 string input = random(length(100));
                 int index1;
                 int length1;
-                ShortestSubStringContainingGivenChars::Solve1(chars, input, index1, length1);
-                string match1 = index1 == -1 ? "" : input.substr(index1, length1);
+                ShortestSubStringContainingGivenChars::Solve1(chars, input,
+                                                              index1, length1);
+                string match1 =
+                    index1 == -1 ? "" : input.substr(index1, length1);
                 int index2;
                 int length2;
-                ShortestSubStringContainingGivenChars::Solve2(chars, input, index2, length2);
-                string match2 = index2 == -1 ? "" : input.substr(index2, length2);
+                ShortestSubStringContainingGivenChars::Solve2(chars, input,
+                                                              index2, length2);
+                string match2 =
+                    index2 == -1 ? "" : input.substr(index2, length2);
                 Logger().WriteInformation("Input: %s\n", input.c_str());
                 Logger().WriteInformation("Chars: %s\n", chars.c_str());
-                Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match2 ? "==" : "!=", match2.c_str());
+                Logger().WriteInformation(
+                    "%s %s %s\n", match1.c_str(),
+                    match1 == match2 ? "==" : "!=", match2.c_str());
                 ASSERT1(match1 == match2);
-                if (ContainsUniqueChars(chars))
-                {
+                if (ContainsUniqueChars(chars)) {
                     int index3;
                     int length3;
-                    ShortestSubStringContainingGivenChars::SolveGivenUniqueChars1(chars, input, index3, length3);
-                    string match3 = index3 == -1 ? "" : input.substr(index3, length3);
-                    Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match3 ? "==" : "!=", match3.c_str());
+                    ShortestSubStringContainingGivenChars::
+                        SolveGivenUniqueChars1(chars, input, index3, length3);
+                    string match3 =
+                        index3 == -1 ? "" : input.substr(index3, length3);
+                    Logger().WriteInformation(
+                        "%s %s %s\n", match1.c_str(),
+                        match1 == match3 ? "==" : "!=", match3.c_str());
                     int index4;
                     int length4;
-                    ShortestSubStringContainingGivenChars::SolveGivenUniqueChars2(chars, input, index4, length4);
-                    string match4 = index4 == -1 ? "" : input.substr(index4, length4);
-                    Logger().WriteInformation("%s %s %s\n", match1.c_str(), match1 == match4 ? "==" : "!=", match4.c_str());
+                    ShortestSubStringContainingGivenChars::
+                        SolveGivenUniqueChars2(chars, input, index4, length4);
+                    string match4 =
+                        index4 == -1 ? "" : input.substr(index4, length4);
+                    Logger().WriteInformation(
+                        "%s %s %s\n", match1.c_str(),
+                        match1 == match4 ? "==" : "!=", match4.c_str());
                     ASSERT1(match1 == match4);
                 }
             }
@@ -5391,14 +5567,14 @@ void AlgorithmTest::Init(void)
     });
 
     Add("ReplaceWithShorterString", [&]() {
-        auto check = [&](char *input, char *pattern, char *shorter, char *expect) {
+        auto check = [&](char *input, char *pattern, char *shorter,
+                         char *expect) {
             Logger().WriteInformation("\nInput:   %s\n", input);
             Logger().WriteInformation("Pattern: %s\n", pattern);
             Logger().WriteInformation("Shorter: %s\n", shorter);
             ReplaceWithShorterString(input, pattern, shorter);
             Logger().WriteInformation("Output:  %s\n", input);
-            while (*input != '\0')
-            {
+            while (*input != '\0') {
                 ASSERT1(*input++ == *expect++);
             }
         };
@@ -5462,8 +5638,7 @@ void AlgorithmTest::Init(void)
             {"aabaaabaab", "aa", "XY", "XYbXYabXYb"},
             {"aabaaabaa", "aa", "XY", "XYbXYabXY"}};
         int len = sizeof(A) / sizeof(A[0]);
-        for (int i = 0; i < len; i++)
-        {
+        for (int i = 0; i < len; i++) {
             check(A[i][0], A[i][1], A[i][2], A[i][3]);
         }
     });
@@ -5620,10 +5795,10 @@ void AlgorithmTest::Init(void)
     });
 
     Add("BreakWord", [&]() {
-        function<void(Log &, const string &)>
-            print = [&](Log &l, const string &s) {
-                l.WriteInformation("%s", s.c_str());
-            };
+        function<void(Log &, const string &)> print = [&](Log &l,
+                                                          const string &s) {
+            l.WriteInformation("%s", s.c_str());
+        };
 
         auto check = [&](string s, unordered_set<string> &dict) {
             Logger().WriteInformation("Input: %s\n", s.c_str());
@@ -5643,8 +5818,7 @@ void AlgorithmTest::Init(void)
             ASSERT1(sentences1.size() == sentences2.size());
             sort(sentences1.begin(), sentences1.end());
             sort(sentences2.begin(), sentences2.end());
-            for (size_t i = 0; i < sentences1.size(); i++)
-            {
+            for (size_t i = 0; i < sentences1.size(); i++) {
                 ASSERT1(sentences1[i] == sentences2[i]);
             }
         };
@@ -5660,7 +5834,8 @@ void AlgorithmTest::Init(void)
         }
         {
             string s = "aaaaaaa";
-            unordered_set<string> dict = {"a", "aa", "aaa", "aaaa", "aaaaa", "aaaaaa", "aaaaaaa"};
+            unordered_set<string> dict = {"a",     "aa",     "aaa",    "aaaa",
+                                          "aaaaa", "aaaaaa", "aaaaaaa"};
             check(s, dict);
         }
         {
@@ -5671,19 +5846,28 @@ void AlgorithmTest::Init(void)
     });
 
     Add("LongestConsecutiveSequence", [&]() {
-        auto check = [&](vector<int> &input, int expectBegin, int expectLength) {
+        auto check = [&](vector<int> &input, int expectBegin,
+                         int expectLength) {
             Logger().WriteInformation("Input: ");
             Logger().Print(input);
             int begin1;
             size_t length1;
             LongestConsecutiveSequence1(input, begin1, length1);
-            Logger().WriteInformation("  Begin:  %d %s %d\n", begin1, begin1 == expectBegin ? "==" : "!=", expectBegin);
-            Logger().WriteInformation("  Length: %d %s %d\n", length1, length1 == expectLength ? "==" : "!=", expectLength);
+            Logger().WriteInformation(
+                "  Begin:  %d %s %d\n", begin1,
+                begin1 == expectBegin ? "==" : "!=", expectBegin);
+            Logger().WriteInformation(
+                "  Length: %d %s %d\n", length1,
+                length1 == expectLength ? "==" : "!=", expectLength);
             int begin2;
             size_t length2;
             LongestConsecutiveSequence2(input, begin2, length2);
-            Logger().WriteInformation("  Begin2:  %d %s %d\n", begin2, begin2 == expectBegin ? "==" : "!=", expectBegin);
-            Logger().WriteInformation("  Length2: %d %s %d\n", length2, length2 == expectLength ? "==" : "!=", expectLength);
+            Logger().WriteInformation(
+                "  Begin2:  %d %s %d\n", begin2,
+                begin2 == expectBegin ? "==" : "!=", expectBegin);
+            Logger().WriteInformation(
+                "  Length2: %d %s %d\n", length2,
+                length2 == expectLength ? "==" : "!=", expectLength);
             ASSERT1(begin1 == expectBegin);
             ASSERT1(length1 == expectLength);
             ASSERT1(begin2 == expectBegin);
@@ -5750,19 +5934,21 @@ void AlgorithmTest::Init(void)
             check(input, 0, 3);
         }
         {
-            vector<int> input = {-7, -1, 3, -9, -4, 7, -3, 2, 4, 9, 4, -9, 8, -7, 5, -1, -7};
+            vector<int> input = {-7, -1, 3,  -9, -4, 7, -3, 2, 4,
+                                 9,  4,  -9, 8,  -7, 5, -1, -7};
             check(input, 2, 4);
         }
         {
-            vector<int> input = {-6, 8, -5, 7, -9, -1, -7, -6, -9, -7, 5, 7, -1, -8, -8, -2, 0};
+            vector<int> input = {-6, 8, -5, 7,  -9, -1, -7, -6, -9,
+                                 -7, 5, 7,  -1, -8, -8, -2, 0};
             check(input, -9, 5);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> input;
                 Random(input);
-                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                Logger().WriteInformation("Run %d: %d elements\n", i,
+                                          input.size());
                 if (input.size() == 0)
                     continue;
                 int begin1;
@@ -5771,8 +5957,12 @@ void AlgorithmTest::Init(void)
                 int begin2;
                 size_t length2;
                 LongestConsecutiveSequence1(input, begin2, length2);
-                Logger().WriteInformation("  Begin:  %d %s %d\n", begin1, begin1 == begin2 ? "==" : "!=", begin2);
-                Logger().WriteInformation("  Length: %d %s %d\n", length1, length1 == length2 ? "==" : "!=", length2);
+                Logger().WriteInformation(
+                    "  Begin:  %d %s %d\n", begin1,
+                    begin1 == begin2 ? "==" : "!=", begin2);
+                Logger().WriteInformation(
+                    "  Length: %d %s %d\n", length1,
+                    length1 == length2 ? "==" : "!=", length2);
                 ASSERT1(begin1 == begin2);
                 ASSERT1(length1 == length2);
             }
@@ -5781,7 +5971,8 @@ void AlgorithmTest::Init(void)
 
     Add("Partition", [&]() {
         {
-            vector<int> I = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            vector<int> I = {3, 43,   42,       1, 3,   3556, 7, 34,
+                             8, 8769, 96656532, 1, 445, 35,   64};
             int L = (int)I.size();
 
             int i = PartitionByValue(I, 0, 0, 3);
@@ -5803,21 +5994,20 @@ void AlgorithmTest::Init(void)
             i = PartitionByValue(I, 0, L - 1, 64);
             ASSERT1(i >= 0);
             ASSERT1(i <= L - 1);
-            for (int j = 0; j < L - 1; j++)
-            {
+            for (int j = 0; j < L - 1; j++) {
                 if (j < i)
                     ASSERT1(I[j] <= I[i]);
                 else if (j > i)
                     ASSERT1(I[j] >= I[i]);
             }
 
-            for (int k = 0; k < 10; k++)
-            {
+            for (int k = 0; k < 10; k++) {
                 Random(I, 100);
                 L = (int)I.size();
                 Logger().Print(I);
                 i = PartitionRandomly(I, 0, L - 1);
-                Logger().WriteInformation("Partition by %d at index %d:\n", I[i], i);
+                Logger().WriteInformation("Partition by %d at index %d:\n",
+                                          I[i], i);
                 Logger().Print(I);
                 ASSERT1(i >= 0);
                 ASSERT1(i <= L - 1);
@@ -5830,7 +6020,8 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            vector<int> I = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            vector<int> I = {3, 43,   42,       1, 3,   3556, 7, 34,
+                             8, 8769, 96656532, 1, 445, 35,   64};
             int L = (int)I.size();
 
             int i = PartitionByOrder(I, 0, 0, 0);
@@ -5859,14 +6050,14 @@ void AlgorithmTest::Init(void)
             ASSERT1(I[2] == 1);
             ASSERT1(I[3] == 42);
 
-            for (int p = 0; p < 100; p++)
-            {
+            for (int p = 0; p < 100; p++) {
                 Random(I, 100);
                 L = (int)I.size();
                 Logger().Print(I);
                 int j = rand() % L;
                 i = PartitionByOrder(I, 0, L - 1, j);
-                Logger().WriteInformation("Partition by %d at index %d:\n", I[j], j);
+                Logger().WriteInformation("Partition by %d at index %d:\n",
+                                          I[j], j);
                 Logger().Print(I);
                 ASSERT1(i == I[j]);
                 for (int k = 0; k < L - 1; k++)
@@ -5922,7 +6113,8 @@ void AlgorithmTest::Init(void)
             ASSERT1(I[2] == 1);
         }
         {
-            vector<int> V = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+            vector<int> V = {3, 43,   42,       1, 3,   3556, 7, 34,
+                             8, 8769, 96656532, 1, 445, 35,   64};
             vector<int> I1, I2, I3;
             Duplicate(V, I1);
             Duplicate(V, I2);
@@ -5934,8 +6126,7 @@ void AlgorithmTest::Init(void)
 
             std::sort(V.begin(), V.end());
 
-            for (int i = 0; i < V.size(); i++)
-            {
+            for (int i = 0; i < V.size(); i++) {
                 ASSERT1(V[i] == I1[i]);
                 ASSERT1(V[i] == I2[i]);
                 ASSERT1(V[i] == I3[i]);
@@ -5949,8 +6140,7 @@ void AlgorithmTest::Init(void)
             QuickSort(I);
             std::sort(V.begin(), V.end());
 
-            for (int i = 0; i < V.size(); i++)
-            {
+            for (int i = 0; i < V.size(); i++) {
                 ASSERT1(V[i] == I[i]);
             }
         }
@@ -5962,14 +6152,12 @@ void AlgorithmTest::Init(void)
             QuickSort(I);
             std::sort(V.begin(), V.end());
 
-            for (int i = 0; i < V.size(); i++)
-            {
+            for (int i = 0; i < V.size(); i++) {
                 ASSERT1(V[i] == I[i]);
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> v;
                 Random(v);
                 Logger().WriteInformation("Run %d: %d elements\n", i, v.size());
@@ -5985,8 +6173,7 @@ void AlgorithmTest::Init(void)
 
                 std::sort(v.begin(), v.end());
 
-                for (int i = 0; i < v.size(); i++)
-                {
+                for (int i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == i1[i]);
                     ASSERT1(v[i] == i2[i]);
                     ASSERT1(v[i] == i3[i]);
@@ -5998,10 +6185,8 @@ void AlgorithmTest::Init(void)
     Add("RadixSort", [&]() {
         {
             auto check = [&](vector<vector<int>> v) -> bool {
-                for (int i = 1; i < (int)v.size(); i++)
-                {
-                    for (int j = (int)v[0].size() - 1; j >= 0; j--)
-                    {
+                for (int i = 1; i < (int)v.size(); i++) {
+                    for (int j = (int)v[0].size() - 1; j >= 0; j--) {
                         if (v[i - 1][j] < v[i][j])
                             return true;
                         if (v[i - 1][j] > v[i][j])
@@ -6011,8 +6196,7 @@ void AlgorithmTest::Init(void)
                 return true;
             };
 
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 Logger().WriteInformation("Run %d:\n", i);
                 vector<vector<int>> v;
                 Random(v, 50, 50, 20);
@@ -6037,15 +6221,14 @@ void AlgorithmTest::Init(void)
             ASSERT1(n - 1 == i);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> input;
                 Random(input, 200, 200);
-                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                Logger().WriteInformation("Run %d: %d elements\n", i,
+                                          input.size());
                 sort(input.begin(), input.end());
                 Logger().Print(input);
-                for (int j = 0; j < 10; j++)
-                {
+                for (int j = 0; j < 10; j++) {
                     int e1 = rand() % 50;
                     int e2 = input[rand() % input.size()];
                     Logger().WriteInformation("Found %d", e1);
@@ -6066,15 +6249,14 @@ void AlgorithmTest::Init(void)
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 vector<int> input;
                 Random(input, 200, 200);
-                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                Logger().WriteInformation("Run %d: %d elements\n", i,
+                                          input.size());
                 sort(input.begin(), input.end());
                 Logger().Print(input);
-                for (int j = 0; j < 10; j++)
-                {
+                for (int j = 0; j < 10; j++) {
                     int e1 = rand() % 50;
                     int e2 = input[rand() % input.size()];
                     Logger().WriteInformation("Found %d", e1);
@@ -6102,9 +6284,8 @@ void AlgorithmTest::Init(void)
             Logger().Print(input);
             size_t count = 11;
             vector<vector<int>> inputs(count, vector<int>{});
-            for_each(inputs.begin(), inputs.end(), [&](vector<int> &v) {
-                Duplicate(input, v);
-            });
+            for_each(inputs.begin(), inputs.end(),
+                     [&](vector<int> &v) { Duplicate(input, v); });
 
             sort(input.begin(), input.end());
             Logger().WriteInformation("Sorted: ");
@@ -6121,13 +6302,11 @@ void AlgorithmTest::Init(void)
             HeapSortInParallel(inputs[8]);
             HeapSort(inputs[9], 3);
             HeapSortInParallel(inputs[10], 3);
-            for (size_t i = 0; i < input.size(); i++)
-            {
-                for (size_t j = 0; j < count; j++)
-                {
-                    ASSERT2(
-                        inputs[j][i] == input[i],
-                        String::Format("inputs[%d][%d] = %d != %d\n", j, i, inputs[j][i], input[i]));
+            for (size_t i = 0; i < input.size(); i++) {
+                for (size_t j = 0; j < count; j++) {
+                    ASSERT2(inputs[j][i] == input[i],
+                            String::Format("inputs[%d][%d] = %d != %d\n", j, i,
+                                           inputs[j][i], input[i]));
                 }
             }
         };
@@ -6176,11 +6355,11 @@ void AlgorithmTest::Init(void)
             check(i);
         }
         {
-            for (int i = 0; i < 1000; i++)
-            {
+            for (int i = 0; i < 1000; i++) {
                 vector<int> input;
                 Random(input, 200, 200);
-                Logger().WriteInformation("Run %d: %d elements\n", i, input.size());
+                Logger().WriteInformation("Run %d: %d elements\n", i,
+                                          input.size());
                 check(input);
             }
         }
@@ -6189,9 +6368,7 @@ void AlgorithmTest::Init(void)
     Add("MergeSort", [&]() {
         {
             vector<vector<int>> inputs = {
-                {0, 5, 9, 11},
-                {0, 1, 2, 3, 5, 6},
-                {6, 7, 8}};
+                {0, 5, 9, 11}, {0, 1, 2, 3, 5, 6}, {6, 7, 8}};
 
             Logger().Print(inputs);
 
@@ -6206,13 +6383,11 @@ void AlgorithmTest::Init(void)
             Logger().WriteInformation("\n");
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int count = 1 + rand() % 10;
                 vector<vector<int>> inputs(count, vector<int>{});
                 size_t size = 0;
-                for (int j = 0; j < count; j++)
-                {
+                for (int j = 0; j < count; j++) {
                     Random(inputs[j], 10, 100);
                     size += inputs[j].size();
                     sort(inputs[j].begin(), inputs[j].end());
@@ -6230,57 +6405,59 @@ void AlgorithmTest::Init(void)
 
     Add("HeapSort", [&]() {
         {
-            for (int j = 0; j < 100; j++)
-            {
+            for (int j = 0; j < 100; j++) {
                 vector<int> i1;
                 Random(i1);
-                Logger().WriteInformation("Run %d, %d elements\n", j, i1.size());
+                Logger().WriteInformation("Run %d, %d elements\n", j,
+                                          i1.size());
                 vector<int> i2;
                 Duplicate(i1, i2);
 
                 Heapify(i1);
                 HeapifyInParallel(i2);
 
-                for (size_t i = 0; i < i1.size(); i++)
-                {
-                    ASSERT2(i1[i] == i2[i], String::Format("i1[%d] %d != i2[%d] %d", i, i1[i], i, i2[i]));
+                for (size_t i = 0; i < i1.size(); i++) {
+                    ASSERT2(i1[i] == i2[i],
+                            String::Format("i1[%d] %d != i2[%d] %d", i, i1[i],
+                                           i, i2[i]));
                 }
             }
         }
         {
-            for (int j = 0; j < 100; j++)
-            {
+            for (int j = 0; j < 100; j++) {
                 vector<int> a, v;
                 Random(a);
                 Duplicate(a, v);
                 unsigned int dimension = 2 + (rand() % 100);
-                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j, a.size(), dimension);
+                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j,
+                                          a.size(), dimension);
 
                 HeapSort(a, dimension);
                 std::make_heap(v.begin(), v.end());
                 std::sort_heap(v.begin(), v.end());
 
-                for (size_t i = 0; i < a.size(); i++)
-                {
-                    ASSERT2(a[i] == v[i], String::Format("i[%d] %d != v[%d] %d", i, a[i], i, v[i]));
+                for (size_t i = 0; i < a.size(); i++) {
+                    ASSERT2(a[i] == v[i], String::Format("i[%d] %d != v[%d] %d",
+                                                         i, a[i], i, v[i]));
                 }
             }
         }
         {
-            for (int j = 0; j < 100; j++)
-            {
+            for (int j = 0; j < 100; j++) {
                 vector<int> i1, i2;
                 Random(i1);
                 Duplicate(i1, i2);
                 unsigned int dimension = 2 + (rand() % 100);
-                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j, i1.size(), dimension);
+                Logger().WriteInformation("Run %d, %d elements, %d-heap\n", j,
+                                          i1.size(), dimension);
 
                 Heapify(i1, dimension);
                 HeapifyInParallel(i2, dimension);
 
-                for (size_t i = 0; i < i1.size(); i++)
-                {
-                    ASSERT2(i1[i] == i2[i], String::Format("i1[%d] %d != i2[%d] %d", i, i1[i], i, i2[i]));
+                for (size_t i = 0; i < i1.size(); i++) {
+                    ASSERT2(i1[i] == i2[i],
+                            String::Format("i1[%d] %d != i2[%d] %d", i, i1[i],
+                                           i, i2[i]));
                 }
             }
         }
@@ -6299,8 +6476,7 @@ void AlgorithmTest::Init(void)
         utility.push_back(24);
         utility.push_back(30);
 
-        for (unsigned int i = 0; i < utility.size(); i++)
-        {
+        for (unsigned int i = 0; i < utility.size(); i++) {
             cout << utility[i] << " ";
         }
 
@@ -6312,9 +6488,9 @@ void AlgorithmTest::Init(void)
         Test::RodCut::ComputeFirstCut(utility, maxUtility, firstCut);
 
         cout << "Index\tUtility\tMaxUtility\tFirstCut" << endl;
-        for (unsigned int i = 0; i < utility.size(); i++)
-        {
-            cout << i << "\t" << utility[i] << "\t" << maxUtility[i] << "\t" << firstCut[i] << endl;
+        for (unsigned int i = 0; i < utility.size(); i++) {
+            cout << i << "\t" << utility[i] << "\t" << maxUtility[i] << "\t"
+                 << firstCut[i] << endl;
         }
     });
 
@@ -6514,10 +6690,8 @@ Add("9", [&]() {
 
 Add("10", [&]() {
     Matrix<int> input(10, 10);
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
             input(i, j) = i * 10 + j;
         }
     }
@@ -6528,9 +6702,9 @@ Add("10", [&]() {
     vector<pair<size_t, size_t>> seam;
     Test::SeamCarving<int>::MinSeam(input, seam);
     ASSERT1(seam.size() == 10);
-    for (int j = 0; j < 10; j++)
-    {
-        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")" << endl;
+    for (int j = 0; j < 10; j++) {
+        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")"
+             << endl;
         ASSERT1(seam[j].first == j);
         ASSERT1(seam[j].second == 0);
     }
@@ -6539,10 +6713,8 @@ Add("10", [&]() {
 Add("11", [&]() {
     Matrix<int> input(10, 10);
     int v = 100;
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
             input(i, j) = v--;
         }
     }
@@ -6553,9 +6725,9 @@ Add("11", [&]() {
     vector<pair<size_t, size_t>> seam;
     Test::SeamCarving<int>::MinSeam(input, seam);
     ASSERT1(seam.size() == 10);
-    for (int j = 0; j < 10; j++)
-    {
-        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")" << endl;
+    for (int j = 0; j < 10; j++) {
+        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")"
+             << endl;
         ASSERT1(seam[j].first == j);
         ASSERT1(seam[j].second == 9);
     }
@@ -6563,10 +6735,8 @@ Add("11", [&]() {
 
 Add("12", [&]() {
     Matrix<int> input(10, 10);
-    for (int i = 0; i < 10; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
             input(i, j) = Test::Random::Next();
         }
     }
@@ -6577,21 +6747,16 @@ Add("12", [&]() {
     vector<pair<size_t, size_t>> seam;
     Test::SeamCarving<int>::MinSeam(input, seam);
     ASSERT1(seam.size() == 10);
-    for (int j = 0; j < 10; j++)
-    {
-        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")" << endl;
+    for (int j = 0; j < 10; j++) {
+        cout << j << "\t(" << seam[j].first << ", " << seam[j].second << ")"
+             << endl;
     }
 });
 
 Add("Run", [&]() {
     vector<pair<int, int>> tasks{
-        make_pair(1, 30),
-        make_pair(2, 60),
-        make_pair(3, 40),
-        make_pair(4, 50),
-        make_pair(4, 20),
-        make_pair(4, 70),
-        make_pair(6, 10)};
+        make_pair(1, 30), make_pair(2, 60), make_pair(3, 40), make_pair(4, 50),
+        make_pair(4, 20), make_pair(4, 70), make_pair(6, 10)};
 
     for_each(tasks.begin(), tasks.end(), [&](pair<int, int> &t) {
         Logger().WriteInformation("\t(%d, %d)", t.first, t.second);
@@ -6620,15 +6785,14 @@ Add("Run", [&]() {
 });
 
 Add("Random", [&]() {
-    for (int i = 0; i < 100; i++)
-    {
+    for (int i = 0; i < 100; i++) {
         int count = Test::Random::Next(1, 100);
         Logger().WriteInformation("Run %d, %d tasks", i, count);
 
         vector<pair<int, int>> tasks;
-        for (int j = 0; j < count; j++)
-        {
-            tasks.push_back(make_pair(Test::Random::Next(1, count), Test::Random::Next(1, 1000)));
+        for (int j = 0; j < count; j++) {
+            tasks.push_back(make_pair(Test::Random::Next(1, count),
+                                      Test::Random::Next(1, 1000)));
         }
 
         vector<pair<int, int>> ontime;
@@ -6637,22 +6801,20 @@ Add("Random", [&]() {
 
         Logger().WriteInformation(", %d, %d\n", ontime.size(), late.size());
 
-        for (int j = 0; j < (int)ontime.size(); j++)
-        {
+        for (int j = 0; j < (int)ontime.size(); j++) {
             ASSERT2(
                 j + 1 <= ontime[j].first,
-                Test::String::Format(
-                    "Ontime task with deadline %d and weight %d is scheduled in time slot %d",
-                    ontime[j].first, ontime[j].second, j + 1));
+                Test::String::Format("Ontime task with deadline %d and weight "
+                                     "%d is scheduled in time slot %d",
+                                     ontime[j].first, ontime[j].second, j + 1));
         }
 
-        for (int j = 0; j < (int)late.size(); j++)
-        {
-            ASSERT2(
-                j + (int)ontime.size() + 1 > late[j].first,
-                Test::String::Format(
-                    "Late task with deadline %d and weight %d is scheduled in time slot %d",
-                    late[j].first, late[j].second, j + ontime.size() + 1));
+        for (int j = 0; j < (int)late.size(); j++) {
+            ASSERT2(j + (int)ontime.size() + 1 > late[j].first,
+                    Test::String::Format(
+                        "Late task with deadline %d and weight %d is scheduled "
+                        "in time slot %d",
+                        late[j].first, late[j].second, j + ontime.size() + 1));
         }
     }
 });

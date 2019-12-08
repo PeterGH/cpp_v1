@@ -5,16 +5,14 @@
 
 using namespace Test;
 
-class LogTest : public TestClass
-{
+class LogTest : public TestClass {
   public:
     LogTest(Log &log) : TestClass(log) {}
     ~LogTest(void) {}
     void Init(void);
 };
 
-void LogTest::Init(void)
-{
+void LogTest::Init(void) {
     Add("Write", [&]() {
         {
             ostringstream oss;
@@ -53,9 +51,11 @@ void LogTest::Init(void)
         log << "This is a line." << endl;
         log << "A pair " << make_pair("key", 123) << endl;
         log << "A vector " << vector<int>{1, 2, 3, 4, 5} << endl;
-        log << "A grid " << vector<vector<int>>{{0, 1, 2, 3}, {4, 5, 6, 7}, {8, 9}}
-            << endl;
-        log << "A map " << map<string, vector<vector<int>>>{{"key1", {{1, 2}, {3, 4}}}, {"key2", {{5, 6}, {7, 8}}}}
+        log << "A grid "
+            << vector<vector<int>>{{0, 1, 2, 3}, {4, 5, 6, 7}, {8, 9}} << endl;
+        log << "A map "
+            << map<string, vector<vector<int>>>{{"key1", {{1, 2}, {3, 4}}},
+                                                {"key2", {{5, 6}, {7, 8}}}}
             << endl;
     });
 }

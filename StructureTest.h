@@ -6,18 +6,15 @@
 
 using namespace Test;
 
-class StructureTest : public TestClass
-{
-public:
+class StructureTest : public TestClass {
+  public:
     StructureTest(Log &log) : TestClass(log) {}
     ~StructureTest(void) {}
     void Init(void);
 };
 
-void CreateGraph(Test::Graph<int, int> &g)
-{
-    for (int i = 1; i < 7; i++)
-    {
+void CreateGraph(Test::Graph<int, int> &g) {
+    for (int i = 1; i < 7; i++) {
         g.InsertVertex(i);
     }
 
@@ -31,9 +28,8 @@ void CreateGraph(Test::Graph<int, int> &g)
     g.InsertEdge(8, 6, 6);
 }
 
-class ANode : public Test::NodeGraph::Node
-{
-public:
+class ANode : public Test::NodeGraph::Node {
+  public:
     ANode(int i) : id(i) {}
     ~ANode(void);
     int id;
@@ -42,33 +38,26 @@ public:
     void Print(void);
 };
 
-ANode::~ANode(void)
-{
-    cout << "Deleting " << this->id << endl;
-}
+ANode::~ANode(void) { cout << "Deleting " << this->id << endl; }
 
-ANode *ANode::Clone(void)
-{
+ANode *ANode::Clone(void) {
     ANode *n = new ANode(this->id);
     return n;
 }
 
-void ANode::Print(void)
-{
+void ANode::Print(void) {
     set<ANode *> visited;
     queue<ANode *> q;
     visited.insert(this);
     q.push(this);
 
-    while (!q.empty())
-    {
+    while (!q.empty()) {
         ANode *n = q.front();
         q.pop();
         cout << n->id << endl;
         for_each(n->neighbors.begin(), n->neighbors.end(), [&](Node *c) {
             cout << " ----> " << ((ANode *)c)->id << endl;
-            if (visited.find((ANode *)c) == visited.end())
-            {
+            if (visited.find((ANode *)c) == visited.end()) {
                 visited.insert((ANode *)c);
                 q.push((ANode *)c);
             }
@@ -76,22 +65,20 @@ void ANode::Print(void)
     }
 }
 
-void StructureTest::Init(void)
-{
+void StructureTest::Init(void) {
     Add("Next(max)", [&]() {
-        function<void(int, int, int)> test = [&](int max, int count, int delta) {
-            Logger().WriteInformation("Random(%d) %d times expecting max delta %d\n", max, count, delta);
+        function<void(int, int, int)> test = [&](int max, int count,
+                                                 int delta) {
+            Logger().WriteInformation(
+                "Random(%d) %d times expecting max delta %d\n", max, count,
+                delta);
             map<int, int> freq;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 int v = Test::Random::Next(max);
                 map<int, int>::iterator it = freq.find(v);
-                if (it == freq.end())
-                {
+                if (it == freq.end()) {
                     freq.insert(pair<int, int>(v, 1));
-                }
-                else
-                {
+                } else {
                     it->second++;
                 }
             }
@@ -102,12 +89,10 @@ void StructureTest::Init(void)
             int size = max + 1;
             ASSERT1(freq.size() == size);
 
-            for (int i = 0; i <= max; i++)
-            {
+            for (int i = 0; i <= max; i++) {
                 int f = 0;
                 map<int, int>::iterator it = freq.find(i);
-                if (it != freq.end())
-                {
+                if (it != freq.end()) {
                     f = it->second;
                 }
 
@@ -125,19 +110,18 @@ void StructureTest::Init(void)
     });
 
     Add("Next(min, max)", [&]() {
-        function<void(int, int, int, int)> test = [&](int min, int max, int count, int delta) {
-            Logger().WriteInformation("Random(%d) %d times expecting max delta %d\n", max, count, delta);
+        function<void(int, int, int, int)> test = [&](int min, int max,
+                                                      int count, int delta) {
+            Logger().WriteInformation(
+                "Random(%d) %d times expecting max delta %d\n", max, count,
+                delta);
             map<int, int> freq;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 int v = Test::Random::Next(min, max);
                 map<int, int>::iterator it = freq.find(v);
-                if (it == freq.end())
-                {
+                if (it == freq.end()) {
                     freq.insert(pair<int, int>(v, 1));
-                }
-                else
-                {
+                } else {
                     it->second++;
                 }
             }
@@ -148,12 +132,10 @@ void StructureTest::Init(void)
             int size = 1 + max - min;
             ASSERT1(freq.size() == size);
 
-            for (int i = min; i <= max; i++)
-            {
+            for (int i = min; i <= max; i++) {
                 int f = 0;
                 map<int, int>::iterator it = freq.find(i);
-                if (it != freq.end())
-                {
+                if (it != freq.end()) {
                     f = it->second;
                 }
 
@@ -171,23 +153,25 @@ void StructureTest::Init(void)
     });
 
     Add("Sample(n,m)", [&]() {
-        function<void(int, int, int, function<void(unsigned int, unsigned int, vector<unsigned int> &)>)>
-            test = [&](int n, int m, int count, function<void(unsigned int, unsigned int, vector<unsigned int> &)> sample) {
-                Logger().WriteInformation("Sample(%d, %d) %d times\n", n, m, count);
+        function<void(
+            int, int, int,
+            function<void(unsigned int, unsigned int, vector<unsigned int> &)>)>
+            test = [&](int n, int m, int count,
+                       function<void(unsigned int, unsigned int,
+                                     vector<unsigned int> &)>
+                           sample) {
+                Logger().WriteInformation("Sample(%d, %d) %d times\n", n, m,
+                                          count);
                 map<string, int> freq;
-                for (int i = 0; i < count; i++)
-                {
+                for (int i = 0; i < count; i++) {
                     vector<unsigned int> samples;
                     sample(n, m, samples);
                     std::sort(samples.begin(), samples.end());
                     string key = Test::String::Join(samples, ":");
                     map<string, int>::iterator it = freq.find(key);
-                    if (it == freq.end())
-                    {
+                    if (it == freq.end()) {
                         freq.insert(pair<string, int>(key, 1));
-                    }
-                    else
-                    {
+                    } else {
                         it->second++;
                     }
                 }
@@ -199,13 +183,17 @@ void StructureTest::Init(void)
                 int delta = ave >> 1;
 
                 for_each(freq.begin(), freq.end(), [&](pair<string, int> it) {
-                    Logger().WriteInformation("%s, %d times\n", it.first.c_str(), it.second);
+                    Logger().WriteInformation("%s, %d times\n",
+                                              it.first.c_str(), it.second);
                     ASSERT1(it.second <= (ave + delta));
                     ASSERT1(it.second >= (ave - delta));
                 });
             };
 
-        auto sample = [&](unsigned int n, unsigned int m, vector<unsigned int> &s) { Test::Random::Sample(n, m, s); };
+        auto sample = [&](unsigned int n, unsigned int m,
+                          vector<unsigned int> &s) {
+            Test::Random::Sample(n, m, s);
+        };
         test(10, 1, 1000, sample);
         test(10, 2, 10000, sample);
         test(10, 4, 100000, sample);
@@ -213,7 +201,10 @@ void StructureTest::Init(void)
         test(10, 8, 10000, sample);
         test(10, 10, 1000, sample);
 
-        auto sample2 = [&](unsigned int n, unsigned int m, vector<unsigned int> &s) { Test::Random::Sample2(n, m, s); };
+        auto sample2 = [&](unsigned int n, unsigned int m,
+                           vector<unsigned int> &s) {
+            Test::Random::Sample2(n, m, s);
+        };
         test(10, 1, 1000, sample2);
         test(10, 2, 10000, sample2);
         test(10, 4, 100000, sample2);
@@ -642,23 +633,20 @@ void StructureTest::Init(void)
             m.Set(0);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
             ASSERT1(m.Test(0));
-            for (int i = 1; i < 32; i++)
-            {
+            for (int i = 1; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
 
             m.LeftShift(31);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
 
             m.LeftShift(1);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
         }
@@ -667,8 +655,7 @@ void StructureTest::Init(void)
             BitSet m(32);
             m.Set();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
 
@@ -677,19 +664,16 @@ void StructureTest::Init(void)
             ASSERT1(!m.Test(1));
             ASSERT1(!m.Test(2));
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 3; i < 32; i++)
-            {
+            for (int i = 3; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(10);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 13; i++)
-            {
+            for (int i = 0; i < 13; i++) {
                 ASSERT1(!m.Test(i));
             }
-            for (int i = 13; i < 32; i++)
-            {
+            for (int i = 13; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
         }
@@ -698,23 +682,20 @@ void StructureTest::Init(void)
             BitSet m(32);
             m.Set();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(31);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
 
             m.LeftShift(1);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
         }
@@ -724,23 +705,20 @@ void StructureTest::Init(void)
             m.Set(0);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
             ASSERT1(m.Test(0));
-            for (int i = 1; i < 33; i++)
-            {
+            for (int i = 1; i < 33; i++) {
                 ASSERT1(!m.Test(i));
             }
 
             m.LeftShift(32);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(32));
 
             m.LeftShift(1);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 33; i++)
-            {
+            for (int i = 0; i < 33; i++) {
                 ASSERT1(!m.Test(i));
             }
         }
@@ -749,30 +727,25 @@ void StructureTest::Init(void)
             BitSet m(33);
             m.Set();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 33; i++)
-            {
+            for (int i = 0; i < 33; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(20);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 20; i++)
-            {
+            for (int i = 0; i < 20; i++) {
                 ASSERT1(!m.Test(i));
             }
-            for (int i = 20; i < 32; i++)
-            {
+            for (int i = 20; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(10);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 30; i++)
-            {
+            for (int i = 0; i < 30; i++) {
                 ASSERT1(!m.Test(i));
             }
-            for (int i = 30; i < 32; i++)
-            {
+            for (int i = 30; i < 32; i++) {
                 ASSERT1(m.Test(i));
             }
         }
@@ -781,23 +754,20 @@ void StructureTest::Init(void)
             BitSet m(33);
             m.Set();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 33; i++)
-            {
+            for (int i = 0; i < 33; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(32);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 32; i++)
-            {
+            for (int i = 0; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(32));
 
             m.LeftShift(1);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 33; i++)
-            {
+            for (int i = 0; i < 33; i++) {
                 ASSERT1(!m.Test(i));
             }
         }
@@ -806,26 +776,22 @@ void StructureTest::Init(void)
             BitSet m(66);
             m.Set();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 66; i++)
-            {
+            for (int i = 0; i < 66; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(33);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 33; i++)
-            {
+            for (int i = 0; i < 33; i++) {
                 ASSERT1(!m.Test(i));
             }
-            for (int i = 33; i < 66; i++)
-            {
+            for (int i = 33; i < 66; i++) {
                 ASSERT1(m.Test(i));
             }
 
             m.LeftShift(33);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 66; i++)
-            {
+            for (int i = 0; i < 66; i++) {
                 ASSERT1(!m.Test(i));
             }
         }
@@ -1000,16 +966,14 @@ void StructureTest::Init(void)
             BitSet m(32);
             m.Set(31);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
 
             m.Reverse();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 1; i < 32; i++)
-            {
+            for (int i = 1; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(0));
@@ -1020,8 +984,7 @@ void StructureTest::Init(void)
             m.Set(31);
             m.Set(32);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
@@ -1029,8 +992,7 @@ void StructureTest::Init(void)
 
             m.Reverse();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 2; i < 32; i++)
-            {
+            for (int i = 2; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(0));
@@ -1042,26 +1004,22 @@ void StructureTest::Init(void)
             m.Set(31);
             m.Set(63);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
-            for (int i = 32; i < 63; i++)
-            {
+            for (int i = 32; i < 63; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(63));
 
             m.Reverse();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 1; i < 32; i++)
-            {
+            for (int i = 1; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(0));
-            for (int i = 33; i < 64; i++)
-            {
+            for (int i = 33; i < 64; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(32));
@@ -1073,13 +1031,11 @@ void StructureTest::Init(void)
             m.Set(63);
             m.Set(64);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
-            for (int i = 32; i < 63; i++)
-            {
+            for (int i = 32; i < 63; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(63));
@@ -1087,14 +1043,12 @@ void StructureTest::Init(void)
 
             m.Reverse();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 2; i < 33; i++)
-            {
+            for (int i = 2; i < 33; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(0));
             ASSERT1(m.Test(1));
-            for (int i = 34; i < 65; i++)
-            {
+            for (int i = 34; i < 65; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(33));
@@ -1106,36 +1060,30 @@ void StructureTest::Init(void)
             m.Set(63);
             m.Set(95);
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 0; i < 31; i++)
-            {
+            for (int i = 0; i < 31; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(31));
-            for (int i = 32; i < 63; i++)
-            {
+            for (int i = 32; i < 63; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(63));
-            for (int i = 64; i < 95; i++)
-            {
+            for (int i = 64; i < 95; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(95));
 
             m.Reverse();
             Logger().WriteInformation("%s\n", m.ToString().c_str());
-            for (int i = 1; i < 32; i++)
-            {
+            for (int i = 1; i < 32; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(0));
-            for (int i = 33; i < 64; i++)
-            {
+            for (int i = 33; i < 64; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(32));
-            for (int i = 65; i < 96; i++)
-            {
+            for (int i = 65; i < 96; i++) {
                 ASSERT1(!m.Test(i));
             }
             ASSERT1(m.Test(64));
@@ -1144,8 +1092,7 @@ void StructureTest::Init(void)
 
     Add("IsPower2", [&]() {
         BitSet m(100);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             if (i > 0)
                 m.Reset(i - 1);
             m.Set(i);
@@ -1176,8 +1123,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == 2);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == i);
             }
@@ -1187,16 +1133,14 @@ void StructureTest::Init(void)
         {
             Heap<int> heap;
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == i);
             }
 
             ASSERT1(heap.IsHeap());
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 int v = heap.Pop();
                 ASSERT1(heap.IsHeap());
                 ASSERT1(v == (9 - i));
@@ -1205,8 +1149,7 @@ void StructureTest::Init(void)
         {
             vector<int> input;
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 input.push_back(i);
             }
 
@@ -1235,8 +1178,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == -1);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == -1);
             }
@@ -1245,7 +1187,8 @@ void StructureTest::Init(void)
             ASSERT1(heap.Top() == -1);
         }
         {
-            // This example shows the heap keeps the smallest two numbers from the input
+            // This example shows the heap keeps the smallest two numbers from
+            // the input
 
             Heap<int> heap(2);
 
@@ -1267,8 +1210,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == 0);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == 0);
             }
@@ -1297,8 +1239,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == -1);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == -1);
             }
@@ -1308,16 +1249,14 @@ void StructureTest::Init(void)
         {
             Heap<int, greater<int>> heap;
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == 0);
             }
 
             ASSERT1(heap.IsHeap());
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 int v = heap.Pop();
                 ASSERT1(heap.IsHeap());
                 ASSERT1(v == i);
@@ -1326,8 +1265,7 @@ void StructureTest::Init(void)
         {
             vector<int> input;
 
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 input.push_back(i);
             }
 
@@ -1356,8 +1294,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == 2);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == i);
             }
@@ -1365,7 +1302,8 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
         }
         {
-            // This example shows the heap keeps the greatest two numbers from the input
+            // This example shows the heap keeps the greatest two numbers from
+            // the input
 
             Heap<int, greater<int>> heap(2);
 
@@ -1387,8 +1325,7 @@ void StructureTest::Init(void)
             ASSERT1(heap.IsHeap());
             ASSERT1(heap.Top() == 1);
 
-            for (int i = 3; i < 10; i++)
-            {
+            for (int i = 3; i < 10; i++) {
                 heap.Push(i);
                 ASSERT1(heap.Top() == (i - 1));
             }
@@ -1397,22 +1334,19 @@ void StructureTest::Init(void)
         }
         {
             less<int> lt;
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int count = 1 + rand() % 1000;
                 Logger().WriteInformation("Run %d: %d elements\n", i, count);
                 Heap<int, less<int>> heap;
                 vector<int> vheap;
-                for (int j = 0; j < count; j++)
-                {
+                for (int j = 0; j < count; j++) {
                     int v = rand() % 1000;
                     heap.Push(v);
                     vheap.push_back(v);
                     push_heap(vheap.begin(), vheap.end(), lt);
                     ASSERT1(heap.Top() == vheap.front());
                 }
-                for (int j = 0; j < count; j++)
-                {
+                for (int j = 0; j < count; j++) {
                     int h = heap.Pop();
                     pop_heap(vheap.begin(), vheap.end(), lt);
                     int vh = vheap.back();
@@ -1425,22 +1359,19 @@ void StructureTest::Init(void)
         }
         {
             greater<int> gt;
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int count = 1 + rand() % 1000;
                 Logger().WriteInformation("Run %d: %d elements\n", i, count);
                 Heap<int, greater<int>> heap;
                 vector<int> vheap;
-                for (int j = 0; j < count; j++)
-                {
+                for (int j = 0; j < count; j++) {
                     int v = rand() % 1000;
                     heap.Push(v);
                     vheap.push_back(v);
                     push_heap(vheap.begin(), vheap.end(), gt);
                     ASSERT1(heap.Top() == vheap.front());
                 }
-                for (int j = 0; j < count; j++)
-                {
+                for (int j = 0; j < count; j++) {
                     int h = heap.Pop();
                     pop_heap(vheap.begin(), vheap.end(), gt);
                     int vh = vheap.back();
@@ -1454,19 +1385,18 @@ void StructureTest::Init(void)
     });
 
     Add("Sort", [&]() {
-        int I1[] = {3, 43, 42, 1, 3, 3556, 7, 34, 8, 8769, 96656532, 1, 445, 35, 64};
+        int I1[] = {3, 43,   42,       1, 3,   3556, 7, 34,
+                    8, 8769, 96656532, 1, 445, 35,   64};
         int L = sizeof(I1) / sizeof(I1[0]);
         std::vector<int> V1;
-        for (int i = 0; i < L; i++)
-        {
+        for (int i = 0; i < L; i++) {
             V1.push_back(I1[i]);
         }
 
         My::HeapD<int> heap(3);
         heap.Sort(I1, L);
 
-        for (int i = 0; i < L; i++)
-        {
+        for (int i = 0; i < L; i++) {
             cout << "\t" << I1[i];
         }
 
@@ -1475,15 +1405,13 @@ void StructureTest::Init(void)
         std::make_heap(V1.begin(), V1.end());
         std::sort_heap(V1.begin(), V1.end());
 
-        for (int i = 0; i < L; i++)
-        {
+        for (int i = 0; i < L; i++) {
             cout << "\t" << V1[i];
         }
 
         cout << endl;
 
-        for (int i = 0; i < L; i++)
-        {
+        for (int i = 0; i < L; i++) {
             ASSERT1(V1[i] == I1[i]);
         }
     });
@@ -1494,8 +1422,7 @@ void StructureTest::Init(void)
 
         int I[100000];
 
-        for (int i = 0; i < 100000; i++)
-        {
+        for (int i = 0; i < 100000; i++) {
             I[i] = V[i];
         }
 
@@ -1505,8 +1432,7 @@ void StructureTest::Init(void)
         std::make_heap(V.begin(), V.end());
         std::sort_heap(V.begin(), V.end());
 
-        for (int i = 0; i < 100000; i++)
-        {
+        for (int i = 0; i < 100000; i++) {
             ASSERT1(V[i] == I[i]);
         }
     });
@@ -1740,8 +1666,7 @@ void StructureTest::Init(void)
     });
 
     Add("Random", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t r = 2 + (rand() % 50);
             size_t c = 2 + (rand() % 50);
             Test::Monge<int> m(r, c);
@@ -1753,8 +1678,7 @@ void StructureTest::Init(void)
     });
 
     Add("RowMins", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t r = 2 + (rand() % 500);
             size_t c = 2 + (rand() % 500);
             Test::Monge<int> m(r, c);
@@ -1769,18 +1693,20 @@ void StructureTest::Init(void)
             LONGLONG t = TimedCall([&]() { m.FindRowMins(mins); });
             LONGLONG t2 = TimedCall([&]() { m.FindRowMins2(mins2); });
 
-            Logger().WriteInformation("%dx%d, time: %I64d, %I64d\n", r, c, t, t2);
+            Logger().WriteInformation("%dx%d, time: %I64d, %I64d\n", r, c, t,
+                                      t2);
 
-            for (size_t i = 0; i < r; i++)
-            {
-                // Logger().WriteInformation("Row %d min (%d, %d), (%d, %d)\n", i, mins[i], m(i, mins[i]), mins2[i], m(i, mins2[i]));
+            for (size_t i = 0; i < r; i++) {
+                // Logger().WriteInformation("Row %d min (%d, %d), (%d, %d)\n",
+                // i, mins[i], m(i, mins[i]), mins2[i], m(i, mins2[i]));
                 ASSERT1(mins[i] == mins2[i]);
             }
         }
     });
 
     Add("MRInteger1", [&]() {
-        auto check = [&](MRInteger &c, unsigned int e0, unsigned int e1, unsigned int e2) -> void {
+        auto check = [&](MRInteger &c, unsigned int e0, unsigned int e1,
+                         unsigned int e2) -> void {
             ASSERT1(e0 == c[0]);
             ASSERT1(e1 == c[1]);
             ASSERT1(e2 == c[2]);
@@ -1935,37 +1861,33 @@ void StructureTest::Init(void)
         unsigned int b[] = {1, 2, 4, 8, 16, 32};
         MRInteger mri(b, 6);
         std::vector<MRInteger> numbers;
-        for (int i = 0; i < 30000; i++)
-        {
+        for (int i = 0; i < 30000; i++) {
             mri.Random();
             numbers.push_back(MRInteger(mri));
         }
 
         sort(numbers.begin(), numbers.end());
 
-        ASSERT1(std::is_sorted(numbers.begin(), numbers.end(), [&](const MRInteger &second, const MRInteger &first) {
-            if (second < first)
-            {
-                for (int j = first.Length() - 1; j >= 0; j--)
-                {
-                    Logger().WriteInformation("\t%d", first[j]);
+        ASSERT1(std::is_sorted(
+            numbers.begin(), numbers.end(),
+            [&](const MRInteger &second, const MRInteger &first) {
+                if (second < first) {
+                    for (int j = first.Length() - 1; j >= 0; j--) {
+                        Logger().WriteInformation("\t%d", first[j]);
+                    }
+
+                    Logger().WriteInformation("\n");
+
+                    for (int j = second.Length() - 1; j >= 0; j--) {
+                        Logger().WriteInformation("\t%d", second[j]);
+                    }
+
+                    Logger().WriteInformation("\n");
+                    return true;
+                } else {
+                    return false;
                 }
-
-                Logger().WriteInformation("\n");
-
-                for (int j = second.Length() - 1; j >= 0; j--)
-                {
-                    Logger().WriteInformation("\t%d", second[j]);
-                }
-
-                Logger().WriteInformation("\n");
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }));
+            }));
     });
 
     Add("Queue", [&]() {
@@ -1977,8 +1899,7 @@ void StructureTest::Init(void)
             ASSERT1(q2.empty() == true);
             ASSERT1(q1.Size() == q2.size());
 
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 q1.Push(i);
                 q2.push(i);
                 ASSERT1(q1.Empty() == false);
@@ -1987,8 +1908,7 @@ void StructureTest::Init(void)
             }
 
             int t1, t2;
-            for (int i = 0; i < 99; i++)
-            {
+            for (int i = 0; i < 99; i++) {
                 t1 = q1.Front();
                 q1.Pop();
                 t2 = q2.front();
@@ -2016,8 +1936,7 @@ void StructureTest::Init(void)
             ASSERT1(q1.Size() == q2.size());
 
             int v1, v2;
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 q1.Push(i);
                 q2.push(i);
                 v1 = q1.Front();
@@ -2027,8 +1946,7 @@ void StructureTest::Init(void)
                 ASSERT1(q1.Size() == q2.size());
             }
 
-            for (int i = 0; i < 99; i++)
-            {
+            for (int i = 0; i < 99; i++) {
                 q1.Pop();
                 q2.pop();
                 v1 = q1.Front();
@@ -2060,8 +1978,7 @@ void StructureTest::Init(void)
             ASSERT1(q1.Size() == q2.size());
 
             int v1, v2;
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 q1.Push(i);
                 q2.push(i);
                 v1 = q1.Back();
@@ -2071,8 +1988,7 @@ void StructureTest::Init(void)
                 ASSERT1(q1.Size() == q2.size());
             }
 
-            for (int i = 0; i < 99; i++)
-            {
+            for (int i = 0; i < 99; i++) {
                 q1.Pop();
                 q2.pop();
                 v1 = q1.Back();
@@ -2103,8 +2019,7 @@ void StructureTest::Init(void)
             ASSERT1(s2.empty() == true);
             ASSERT1(s1.Size() == s2.size());
 
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 s1.Push(i);
                 s2.push(i);
                 ASSERT1(s1.Top() == i);
@@ -2115,8 +2030,7 @@ void StructureTest::Init(void)
             }
 
             int v1, v2;
-            for (int i = 0; i < 99; i++)
-            {
+            for (int i = 0; i < 99; i++) {
                 v1 = s1.Top();
                 s1.Pop();
                 v2 = s2.top();
@@ -2147,8 +2061,7 @@ void StructureTest::Init(void)
     Add("SingleLinkListDelete", [&]() {
         Test::SingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
         }
 
@@ -2169,8 +2082,7 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
         ASSERT1(!list.Contain(5));
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Delete(i);
             (Logger() << list).WriteInformation("\n");
             ASSERT1(!list.Contain(i));
@@ -2180,13 +2092,11 @@ void StructureTest::Init(void)
     Add("SingleLinkListInsert", [&]() {
         SingleLinkList<int> list;
         list.Print();
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             list.Print();
         }
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             int v = list[i];
             cout << i << "\t" << v << endl;
             ASSERT2(v == i, String::Format("list[%d] = %d", i, v));
@@ -2200,14 +2110,12 @@ void StructureTest::Init(void)
         list.Print();
         list.Reverse();
         list.Print();
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             list.Print();
             list.Reverse();
             list.Print();
-            for (int j = 0; j <= i; j++)
-            {
+            for (int j = 0; j <= i; j++) {
                 int v = list[j];
                 ASSERT2(v == (i - j), String::Format("list[%d] = %d", i, v));
             }
@@ -2222,8 +2130,7 @@ void StructureTest::Init(void)
         list.Print();
         ASSERTERROR(list.Middle(), std::invalid_argument);
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             list.Print();
             int v = list.Middle();
@@ -2237,15 +2144,14 @@ void StructureTest::Init(void)
     Add("SingleLinkListIterator", [&]() {
         SingleLinkList<int> list;
         list.Print();
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             list.Print();
         }
 
         cout << "++ it, it->" << endl;
-        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end(); ++it)
-        {
+        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end();
+             ++it) {
             unsigned int i = it.index();
             int v = it->data;
             cout << i << "\t" << v << endl;
@@ -2253,8 +2159,8 @@ void StructureTest::Init(void)
         }
 
         cout << "it ++, it.current()" << endl;
-        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end(); it++)
-        {
+        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end();
+             it++) {
             unsigned int i = it.index();
             int v = it.current();
             cout << i << "\t" << v << endl;
@@ -2262,8 +2168,8 @@ void StructureTest::Init(void)
         }
 
         cout << "++ it, *it" << endl;
-        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end(); ++it)
-        {
+        for (SingleLinkList<int>::iterator it = list.begin(); it != list.end();
+             ++it) {
             unsigned int i = it.index();
             int v = *it;
             cout << i << "\t" << v << endl;
@@ -2290,8 +2196,7 @@ void StructureTest::Init(void)
 
             Test::SingleNode<int> *p = list;
             Test::SingleNode<int> *n = p->Next();
-            while (n != nullptr && n != list)
-            {
+            while (n != nullptr && n != list) {
                 ASSERT1(p->Value() <= n->Value());
                 p = n;
                 n = n->Next();
@@ -2625,29 +2530,30 @@ void StructureTest::Init(void)
             check(list);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 Logger().WriteInformation("Run %d\n", i);
-                Test::SingleNode<int> *list = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *list =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 int len = Test::Random::Next(100);
-                for (int j = 0; j < len; j++)
-                {
-                    list->InsertAtEnd(new Test::SingleNode<int>(Test::Random::Next()));
+                for (int j = 0; j < len; j++) {
+                    list->InsertAtEnd(
+                        new Test::SingleNode<int>(Test::Random::Next()));
                 }
                 check(list);
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 Logger().WriteInformation("Run %d\n", i);
-                Test::SingleNode<int> *list = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *list =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 int len = Test::Random::Next(100);
-                for (int j = 0; j < len; j++)
-                {
-                    list->InsertAtEnd(new Test::SingleNode<int>(Test::Random::Next()));
+                for (int j = 0; j < len; j++) {
+                    list->InsertAtEnd(
+                        new Test::SingleNode<int>(Test::Random::Next()));
                 }
-                Test::SingleNode<int> *p = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *p =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 list->InsertAtEnd(p);
                 p->Next() = list;
                 check(list);
@@ -2658,8 +2564,7 @@ void StructureTest::Init(void)
     Add("SortedSingleLinkListDelete", [&]() {
         Test::SortedSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
         }
 
@@ -2680,8 +2585,7 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
         ASSERT1(!list.Contain(5));
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Delete(i);
             (Logger() << list).WriteInformation("\n");
             ASSERT1(!list.Contain(i));
@@ -2693,19 +2597,18 @@ void StructureTest::Init(void)
         Test::SortedSingleLinkList<int> list2;
         (Logger() << list1).WriteInformation("\n");
         (Logger() << list2).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list1.Insert(i);
             list2.Insert(9 - i);
             (Logger() << list1).WriteInformation("\n");
             (Logger() << list2).WriteInformation("\n");
         }
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             int v = list1[i];
             ASSERT2(v == i, Test::String::Format("list1[%d] = %d", i, v));
-            ASSERT2(v == list2[i], Test::String::Format("list2[%d] = %d", i, v));
+            ASSERT2(v == list2[i],
+                    Test::String::Format("list2[%d] = %d", i, v));
         }
     });
 
@@ -2714,8 +2617,7 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
         ASSERTERROR(list.Middle(), std::invalid_argument);
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             (Logger() << list).WriteInformation("\n");
             int v = list.Middle();
@@ -2731,16 +2633,15 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
         list.Reverse();
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             (Logger() << list).WriteInformation("\n");
             list.Reverse();
             (Logger() << list).WriteInformation("\n");
-            for (int j = 0; j <= i; j++)
-            {
+            for (int j = 0; j <= i; j++) {
                 int v = list[j];
-                ASSERT2(v == i - j, Test::String::Format("list[%d] = %d", j, v));
+                ASSERT2(v == i - j,
+                        Test::String::Format("list[%d] = %d", j, v));
             }
 
             list.Reverse();
@@ -2752,15 +2653,14 @@ void StructureTest::Init(void)
     Add("SortedSingleLinkListIterator", [&]() {
         Test::SortedSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             (Logger() << list).WriteInformation("\n");
         }
 
         Logger().WriteInformation("++ it, it->\n");
-        for (Test::SortedSingleLinkList<int>::iterator it = list.begin(); it != list.end(); ++it)
-        {
+        for (Test::SortedSingleLinkList<int>::iterator it = list.begin();
+             it != list.end(); ++it) {
             unsigned int i = it.Index();
             int v = it->data;
             Logger().WriteInformation("%d\t%d\n", i, v);
@@ -2768,8 +2668,8 @@ void StructureTest::Init(void)
         }
 
         Logger().WriteInformation("it ++, it.current()\n");
-        for (Test::SortedSingleLinkList<int>::iterator it = list.begin(); it != list.end(); it++)
-        {
+        for (Test::SortedSingleLinkList<int>::iterator it = list.begin();
+             it != list.end(); it++) {
             unsigned int i = it.Index();
             int v = it.current();
             Logger().WriteInformation("%d\t%d\n", i, v);
@@ -2777,8 +2677,8 @@ void StructureTest::Init(void)
         }
 
         Logger().WriteInformation("++ it, *it\n");
-        for (Test::SortedSingleLinkList<int>::iterator it = list.begin(); it != list.end(); ++it)
-        {
+        for (Test::SortedSingleLinkList<int>::iterator it = list.begin();
+             it != list.end(); ++it) {
             unsigned int i = it.Index();
             int v = *it;
             Logger().WriteInformation("%d\t%d\n", i, v);
@@ -2796,30 +2696,29 @@ void StructureTest::Init(void)
 
     Add("SortedSingleLinkListOverride", [&]() {
         Test::SingleLinkList<int> *list1 = new Test::SingleLinkList<int>();
-        Test::SingleLinkList<int> *list2 = new Test::SortedSingleLinkList<int>();
+        Test::SingleLinkList<int> *list2 =
+            new Test::SortedSingleLinkList<int>();
         (Logger() << *list1).WriteInformation("\n");
         (Logger() << *list2).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list1->Insert(9 - i);
             list2->Insert(i);
             (Logger() << *list1).WriteInformation("\n");
             (Logger() << *list2).WriteInformation("\n");
         }
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             int v = (*list1)[i];
             ASSERT2(v == i, Test::String::Format("list1[%d] = %d", i, v));
-            ASSERT2(v == (*list2)[i], Test::String::Format("list2[%d] = %d", i, v));
+            ASSERT2(v == (*list2)[i],
+                    Test::String::Format("list2[%d] = %d", i, v));
         }
     });
 
     Add("CircularSingleLinkListDelete", [&]() {
         Test::CircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
         }
 
@@ -2840,8 +2739,7 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
         ASSERT1(!list.Contain(5));
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Delete(i);
             (Logger() << list).WriteInformation("\n");
             ASSERT1(!list.Contain(i));
@@ -2851,19 +2749,18 @@ void StructureTest::Init(void)
     Add("CircularSingleLinkListInsert", [&]() {
         Test::CircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             list.Insert(i);
             (Logger() << list).WriteInformation("\n");
         }
 
-        for (int i = 0; i < 10; i++)
-        {
+        for (int i = 0; i < 10; i++) {
             int v = list[i + 1];
             ASSERT2(v == i, Test::String::Format("list[%d] = %d", i, v));
         }
 
-        ASSERT2(list[10] == list[0], Test::String::Format("list[10] = %d", list[10]));
+        ASSERT2(list[10] == list[0],
+                Test::String::Format("list[10] = %d", list[10]));
     });
 
     Add("SortedCircularSingleLinkListInsert 1", [&]() {
@@ -2935,16 +2832,15 @@ void StructureTest::Init(void)
         Test::SortedCircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             list.Insert(i);
         }
 
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
-            ASSERT2(list[i] == i, Test::String::Format("list[%d] = %d", i, list[i]));
+        for (int i = 0; i < 100; i++) {
+            ASSERT2(list[i] == i,
+                    Test::String::Format("list[%d] = %d", i, list[i]));
         }
     });
 
@@ -2952,16 +2848,15 @@ void StructureTest::Init(void)
         Test::SortedCircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             list.Insert(99 - i);
         }
 
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
-            ASSERT2(list[i] == i, Test::String::Format("list[%d] = %d", i, list[i]));
+        for (int i = 0; i < 100; i++) {
+            ASSERT2(list[i] == i,
+                    Test::String::Format("list[%d] = %d", i, list[i]));
         }
     });
 
@@ -2969,8 +2864,7 @@ void StructureTest::Init(void)
         Test::SortedCircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             list.Insert(9);
         }
 
@@ -2978,18 +2872,18 @@ void StructureTest::Init(void)
 
         list.Insert(9);
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 101; i++)
-        {
-            ASSERT2(list[i] == 9, Test::String::Format("list[%d] = %d", i, list[i]));
+        for (int i = 0; i < 101; i++) {
+            ASSERT2(list[i] == 9,
+                    Test::String::Format("list[%d] = %d", i, list[i]));
         }
 
         list.Insert(5);
         (Logger() << list).WriteInformation("\n");
         ASSERT2(list[0] == 5, Test::String::Format("list[0] = %d", list[0]));
 
-        for (int i = 1; i < 102; i++)
-        {
-            ASSERT2(list[i] == 9, Test::String::Format("list[%d] = %d", i, list[i]));
+        for (int i = 1; i < 102; i++) {
+            ASSERT2(list[i] == 9,
+                    Test::String::Format("list[%d] = %d", i, list[i]));
         }
     });
 
@@ -2997,8 +2891,7 @@ void StructureTest::Init(void)
         Test::SortedCircularSingleLinkList<int> list;
         (Logger() << list).WriteInformation("\n");
 
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             list.Insert(9);
         }
 
@@ -3006,12 +2899,13 @@ void StructureTest::Init(void)
 
         list.Insert(15);
         (Logger() << list).WriteInformation("\n");
-        for (int i = 0; i < 100; i++)
-        {
-            ASSERT2(list[i] == 9, Test::String::Format("list[%d] = %d", i, list[i]));
+        for (int i = 0; i < 100; i++) {
+            ASSERT2(list[i] == 9,
+                    Test::String::Format("list[%d] = %d", i, list[i]));
         }
 
-        ASSERT2(list[100] == 15, Test::String::Format("list[100] = %d", list[100]));
+        ASSERT2(list[100] == 15,
+                Test::String::Format("list[100] = %d", list[100]));
     });
 
     Add("SortedCircularSingleLinkListInsert 6", [&]() {
@@ -3019,18 +2913,18 @@ void StructureTest::Init(void)
         (Logger() << list).WriteInformation("\n");
 
         int count = 1 + rand();
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             list.Insert(rand());
         }
 
         (Logger() << list).WriteInformation("\n");
 
         int t = list[0];
-        for (int i = 1; i < count; i++)
-        {
+        for (int i = 1; i < count; i++) {
             int v = list[i];
-            ASSERT2(v >= t, Test::String::Format("list[%d] = %d > list[%d] = %d", i - 1, t, i, v));
+            ASSERT2(v >= t,
+                    Test::String::Format("list[%d] = %d > list[%d] = %d", i - 1,
+                                         t, i, v));
             t = v;
         }
     });
@@ -3043,8 +2937,7 @@ void StructureTest::Init(void)
             cout << "Merge: " << f << endl;
             Test::SingleNode<int> *p = f;
             int i = 0;
-            while (p != nullptr)
-            {
+            while (p != nullptr) {
                 ASSERT1(p->Value() == i);
                 p = p->Next();
                 i++;
@@ -3145,8 +3038,7 @@ void StructureTest::Init(void)
     Add("Insert", [&]() {
         Test::RedBlackTree<int> tree;
 
-        for (int i = 0; i < 200; i++)
-        {
+        for (int i = 0; i < 200; i++) {
             tree.Insert(i);
         }
 
@@ -3154,13 +3046,11 @@ void StructureTest::Init(void)
     });
 
     Add("BlackHeight", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             Test::RedBlackTree<int> tree;
             int count = 1 + Test::Random::Next();
 
-            for (int j = 0; j < count; j++)
-            {
+            for (int j = 0; j < count; j++) {
                 int v = Test::Random::Next();
                 tree.Insert(v);
             }
@@ -3168,7 +3058,8 @@ void StructureTest::Init(void)
             bool valid = tree.Verify();
             int h = tree.BlackHeight();
             int h2 = tree.BlackHeight2();
-            cout << "Run " << i << ", " << count << " elements, height " << h << " " << h2 << ", " << (valid ? "valid" : "invalid") << endl;
+            cout << "Run " << i << ", " << count << " elements, height " << h
+                 << " " << h2 << ", " << (valid ? "valid" : "invalid") << endl;
             ASSERT1(h == h2);
         }
     });
@@ -3176,8 +3067,7 @@ void StructureTest::Init(void)
     Add("Delete 1", [&]() {
         Test::RedBlackTree<int> tree;
         int count = 10;
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             tree.Insert(i);
         }
 
@@ -3185,8 +3075,7 @@ void StructureTest::Init(void)
         bool valid = tree.Verify();
         ASSERT1(valid == true);
 
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             cout << "Deleting " << i << endl;
             tree.Delete(i);
             tree.Print();
@@ -3196,16 +3085,14 @@ void StructureTest::Init(void)
     });
 
     Add("Delete 2", [&]() {
-        for (int j = 0; j < 100; j++)
-        {
+        for (int j = 0; j < 100; j++) {
             Test::RedBlackTree<int> tree;
             int count = Test::Random::Next(1000);
             cout << "Run " << j << ", " << count << " elements" << endl;
 
             int v;
             vector<int> vals;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 v = Test::Random::Next();
                 vals.push_back(v);
                 tree.Insert(v);
@@ -3214,13 +3101,11 @@ void StructureTest::Init(void)
             bool valid = tree.Verify();
             ASSERT1(valid == true);
 
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 v = vals[i];
                 tree.Delete(v);
                 valid = tree.Verify();
-                if (!valid)
-                {
+                if (!valid) {
                     cout << "Delete " << v << endl;
                     tree.Print();
                 }
@@ -3241,8 +3126,7 @@ void StructureTest::Init(void)
 
             Test::SingleNode<int> *p = list;
             Test::SingleNode<int> *n = p->Next();
-            while (n != nullptr && n != list)
-            {
+            while (n != nullptr && n != list) {
                 ASSERT1(p->Value() <= n->Value());
                 p = n;
                 n = n->Next();
@@ -3576,29 +3460,30 @@ void StructureTest::Init(void)
             check(list);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 Logger().WriteInformation("Run %d\n", i);
-                Test::SingleNode<int> *list = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *list =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 int len = Test::Random::Next(100);
-                for (int j = 0; j < len; j++)
-                {
-                    list->InsertAtEnd(new Test::SingleNode<int>(Test::Random::Next()));
+                for (int j = 0; j < len; j++) {
+                    list->InsertAtEnd(
+                        new Test::SingleNode<int>(Test::Random::Next()));
                 }
                 check(list);
             }
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 Logger().WriteInformation("Run %d\n", i);
-                Test::SingleNode<int> *list = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *list =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 int len = Test::Random::Next(100);
-                for (int j = 0; j < len; j++)
-                {
-                    list->InsertAtEnd(new Test::SingleNode<int>(Test::Random::Next()));
+                for (int j = 0; j < len; j++) {
+                    list->InsertAtEnd(
+                        new Test::SingleNode<int>(Test::Random::Next()));
                 }
-                Test::SingleNode<int> *p = new Test::SingleNode<int>(Test::Random::Next());
+                Test::SingleNode<int> *p =
+                    new Test::SingleNode<int>(Test::Random::Next());
                 list->InsertAtEnd(p);
                 p->Next() = list;
                 check(list);
@@ -3609,8 +3494,7 @@ void StructureTest::Init(void)
     Add("AVLTreeInsert1", [&]() {
         Test::AVLTree<int> tree;
         bool valid;
-        for (int i = 0; i < 20; i++)
-        {
+        for (int i = 0; i < 20; i++) {
             tree.Insert(i);
             valid = tree.Verify();
             if (!valid)
@@ -3620,20 +3504,17 @@ void StructureTest::Init(void)
     });
 
     Add("AVLTreeInsert2", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int count = 1 + Test::Random::Next(1000);
             cout << "Run " << i << ", " << count << " elements" << endl;
             Test::AVLTree<int> tree;
             bool valid;
             int v;
-            for (int j = 0; j < count; j++)
-            {
+            for (int j = 0; j < count; j++) {
                 v = Test::Random::Next();
                 tree.Insert(v);
                 valid = tree.Verify();
-                if (!valid)
-                {
+                if (!valid) {
                     cout << "Insert " << v << endl;
                     tree.Print();
                 }
@@ -3645,8 +3526,7 @@ void StructureTest::Init(void)
     Add("AVLTreeDelete1", [&]() {
         Test::AVLTree<int> tree;
         int count = 10;
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             tree.Insert(i);
         }
 
@@ -3654,8 +3534,7 @@ void StructureTest::Init(void)
         bool valid = tree.Verify();
         ASSERT1(valid == true);
 
-        for (int i = 0; i < count; i++)
-        {
+        for (int i = 0; i < count; i++) {
             cout << "Deleting " << i << endl;
             tree.Delete(i);
             tree.Print();
@@ -3665,16 +3544,14 @@ void StructureTest::Init(void)
     });
 
     Add("AVLTreeDelete2", [&]() {
-        for (int j = 0; j < 1000; j++)
-        {
+        for (int j = 0; j < 1000; j++) {
             Test::AVLTree<int> tree;
             int count = Test::Random::Next(1000);
             cout << "Run " << j << ", " << count << " elements" << endl;
 
             int v;
             vector<int> vals;
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 v = Test::Random::Next();
                 vals.push_back(v);
                 tree.Insert(v);
@@ -3683,13 +3560,11 @@ void StructureTest::Init(void)
             bool valid = tree.Verify();
             ASSERT1(valid == true);
 
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 v = vals[i];
                 tree.Delete(v);
                 valid = tree.Verify();
-                if (!valid)
-                {
+                if (!valid) {
                     cout << "Delete " << v << endl;
                     tree.Print();
                 }
@@ -3700,8 +3575,7 @@ void StructureTest::Init(void)
     });
 
     Add("AVLTreeUpdate", [&]() {
-        for (int j = 0; j < 100; j++)
-        {
+        for (int j = 0; j < 100; j++) {
             unsigned int count = 1 + Test::Random::Next(1000);
             cout << "Run " << j << ", " << count << " elements" << endl;
 
@@ -3710,17 +3584,13 @@ void StructureTest::Init(void)
             int v;
             bool valid;
             string action;
-            while (values.size() < count)
-            {
-                if (Test::Random::Next(100) < 70)
-                {
+            while (values.size() < count) {
+                if (Test::Random::Next(100) < 70) {
                     v = Test::Random::Next();
                     action = Test::String::Format("Insert %d", v);
                     tree.Insert(v);
                     values.push_back(v);
-                }
-                else if (values.size() > 0)
-                {
+                } else if (values.size() > 0) {
                     int i = Test::Random::Next(values.size() - 1);
                     v = values[i];
                     action = Test::String::Format("Delete %d", v);
@@ -3729,8 +3599,7 @@ void StructureTest::Init(void)
                 }
 
                 valid = tree.Verify();
-                if (!valid)
-                {
+                if (!valid) {
                     cout << action << endl;
                     tree.Print();
                 }
@@ -3771,8 +3640,7 @@ void StructureTest::Init(void)
             cout << "Middle: " << node.Middle()->Value() << endl;
             ASSERT1(1 == node.Middle()->Value());
             SingleNode<int> *r = node.Reverse();
-            cout << "Reverse:" << endl
-                 << r;
+            cout << "Reverse:" << endl << r;
             ASSERT1(1 == r->Value());
             r = nullptr;
             r = new SingleNode<int>(2);
@@ -3788,8 +3656,7 @@ void StructureTest::Init(void)
             cout << "Middle: " << node.Middle()->Value() << endl;
             ASSERT1(1 == node.Middle()->Value());
             SingleNode<int> *r = node.Reverse();
-            cout << "Reverse:" << endl
-                 << r;
+            cout << "Reverse:" << endl << r;
             ASSERT1(1 == r->Value());
             r = nullptr;
             r = new SingleNode<int>(2);
@@ -3861,8 +3728,7 @@ void StructureTest::Init(void)
     Add("SingleNode4", [&]() {
         {
             SingleNode<int> n1(0);
-            for (int i = 1; i < 10; i++)
-            {
+            for (int i = 1; i < 10; i++) {
                 n1.InsertAtEnd(new SingleNode<int>(i));
                 cout << &n1;
                 int m = n1.Middle()->Value();
@@ -3873,8 +3739,7 @@ void StructureTest::Init(void)
         }
         {
             SingleNode<int> n1(0);
-            for (int i = 9; i > 0; i--)
-            {
+            for (int i = 9; i > 0; i--) {
                 n1.InsertAfter(new SingleNode<int>(i));
                 cout << &n1;
             }
@@ -3888,26 +3753,22 @@ void StructureTest::Init(void)
     Add("SingleNode5", [&]() {
         {
             SingleNode<int> *n = new SingleNode<int>(0);
-            for (int i = 1; i < 10; i++)
-            {
+            for (int i = 1; i < 10; i++) {
                 n->InsertAtEnd(new SingleNode<int>(i));
                 cout << n;
                 n = n->Reverse();
-                cout << "Reverse: " << endl
-                     << n;
+                cout << "Reverse: " << endl << n;
             }
             SingleNode<int>::DeleteList(n);
         }
         {
             SingleNode<int> *n = new SingleNode<int>(0);
             n->Next() = n;
-            for (int i = 1; i < 10; i++)
-            {
+            for (int i = 1; i < 10; i++) {
                 n->InsertAtEnd(new SingleNode<int>(i));
                 cout << n;
                 n = n->Reverse();
-                cout << "Reverse: " << endl
-                     << n;
+                cout << "Reverse: " << endl << n;
             }
             SingleNode<int>::DeleteList(n);
         }
@@ -4286,8 +4147,7 @@ void StructureTest::Init(void)
             ASSERT1(len == len2);
             size_t i = 0;
             SingleNode<int> *p = node;
-            while (p != nullptr)
-            {
+            while (p != nullptr) {
                 ASSERT1(p->Value() == i);
                 p = p->Next();
                 i++;
@@ -4317,18 +4177,15 @@ void StructureTest::Init(void)
             check(n);
         }
         {
-            for (int i = 5; i < 100; i++)
-            {
+            for (int i = 5; i < 100; i++) {
                 Logger().WriteInformation("Reorder a list of %d nodes\n", i);
                 SingleNode<int> *n = new SingleNode<int>(0);
                 int j = (i + 1) >> 1;
-                for (int k = 1; k < j; k++)
-                {
+                for (int k = 1; k < j; k++) {
                     n->InsertAtEnd(new SingleNode<int>(2 * k));
                 }
                 j = i >> 1;
-                for (int k = j; k > 0; k--)
-                {
+                for (int k = j; k > 0; k--) {
                     n->InsertAtEnd(new SingleNode<int>(2 * k - 1));
                 }
                 check(n);
@@ -4342,15 +4199,12 @@ void StructureTest::Init(void)
             size_t l1 = node->Length();
             size_t l2 = SingleNode<int>::Length(node);
             bool hasCycle = SingleNode<int>::HasCycle(node);
-            if (hasCycle)
-            {
+            if (hasCycle) {
                 SingleNode<int> *cycle = SingleNode<int>::FindCycle(node);
                 Logger().WriteInformation("Has cycle at %d\n", cycle->Value());
                 int v = cycle->Value();
                 ASSERT1(beginning == v);
-            }
-            else
-            {
+            } else {
                 Logger().WriteInformation("No cycle\n");
                 ASSERT1(beginning == -1);
             }
@@ -4358,13 +4212,10 @@ void StructureTest::Init(void)
             Logger().WriteInformation("Reverse:\n");
             cout << node;
             hasCycle = SingleNode<int>::HasCycle(node);
-            if (hasCycle)
-            {
+            if (hasCycle) {
                 SingleNode<int> *cycle = SingleNode<int>::FindCycle(node);
                 Logger().WriteInformation("Has cycle at %d\n", cycle->Value());
-            }
-            else
-            {
+            } else {
                 Logger().WriteInformation("No cycle\n");
             }
             size_t l3 = SingleNode<int>::Length(node);
@@ -4429,28 +4280,21 @@ void StructureTest::Init(void)
             check(n, 2);
         }
         {
-            for (int i = 4; i < 100; i++)
-            {
+            for (int i = 4; i < 100; i++) {
                 Logger().WriteInformation("Test %d nodes\n", i);
-                for (int j = 0; j < i; j++)
-                {
+                for (int j = 0; j < i; j++) {
                     SingleNode<int> *n;
                     SingleNode<int> *c = new SingleNode<int>(j);
                     c->Next() = c;
-                    for (int k = j + 1; k < i; k++)
-                    {
+                    for (int k = j + 1; k < i; k++) {
                         c->InsertAtEnd(new SingleNode<int>(k));
                     }
-                    if (j == 0)
-                    {
+                    if (j == 0) {
                         n = c;
-                    }
-                    else
-                    {
+                    } else {
                         n = new SingleNode<int>(0);
                         SingleNode<int> *p = n;
-                        for (int k = 1; k < j; k++)
-                        {
+                        for (int k = 1; k < j; k++) {
                             p = new SingleNode<int>(k);
                             n->InsertAtEnd(p);
                         }
@@ -4603,9 +4447,11 @@ void StructureTest::Init(void)
             ASSERT1(copy->Next()->Value() == 2);
             ASSERT1(copy->Next()->Prev() == copy->Next()->Next()->Next());
             ASSERT1(copy->Next()->Next()->Value() == 3);
-            ASSERT1(copy->Next()->Next()->Prev() == copy->Next()->Next()->Next());
+            ASSERT1(copy->Next()->Next()->Prev() ==
+                    copy->Next()->Next()->Next());
             ASSERT1(copy->Next()->Next()->Next()->Value() == 4);
-            ASSERT1(copy->Next()->Next()->Next()->Prev() == copy->Next()->Next()->Next());
+            ASSERT1(copy->Next()->Next()->Next()->Prev() ==
+                    copy->Next()->Next()->Next());
             ASSERT1(copy->Next()->Next()->Next()->Next() == nullptr);
 
             DoubleNode<int>::DeleteList(n1);
@@ -4647,8 +4493,7 @@ void StructureTest::Init(void)
             BinaryNode<int>::PreOrderWalk(node, w);
             BinaryNode<int>::DeleteTree(node);
             ASSERT1(v.size() == v1.size());
-            for (size_t i = 0; i < v.size(); i++)
-            {
+            for (size_t i = 0; i < v.size(); i++) {
                 ASSERT1(v[i] == v1[i]);
             }
         };
@@ -4669,12 +4514,10 @@ void StructureTest::Init(void)
             check(v);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int n = 1 + (rand() % 25);
                 vector<int> v;
-                for (int j = 0; j < n; j++)
-                {
+                for (int j = 0; j < n; j++) {
                     v.push_back(rand());
                 }
                 check(v);
@@ -4691,8 +4534,7 @@ void StructureTest::Init(void)
             BinaryNode<int>::InOrderWalk(node, w);
             BinaryNode<int>::DeleteTree(node);
             ASSERT1(v.size() == v1.size());
-            for (size_t i = 0; i < v.size(); i++)
-            {
+            for (size_t i = 0; i < v.size(); i++) {
                 ASSERT1(v[i] == v1[i]);
             }
         };
@@ -4713,12 +4555,10 @@ void StructureTest::Init(void)
             check(v);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int n = 1 + (rand() % 25);
                 vector<int> v;
-                for (int j = 0; j < n; j++)
-                {
+                for (int j = 0; j < n; j++) {
                     v.push_back(rand());
                 }
                 check(v);
@@ -4735,8 +4575,7 @@ void StructureTest::Init(void)
             BinaryNode<int>::PostOrderWalk(node, w);
             BinaryNode<int>::DeleteTree(node);
             ASSERT1(v.size() == v1.size());
-            for (size_t i = 0; i < v.size(); i++)
-            {
+            for (size_t i = 0; i < v.size(); i++) {
                 ASSERT1(v[i] == v1[i]);
             }
         };
@@ -4757,12 +4596,10 @@ void StructureTest::Init(void)
             check(v);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int n = 1 + (rand() % 25);
                 vector<int> v;
-                for (int j = 0; j < n; j++)
-                {
+                for (int j = 0; j < n; j++) {
                     v.push_back(rand());
                 }
                 check(v);
@@ -4773,19 +4610,16 @@ void StructureTest::Init(void)
     Add("CompleteTree", [&]() {
         auto check = [&](vector<int> &v) {
             BinaryNode<int> *node = BinaryNode<int>::ToCompleteTree(v);
-            BinaryNode<int> *node2 = BinaryNode<int>::FillToComplete(nullptr, v);
+            BinaryNode<int> *node2 =
+                BinaryNode<int>::FillToComplete(nullptr, v);
             BinaryNode<int> *node3 = nullptr;
-            for_each(v.begin(), v.end(), [&](int i) {
-                node3 = BinaryNode<int>::Insert(node3, i);
-            });
-            if (v.size() == 0)
-            {
+            for_each(v.begin(), v.end(),
+                     [&](int i) { node3 = BinaryNode<int>::Insert(node3, i); });
+            if (v.size() == 0) {
                 ASSERT1(node == nullptr);
                 ASSERT1(node2 == nullptr);
                 ASSERT1(node3 == nullptr);
-            }
-            else
-            {
+            } else {
                 node->Print2();
                 bool complete = BinaryNode<int>::IsCompleteTree(node);
                 bool complete2 = BinaryNode<int>::IsCompleteTree(node2);
@@ -4810,11 +4644,9 @@ void StructureTest::Init(void)
         check(vector<int>{0, 1, 2});
         check(vector<int>{0, 1, 2, 3});
         check(vector<int>{0, 1, 2, 3, 4});
-        for (int i = 5; i < 50; i++)
-        {
+        for (int i = 5; i < 50; i++) {
             vector<int> v;
-            for (int j = 0; j <= i; j++)
-            {
+            for (int j = 0; j <= i; j++) {
                 v.push_back(j);
             }
             check(v);
@@ -4974,8 +4806,7 @@ void StructureTest::Init(void)
     Add("Search1", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
@@ -4987,15 +4818,13 @@ void StructureTest::Init(void)
             BinaryNode<int> *n;
             for_each(v.begin(), v.end(), [&](int i) {
                 n = BinaryNode<int>::Search(node, i);
-                if (n == nullptr || n->Value() != i)
-                {
+                if (n == nullptr || n->Value() != i) {
                     pass = false;
                     num = i;
                 }
                 i = s + rand();
                 n = BinaryNode<int>::Search(node, i);
-                if (n != nullptr && n->Value() == i)
-                {
+                if (n != nullptr && n->Value() == i) {
                     pass2 = false;
                     num2 = i;
                 }
@@ -5010,8 +4839,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -5019,21 +4847,21 @@ void StructureTest::Init(void)
     Add("LowestCommonAncestor1", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
             node->Print2();
-            for (size_t i = 0; i < s - 1; i++)
-            {
-                for (size_t j = i + 1; j < s; j++)
-                {
+            for (size_t i = 0; i < s - 1; i++) {
+                for (size_t j = i + 1; j < s; j++) {
                     BinaryNode<int> *f = BinaryNode<int>::Search(node, v[i]);
                     BinaryNode<int> *s = BinaryNode<int>::Search(node, v[j]);
-                    BinaryNode<int> *a = BinaryNode<int>::LowestCommonAncestor(node, f, s);
-                    BinaryNode<int> *a2 = BinaryNode<int>::LowestCommonAncestor2(node, f, s);
-                    Logger().WriteInformation("LCA(%d, %d) = %d, %d\n", v[i], v[j], a->Value(), a2->Value());
+                    BinaryNode<int> *a =
+                        BinaryNode<int>::LowestCommonAncestor(node, f, s);
+                    BinaryNode<int> *a2 =
+                        BinaryNode<int>::LowestCommonAncestor2(node, f, s);
+                    Logger().WriteInformation("LCA(%d, %d) = %d, %d\n", v[i],
+                                              v[j], a->Value(), a2->Value());
                     ASSERT1(a == a2);
                 }
             }
@@ -5044,8 +4872,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -5053,23 +4880,28 @@ void StructureTest::Init(void)
     Add("LowestCommonAncestor2", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
             BinaryNode<int> *n = BinaryNode<int>::RandomTreeFromInOrder(v);
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::Clone2(n);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::Clone2(n);
             BinaryNode<int>::DeleteTree(n);
             node->Print2();
-            for (size_t i = 0; i < s - 1; i++)
-            {
-                for (size_t j = i + 1; j < s; j++)
-                {
-                    BinaryNodeWithParent<int> *f = (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(node, v[i]);
-                    BinaryNodeWithParent<int> *s = (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(node, v[j]);
-                    BinaryNodeWithParent<int> *a = BinaryNodeWithParent<int>::LowestCommonAncestor(f, s);
-                    BinaryNodeWithParent<int> *a2 = BinaryNodeWithParent<int>::LowestCommonAncestor2(f, s);
-                    Logger().WriteInformation("LCA(%d, %d) = %d, %d\n", v[i], v[j], a->Value(), a2->Value());
+            for (size_t i = 0; i < s - 1; i++) {
+                for (size_t j = i + 1; j < s; j++) {
+                    BinaryNodeWithParent<int> *f =
+                        (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(
+                            node, v[i]);
+                    BinaryNodeWithParent<int> *s =
+                        (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(
+                            node, v[j]);
+                    BinaryNodeWithParent<int> *a =
+                        BinaryNodeWithParent<int>::LowestCommonAncestor(f, s);
+                    BinaryNodeWithParent<int> *a2 =
+                        BinaryNodeWithParent<int>::LowestCommonAncestor2(f, s);
+                    Logger().WriteInformation("LCA(%d, %d) = %d, %d\n", v[i],
+                                              v[j], a->Value(), a2->Value());
                     ASSERT1(a == a2);
                 }
             }
@@ -5080,8 +4912,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -5089,26 +4920,39 @@ void StructureTest::Init(void)
     Add("LowestCommonAncestor3", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
             BinaryNode<int> *n = BinaryNode<int>::SearchTreeRandom(v);
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::Clone2(n);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::Clone2(n);
             BinaryNode<int>::DeleteTree(n);
             node->Print2();
-            for (size_t i = 0; i < s - 1; i++)
-            {
-                for (size_t j = i + 1; j < s; j++)
-                {
-                    BinaryNodeWithParent<int> *f = (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(node, v[i]);
-                    BinaryNodeWithParent<int> *s = (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(node, v[j]);
-                    BinaryNodeWithParent<int> *a = (BinaryNodeWithParent<int> *)BinaryNode<int>::LowestCommonAncestor(node, f, s);
-                    BinaryNodeWithParent<int> *a2 = (BinaryNodeWithParent<int> *)BinaryNode<int>::LowestCommonAncestor2(node, f, s);
-                    BinaryNodeWithParent<int> *a3 = BinaryNodeWithParent<int>::LowestCommonAncestor(f, s);
-                    BinaryNodeWithParent<int> *a4 = BinaryNodeWithParent<int>::LowestCommonAncestor2(f, s);
-                    BinaryNodeWithParent<int> *a5 = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeLowestCommonAncestor(node, v[i], v[j]);
-                    Logger().WriteInformation("LCA(%d, %d) = %d, %d, %d, %d, %d\n", v[i], v[j], a->Value(), a2->Value(), a3->Value(), a4->Value(), a5->Value());
+            for (size_t i = 0; i < s - 1; i++) {
+                for (size_t j = i + 1; j < s; j++) {
+                    BinaryNodeWithParent<int> *f =
+                        (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(
+                            node, v[i]);
+                    BinaryNodeWithParent<int> *s =
+                        (BinaryNodeWithParent<int> *)BinaryNode<int>::Search(
+                            node, v[j]);
+                    BinaryNodeWithParent<int> *a = (BinaryNodeWithParent<int> *)
+                        BinaryNode<int>::LowestCommonAncestor(node, f, s);
+                    BinaryNodeWithParent<int> *a2 =
+                        (BinaryNodeWithParent<int> *)
+                            BinaryNode<int>::LowestCommonAncestor2(node, f, s);
+                    BinaryNodeWithParent<int> *a3 =
+                        BinaryNodeWithParent<int>::LowestCommonAncestor(f, s);
+                    BinaryNodeWithParent<int> *a4 =
+                        BinaryNodeWithParent<int>::LowestCommonAncestor2(f, s);
+                    BinaryNodeWithParent<int> *a5 =
+                        (BinaryNodeWithParent<int> *)
+                            BinaryNode<int>::SearchTreeLowestCommonAncestor(
+                                node, v[i], v[j]);
+                    Logger().WriteInformation(
+                        "LCA(%d, %d) = %d, %d, %d, %d, %d\n", v[i], v[j],
+                        a->Value(), a2->Value(), a3->Value(), a4->Value(),
+                        a5->Value());
                     ASSERT1(a == a2);
                     ASSERT1(a == a3);
                     ASSERT1(a == a4);
@@ -5122,8 +4966,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -5139,11 +4982,9 @@ void StructureTest::Init(void)
             unique_ptr<int[]> preOrder(new int[count]);
             unique_ptr<int[]> inOrder(new int[count]);
 
-            function<function<void(int)>(unique_ptr<int[]> &, int &)>
-                f = [&](unique_ptr<int[]> &v, int &k) -> function<void(int)> {
-                function<void(int)> w = [&](int n) {
-                    v[k++] = n;
-                };
+            function<function<void(int)>(unique_ptr<int[]> &, int &)> f =
+                [&](unique_ptr<int[]> &v, int &k) -> function<void(int)> {
+                function<void(int)> w = [&](int n) { v[k++] = n; };
                 return w;
             };
 
@@ -5159,8 +5000,10 @@ void StructureTest::Init(void)
 
             int equal2;
             int equal3;
-            BinaryNode<int> *node2 = BinaryNode<int>::BuildTreePreOrderInOrder(preOrder.get(), count, inOrder.get(), count);
-            BinaryNode<int> *node3 = BinaryNode<int>::BuildTreePreOrderInOrder2(preOrder.get(), count, inOrder.get(), count);
+            BinaryNode<int> *node2 = BinaryNode<int>::BuildTreePreOrderInOrder(
+                preOrder.get(), count, inOrder.get(), count);
+            BinaryNode<int> *node3 = BinaryNode<int>::BuildTreePreOrderInOrder2(
+                preOrder.get(), count, inOrder.get(), count);
             node2->Print2();
             node3->Print2();
             equal2 = BinaryNode<int>::Compare(node, node2);
@@ -5181,8 +5024,7 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
@@ -5198,11 +5040,9 @@ void StructureTest::Init(void)
             unique_ptr<int[]> inOrder(new int[count]);
             unique_ptr<int[]> postOrder(new int[count]);
 
-            function<function<void(int)>(unique_ptr<int[]> &, int &)>
-                f = [&](unique_ptr<int[]> &v, int &k) -> function<void(int)> {
-                function<void(int)> w = [&](int n) {
-                    v[k++] = n;
-                };
+            function<function<void(int)>(unique_ptr<int[]> &, int &)> f =
+                [&](unique_ptr<int[]> &v, int &k) -> function<void(int)> {
+                function<void(int)> w = [&](int n) { v[k++] = n; };
                 return w;
             };
 
@@ -5218,8 +5058,11 @@ void StructureTest::Init(void)
 
             int equal2;
             int equal3;
-            BinaryNode<int> *node2 = BinaryNode<int>::BuildTreeInOrderPostOrder(inOrder.get(), count, postOrder.get(), count);
-            BinaryNode<int> *node3 = BinaryNode<int>::BuildTreeInOrderPostOrder2(inOrder.get(), count, postOrder.get(), count);
+            BinaryNode<int> *node2 = BinaryNode<int>::BuildTreeInOrderPostOrder(
+                inOrder.get(), count, postOrder.get(), count);
+            BinaryNode<int> *node3 =
+                BinaryNode<int>::BuildTreeInOrderPostOrder2(
+                    inOrder.get(), count, postOrder.get(), count);
             node2->Print2();
             node3->Print2();
             equal2 = BinaryNode<int>::Compare(node, node2);
@@ -5240,8 +5083,7 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
@@ -5258,13 +5100,13 @@ void StructureTest::Init(void)
             BinaryNode<int>::PreOrderWalk(node, f);
             Logger().Print(preOrder);
 
-            DoubleNode<int> *list = (DoubleNode<int> *)BinaryNode<int>::ToPreOrderLinkList(node);
+            DoubleNode<int> *list =
+                (DoubleNode<int> *)BinaryNode<int>::ToPreOrderLinkList(node);
             cout << list;
 
             size_t i = 0;
             DoubleNode<int> *p = list;
-            while (i < preOrder.size() && p != nullptr)
-            {
+            while (i < preOrder.size() && p != nullptr) {
                 ASSERT1(preOrder[i] == p->Value());
                 i++;
                 p = p->Next();
@@ -5283,8 +5125,7 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
@@ -5301,13 +5142,13 @@ void StructureTest::Init(void)
             BinaryNode<int>::InOrderWalk(node, f);
             Logger().Print(inOrder);
 
-            DoubleNode<int> *list = (DoubleNode<int> *)BinaryNode<int>::ToInOrderLinkList(node);
+            DoubleNode<int> *list =
+                (DoubleNode<int> *)BinaryNode<int>::ToInOrderLinkList(node);
             cout << list;
 
             size_t i = 0;
             DoubleNode<int> *p = list;
-            while (i < inOrder.size() && p != nullptr)
-            {
+            while (i < inOrder.size() && p != nullptr) {
                 ASSERT1(inOrder[i] == p->Value());
                 i++;
                 p = p->Next();
@@ -5326,8 +5167,7 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
@@ -5344,13 +5184,13 @@ void StructureTest::Init(void)
             BinaryNode<int>::PostOrderWalk(node, f);
             Logger().Print(postOrder);
 
-            DoubleNode<int> *list = (DoubleNode<int> *)BinaryNode<int>::ToPostOrderLinkList(node);
+            DoubleNode<int> *list =
+                (DoubleNode<int> *)BinaryNode<int>::ToPostOrderLinkList(node);
             cout << list;
 
             size_t i = 0;
             DoubleNode<int> *p = list;
-            while (i < postOrder.size() && p != nullptr)
-            {
+            while (i < postOrder.size() && p != nullptr) {
                 ASSERT1(postOrder[i] == p->Value());
                 i++;
                 p = p->Next();
@@ -5369,8 +5209,7 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
@@ -5400,15 +5239,15 @@ void StructureTest::Init(void)
         check(8);
         check(9);
         check(10);
-        for (int i = 11; i < 50; i++)
-        {
+        for (int i = 11; i < 50; i++) {
             check(i);
         }
     });
 
     Add("GetBoundaryValues1", [&]() {
         auto check = [&](int count) {
-            Logger().WriteInformation("Get boundary values of a binary tree of %d nodes:\n", count);
+            Logger().WriteInformation(
+                "Get boundary values of a binary tree of %d nodes:\n", count);
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
@@ -5482,15 +5321,15 @@ void StructureTest::Init(void)
         Logger().Print(values);
 
         ASSERT1(values.size() == expect.size());
-        for (unsigned int i = 0; i < expect.size(); i++)
-        {
+        for (unsigned int i = 0; i < expect.size(); i++) {
             ASSERT1(values[i] == expect[i]);
         }
     });
 
     Add("Serialize", [&]() {
         auto check = [&](int count) {
-            Logger().WriteInformation("Serialize/deserialize a binary tree of %d nodes:\n", count);
+            Logger().WriteInformation(
+                "Serialize/deserialize a binary tree of %d nodes:\n", count);
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
@@ -5552,7 +5391,8 @@ void StructureTest::Init(void)
             while (node == nullptr)
                 node = BinaryNode<int>::RandomTree(s);
             node->Print2();
-            BinaryNodeWithParent<int> *copy = BinaryNodeWithParent<int>::Clone2(node);
+            BinaryNodeWithParent<int> *copy =
+                BinaryNodeWithParent<int>::Clone2(node);
             copy->Print2();
             int equal = BinaryNode<int>::Compare(node, copy);
             BinaryNode<int>::DeleteTree(node);
@@ -5572,20 +5412,19 @@ void StructureTest::Init(void)
     });
 
     Add("PreOrder", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int count = 1 + rand();
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
             count = tree->Size();
 
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::Clone2(tree);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::Clone2(tree);
 
             cout << "Run " << i << ", " << count << " elements" << endl;
 
-            if (count < 50)
-            {
+            if (count < 50) {
                 tree->Print2();
                 tree2->Print2();
             }
@@ -5602,10 +5441,9 @@ void StructureTest::Init(void)
             vector<int> v10;
             vector<int> v11;
 
-            function<function<void(int)>(vector<int> &)> f = [&](vector<int> &v) -> function<void(int)> {
-                function<void(int)> w = [&](int n) {
-                    v.push_back(n);
-                };
+            function<function<void(int)>(vector<int> &)> f =
+                [&](vector<int> &v) -> function<void(int)> {
+                function<void(int)> w = [&](int n) { v.push_back(n); };
 
                 return w;
             };
@@ -5620,33 +5458,56 @@ void StructureTest::Init(void)
             tree2->PreOrderWalkWithStack3(f(v8));
             tree2->PreOrderWalkWithOutStack(f(v9));
 
-            for (PreOrderBinaryIterator<int, BinaryNode> it = PreOrderBinaryIterator<int, BinaryNode>(tree); it != PreOrderBinaryIterator<int, BinaryNode>(); it++)
-            {
+            for (PreOrderBinaryIterator<int, BinaryNode> it =
+                     PreOrderBinaryIterator<int, BinaryNode>(tree);
+                 it != PreOrderBinaryIterator<int, BinaryNode>(); it++) {
                 v10.push_back(*it);
             }
 
-            for (PreOrderBinaryIteratorWithOutStack<int> it = PreOrderBinaryIteratorWithOutStack<int>(tree2); it != PreOrderBinaryIteratorWithOutStack<int>(); it++)
-            {
+            for (PreOrderBinaryIteratorWithOutStack<int> it =
+                     PreOrderBinaryIteratorWithOutStack<int>(tree2);
+                 it != PreOrderBinaryIteratorWithOutStack<int>(); it++) {
                 v11.push_back(*it);
             }
 
             BinaryNode<int>::DeleteTree(tree);
             BinaryNode<int>::DeleteTree(tree2);
 
-            ASSERT2(v1.size() == count, String::Format("Expect %d elements, actual visited %d", count, v1.size()));
-            ASSERT2(v2.size() == count, String::Format("Expect %d elements, actual visited %d", count, v2.size()));
-            ASSERT2(v3.size() == count, String::Format("Expect %d elements, actual visited %d", count, v3.size()));
-            ASSERT2(v4.size() == count, String::Format("Expect %d elements, actual visited %d", count, v4.size()));
-            ASSERT2(v5.size() == count, String::Format("Expect %d elements, actual visited %d", count, v5.size()));
-            ASSERT2(v6.size() == count, String::Format("Expect %d elements, actual visited %d", count, v6.size()));
-            ASSERT2(v7.size() == count, String::Format("Expect %d elements, actual visited %d", count, v7.size()));
-            ASSERT2(v8.size() == count, String::Format("Expect %d elements, actual visited %d", count, v8.size()));
-            ASSERT2(v9.size() == count, String::Format("Expect %d elements, actual visited %d", count, v9.size()));
-            ASSERT2(v10.size() == count, String::Format("Expect %d elements, actual visited %d", count, v10.size()));
-            ASSERT2(v11.size() == count, String::Format("Expect %d elements, actual visited %d", count, v11.size()));
+            ASSERT2(v1.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v1.size()));
+            ASSERT2(v2.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v2.size()));
+            ASSERT2(v3.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v3.size()));
+            ASSERT2(v4.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v4.size()));
+            ASSERT2(v5.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v5.size()));
+            ASSERT2(v6.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v6.size()));
+            ASSERT2(v7.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v7.size()));
+            ASSERT2(v8.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v8.size()));
+            ASSERT2(v9.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v9.size()));
+            ASSERT2(v10.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v10.size()));
+            ASSERT2(v11.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v11.size()));
 
-            for (int j = 0; j < count; j++)
-            {
+            for (int j = 0; j < count; j++) {
                 ASSERT1(v1[j] == v2[j]);
                 ASSERT1(v1[j] == v3[j]);
                 ASSERT1(v1[j] == v4[j]);
@@ -5662,20 +5523,19 @@ void StructureTest::Init(void)
     });
 
     Add("InOrder", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int count = 1 + rand();
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
             count = tree->Size();
 
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::Clone2(tree);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::Clone2(tree);
 
             cout << "Run " << i << ", " << count << " elements" << endl;
 
-            if (count < 50)
-            {
+            if (count < 50) {
                 tree->Print2();
                 tree2->Print2();
             }
@@ -5690,10 +5550,9 @@ void StructureTest::Init(void)
             vector<int> v8;
             vector<int> v9;
 
-            function<function<void(int)>(vector<int> &)> f = [&](vector<int> &v) -> function<void(int)> {
-                function<void(int)> w = [&](int n) {
-                    v.push_back(n);
-                };
+            function<function<void(int)>(vector<int> &)> f =
+                [&](vector<int> &v) -> function<void(int)> {
+                function<void(int)> w = [&](int n) { v.push_back(n); };
 
                 return w;
             };
@@ -5706,31 +5565,50 @@ void StructureTest::Init(void)
             tree2->InOrderWalkWithStack2(f(v6));
             tree2->InOrderWalkWithOutStack(f(v7));
 
-            for (InOrderBinaryIterator<int, BinaryNode> it = InOrderBinaryIterator<int, BinaryNode>(tree); it != InOrderBinaryIterator<int, BinaryNode>(); it++)
-            {
+            for (InOrderBinaryIterator<int, BinaryNode> it =
+                     InOrderBinaryIterator<int, BinaryNode>(tree);
+                 it != InOrderBinaryIterator<int, BinaryNode>(); it++) {
                 v8.push_back(*it);
             }
 
-            for (InOrderBinaryIteratorWithOutStack<int> it = InOrderBinaryIteratorWithOutStack<int>(tree2); it != InOrderBinaryIteratorWithOutStack<int>(); it++)
-            {
+            for (InOrderBinaryIteratorWithOutStack<int> it =
+                     InOrderBinaryIteratorWithOutStack<int>(tree2);
+                 it != InOrderBinaryIteratorWithOutStack<int>(); it++) {
                 v9.push_back(*it);
             }
 
             BinaryNode<int>::DeleteTree(tree);
             BinaryNode<int>::DeleteTree(tree2);
 
-            ASSERT2(v1.size() == count, String::Format("Expect %d elements, actual visited %d", count, v1.size()));
-            ASSERT2(v2.size() == count, String::Format("Expect %d elements, actual visited %d", count, v2.size()));
-            ASSERT2(v3.size() == count, String::Format("Expect %d elements, actual visited %d", count, v3.size()));
-            ASSERT2(v4.size() == count, String::Format("Expect %d elements, actual visited %d", count, v4.size()));
-            ASSERT2(v5.size() == count, String::Format("Expect %d elements, actual visited %d", count, v5.size()));
-            ASSERT2(v6.size() == count, String::Format("Expect %d elements, actual visited %d", count, v6.size()));
-            ASSERT2(v7.size() == count, String::Format("Expect %d elements, actual visited %d", count, v7.size()));
-            ASSERT2(v8.size() == count, String::Format("Expect %d elements, actual visited %d", count, v8.size()));
-            ASSERT2(v9.size() == count, String::Format("Expect %d elements, actual visited %d", count, v9.size()));
+            ASSERT2(v1.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v1.size()));
+            ASSERT2(v2.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v2.size()));
+            ASSERT2(v3.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v3.size()));
+            ASSERT2(v4.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v4.size()));
+            ASSERT2(v5.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v5.size()));
+            ASSERT2(v6.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v6.size()));
+            ASSERT2(v7.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v7.size()));
+            ASSERT2(v8.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v8.size()));
+            ASSERT2(v9.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v9.size()));
 
-            for (int j = 0; j < count; j++)
-            {
+            for (int j = 0; j < count; j++) {
                 ASSERT1(v1[j] == v2[j]);
                 ASSERT1(v1[j] == v3[j]);
                 ASSERT1(v1[j] == v4[j]);
@@ -5744,20 +5622,19 @@ void StructureTest::Init(void)
     });
 
     Add("PostOrder", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int count = 1 + rand();
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
             count = tree->Size();
 
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::Clone2(tree);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::Clone2(tree);
 
             cout << "Run " << i << ", " << count << " elements" << endl;
 
-            if (count < 50)
-            {
+            if (count < 50) {
                 tree->Print2();
                 tree2->Print2();
             }
@@ -5772,10 +5649,9 @@ void StructureTest::Init(void)
             vector<int> v8;
             vector<int> v9;
 
-            function<function<void(int)>(vector<int> &)> f = [&](vector<int> &v) -> function<void(int)> {
-                function<void(int)> w = [&](int n) {
-                    v.push_back(n);
-                };
+            function<function<void(int)>(vector<int> &)> f =
+                [&](vector<int> &v) -> function<void(int)> {
+                function<void(int)> w = [&](int n) { v.push_back(n); };
 
                 return w;
             };
@@ -5788,31 +5664,50 @@ void StructureTest::Init(void)
             tree2->PostOrderWalkWithStack2(f(v6));
             tree2->PostOrderWalkWithOutStack(f(v7));
 
-            for (PostOrderBinaryIterator<int, BinaryNode> it = PostOrderBinaryIterator<int, BinaryNode>(tree); it != PostOrderBinaryIterator<int, BinaryNode>(); it++)
-            {
+            for (PostOrderBinaryIterator<int, BinaryNode> it =
+                     PostOrderBinaryIterator<int, BinaryNode>(tree);
+                 it != PostOrderBinaryIterator<int, BinaryNode>(); it++) {
                 v8.push_back(*it);
             }
 
-            for (PostOrderBinaryIteratorWithOutStack<int> it = PostOrderBinaryIteratorWithOutStack<int>(tree2); it != PostOrderBinaryIteratorWithOutStack<int>(); it++)
-            {
+            for (PostOrderBinaryIteratorWithOutStack<int> it =
+                     PostOrderBinaryIteratorWithOutStack<int>(tree2);
+                 it != PostOrderBinaryIteratorWithOutStack<int>(); it++) {
                 v9.push_back(*it);
             }
 
             BinaryNode<int>::DeleteTree(tree);
             BinaryNode<int>::DeleteTree(tree2);
 
-            ASSERT2(v1.size() == count, String::Format("Expect %d elements, actual visited %d", count, v1.size()));
-            ASSERT2(v2.size() == count, String::Format("Expect %d elements, actual visited %d", count, v2.size()));
-            ASSERT2(v3.size() == count, String::Format("Expect %d elements, actual visited %d", count, v3.size()));
-            ASSERT2(v4.size() == count, String::Format("Expect %d elements, actual visited %d", count, v4.size()));
-            ASSERT2(v5.size() == count, String::Format("Expect %d elements, actual visited %d", count, v5.size()));
-            ASSERT2(v6.size() == count, String::Format("Expect %d elements, actual visited %d", count, v6.size()));
-            ASSERT2(v7.size() == count, String::Format("Expect %d elements, actual visited %d", count, v7.size()));
-            ASSERT2(v8.size() == count, String::Format("Expect %d elements, actual visited %d", count, v8.size()));
-            ASSERT2(v9.size() == count, String::Format("Expect %d elements, actual visited %d", count, v9.size()));
+            ASSERT2(v1.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v1.size()));
+            ASSERT2(v2.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v2.size()));
+            ASSERT2(v3.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v3.size()));
+            ASSERT2(v4.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v4.size()));
+            ASSERT2(v5.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v5.size()));
+            ASSERT2(v6.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v6.size()));
+            ASSERT2(v7.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v7.size()));
+            ASSERT2(v8.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v8.size()));
+            ASSERT2(v9.size() == count,
+                    String::Format("Expect %d elements, actual visited %d",
+                                   count, v9.size()));
 
-            for (int j = 0; j < count; j++)
-            {
+            for (int j = 0; j < count; j++) {
                 ASSERT1(v1[j] == v2[j]);
                 ASSERT1(v1[j] == v3[j]);
                 ASSERT1(v1[j] == v4[j]);
@@ -5826,20 +5721,19 @@ void StructureTest::Init(void)
     });
 
     Add("Height", [&]() {
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int count = 1 + rand();
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
             count = tree->Size();
 
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::Clone2(tree);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::Clone2(tree);
 
             cout << "Run " << i << ", " << count << " elements" << endl;
 
-            if (count < 50)
-            {
+            if (count < 50) {
                 tree->Print2();
                 tree2->Print2();
             }
@@ -5856,11 +5750,13 @@ void StructureTest::Init(void)
 
     Add("LevelOrderWalk1", [&]() {
         auto check = [&](int count) {
-            Logger().WriteInformation("Level order walk a binary tree of %d nodes:\n", count);
+            Logger().WriteInformation(
+                "Level order walk a binary tree of %d nodes:\n", count);
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomTree(count);
-            BinaryNodeWithRightSibling<int> *tree2 = BinaryNodeWithRightSibling<int>::Clone2(tree);
+            BinaryNodeWithRightSibling<int> *tree2 =
+                BinaryNodeWithRightSibling<int>::Clone2(tree);
             BinaryNodeWithRightSibling<int>::SetRightSibling(tree2);
 
             tree->Print2();
@@ -5871,9 +5767,7 @@ void StructureTest::Init(void)
             vector<int> v3;
 
             auto visit = [&](vector<int> &v) -> function<void(int)> {
-                function<void(int)> f = [&](int c) {
-                    v.push_back(c);
-                };
+                function<void(int)> f = [&](int c) { v.push_back(c); };
                 return f;
             };
 
@@ -5886,8 +5780,7 @@ void StructureTest::Init(void)
 
             ASSERT1(v1.size() == v2.size());
             ASSERT1(v1.size() == v3.size());
-            for (unsigned int i = 0; i < v1.size(); i++)
-            {
+            for (unsigned int i = 0; i < v1.size(); i++) {
                 ASSERT1(v1[i] == v2[i]);
                 ASSERT1(v1[i] == v3[i]);
             }
@@ -5913,15 +5806,18 @@ void StructureTest::Init(void)
 
     Add("LevelOrderWalk2", [&]() {
         auto check = [&](int count) {
-            Logger().WriteInformation("Level order walk a binary tree of %d nodes:\n", count);
+            Logger().WriteInformation(
+                "Level order walk a binary tree of %d nodes:\n", count);
             BinaryNode<int> *tree = nullptr;
             while (tree == nullptr)
                 tree = BinaryNode<int>::RandomCompleteTree(count);
 
-            BinaryNodeWithRightSibling<int> *tree2 = Test::BinaryNodeWithRightSibling<int>::Clone2(tree);
+            BinaryNodeWithRightSibling<int> *tree2 =
+                Test::BinaryNodeWithRightSibling<int>::Clone2(tree);
             BinaryNodeWithRightSibling<int>::SetRightSibling(tree2);
 
-            BinaryNodeWithRightSibling<int> *tree3 = Test::BinaryNodeWithRightSibling<int>::Clone2(tree);
+            BinaryNodeWithRightSibling<int> *tree3 =
+                Test::BinaryNodeWithRightSibling<int>::Clone2(tree);
             BinaryNodeWithRightSibling<int>::SetRightSibling2(tree3);
 
             tree->Print2();
@@ -5934,9 +5830,7 @@ void StructureTest::Init(void)
             vector<int> v4;
 
             auto visit = [&](vector<int> &v) -> function<void(int)> {
-                function<void(int)> f = [&](int c) {
-                    v.push_back(c);
-                };
+                function<void(int)> f = [&](int c) { v.push_back(c); };
                 return f;
             };
 
@@ -5953,8 +5847,7 @@ void StructureTest::Init(void)
             ASSERT1(v1.size() == v2.size());
             ASSERT1(v1.size() == v3.size());
             ASSERT1(v1.size() == v4.size());
-            for (unsigned int i = 0; i < v1.size(); i++)
-            {
+            for (unsigned int i = 0; i < v1.size(); i++) {
                 ASSERT1(v1[i] == v2[i]);
                 ASSERT1(v1[i] == v3[i]);
                 ASSERT1(v1[i] == v4[i]);
@@ -5982,8 +5875,7 @@ void StructureTest::Init(void)
     Add("Min", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(rand());
             }
             BinaryNode<int> *node = BinaryNode<int>::SearchTreeRandom(v);
@@ -5991,7 +5883,8 @@ void StructureTest::Init(void)
             int m = *min_element(v.begin(), v.end());
             BinaryNode<int> *m1 = BinaryNode<int>::Min(node);
             BinaryNode<int> *m2 = BinaryNode<int>::SearchTreeMin(node);
-            Logger().WriteInformation("Min = %d, %d, %d\n", m, m1->Value(), m2->Value());
+            Logger().WriteInformation("Min = %d, %d, %d\n", m, m1->Value(),
+                                      m2->Value());
             ASSERT1(m == m1->Value());
             ASSERT1(m == m2->Value());
             BinaryNode<int>::DeleteTree(node);
@@ -6001,8 +5894,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6010,8 +5902,7 @@ void StructureTest::Init(void)
     Add("Max1", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(rand());
             }
             BinaryNode<int> *node = BinaryNode<int>::SearchTreeRandom(v);
@@ -6019,7 +5910,8 @@ void StructureTest::Init(void)
             int m = *max_element(v.begin(), v.end());
             BinaryNode<int> *m1 = BinaryNode<int>::Max(node);
             BinaryNode<int> *m2 = BinaryNode<int>::SearchTreeMax(node);
-            Logger().WriteInformation("Max = %d, %d, %d\n", m, m1->Value(), m2->Value());
+            Logger().WriteInformation("Max = %d, %d, %d\n", m, m1->Value(),
+                                      m2->Value());
             ASSERT1(m == m1->Value());
             ASSERT1(m == m2->Value());
             BinaryNode<int>::DeleteTree(node);
@@ -6029,8 +5921,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6038,17 +5929,20 @@ void StructureTest::Init(void)
     Add("Successor", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::RandomTree2(v);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::RandomTree2(v);
             node->Print2();
-            for (size_t i = 0; i < s; i++)
-            {
-                BinaryNodeWithParent<int> *p = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeSearch2(node, i);
-                BinaryNodeWithParent<int> *n = BinaryNodeWithParent<int>::SearchTreeSuccessor(p);
-                Logger().WriteInformation("Successor(%d) = %s\n", i, n == nullptr ? "null" : to_string(n->Value()).c_str());
+            for (size_t i = 0; i < s; i++) {
+                BinaryNodeWithParent<int> *p = (BinaryNodeWithParent<int> *)
+                    BinaryNode<int>::SearchTreeSearch2(node, i);
+                BinaryNodeWithParent<int> *n =
+                    BinaryNodeWithParent<int>::SearchTreeSuccessor(p);
+                Logger().WriteInformation(
+                    "Successor(%d) = %s\n", i,
+                    n == nullptr ? "null" : to_string(n->Value()).c_str());
                 if (i == s - 1)
                     ASSERT1(n == nullptr);
                 else
@@ -6061,8 +5955,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6070,17 +5963,20 @@ void StructureTest::Init(void)
     Add("Predecessor", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::RandomTree2(v);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::RandomTree2(v);
             node->Print2();
-            for (size_t i = 0; i < s; i++)
-            {
-                BinaryNodeWithParent<int> *p = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeSearch2(node, i);
-                BinaryNodeWithParent<int> *n = BinaryNodeWithParent<int>::SearchTreePredecessor(p);
-                Logger().WriteInformation("Predecessor(%d) = %s\n", i, n == nullptr ? "null" : to_string(n->Value()).c_str());
+            for (size_t i = 0; i < s; i++) {
+                BinaryNodeWithParent<int> *p = (BinaryNodeWithParent<int> *)
+                    BinaryNode<int>::SearchTreeSearch2(node, i);
+                BinaryNodeWithParent<int> *n =
+                    BinaryNodeWithParent<int>::SearchTreePredecessor(p);
+                Logger().WriteInformation(
+                    "Predecessor(%d) = %s\n", i,
+                    n == nullptr ? "null" : to_string(n->Value()).c_str());
                 if (i == 0)
                     ASSERT1(n == nullptr);
                 else
@@ -6093,8 +5989,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6102,19 +5997,20 @@ void StructureTest::Init(void)
     Add("Delete1", [&]() {
         auto check = [&](size_t s) {
             vector<int> v;
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 v.push_back(i);
             }
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::RandomTree2(v);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::RandomTree2(v);
             node->Print2();
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 BinaryNodeWithParent<int> *n;
                 if (i % 2 == 0)
-                    n = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeMin(node);
+                    n = (BinaryNodeWithParent<int> *)
+                        BinaryNode<int>::SearchTreeMin(node);
                 else
-                    n = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeMax(node);
+                    n = (BinaryNodeWithParent<int> *)
+                        BinaryNode<int>::SearchTreeMax(node);
                 Logger().WriteInformation("Delete %d\n", n->Value());
                 node = BinaryNodeWithParent<int>::SearchTreeDelete(node, n);
                 if (node != nullptr)
@@ -6128,8 +6024,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6139,12 +6034,13 @@ void StructureTest::Init(void)
             vector<int> v(s);
             generate(v.begin(), v.end(), rand);
             sort(v.begin(), v.end());
-            BinaryNodeWithParent<int> *node = BinaryNodeWithParent<int>::RandomTree2(v);
+            BinaryNodeWithParent<int> *node =
+                BinaryNodeWithParent<int>::RandomTree2(v);
             node->Print2();
-            for (size_t i = 0; i < s; i++)
-            {
+            for (size_t i = 0; i < s; i++) {
                 vector<int>::iterator it = v.begin() + (rand() % v.size());
-                BinaryNodeWithParent<int> *n = (BinaryNodeWithParent<int> *)BinaryNode<int>::SearchTreeSearch2(node, *it);
+                BinaryNodeWithParent<int> *n = (BinaryNodeWithParent<int> *)
+                    BinaryNode<int>::SearchTreeSearch2(node, *it);
                 v.erase(it);
                 Logger().WriteInformation("Delete %d\n", n->Value());
                 node = BinaryNodeWithParent<int>::SearchTreeDelete(node, n);
@@ -6159,8 +6055,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6226,8 +6121,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6252,8 +6146,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6265,9 +6158,11 @@ void StructureTest::Init(void)
             generate(v.begin(), v.end(), rand);
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
             node->Print2();
-            BinaryNodeWithParent<int> *tree = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
+            BinaryNodeWithParent<int> *tree =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
             tree->Print2();
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
             tree2->Print2();
             BinaryNode<int>::DeleteTree(node);
             bool r = BinaryNode<int>::SearchTreeVerify(tree);
@@ -6286,8 +6181,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6295,9 +6189,11 @@ void StructureTest::Init(void)
     Add("MaxSearchTreeInBinaryTree2", [&]() {
         auto check = [&](BinaryNode<int> *node) {
             node->Print2();
-            BinaryNodeWithParent<int> *tree = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
+            BinaryNodeWithParent<int> *tree =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
             tree->Print2();
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
             tree2->Print2();
             BinaryNode<int>::DeleteTree(node);
             bool r = BinaryNode<int>::SearchTreeVerify(tree);
@@ -6340,15 +6236,18 @@ void StructureTest::Init(void)
 
     Add("MaxSearchTreeInBinaryTree3", [&]() {
         auto check = [&](size_t s) {
-            Logger().WriteInformation("Test a binary search tree of %d nodes\n", s);
+            Logger().WriteInformation("Test a binary search tree of %d nodes\n",
+                                      s);
             vector<int> v(s);
             generate(v.begin(), v.end(), rand);
             sort(v.begin(), v.end());
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
             node->Print2();
-            BinaryNodeWithParent<int> *tree = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
+            BinaryNodeWithParent<int> *tree =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree(node);
             tree->Print2();
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::MaxSearchTreeInBinaryTree2(node);
             tree2->Print2();
             bool r = BinaryNode<int>::SearchTreeVerify(tree);
             bool r2 = BinaryNode<int>::SearchTreeVerify(tree2);
@@ -6371,8 +6270,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6384,9 +6282,11 @@ void StructureTest::Init(void)
             generate(v.begin(), v.end(), rand);
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
             node->Print2();
-            BinaryNodeWithParent<int> *tree = BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree(node);
+            BinaryNodeWithParent<int> *tree =
+                BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree(node);
             tree->Print2();
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree2(node);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree2(node);
             tree2->Print2();
             bool r = BinaryNode<int>::SearchTreeVerify(tree);
             bool r2 = BinaryNode<int>::SearchTreeVerify(tree2);
@@ -6409,23 +6309,25 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
 
     Add("MaxSubSearchTreeInBinaryTree2", [&]() {
         auto check = [&](size_t s) {
-            Logger().WriteInformation("Test a binary search tree of %d nodes\n", s);
+            Logger().WriteInformation("Test a binary search tree of %d nodes\n",
+                                      s);
             vector<int> v(s);
             generate(v.begin(), v.end(), rand);
             sort(v.begin(), v.end());
             BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
             node->Print2();
-            BinaryNodeWithParent<int> *tree = BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree(node);
+            BinaryNodeWithParent<int> *tree =
+                BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree(node);
             tree->Print2();
-            BinaryNodeWithParent<int> *tree2 = BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree2(node);
+            BinaryNodeWithParent<int> *tree2 =
+                BinaryNodeWithParent<int>::MaxSubSearchTreeInBinaryTree2(node);
             tree2->Print2();
             BinaryNode<int>::DeleteTree(node);
             bool r = BinaryNode<int>::SearchTreeVerify(tree);
@@ -6444,15 +6346,15 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
 
     Add("SearchTreeSerialize", [&]() {
         auto check = [&](size_t s) {
-            Logger().WriteInformation("Test a binary search tree of %d nodes\n", s);
+            Logger().WriteInformation("Test a binary search tree of %d nodes\n",
+                                      s);
             vector<int> v(s);
             generate(v.begin(), v.end(), rand);
             sort(v.begin(), v.end());
@@ -6466,12 +6368,14 @@ void StructureTest::Init(void)
             stringstream ss2;
             BinaryNode<int>::SearchTreeSerialize(node, ss2);
             Logger().WriteInformation("%s\n", ss2.str().c_str());
-            BinaryNode<int> *node3 = BinaryNode<int>::SearchTreeDeserialize2(ss2);
+            BinaryNode<int> *node3 =
+                BinaryNode<int>::SearchTreeDeserialize2(ss2);
             node3->Print2();
             stringstream ss3;
             BinaryNode<int>::SearchTreeSerialize(node, ss3);
             Logger().WriteInformation("%s\n", ss3.str().c_str());
-            BinaryNode<int> *node4 = BinaryNode<int>::SearchTreeDeserialize3(ss3);
+            BinaryNode<int> *node4 =
+                BinaryNode<int>::SearchTreeDeserialize3(ss3);
             node4->Print2();
             int equal2 = BinaryNode<int>::Compare(node, node2);
             int equal3 = BinaryNode<int>::Compare(node, node3);
@@ -6490,8 +6394,7 @@ void StructureTest::Init(void)
         check(4);
         check(5);
         check(6);
-        for (int i = 7; i < 50; i++)
-        {
+        for (int i = 7; i < 50; i++) {
             check(i);
         }
     });
@@ -6932,24 +6835,25 @@ void StructureTest::Init(void)
             check(n1);
         }
         {
-            for (int i = 0; i < 100; i++)
-            {
+            for (int i = 0; i < 100; i++) {
                 int size = 1 + (rand() % 100);
                 vector<int> v;
                 for (int t = 0; t < size; t++)
                     v.push_back(t);
-                BinaryNode<int> *node = BinaryNode<int>::RandomTreeFromInOrder(v);
+                BinaryNode<int> *node =
+                    BinaryNode<int>::RandomTreeFromInOrder(v);
                 int j = rand() % size;
                 int k = rand() % size;
-                if (k == j)
-                {
+                if (k == j) {
                     if (j == size - 1)
                         k--;
                     else
                         k++;
                 }
-                BinaryNode<int> *p = BinaryNode<int>::SearchTreeSearch(node, v[j]);
-                BinaryNode<int> *q = BinaryNode<int>::SearchTreeSearch(node, v[k]);
+                BinaryNode<int> *p =
+                    BinaryNode<int>::SearchTreeSearch(node, v[j]);
+                BinaryNode<int> *q =
+                    BinaryNode<int>::SearchTreeSearch(node, v[k]);
                 BinaryNode<int>::SwapValues(p, q);
                 Logger().WriteInformation("Test a tree of %d nodes\n", size);
                 check(node);
@@ -6960,13 +6864,16 @@ void StructureTest::Init(void)
     Add("UniqueTreesFromPreOrder1", [&]() {
         auto check = [&](int n, int c) {
             vector<int> v;
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 v.push_back(i);
             }
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromPreOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromPreOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -6974,8 +6881,7 @@ void StructureTest::Init(void)
                 BinaryNode<int>::PreOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
@@ -6993,9 +6899,13 @@ void StructureTest::Init(void)
         auto check = [&](int n) {
             vector<int> v(n);
             generate(v.begin(), v.end(), rand);
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromPreOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromPreOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -7003,16 +6913,14 @@ void StructureTest::Init(void)
                 BinaryNode<int>::PreOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
             ASSERT1(count == trees.size());
         };
 
-        for (int i = 1; i < 9; i++)
-        {
+        for (int i = 1; i < 9; i++) {
             check(i);
         }
     });
@@ -7020,13 +6928,16 @@ void StructureTest::Init(void)
     Add("UniqueTreesFromInOrder1", [&]() {
         auto check = [&](int n, int c) {
             vector<int> v;
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 v.push_back(i);
             }
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromInOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromInOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -7034,8 +6945,7 @@ void StructureTest::Init(void)
                 BinaryNode<int>::InOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
@@ -7053,9 +6963,13 @@ void StructureTest::Init(void)
         auto check = [&](int n) {
             vector<int> v(n);
             generate(v.begin(), v.end(), rand);
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromInOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromInOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -7063,16 +6977,14 @@ void StructureTest::Init(void)
                 BinaryNode<int>::InOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
             ASSERT1(count == trees.size());
         };
 
-        for (int i = 1; i < 9; i++)
-        {
+        for (int i = 1; i < 9; i++) {
             check(i);
         }
     });
@@ -7080,13 +6992,16 @@ void StructureTest::Init(void)
     Add("UniqueTreesFromPostOrder1", [&]() {
         auto check = [&](int n, int c) {
             vector<int> v;
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 v.push_back(i);
             }
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromPostOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromPostOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -7094,8 +7009,7 @@ void StructureTest::Init(void)
                 BinaryNode<int>::PostOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
@@ -7113,9 +7027,13 @@ void StructureTest::Init(void)
         auto check = [&](int n) {
             vector<int> v(n);
             generate(v.begin(), v.end(), rand);
-            unsigned long long count = BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(v.size());
-            vector<BinaryNode<int> *> trees = BinaryNode<int>::UniqueTreesFromPostOrder(v);
-            Logger().WriteInformation("%d numbers can build %d unique binary trees.\n", n, trees.size());
+            unsigned long long count =
+                BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(v.size());
+            vector<BinaryNode<int> *> trees =
+                BinaryNode<int>::UniqueTreesFromPostOrder(v);
+            Logger().WriteInformation(
+                "%d numbers can build %d unique binary trees.\n", n,
+                trees.size());
             for_each(trees.begin(), trees.end(), [&](BinaryNode<int> *t) {
                 t->Print2();
                 vector<int> u;
@@ -7123,29 +7041,30 @@ void StructureTest::Init(void)
                 BinaryNode<int>::PostOrderWalk(t, f);
                 BinaryNode<int>::DeleteTree(t);
                 ASSERT1(v.size() == u.size());
-                for (size_t i = 0; i < v.size(); i++)
-                {
+                for (size_t i = 0; i < v.size(); i++) {
                     ASSERT1(v[i] == u[i]);
                 }
             });
             ASSERT1(count == trees.size());
         };
 
-        for (int i = 1; i < 9; i++)
-        {
+        for (int i = 1; i < 9; i++) {
             check(i);
         }
     });
 
     Add("CountUniqueTrees", [&]() {
         auto check = [&](int n) {
-            unsigned long long count1 = BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(n);
-            unsigned long long count2 = BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(n);
-            unsigned long long count3 = BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(n);
-            Logger().WriteInformation("%d\t%llu\t%llu\t%llu\n", n, count1, count2, count3);
+            unsigned long long count1 =
+                BinaryNode<int>::CountUniqueTreesFromPreOrderOfSize(n);
+            unsigned long long count2 =
+                BinaryNode<int>::CountUniqueTreesFromInOrderOfSize(n);
+            unsigned long long count3 =
+                BinaryNode<int>::CountUniqueTreesFromPostOrderOfSize(n);
+            Logger().WriteInformation("%d\t%llu\t%llu\t%llu\n", n, count1,
+                                      count2, count3);
         };
-        for (int i = 1; i <= 20; i++)
-        {
+        for (int i = 1; i <= 20; i++) {
             check(i);
         }
     });
@@ -7180,22 +7099,23 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            function<void(int, int)> check = [&](int id, int degree) {
-                int d = g.Degree(id);
-                Logger().WriteInformation("Vertex %d degree %d\n", id, d);
-                ASSERT1(degree == d);
+                function<void(int, int)> check = [&](int id, int degree) {
+                    int d = g.Degree(id);
+                    Logger().WriteInformation("Vertex %d degree %d\n", id, d);
+                    ASSERT1(degree == d);
+                };
+
+                check(1, 2);
+                check(2, 3);
+                check(3, 2);
+                check(4, 3);
+                check(5, 3);
+                check(6, 3);
             };
-
-            check(1, 2);
-            check(2, 3);
-            check(3, 2);
-            check(4, 3);
-            check(5, 3);
-            check(6, 3);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7219,22 +7139,23 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            function<void(int, int)> check = [&](int id, int degree) {
-                int d = g.OutDegree(id);
-                Logger().WriteInformation("Vertex %d degree %d\n", id, d);
-                ASSERT1(degree == d);
+                function<void(int, int)> check = [&](int id, int degree) {
+                    int d = g.OutDegree(id);
+                    Logger().WriteInformation("Vertex %d degree %d\n", id, d);
+                    ASSERT1(degree == d);
+                };
+
+                check(1, 2);
+                check(2, 1);
+                check(3, 2);
+                check(4, 1);
+                check(5, 1);
+                check(6, 1);
             };
-
-            check(1, 2);
-            check(2, 1);
-            check(3, 2);
-            check(4, 1);
-            check(5, 1);
-            check(6, 1);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7258,22 +7179,23 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            function<void(int, int)> check = [&](int id, int degree) {
-                int d = g.InDegree(id);
-                Logger().WriteInformation("Vertex %d degree %d\n", id, d);
-                ASSERT1(degree == d);
+                function<void(int, int)> check = [&](int id, int degree) {
+                    int d = g.InDegree(id);
+                    Logger().WriteInformation("Vertex %d degree %d\n", id, d);
+                    ASSERT1(degree == d);
+                };
+
+                check(1, 0);
+                check(2, 2);
+                check(3, 0);
+                check(4, 2);
+                check(5, 2);
+                check(6, 2);
             };
-
-            check(1, 0);
-            check(2, 2);
-            check(3, 0);
-            check(4, 2);
-            check(5, 2);
-            check(6, 2);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7297,42 +7219,42 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            map<unsigned int, vector<unsigned int>> neighbors;
-            neighbors[1] = vector<unsigned int>{2, 4};
-            neighbors[2] = vector<unsigned int>{1, 4, 5};
-            neighbors[3] = vector<unsigned int>{5, 6};
-            neighbors[4] = vector<unsigned int>{1, 2, 5};
-            neighbors[5] = vector<unsigned int>{2, 3, 4};
-            neighbors[6] = vector<unsigned int>{3};
+                map<unsigned int, vector<unsigned int>> neighbors;
+                neighbors[1] = vector<unsigned int>{2, 4};
+                neighbors[2] = vector<unsigned int>{1, 4, 5};
+                neighbors[3] = vector<unsigned int>{5, 6};
+                neighbors[4] = vector<unsigned int>{1, 2, 5};
+                neighbors[5] = vector<unsigned int>{2, 3, 4};
+                neighbors[6] = vector<unsigned int>{3};
 
-            function<void(unsigned int)> check = [&](unsigned int id) {
-                vector<unsigned int> n;
-                g.Neighbors(id, n);
-                sort(n.begin(), n.end());
-                Logger().WriteInformation("Vertex %d neighbors:", id);
-                for_each(n.begin(), n.end(), [&](unsigned int i) {
-                    Logger().WriteInformation("\t%d", i);
-                });
+                function<void(unsigned int)> check = [&](unsigned int id) {
+                    vector<unsigned int> n;
+                    g.Neighbors(id, n);
+                    sort(n.begin(), n.end());
+                    Logger().WriteInformation("Vertex %d neighbors:", id);
+                    for_each(n.begin(), n.end(), [&](unsigned int i) {
+                        Logger().WriteInformation("\t%d", i);
+                    });
 
-                Logger().WriteInformation("\n");
+                    Logger().WriteInformation("\n");
 
-                ASSERT1(neighbors[id].size() == n.size());
-                for (unsigned int i = 0; i < n.size(); i++)
-                {
-                    ASSERT1(neighbors[id][i] == n[i]);
-                }
+                    ASSERT1(neighbors[id].size() == n.size());
+                    for (unsigned int i = 0; i < n.size(); i++) {
+                        ASSERT1(neighbors[id][i] == n[i]);
+                    }
+                };
+
+                check(1);
+                check(2);
+                check(3);
+                check(4);
+                check(5);
+                check(6);
             };
-
-            check(1);
-            check(2);
-            check(3);
-            check(4);
-            check(5);
-            check(6);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7356,42 +7278,42 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            map<unsigned int, vector<unsigned int>> neighbors;
-            neighbors[1] = vector<unsigned int>{2, 4};
-            neighbors[2] = vector<unsigned int>{5};
-            neighbors[3] = vector<unsigned int>{5, 6};
-            neighbors[4] = vector<unsigned int>{2};
-            neighbors[5] = vector<unsigned int>{4};
-            neighbors[6] = vector<unsigned int>{};
+                map<unsigned int, vector<unsigned int>> neighbors;
+                neighbors[1] = vector<unsigned int>{2, 4};
+                neighbors[2] = vector<unsigned int>{5};
+                neighbors[3] = vector<unsigned int>{5, 6};
+                neighbors[4] = vector<unsigned int>{2};
+                neighbors[5] = vector<unsigned int>{4};
+                neighbors[6] = vector<unsigned int>{};
 
-            function<void(unsigned int)> check = [&](unsigned int id) {
-                vector<unsigned int> n;
-                g.OutNeighbors(id, n);
-                sort(n.begin(), n.end());
-                Logger().WriteInformation("Vertex %d neighbors:", id);
-                for_each(n.begin(), n.end(), [&](unsigned int i) {
-                    Logger().WriteInformation("\t%d", i);
-                });
+                function<void(unsigned int)> check = [&](unsigned int id) {
+                    vector<unsigned int> n;
+                    g.OutNeighbors(id, n);
+                    sort(n.begin(), n.end());
+                    Logger().WriteInformation("Vertex %d neighbors:", id);
+                    for_each(n.begin(), n.end(), [&](unsigned int i) {
+                        Logger().WriteInformation("\t%d", i);
+                    });
 
-                Logger().WriteInformation("\n");
+                    Logger().WriteInformation("\n");
 
-                ASSERT1(neighbors[id].size() == n.size());
-                for (unsigned int i = 0; i < n.size(); i++)
-                {
-                    ASSERT1(neighbors[id][i] == n[i]);
-                }
+                    ASSERT1(neighbors[id].size() == n.size());
+                    for (unsigned int i = 0; i < n.size(); i++) {
+                        ASSERT1(neighbors[id][i] == n[i]);
+                    }
+                };
+
+                check(1);
+                check(2);
+                check(3);
+                check(4);
+                check(5);
+                check(6);
             };
-
-            check(1);
-            check(2);
-            check(3);
-            check(4);
-            check(5);
-            check(6);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7415,42 +7337,42 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> ulg(false);
         Test::MatrixGraph<int, int> umg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            map<unsigned int, vector<unsigned int>> neighbors;
-            neighbors[1] = vector<unsigned int>{};
-            neighbors[2] = vector<unsigned int>{1, 4};
-            neighbors[3] = vector<unsigned int>{};
-            neighbors[4] = vector<unsigned int>{1, 5};
-            neighbors[5] = vector<unsigned int>{2, 3};
-            neighbors[6] = vector<unsigned int>{3};
+                map<unsigned int, vector<unsigned int>> neighbors;
+                neighbors[1] = vector<unsigned int>{};
+                neighbors[2] = vector<unsigned int>{1, 4};
+                neighbors[3] = vector<unsigned int>{};
+                neighbors[4] = vector<unsigned int>{1, 5};
+                neighbors[5] = vector<unsigned int>{2, 3};
+                neighbors[6] = vector<unsigned int>{3};
 
-            function<void(unsigned int)> check = [&](unsigned int id) {
-                vector<unsigned int> n;
-                g.InNeighbors(id, n);
-                sort(n.begin(), n.end());
-                Logger().WriteInformation("Vertex %d neighbors:", id);
-                for_each(n.begin(), n.end(), [&](unsigned int i) {
-                    Logger().WriteInformation("\t%d", i);
-                });
+                function<void(unsigned int)> check = [&](unsigned int id) {
+                    vector<unsigned int> n;
+                    g.InNeighbors(id, n);
+                    sort(n.begin(), n.end());
+                    Logger().WriteInformation("Vertex %d neighbors:", id);
+                    for_each(n.begin(), n.end(), [&](unsigned int i) {
+                        Logger().WriteInformation("\t%d", i);
+                    });
 
-                Logger().WriteInformation("\n");
+                    Logger().WriteInformation("\n");
 
-                ASSERT1(neighbors[id].size() == n.size());
-                for (unsigned int i = 0; i < n.size(); i++)
-                {
-                    ASSERT1(neighbors[id][i] == n[i]);
-                }
+                    ASSERT1(neighbors[id].size() == n.size());
+                    for (unsigned int i = 0; i < n.size(); i++) {
+                        ASSERT1(neighbors[id][i] == n[i]);
+                    }
+                };
+
+                check(1);
+                check(2);
+                check(3);
+                check(4);
+                check(5);
+                check(6);
             };
-
-            check(1);
-            check(2);
-            check(3);
-            check(4);
-            check(5);
-            check(6);
-        };
 
         Logger().WriteInformation("Graph\n");
         test(g);
@@ -7489,47 +7411,48 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg(false);
         Test::MatrixGraph<int, int> mg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            vector<unsigned int> visited;
-            function<void(unsigned int)> visit = [&](unsigned int id) {
-                visited.push_back(id);
+                vector<unsigned int> visited;
+                function<void(unsigned int)> visit = [&](unsigned int id) {
+                    visited.push_back(id);
+                };
+
+                g.BreadthFirstSearch(1, visit);
+                sort(visited.begin(), visited.end());
+
+                vector<unsigned int> visited2;
+                function<void(unsigned int, unsigned int)> visit2 =
+                    [&](unsigned int u, unsigned int id) {
+                        visited2.push_back(id);
+                    };
+
+                g.BreadthFirstSearch(1, visit2);
+                sort(visited2.begin(), visited2.end());
+
+                Logger().WriteInformation("Breadth-First Search:");
+                for_each(visited.begin(), visited.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                Logger().WriteInformation("Breadth-First Search 2:");
+                for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                ASSERT1(visited.size() == 6);
+                ASSERT1(visited2.size() == 6);
+                for (int i = 1; i < 7; i++) {
+                    ASSERT1(visited[i - 1] == i);
+                    ASSERT1(visited2[i - 1] == i);
+                }
             };
-
-            g.BreadthFirstSearch(1, visit);
-            sort(visited.begin(), visited.end());
-
-            vector<unsigned int> visited2;
-            function<void(unsigned int, unsigned int)> visit2 = [&](unsigned int u, unsigned int id) {
-                visited2.push_back(id);
-            };
-
-            g.BreadthFirstSearch(1, visit2);
-            sort(visited2.begin(), visited2.end());
-
-            Logger().WriteInformation("Breadth-First Search:");
-            for_each(visited.begin(), visited.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            Logger().WriteInformation("Breadth-First Search 2:");
-            for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            ASSERT1(visited.size() == 6);
-            ASSERT1(visited2.size() == 6);
-            for (int i = 1; i < 7; i++)
-            {
-                ASSERT1(visited[i - 1] == i);
-                ASSERT1(visited2[i - 1] == i);
-            }
-        };
 
         Logger().WriteInformation("Undirected Graph\n");
         test(g);
@@ -7544,50 +7467,52 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg;
         Test::MatrixGraph<int, int> mg;
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            vector<unsigned int> visited;
-            function<void(unsigned int)> visit = [&](unsigned int id) {
-                visited.push_back(id);
+                vector<unsigned int> visited;
+                function<void(unsigned int)> visit = [&](unsigned int id) {
+                    visited.push_back(id);
+                };
+
+                g.BreadthFirstSearch(1, visit);
+                sort(visited.begin(), visited.end());
+
+                vector<unsigned int> visited2;
+                function<void(unsigned int, unsigned int)> visit2 =
+                    [&](unsigned int u, unsigned int id) {
+                        visited2.push_back(id);
+                    };
+
+                g.BreadthFirstSearch(1, visit2);
+                sort(visited2.begin(), visited2.end());
+
+                Logger().WriteInformation("Breadth-First Search:");
+                for_each(visited.begin(), visited.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                Logger().WriteInformation("Breadth-First Search 2:");
+                for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                ASSERT1(visited.size() == 4);
+                ASSERT1(visited2.size() == 4);
+                ASSERT1(visited[0] == 1);
+                ASSERT1(visited2[0] == 1);
+                ASSERT1(visited[1] == 2);
+                ASSERT1(visited2[1] == 2);
+                ASSERT1(visited[2] == 4);
+                ASSERT1(visited2[2] == 4);
+                ASSERT1(visited[3] == 5);
+                ASSERT1(visited2[3] == 5);
             };
-
-            g.BreadthFirstSearch(1, visit);
-            sort(visited.begin(), visited.end());
-
-            vector<unsigned int> visited2;
-            function<void(unsigned int, unsigned int)> visit2 = [&](unsigned int u, unsigned int id) {
-                visited2.push_back(id);
-            };
-
-            g.BreadthFirstSearch(1, visit2);
-            sort(visited2.begin(), visited2.end());
-
-            Logger().WriteInformation("Breadth-First Search:");
-            for_each(visited.begin(), visited.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            Logger().WriteInformation("Breadth-First Search 2:");
-            for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            ASSERT1(visited.size() == 4);
-            ASSERT1(visited2.size() == 4);
-            ASSERT1(visited[0] == 1);
-            ASSERT1(visited2[0] == 1);
-            ASSERT1(visited[1] == 2);
-            ASSERT1(visited2[1] == 2);
-            ASSERT1(visited[2] == 4);
-            ASSERT1(visited2[2] == 4);
-            ASSERT1(visited[3] == 5);
-            ASSERT1(visited2[3] == 5);
-        };
 
         Logger().WriteInformation("Directed Graph\n");
         test(g);
@@ -7602,47 +7527,48 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg(false);
         Test::MatrixGraph<int, int> mg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            vector<unsigned int> visited;
-            function<void(unsigned int)> visit = [&](unsigned int id) {
-                visited.push_back(id);
+                vector<unsigned int> visited;
+                function<void(unsigned int)> visit = [&](unsigned int id) {
+                    visited.push_back(id);
+                };
+
+                g.DepthFirstSearch(1, visit);
+                sort(visited.begin(), visited.end());
+
+                vector<unsigned int> visited2;
+                function<void(unsigned int, unsigned int)> visit2 =
+                    [&](unsigned int u, unsigned int id) {
+                        visited2.push_back(id);
+                    };
+
+                g.DepthFirstSearch(1, visit2);
+                sort(visited2.begin(), visited2.end());
+
+                Logger().WriteInformation("Depth-First Search:");
+                for_each(visited.begin(), visited.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                Logger().WriteInformation("Depth-First Search 2:");
+                for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                ASSERT1(visited.size() == 6);
+                ASSERT1(visited2.size() == 6);
+                for (int i = 1; i < 7; i++) {
+                    ASSERT1(visited[i - 1] == i);
+                    ASSERT1(visited2[i - 1] == i);
+                }
             };
-
-            g.DepthFirstSearch(1, visit);
-            sort(visited.begin(), visited.end());
-
-            vector<unsigned int> visited2;
-            function<void(unsigned int, unsigned int)> visit2 = [&](unsigned int u, unsigned int id) {
-                visited2.push_back(id);
-            };
-
-            g.DepthFirstSearch(1, visit2);
-            sort(visited2.begin(), visited2.end());
-
-            Logger().WriteInformation("Depth-First Search:");
-            for_each(visited.begin(), visited.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            Logger().WriteInformation("Depth-First Search 2:");
-            for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            ASSERT1(visited.size() == 6);
-            ASSERT1(visited2.size() == 6);
-            for (int i = 1; i < 7; i++)
-            {
-                ASSERT1(visited[i - 1] == i);
-                ASSERT1(visited2[i - 1] == i);
-            }
-        };
 
         Logger().WriteInformation("Undirected Graph\n");
         test(g);
@@ -7657,50 +7583,52 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg;
         Test::MatrixGraph<int, int> mg;
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
 
-            vector<unsigned int> visited;
-            function<void(unsigned int)> visit = [&](unsigned int id) {
-                visited.push_back(id);
+                vector<unsigned int> visited;
+                function<void(unsigned int)> visit = [&](unsigned int id) {
+                    visited.push_back(id);
+                };
+
+                g.DepthFirstSearch(1, visit);
+                sort(visited.begin(), visited.end());
+
+                vector<unsigned int> visited2;
+                function<void(unsigned int, unsigned int)> visit2 =
+                    [&](unsigned int u, unsigned int id) {
+                        visited2.push_back(id);
+                    };
+
+                g.DepthFirstSearch(1, visit2);
+                sort(visited2.begin(), visited2.end());
+
+                Logger().WriteInformation("Depth-First Search:");
+                for_each(visited.begin(), visited.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                Logger().WriteInformation("Depth-First Search 2:");
+                for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
+                    Logger().WriteInformation("\t%d", i);
+                });
+
+                Logger().WriteInformation("\n");
+
+                ASSERT1(visited.size() == 4);
+                ASSERT1(visited2.size() == 4);
+                ASSERT1(visited[0] == 1);
+                ASSERT1(visited2[0] == 1);
+                ASSERT1(visited[1] == 2);
+                ASSERT1(visited2[1] == 2);
+                ASSERT1(visited[2] == 4);
+                ASSERT1(visited2[2] == 4);
+                ASSERT1(visited[3] == 5);
+                ASSERT1(visited2[3] == 5);
             };
-
-            g.DepthFirstSearch(1, visit);
-            sort(visited.begin(), visited.end());
-
-            vector<unsigned int> visited2;
-            function<void(unsigned int, unsigned int)> visit2 = [&](unsigned int u, unsigned int id) {
-                visited2.push_back(id);
-            };
-
-            g.DepthFirstSearch(1, visit2);
-            sort(visited2.begin(), visited2.end());
-
-            Logger().WriteInformation("Depth-First Search:");
-            for_each(visited.begin(), visited.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            Logger().WriteInformation("Depth-First Search 2:");
-            for_each(visited2.begin(), visited2.end(), [&](unsigned int i) {
-                Logger().WriteInformation("\t%d", i);
-            });
-
-            Logger().WriteInformation("\n");
-
-            ASSERT1(visited.size() == 4);
-            ASSERT1(visited2.size() == 4);
-            ASSERT1(visited[0] == 1);
-            ASSERT1(visited2[0] == 1);
-            ASSERT1(visited[1] == 2);
-            ASSERT1(visited2[1] == 2);
-            ASSERT1(visited[2] == 4);
-            ASSERT1(visited2[2] == 4);
-            ASSERT1(visited[3] == 5);
-            ASSERT1(visited2[3] == 5);
-        };
 
         Logger().WriteInformation("Directed Graph\n");
         test(g);
@@ -7715,12 +7643,13 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg;
         Test::MatrixGraph<int, int> mg;
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
-            Test::GraphSearchTree tree(1);
-            tree.BreadthFirstSearch<int, int>(g);
-            tree.Print();
-        };
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
+                Test::GraphSearchTree tree(1);
+                tree.BreadthFirstSearch<int, int>(g);
+                tree.Print();
+            };
 
         Logger().WriteInformation("Directed Graph\n");
         test(g);
@@ -7735,12 +7664,13 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg(false);
         Test::MatrixGraph<int, int> mg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
-            Test::GraphSearchTree tree(5);
-            tree.BreadthFirstSearch<int, int>(g);
-            tree.Print();
-        };
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
+                Test::GraphSearchTree tree(5);
+                tree.BreadthFirstSearch<int, int>(g);
+                tree.Print();
+            };
 
         Logger().WriteInformation("UnDirected Graph\n");
         test(g);
@@ -7755,12 +7685,13 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg;
         Test::MatrixGraph<int, int> mg;
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
-            Test::GraphSearchTree tree(1);
-            tree.DepthFirstSearch<int, int>(g);
-            tree.Print();
-        };
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
+                Test::GraphSearchTree tree(1);
+                tree.DepthFirstSearch<int, int>(g);
+                tree.Print();
+            };
 
         Logger().WriteInformation("Directed Graph\n");
         test(g);
@@ -7775,12 +7706,13 @@ void StructureTest::Init(void)
         Test::ListGraph<int, int> lg(false);
         Test::MatrixGraph<int, int> mg(false);
 
-        function<void(Test::Graph<int, int> &)> test = [&](Test::Graph<int, int> &g) {
-            CreateGraph(g);
-            Test::GraphSearchTree tree(5);
-            tree.DepthFirstSearch<int, int>(g);
-            tree.Print();
-        };
+        function<void(Test::Graph<int, int> &)> test =
+            [&](Test::Graph<int, int> &g) {
+                CreateGraph(g);
+                Test::GraphSearchTree tree(5);
+                tree.DepthFirstSearch<int, int>(g);
+                tree.Print();
+            };
 
         Logger().WriteInformation("UnDirected Graph\n");
         test(g);
@@ -7792,8 +7724,7 @@ void StructureTest::Init(void)
 
     Add("DirectedClone", [&]() {
         vector<unique_ptr<ANode>> nodes;
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             nodes.push_back(make_unique<ANode>(i));
         }
 
@@ -7815,23 +7746,24 @@ void StructureTest::Init(void)
         link(2, 5);
 
         map<Test::NodeGraph::Node *, Test::NodeGraph::Node *> map;
-        ANode *copy = (ANode *)Test::NodeGraph::Node::CloneGraph(nodes[0].get(), map);
+        ANode *copy =
+            (ANode *)Test::NodeGraph::Node::CloneGraph(nodes[0].get(), map);
 
         copy->Print();
 
         cout << "Deleting clone ... " << endl;
-        for_each(map.begin(), map.end(), [&](pair<Test::NodeGraph::Node *, Test::NodeGraph::Node *> p) {
-            ANode *n = (ANode *)p.second;
-            delete n;
-        });
+        for_each(map.begin(), map.end(),
+                 [&](pair<Test::NodeGraph::Node *, Test::NodeGraph::Node *> p) {
+                     ANode *n = (ANode *)p.second;
+                     delete n;
+                 });
 
         cout << "Deleting original ... " << endl;
     });
 
     Add("UnDirectedClone", [&]() {
         vector<unique_ptr<ANode>> nodes;
-        for (int i = 0; i < 6; i++)
-        {
+        for (int i = 0; i < 6; i++) {
             nodes.push_back(make_unique<ANode>(i));
         }
 
@@ -7856,23 +7788,24 @@ void StructureTest::Init(void)
         link(4, 3);
 
         map<Test::NodeGraph::Node *, Test::NodeGraph::Node *> map;
-        ANode *copy = (ANode *)Test::NodeGraph::Node::CloneGraph(nodes[0].get(), map);
+        ANode *copy =
+            (ANode *)Test::NodeGraph::Node::CloneGraph(nodes[0].get(), map);
 
         copy->Print();
 
         cout << "Deleting clone ... " << endl;
-        for_each(map.begin(), map.end(), [&](pair<Test::NodeGraph::Node *, Test::NodeGraph::Node *> p) {
-            ANode *n = (ANode *)p.second;
-            delete n;
-        });
+        for_each(map.begin(), map.end(),
+                 [&](pair<Test::NodeGraph::Node *, Test::NodeGraph::Node *> p) {
+                     ANode *n = (ANode *)p.second;
+                     delete n;
+                 });
 
         cout << "Deleting original ... " << endl;
     });
 
     Add("InsertDirected", [&]() {
         Test::ListGraph<int, int> graph;
-        for (int i = 1; i < 7; i++)
-        {
+        for (int i = 1; i < 7; i++) {
             graph.InsertVertex(i);
         }
 
@@ -7889,8 +7822,7 @@ void StructureTest::Init(void)
 
     Add("InsertUnDirected", [&]() {
         Test::ListGraph<int, int> graph(false);
-        for (int i = 1; i < 7; i++)
-        {
+        for (int i = 1; i < 7; i++) {
             graph.InsertVertex(i);
         }
 
@@ -7907,8 +7839,7 @@ void StructureTest::Init(void)
 
     Add("InsertDirected", [&]() {
         Test::MatrixGraph<int, int> graph;
-        for (int i = 1; i < 7; i++)
-        {
+        for (int i = 1; i < 7; i++) {
             graph.InsertVertex(i);
         }
 
@@ -7925,8 +7856,7 @@ void StructureTest::Init(void)
 
     Add("InsertUnDirected", [&]() {
         Test::MatrixGraph<int, int> graph(false);
-        for (int i = 1; i < 7; i++)
-        {
+        for (int i = 1; i < 7; i++) {
             graph.InsertVertex(i);
         }
 

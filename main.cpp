@@ -1,6 +1,6 @@
-#include <iostream>
 #include "Argument.h"
 #include "Log.h"
+#include <iostream>
 //#include "AlgorithmTest.h"
 #include "ArgumentTest.h"
 //#include "ArrayTest.h"
@@ -12,10 +12,8 @@
 
 using namespace std;
 
-int main(int argc, const char *argv[])
-{
-    if (argc < 2)
-    {
+int main(int argc, const char *argv[]) {
+    if (argc < 2) {
         cout << argv[0] << " -l" << endl;
         cout << "\tList all tests." << endl;
         cout << argv[0] << " test -l" << endl;
@@ -31,8 +29,7 @@ int main(int argc, const char *argv[])
 
     Argument<char> arg(argc, argv);
 
-    Log log(cout,
-            arg.Has("v") ? Log::Level::Verbose : Log::Level::Warning);
+    Log log(cout, arg.Has("v") ? Log::Level::Verbose : Log::Level::Warning);
     TestSuite suite(log);
     // suite.Add(new AlgorithmTest(log));
     suite.Add(new ArgumentTest(log));
@@ -43,28 +40,19 @@ int main(int argc, const char *argv[])
     suite.Add(new StringTest(log));
     // suite.Add(new StructureTest(log));
 
-    if (arg.Has("l"))
-    {
-        if (arg.IndexedArgCount() <= 1)
-        {
+    if (arg.Has("l")) {
+        if (arg.IndexedArgCount() <= 1) {
             cout << "Available tests are:" << endl;
             suite.List();
-        }
-        else
-        {
-            for (size_t i = 1; i < arg.IndexedArgCount(); i++)
-            {
+        } else {
+            for (size_t i = 1; i < arg.IndexedArgCount(); i++) {
                 suite.List(arg[i]);
             }
         }
-    }
-    else if (arg.Has("a"))
-    {
+    } else if (arg.Has("a")) {
         suite.Run();
         suite.Report();
-    }
-    else if (arg.IndexedArgCount() > 1)
-    {
+    } else if (arg.IndexedArgCount() > 1) {
         if (arg.IndexedArgCount() == 2)
             suite.Run(arg[1]);
         else

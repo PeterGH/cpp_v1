@@ -8,33 +8,23 @@
 using namespace Test;
 using namespace Test::LeetCode;
 
-class LeetCodeTest : public TestClass
-{
-public:
+class LeetCodeTest : public TestClass {
+  public:
     LeetCodeTest(Log &log) : TestClass(log) {}
     ~LeetCodeTest(void) {}
     void Init(void);
 };
 
-void LeetCodeTest::Init(void)
-{
+void LeetCodeTest::Init(void) {
     Add("3. Longest Substring Without Repeating Characters", [&]() {
         auto check = [&](const string &s, int el) {
             int l = lengthOfLongestSubstring(s);
             int l2 = lengthOfLongestSubstring2(s);
             int l3 = lengthOfLongestSubstring3(s);
-            Logger().WriteInformation(
-                "%s, %d%s%d, %d%s%d, %d%s%d\n",
-                s.c_str(),
-                l,
-                l == el ? "==" : "!=",
-                el,
-                l2,
-                l2 == el ? "==" : "!=",
-                el,
-                l3,
-                l3 == el ? "==" : "!=",
-                el);
+            Logger().WriteInformation("%s, %d%s%d, %d%s%d, %d%s%d\n", s.c_str(),
+                                      l, l == el ? "==" : "!=", el, l2,
+                                      l2 == el ? "==" : "!=", el, l3,
+                                      l3 == el ? "==" : "!=", el);
             ASSERT1(l == el);
             ASSERT1(l2 == el);
             ASSERT1(l3 == el);
@@ -56,25 +46,16 @@ void LeetCodeTest::Init(void)
         check("abcabc", 3);
         check("abcad", 4);
         check("aaabcd", 4);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len = 1 + (rand() % 100);
             string s = Random::String(len);
             int l = lengthOfLongestSubstring(s);
             int l2 = lengthOfLongestSubstring2(s);
             int l3 = lengthOfLongestSubstring3(s);
-            Logger().WriteInformation(
-                "%s, %d%s%d, %d%s%d, %d%s%d\n",
-                s.c_str(),
-                l,
-                l == l2 ? "==" : "!=",
-                l2,
-                l2,
-                l2 == l3 ? "==" : "!=",
-                l3,
-                l3,
-                l3 == l ? "==" : "!=",
-                l);
+            Logger().WriteInformation("%s, %d%s%d, %d%s%d, %d%s%d\n", s.c_str(),
+                                      l, l == l2 ? "==" : "!=", l2, l2,
+                                      l2 == l3 ? "==" : "!=", l3, l3,
+                                      l3 == l ? "==" : "!=", l);
             ASSERT1(l == l2);
             ASSERT1(l == l3);
         }
@@ -86,15 +67,13 @@ void LeetCodeTest::Init(void)
             string p2 = longestPalindrome2(s);
             string p3 = longestPalindrome3(s);
             string p4 = longestPalindrome4(s);
-            Logger() << s << ", '" << p << "', '" << p2 << "', '" << p3 << "', '" << p4 << "'" << endl;
-            if (es.empty())
-            {
+            Logger() << s << ", '" << p << "', '" << p2 << "', '" << p3
+                     << "', '" << p4 << "'" << endl;
+            if (es.empty()) {
                 ASSERT1(p == p2);
                 ASSERT1(p == p3);
                 ASSERT1(p == p4);
-            }
-            else
-            {
+            } else {
                 ASSERT1(p == es);
                 ASSERT1(p2 == es);
                 ASSERT1(p3 == es);
@@ -116,8 +95,7 @@ void LeetCodeTest::Init(void)
         check("abbb", "bbb");
         check("abab", "aba");
         check("abba", "abba");
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len = 1 + (rand() % 100);
             string s = Random::String<char>(len, "abcde");
             check(s);
@@ -129,12 +107,9 @@ void LeetCodeTest::Init(void)
             string z = convert(s, r);
             string z2 = convert2(s, r);
             Logger() << s << ", " << z << ", " << z2 << endl;
-            if (es.empty())
-            {
+            if (es.empty()) {
                 ASSERT1(z == z2);
-            }
-            else
-            {
+            } else {
                 ASSERT1(z == es);
                 ASSERT1(z2 == es);
             }
@@ -153,12 +128,10 @@ void LeetCodeTest::Init(void)
         check("ABCD", 3, "ABDC");
         check("ABCD", 4, "ABCD");
         check("ABCDE", 4, "ABCED");
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len = 1 + (rand() % 50);
             string s = Random::String(len);
-            for (int r = 1; r <= (int)s.size(); r++)
-            {
+            for (int r = 1; r <= (int)s.size(); r++) {
                 check(s, r);
             }
         }
@@ -168,13 +141,10 @@ void LeetCodeTest::Init(void)
         auto check = [&](int x, int e, bool ignoreE = false) {
             int y = reverse(x);
             int y2 = reverse2(x);
-            if (ignoreE)
-            {
+            if (ignoreE) {
                 Logger() << x << ", " << y << ", " << y2 << endl;
                 ASSERT1(y == y2);
-            }
-            else
-            {
+            } else {
                 Logger() << x << ", " << y << ", " << y2 << ", " << e << endl;
                 ASSERT1(y == e);
                 ASSERT1(y2 == e);
@@ -186,8 +156,7 @@ void LeetCodeTest::Init(void)
         check(INT_MIN, 0);
         check(INT_MAX, 0);
         check(0, 0);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             int r = rand();
             check(INT_MIN + r, 0, true);
             check(-r, 0, true);
@@ -201,15 +170,14 @@ void LeetCodeTest::Init(void)
             int r = myAtoi(s);
             int r2 = myAtoi2(s);
             int r3 = myAtoi3(s);
-            if (ignoreE)
-            {
-                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3 << endl;
+            if (ignoreE) {
+                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3
+                         << endl;
                 ASSERT1(r == r2);
                 ASSERT1(r == r3);
-            }
-            else
-            {
-                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3 << ", " << e << endl;
+            } else {
+                Logger() << "\"" << s << "\", " << r << ", " << r2 << ", " << r3
+                         << ", " << e << endl;
                 ASSERT1(r == e);
                 ASSERT1(r2 == e);
                 ASSERT1(r3 == e);
@@ -234,8 +202,7 @@ void LeetCodeTest::Init(void)
         check("-2147483649", -2147483648);
         check(" 2147483647", 2147483647);
         check(" 2147483648", 2147483647);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             size_t len = Random::Int(20, 1);
             string str = Random::String<char>(len, "0123456789     abcde");
             check(str, 0, true);
@@ -247,15 +214,13 @@ void LeetCodeTest::Init(void)
             bool r = isPalindrome(n);
             bool r2 = isPalindrome2(n);
             bool r3 = isPalindrome3(n);
-            if (ignoreE)
-            {
+            if (ignoreE) {
                 Logger() << n << ", " << r << ", " << r2 << ", " << r3 << endl;
                 ASSERT1(r == r2);
                 ASSERT1(r == r3);
-            }
-            else
-            {
-                Logger() << n << ", " << r << ", " << r2 << ", " << r3 << ", " << e << endl;
+            } else {
+                Logger() << n << ", " << r << ", " << r2 << ", " << r3 << ", "
+                         << e << endl;
                 ASSERT1(r == e);
                 ASSERT1(r2 == e);
                 ASSERT1(r3 == e);
@@ -272,9 +237,26 @@ void LeetCodeTest::Init(void)
         check(INT_MIN, false);
         check(INT_MAX, false);
         check(1000000001, true);
-        for (int i = 0; i < 100; i++)
-        {
+        for (int i = 0; i < 100; i++) {
             check(rand(), false, true);
+        }
+    });
+
+    Add("11. Container With Most Water", [&]() {
+        auto check = [&](const vector<int> &h) {
+            int a = maxArea(h);
+            int a2 = maxArea2(h);
+            int a3 = maxArea3(h);
+            Logger() << h << ", " << a << ", " << a2 << ", " << a3 << endl;
+            ASSERT1(a == a2);
+            ASSERT1(a == a3);
+        };
+        check(vector<int>{14, 0, 12, 3, 8, 3, 13, 5, 14, 8});
+        check(vector<int>{1, 8, 6, 2, 5, 4, 8, 3, 7});
+        for (int i = 0; i < 100; i++) {
+            int len = Random::Int(100, 2);
+            vector<int> h = Random::Vector(len, 1000);
+            check(h);
         }
     });
 }

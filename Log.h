@@ -10,97 +10,67 @@
 
 using namespace std;
 
-namespace Test
-{
-class Log
-{
-public:
-    enum Level
-    {
-        Error,
-        Warning,
-        Information,
-        Verbose
-    };
+namespace Test {
+class Log {
+  public:
+    enum Level { Error, Warning, Information, Verbose };
 
-private:
+  private:
     static const size_t MaxLength = 1024;
     ostream &_os;
     Level _level;
 
-#define WRITE(level, format)                      \
-    if (_level >= level)                          \
-    {                                             \
-        char buf[MaxLength];                      \
-        va_list args;                             \
-        va_start(args, format);                   \
-        /* vsprintf_s(buf, format, args); */      \
-        vsnprintf(buf, MaxLength, format, args);  \
-        va_end(args);                             \
-        if (level <= Level::Warning)              \
-        {                                         \
-            _os << #level << ": " << string(buf); \
-        }                                         \
-        else                                      \
-        {                                         \
-            _os << string(buf);                   \
-        }                                         \
+#define WRITE(level, format)                                                   \
+    if (_level >= level) {                                                     \
+        char buf[MaxLength];                                                   \
+        va_list args;                                                          \
+        va_start(args, format);                                                \
+        /* vsprintf_s(buf, format, args); */                                   \
+        vsnprintf(buf, MaxLength, format, args);                               \
+        va_end(args);                                                          \
+        if (level <= Level::Warning) {                                         \
+            _os << #level << ": " << string(buf);                              \
+        } else {                                                               \
+            _os << string(buf);                                                \
+        }                                                                      \
     }
 
-public:
+  public:
     Log(ostream &os = cout, Level level = Level::Information)
-        : _os(os), _level(level)
-    {
-    }
+        : _os(os), _level(level) {}
 
     ~Log() {}
 
-    void WriteError(const char *format, ...)
-    {
-        WRITE(Error, format);
-    }
+    void WriteError(const char *format, ...) { WRITE(Error, format); }
 
-    void WriteWarning(const char *format, ...)
-    {
-        WRITE(Warning, format);
-    }
+    void WriteWarning(const char *format, ...) { WRITE(Warning, format); }
 
-    void WriteInformation(const char *format, ...)
-    {
+    void WriteInformation(const char *format, ...) {
         WRITE(Information, format);
     }
 
-    void WriteVerbose(const char *format, ...)
-    {
-        WRITE(Verbose, format);
-    }
+    void WriteVerbose(const char *format, ...) { WRITE(Verbose, format); }
 
-    template <class T>
-    Log &operator<<(const T &v)
-    {
+    template <class T> Log &operator<<(const T &v) {
         _os << v;
         return *this;
     }
 
-    Log &operator<<(ostream &(*pf)(ostream &))
-    {
+    Log &operator<<(ostream &(*pf)(ostream &)) {
         _os << (*pf);
         return *this;
     }
 
-    template <class T1, class T2>
-    Log &operator<<(const pair<T1, T2> &p)
-    {
+    template <class T1, class T2> Log &operator<<(const pair<T1, T2> &p) {
         *this << "(" << p.first << ", " << p.second << ")";
         return *this;
     }
 
     template <class T>
-    void Print(T a[], int n, const char *format = "%d", const char *sep = ", ")
-    {
+    void Print(T a[], int n, const char *format = "%d",
+               const char *sep = ", ") {
         WriteInformation("[");
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             if (i != 0)
                 WriteInformation(sep);
             WriteInformation(format, a[i]);
@@ -109,17 +79,15 @@ public:
     }
 
     template <class T>
-    void Print(const T *input, const int length, const int columns, const char *format = "%d", const char *sep = ", ")
-    {
+    void Print(const T *input, const int length, const int columns,
+               const char *format = "%d", const char *sep = ", ") {
         if (input == nullptr || length <= 0)
             return;
         int rows = length / columns;
         WriteInformation("[\n");
 
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < columns; j++)
-            {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
                 if (j == 0)
                     WriteInformation(" ");
                 else
@@ -130,10 +98,8 @@ public:
         }
 
         int remainders = length % columns;
-        if (remainders > 0)
-        {
-            for (int j = 0; j < remainders; j++)
-            {
+        if (remainders > 0) {
+            for (int j = 0; j < remainders; j++) {
                 if (j == 0)
                     WriteInformation(" ");
                 else
@@ -146,12 +112,9 @@ public:
         WriteInformation("]\n");
     }
 
-    template <class T>
-    Log &operator<<(const vector<T> &v)
-    {
+    template <class T> Log &operator<<(const vector<T> &v) {
         _os << "{";
-        for (size_t i = 0; i < v.size(); i++)
-        {
+        for (size_t i = 0; i < v.size(); i++) {
             if (i > 0)
                 _os << ", ";
             *this << v[i];
@@ -161,11 +124,10 @@ public:
     }
 
     template <class T>
-    void Print(const vector<T> &v, const char *format = "%d", const char *sep = ", ")
-    {
+    void Print(const vector<T> &v, const char *format = "%d",
+               const char *sep = ", ") {
         WriteInformation("{");
-        for (size_t i = 0; i < v.size(); i++)
-        {
+        for (size_t i = 0; i < v.size(); i++) {
             if (i != 0)
                 WriteInformation(sep);
             WriteInformation(format, v[i]);
@@ -174,11 +136,10 @@ public:
     }
 
     template <class T>
-    void Print(vector<T> v, function<void(Log &, T &)> format, const char *sep = ", ")
-    {
+    void Print(vector<T> v, function<void(Log &, T &)> format,
+               const char *sep = ", ") {
         WriteInformation("{");
-        for (size_t i = 0; i < v.size(); i++)
-        {
+        for (size_t i = 0; i < v.size(); i++) {
             if (i != 0)
                 WriteInformation(sep);
             format(*this, v[i]);
@@ -186,12 +147,9 @@ public:
         WriteInformation("}\n");
     }
 
-    template <class T>
-    Log &operator<<(const vector<vector<T>> &m)
-    {
+    template <class T> Log &operator<<(const vector<vector<T>> &m) {
         _os << "{" << endl;
-        for (size_t i = 0; i < m.size(); i++)
-        {
+        for (size_t i = 0; i < m.size(); i++) {
             *this << " " << m[i];
         }
         _os << "}" << endl;
@@ -199,23 +157,20 @@ public:
     }
 
     template <class T>
-    void Print(const vector<vector<T>> &v, const char *format = "%d", const char *sep = ", ")
-    {
+    void Print(const vector<vector<T>> &v, const char *format = "%d",
+               const char *sep = ", ") {
         WriteInformation("{\n");
-        for (size_t i = 0; i < v.size(); i++)
-        {
+        for (size_t i = 0; i < v.size(); i++) {
             WriteInformation(" ");
             Print(v[i], format, sep);
         }
         WriteInformation("}\n");
     }
 
-    template <class K, class V>
-    Log &operator<<(const map<K, V> &m)
-    {
+    template <class K, class V> Log &operator<<(const map<K, V> &m) {
         _os << "{" << endl;
-        for (typename map<K, V>::const_iterator it = m.cbegin(); it != m.cend(); it++)
-        {
+        for (typename map<K, V>::const_iterator it = m.cbegin(); it != m.cend();
+             it++) {
             *this << it->first << ":" << endl;
             *this << it->second << endl;
         }

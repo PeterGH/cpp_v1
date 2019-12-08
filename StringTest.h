@@ -1,22 +1,20 @@
 #ifndef _STRINGTEST_H_
 #define _STRINGTEST_H_
 
-#include <string.h>
 #include "String.h"
 #include "Test.h"
+#include <string.h>
 
 using namespace Test;
 
-class StringTest : public TestClass
-{
-public:
+class StringTest : public TestClass {
+  public:
     StringTest(Log &log) : TestClass(log) {}
     ~StringTest(void) {}
     void Init(void);
 };
 
-void StringTest::Init(void)
-{
+void StringTest::Init(void) {
     Add("Empty<char>", [&]() {
         string e = String::Empty<char>();
         cout << e << " len: " << e.length() << endl;
@@ -39,7 +37,8 @@ void StringTest::Init(void)
         cout << i << ": len " << strlen(pi) << endl;
         string o = String::ToLower(i);
         cout << o << ": len " << o.length() << endl;
-        ASSERT2(0 == o.compare("aff34z df  g3zds^(%98fsdsfe"), String::Format("o = %s", o));
+        ASSERT2(0 == o.compare("aff34z df  g3zds^(%98fsdsfe"),
+                String::Format("o = %s", o));
     });
 
     Add("ToLower<wchar_t>", [&]() {
@@ -48,7 +47,8 @@ void StringTest::Init(void)
         wcout << i << L": len " << wcslen(pi) << endl;
         wstring o = String::ToLower(i);
         wcout << o << L": len " << o.length() << endl;
-        ASSERT2(0 == o.compare(L"aff34z df  g3zds^(%98fsdsfe"), String::ToString(String::Format(L"o = %s", o)));
+        ASSERT2(0 == o.compare(L"aff34z df  g3zds^(%98fsdsfe"),
+                String::ToString(String::Format(L"o = %s", o)));
     });
 
     Add("ToWString(char *)", [&]() {
@@ -58,7 +58,8 @@ void StringTest::Init(void)
         wstring o = String::ToWString(pi);
         pi = (char *)o.c_str();
         wcout << o << ": len " << o.size() << ": clen " << strlen(pi) << endl;
-        ASSERT2(0 == o.compare(L"AFf34z df  g3zds^(%98FSDSFE"), String::Format("o = %s", o));
+        ASSERT2(0 == o.compare(L"AFf34z df  g3zds^(%98FSDSFE"),
+                String::Format("o = %s", o));
     });
 
     Add("ToString(wchar_t *)", [&]() {
@@ -68,19 +69,22 @@ void StringTest::Init(void)
         string o = String::ToString(pi);
         char *p = (char *)o.c_str();
         cout << o << ": len " << strlen(p) << endl;
-        ASSERT2(0 == o.compare("AFf34z df  g3zds^(%98FSDSFE"), String::Format("o = %s", o));
+        ASSERT2(0 == o.compare("AFf34z df  g3zds^(%98FSDSFE"),
+                String::Format("o = %s", o));
     });
 
     Add("ToString(wstring)", [&]() {
         wstring i = L"AFf34z df  g3zds^(%98FSDSFE";
         string o = String::ToString(i);
-        ASSERT2(o == "AFf34z df  g3zds^(%98FSDSFE", String::Format("o = %s", o));
+        ASSERT2(o == "AFf34z df  g3zds^(%98FSDSFE",
+                String::Format("o = %s", o));
     });
 
     Add("ToWString(string)", [&]() {
         string i = "AFf34z df  g3zds^(%98FSDSFE";
         wstring o = String::ToWString(i);
-        ASSERT2(o == L"AFf34z df  g3zds^(%98FSDSFE", String::Format("o = %s", String::ToString(o)));
+        ASSERT2(o == L"AFf34z df  g3zds^(%98FSDSFE",
+                String::Format("o = %s", String::ToString(o)));
     });
 
     Add("Format(char *)", [&]() {
@@ -92,19 +96,23 @@ void StringTest::Init(void)
         ASSERT2(s == "Hello Peter!", String::Format("s = %s", s));
         s = String::Format("Hello %s! You are %d years old.", "Peter", 18);
         cout << s << endl;
-        ASSERT2(s == "Hello Peter! You are 18 years old.", String::Format("s = %s", s));
+        ASSERT2(s == "Hello Peter! You are 18 years old.",
+                String::Format("s = %s", s));
     });
 
     Add("Format(wchar_t *)", [&]() {
         wstring s = String::Format(L"Hello World!");
         wcout << s << endl;
-        ASSERT2(s == L"Hello World!", String::Format("s = %s", String::ToString(s)));
+        ASSERT2(s == L"Hello World!",
+                String::Format("s = %s", String::ToString(s)));
         s = String::Format(L"Hello %s!", L"Peter");
         wcout << s << endl;
-        ASSERT2(s == L"Hello Peter!", String::Format("s = %s", String::ToString(s)));
+        ASSERT2(s == L"Hello Peter!",
+                String::Format("s = %s", String::ToString(s)));
         s = String::Format(L"Hello %s! You are %d years old.", L"Peter", 18);
         wcout << s << endl;
-        ASSERT2(s == L"Hello Peter! You are 18 years old.", String::Format("s = %s", String::ToString(s)));
+        ASSERT2(s == L"Hello Peter! You are 18 years old.",
+                String::Format("s = %s", String::ToString(s)));
     });
 
     Add("StartsWith<char>", [&]() {
