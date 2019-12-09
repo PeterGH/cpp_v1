@@ -259,5 +259,34 @@ void LeetCodeTest::Init(void) {
             check(h);
         }
     });
+
+    Add("12. Integer to Roman", [&]() {
+        auto check = [&](int n, const string &e, bool ignoreE = false) {
+            string r = intToRoman(n);
+            string r2 = intToRoman2(n);
+            if (ignoreE) {
+                Logger() << n << ", " << r << ", " << r2 << endl;
+                ASSERT1(r == r2);
+            } else {
+                Logger() << n << ", " << r << ", " << r2 << ", " << e << endl;
+                ASSERT1(r == e);
+                ASSERT1(r2 == e);
+            }
+        };
+        check(1, "I");
+        check(3, "III");
+        check(4, "IV");
+        check(5, "V");
+        check(7, "VII");
+        check(9, "IX");
+        check(10, "X");
+        check(13, "XIII");
+        check(58, "LVIII");
+        check(1994, "MCMXCIV");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(3999, 1);
+            check(n, "", true);
+        }
+    });
 }
 #endif
