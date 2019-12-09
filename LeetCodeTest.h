@@ -260,18 +260,24 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("12. Integer to Roman", [&]() {
+    Add("Roman", [&]() {
         auto check = [&](int n, const string &e, bool ignoreE = false) {
             string r = intToRoman(n);
             string r2 = intToRoman2(n);
+            int m = romanToInt(r);
+            int m2 = romanToInt(r2);
             if (ignoreE) {
-                Logger() << n << ", " << r << ", " << r2 << endl;
+                Logger() << n << ", " << r << ", " << r2 << ", " << m << ", "
+                         << m2 << endl;
                 ASSERT1(r == r2);
             } else {
-                Logger() << n << ", " << r << ", " << r2 << ", " << e << endl;
+                Logger() << n << ", " << r << ", " << r2 << ", " << e << ", "
+                         << m << ", " << m2 << endl;
                 ASSERT1(r == e);
                 ASSERT1(r2 == e);
             }
+            ASSERT1(n == m);
+            ASSERT1(n == m2);
         };
         check(1, "I");
         check(3, "III");
