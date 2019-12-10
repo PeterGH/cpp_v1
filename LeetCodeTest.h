@@ -294,5 +294,37 @@ void LeetCodeTest::Init(void) {
             check(n, "", true);
         }
     });
+
+    Add("14. Longest Common Prefix", [&]() {
+        auto check = [&](const vector<string> &strs, const string &e,
+                         bool ignoreE = false) {
+            Logger() << strs;
+            string s = longestCommonPrefix(strs);
+            string s2 = longestCommonPrefix2(strs);
+            string s3 = longestCommonPrefix3(strs);
+            if (ignoreE) {
+                Logger() << s << ", " << s2 << ", " << s3 << endl;
+                ASSERT1(s == s2);
+                ASSERT1(s == s3);
+            } else {
+                Logger() << s << ", " << s2 << ", " << s3 << ", " << e << endl;
+                ASSERT1(s == e);
+                ASSERT1(s2 == e);
+                ASSERT1(s3 == e);
+            }
+        };
+        check({}, "");
+        check({""}, "");
+        check({"a", "", "adb"}, "");
+        check({"a", "ac", "adb"}, "a");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(5, 0);
+            int l = Random::Int(10);
+            Logger() << "Generating " << n << " strings, max string length "
+                     << l << endl;
+            vector<string> strs = Random::Strings<char>(n, l, "ab");
+            check(strs, "", true);
+        }
+    });
 }
 #endif

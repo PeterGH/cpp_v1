@@ -853,6 +853,69 @@ int romanToInt(const string &s) {
     }
     return r;
 }
+
+// 14. Longest Common Prefix
+// Write a function to find the longest common prefix string amongst an array of
+// strings. If there is no common prefix, return an empty string "". Example 1:
+// Input: ["flower","flow","flight"]
+// Output: "fl"
+// Example 2:
+// Input: ["dog","racecar","car"]
+// Output: ""
+// Explanation: There is no common prefix among the input strings.
+// Note: All given inputs are in lowercase letters a-z.
+string longestCommonPrefix(const vector<string> &strs) {
+    if (strs.empty())
+        return "";
+    if (strs.size() == 1)
+        return strs[0];
+    size_t i = 0;
+    while (i < strs[0].size()) {
+        for (size_t j = 1; j < strs.size(); j++) {
+            if (i == strs[j].size() || strs[0][i] != strs[j][i])
+                return strs[0].substr(0, i);
+        }
+        i++;
+    }
+    return strs[0];
+}
+string longestCommonPrefix2(const vector<string> &strs) {
+    string p;
+    int n = strs.size();
+    if (n == 0)
+        return p;
+    int i = 0;
+    while (i < (int)strs[0].size()) {
+        char c = strs[0][i];
+        for (int j = 1; j < n; j++) {
+            if (i == (int)strs[j].length() || strs[j][i] != c)
+                return p;
+        }
+        p.append(1, c);
+        i++;
+    }
+    return p;
+}
+string longestCommonPrefix3(const vector<string> &strs) {
+    if (strs.empty())
+        return "";
+    if (strs.size() == 1)
+        return strs[0];
+    function<size_t(size_t, size_t)> prefix = [&](size_t l,
+                                                  size_t i) -> size_t {
+        size_t j = 0;
+        while (j < l && j < strs[i].size() && strs[0][j] == strs[i][j])
+            j++;
+        return j;
+    };
+    size_t k = strs[0].size();
+    for (size_t i = 1; i < strs.size(); i++) {
+        k = prefix(k, i);
+        if (k == 0)
+            break;
+    }
+    return strs[0].substr(0, k);
+}
 } // namespace LeetCode
 } // namespace Test
 

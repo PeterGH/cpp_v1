@@ -2,6 +2,8 @@
 #define _CPPTEST_H_
 
 #include "Test.h"
+#include <set>
+#include <string.h>
 
 using namespace std;
 using namespace Test;
@@ -126,12 +128,6 @@ void CppTest::Init(void) {
         delete anObject;
     });
 
-    Add("unique_ptr", [&]() {
-        unique_ptr<AnObject> anObject(new AnObject());
-        anObject->Method();
-        AnObject::ReferObject(*anObject);
-    });
-
     Add("inheritance", [&]() {
         BaseObject *anObject = new DerivedObject1();
         anObject->VirtualMethod();
@@ -223,7 +219,6 @@ void CppTest::Init(void) {
     Add("Subtraction of two size_t", [&]() {
         size_t a = 123;
         size_t b = 456;
-        auto c = a - b;
         Logger() << "(size_t)" << a << " - (size_t)" << b << " = ("
                  << typeid(a - b).name() << ")" << a - b << "\n";
         ASSERT1(a - b > 0);
@@ -287,6 +282,11 @@ void CppTest::Init(void) {
             str.resize(i);
             print(str);
         }
+    });
+
+    Add("String substr", [&]() {
+        string s = "abc";
+        Logger() << s << ", " << s.substr(0, 0) << endl;
     });
 
     Add("atoi", [&]() {
@@ -495,13 +495,13 @@ void CppTest::Init(void) {
         }
 
         bool s = is_sorted(sorted.begin(), sorted.end());
-        printf_s("The set is %ssorted\n", s ? "" : "not ");
+        printf("The set is %ssorted\n", s ? "" : "not ");
 
         for (set<int>::iterator i = sorted.begin(); i != sorted.end(); i++) {
-            printf_s("\t%d", *i);
+            printf("\t%d", *i);
         }
 
-        printf_s("\n");
+        printf("\n");
     });
 
     Add("Jagged Array", [&]() {

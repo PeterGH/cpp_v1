@@ -112,7 +112,8 @@ class Path {
             GetDirectories(subdirs, directory);
             // for_each(subdirs.begin(), subdirs.end(), [](wstring dir) {
             // wprintf_s(L"  %s:\n", dir); }); for (vector<wstring>::iterator it
-            // = subdirs.begin(); it != subdirs.end(); it ++) { 	wprintf_s(L"
+            // = subdirs.begin(); it != subdirs.end(); it ++) {
+            // wprintf_s(L"
             //%s:\n", it->data());
             //}
             parallel_for_each(

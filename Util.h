@@ -59,6 +59,19 @@ static string String(size_t length) {
         "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     return String(length, alphabet);
 }
+
+template <class T>
+static vector<basic_string<T>> Strings(size_t count, size_t maxStringlength,
+                                       const basic_string<T> &alphabet) {
+    vector<basic_string<T>> result(count);
+    std::generate(result.begin(), result.end(), [&]() {
+        return maxStringlength == 0
+                   ? String::Empty<T>()
+                   : String(rand() % maxStringlength, alphabet);
+    });
+    return result;
+}
+
 } // namespace Random
 
 namespace Util {
