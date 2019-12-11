@@ -916,6 +916,187 @@ string longestCommonPrefix3(const vector<string> &strs) {
     }
     return strs[0].substr(0, k);
 }
+
+// 15. 3Sum
+// Given an array nums of n integers, are there elements a, b, c in nums such
+// that a + b + c = 0? Find all unique triplets in the array which gives the sum
+// of zero. Note: The solution set must not contain duplicate triplets. Example:
+// Given array nums = [-1, 0, 1, 2, -1, -4], A solution set is:
+// [
+//   [-1, 0, 1],
+//   [-1, -1, 2]
+// ]
+vector<vector<int>> threeSum(vector<int> &nums) {
+    vector<vector<int>> result;
+    set<tuple<int, int>> m;
+    for (size_t i = 0; i + 2 < nums.size(); i++) {
+        set<int> s;
+        for (size_t j = i + 1; j < nums.size(); j++) {
+            if (s.find(-nums[i] - nums[j]) != s.end()) {
+                vector<int> r = {nums[i], -nums[i] - nums[j], nums[j]};
+                sort(r.begin(), r.end());
+                tuple<int, int> t = make_tuple(r[0], r[1]);
+                if (m.find(t) == m.end()) {
+                    result.push_back(r);
+                    m.insert(t);
+                }
+            }
+            s.insert(nums[j]);
+        }
+    }
+    return result;
+}
+vector<vector<int>> threeSum2(vector<int> &nums) {
+    vector<vector<int>> ans;
+    int n = nums.size();
+    if (n < 3)
+        return ans;
+    sort(nums.begin(), nums.end());
+    if (nums[0] > 0 || nums[n - 1] < 0)
+        return ans;
+    int i = 0;
+    while (i <= n - 3) {
+        if (nums[i] > 0)
+            break;
+        int j = i + 1;
+        int k = n - 1;
+        while (j < k) {
+            int s = nums[j] + nums[k];
+            if (s == -nums[i])
+                ans.push_back(vector<int>{nums[i], nums[j], nums[k]});
+            if (s <= -nums[i]) {
+                while (j + 1 < k && nums[j + 1] == nums[j])
+                    j++;
+                j++;
+            }
+            if (s >= -nums[i]) {
+                while (j < k - 1 && nums[k - 1] == nums[k])
+                    k--;
+                k--;
+            }
+        }
+        while (i + 1 <= n - 3 && nums[i + 1] == nums[i])
+            i++;
+        i++;
+    }
+    return ans;
+}
+vector<vector<int>> threeSum3(vector<int> &nums) {
+    vector<vector<int>> ans;
+    int n = nums.size();
+    if (n < 3)
+        return ans;
+    sort(nums.begin(), nums.end());
+    if (nums[0] > 0 || nums[n - 1] < 0)
+        return ans;
+    int i = 0;
+    while (i <= n - 3) {
+        if (nums[i] > 0)
+            break;
+        int j = i + 1;
+        while (j <= n - 2) {
+            int s = nums[i] + nums[j];
+            if (s > 0)
+                break;
+            int t = -s;
+            int l = j + 1;
+            int h = n - 1;
+            int m;
+            while (l <= h) {
+                m = l + ((h - l) >> 1);
+                if (t < nums[m]) {
+                    if (l == m)
+                        break;
+                    h = m - 1;
+                } else if (nums[m] < t) {
+                    if (m == h)
+                        break;
+                    l = m + 1;
+                } else {
+                    ans.push_back(vector<int>{nums[i], nums[j], nums[m]});
+                    break;
+                }
+            }
+            while (j + 1 <= n - 2 && nums[j + 1] == nums[j])
+                j++;
+            j++;
+        }
+        while (i + 1 <= n - 3 && nums[i + 1] == nums[i])
+            i++;
+        i++;
+    }
+    return ans;
+}
+
+// 16. 3Sum Closest
+// Given an array nums of n integers and an integer target, find three integers
+// in nums such that the sum is closest to target. Return the sum of the three
+// integers. You may assume that each input would have exactly one solution.
+// Example: Given array nums = [-1, 2, 1, -4], and target = 1. The sum that is
+// closest to the target is 2. (-1 + 2 + 1 = 2).
+int threeSumClosest(vector<int> &nums, int target) {
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    int r = 0;
+    int d = INT_MAX;
+    while (i + 2 < nums.size()) {
+        int j = i + 1;
+        int k = nums.size() - 1;
+        while (j < k) {
+            int s = nums[i] + nums[j] + nums[k];
+            if (abs(target - s) < d) {
+                d = abs(target - s);
+                r = s;
+            }
+            if (d == 0)
+                return target;
+            if (s < target)
+                j++;
+            else
+                k--;
+        }
+        i++;
+    }
+    return r;
+}
+int threeSumClosest2(vector<int> &nums, int target) {
+    int n = nums.size();
+    sort(nums.begin(), nums.end());
+    int i = 0;
+    int d = INT_MAX;
+    int t = target;
+    while (i <= n - 3) {
+        int j = i + 1;
+        int k = n - 1;
+        while (j < k) {
+            int s = nums[i] + nums[j] + nums[k];
+            if (s < target) {
+                if (target - s <= d) {
+                    d = target - s;
+                    t = s;
+                }
+                while (j + 1 < k && nums[j + 1] == nums[j])
+                    j++;
+                j++;
+            } else if (s > target) {
+                if (s - target <= d) {
+                    d = s - target;
+                    t = s;
+                }
+                while (j < k - 1 && nums[k - 1] == nums[k])
+                    k--;
+                k--;
+            } else {
+                return s;
+            }
+        }
+        while (i + 1 <= n - 3 && nums[i + 1] == nums[i])
+            i++;
+        i++;
+    }
+    return t;
+}
+
 } // namespace LeetCode
 } // namespace Test
 

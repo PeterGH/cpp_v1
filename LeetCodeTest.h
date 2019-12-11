@@ -326,5 +326,58 @@ void LeetCodeTest::Init(void) {
             check(strs, "", true);
         }
     });
+
+    Add("15. 3Sum", [&]() {
+        auto check = [&](const vector<int> &n) {
+            Logger() << n;
+            vector<int> m(n);
+            vector<vector<int>> o = threeSum(m);
+            vector<int> m2(n);
+            vector<vector<int>> o2 = threeSum2(m2);
+            vector<int> m3(n);
+            vector<vector<int>> o3 = threeSum3(m3);
+            Util::SortGrid(o);
+            Util::SortGrid(o2);
+            Util::SortGrid(o3);
+            Logger() << o;
+            Logger() << o2;
+            Logger() << o3;
+            ASSERT1(0 == Util::Compare(o, o2));
+            ASSERT1(0 == Util::Compare(o, o3));
+        };
+        check(vector<int>{-1, 0, 1, 0, -1, 1});
+        check(vector<int>{1, 0, -1, 0, -2, 2});
+        check(vector<int>{1, 1, 1, 1, 1, 1});
+        {
+            vector<int> v = {
+                -463, -428, -392, -386, -348, -312, -280, -248, -247, -244,
+                -224, -216, -198, -195, -195, -189, -175, -173, -167, -155,
+                -111, -96,  -36,  -28,  -3,   10,   15,   22,   25,   44,
+                44,   49,   50,   68,   84,   88,   104,  107,  111,  116,
+                171,  208,  233,  304,  309,  313,  318,  323,  330,  331,
+                331,  358,  364,  365,  388,  396,  403,  425,  449};
+            check(v);
+        }
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
+            check(v);
+        }
+    });
+
+    Add("16. 3Sum Closest", [&]() {
+        auto check = [&](const vector<int> &n, int t) {
+            Logger() << n;
+            vector<int> m(n);
+            int o = threeSumClosest(m, t);
+            vector<int> m2(n);
+            int o2 = threeSumClosest2(m2, t);
+            Logger() << t << ", " << o << ", " << o2 << endl;
+            ASSERT1(o == o2);
+        };
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
+            check(v, Random::Int(1000, -1000));
+        }
+    });
 }
 #endif

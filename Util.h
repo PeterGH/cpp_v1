@@ -11,7 +11,8 @@ using namespace std;
 
 namespace Random {
 static int Int(int max = RAND_MAX, int min = 0) {
-    return min + (rand() % (max - min + 1));
+    return min +
+           (rand() % (max - min + 1)); // may overflow if INT_MAX or INT_MIN
 }
 
 static void Array(int *array, int length, int max = RAND_MAX, int min = 0) {
@@ -88,6 +89,28 @@ static int Compare(const vector<int> &lhs, const vector<int> &rhs) {
             return -1;
         else if (lhs[i] > rhs[i])
             return 1;
+    }
+    if (lhs.size() < rhs.size())
+        return -1;
+    else if (lhs.size() > rhs.size())
+        return 1;
+    else
+        return 0;
+}
+
+static int Compare(const vector<vector<int>> &lhs,
+                   const vector<vector<int>> &rhs) {
+    if (lhs.empty() && rhs.empty())
+        return 0;
+    if (lhs.empty())
+        return -1;
+    if (rhs.empty())
+        return 1;
+    size_t n = min(lhs.size(), rhs.size());
+    for (size_t i = 0; i < n; i++) {
+        int r = Compare(lhs[i], rhs[i]);
+        if (r != 0)
+            return r;
     }
     if (lhs.size() < rhs.size())
         return -1;
