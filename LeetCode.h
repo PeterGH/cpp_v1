@@ -10,6 +10,7 @@
 #include <set>
 #include <sstream>
 #include <stack>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -1097,6 +1098,78 @@ int threeSumClosest2(vector<int> &nums, int target) {
     return t;
 }
 
+// 17. Letter Combinations of a Phone Number
+// Given a string containing digits from 2-9 inclusive, return all possible
+// letter combinations that the number could represent. A mapping of digit to
+// letters (just like on the telephone buttons) is given below. Note that 1 does
+// not map to any letters. Example: Input: "23" Output: ["ad", "ae", "af", "bd",
+// "be", "bf", "cd", "ce", "cf"]. Note: Although the above answer is in
+// lexicographical order, your answer could be in any order you want.
+vector<string> letterCombinations(const string &digits) {
+    map<char, vector<char>> m = {
+        {'2', {'a', 'b', 'c'}}, {'3', {'d', 'e', 'f'}},
+        {'4', {'g', 'h', 'i'}}, {'5', {'j', 'k', 'l'}},
+        {'6', {'m', 'n', 'o'}}, {'7', {'p', 'q', 'r', 's'}},
+        {'8', {'t', 'u', 'v'}}, {'9', {'w', 'x', 'y', 'z'}}};
+    vector<string> result;
+    function<void(const string &, size_t)> combine = [&](const string &s,
+                                                         size_t i) {
+        if (i == digits.size()) {
+            if (!s.empty())
+                result.push_back(s);
+            return;
+        }
+        if (m.find(digits[i]) == m.end()) {
+            combine(s, i + 1);
+            return;
+        }
+        for (size_t j = 0; j < m[digits[i]].size(); j++) {
+            string s1(s);
+            s1.append(1, m[digits[i]][j]);
+            combine(s1, i + 1);
+        }
+    };
+    combine("", 0);
+    return result;
+}
+vector<string> letterCombinations2(const string &digits) {
+    if (digits.length() == 0)
+        return vector<string>{};
+    function<void(const string &, int, const string &,
+                  map<char, vector<char>> &, vector<string> &)>
+        combine = [&](const string &s, int i, const string &r,
+                      map<char, vector<char>> &m, vector<string> &o) {
+            if (i == (int)s.length()) {
+                o.push_back(r);
+                return;
+            }
+            if (m.find(s[i]) == m.end()) {
+                // Why need this? Should not throw an error?
+                combine(s, i + 1, r, m, o);
+                return;
+            }
+            for_each(m[s[i]].begin(), m[s[i]].end(), [&](char c) {
+                string t(r);
+                t.append(1, c);
+                combine(s, i + 1, t, m, o);
+            });
+        };
+
+    map<char, vector<char>> m;
+    m['0'] = {' '};
+    m['1'] = {'#'};
+    m['2'] = {'a', 'b', 'c'};
+    m['3'] = {'d', 'e', 'f'};
+    m['4'] = {'g', 'h', 'i'};
+    m['5'] = {'j', 'k', 'l'};
+    m['6'] = {'m', 'n', 'o'};
+    m['7'] = {'p', 'q', 'r', 's'};
+    m['8'] = {'t', 'u', 'v'};
+    m['9'] = {'w', 'x', 'y', 'z'};
+    vector<string> o;
+    combine(digits, 0, "", m, o);
+    return o;
+}
 } // namespace LeetCode
 } // namespace Test
 
