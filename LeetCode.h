@@ -1,6 +1,7 @@
 #ifndef _LEETCODE_H_
 #define _LEETCODE_H_
 
+#include "Util.h"
 #include <algorithm>
 #include <bitset>
 #include <functional>
@@ -1170,6 +1171,186 @@ vector<string> letterCombinations2(const string &digits) {
     combine(digits, 0, "", m, o);
     return o;
 }
+
+// 18. 4Sum
+// Given an array nums of n integers and an integer target, are there
+// elements a, b, c, and d in nums such that a + b + c + d = target?
+// Find all unique quadruplets in the array which gives the sum of target.
+// Note: The solution set must not contain duplicate quadruplets.
+// Example: Given array nums = [1, 0, -1, 0, -2, 2], and target = 0.
+// A solution set is:
+// [
+//   [-1,  0, 0, 1],
+//   [-2, -1, 1, 2],
+//   [-2,  0, 0, 2]
+// ]
+vector<vector<int>> fourSum(vector<int> &nums, int target) {
+    vector<vector<int>> result;
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    while (i + 3 < nums.size()) {
+        size_t j = i + 1;
+        while (j + 2 < nums.size()) {
+            int t = target - nums[i] - nums[j];
+            int m = j + 1;
+            int n = nums.size() - 1;
+            while (m < n) {
+                int s = nums[m] + nums[n];
+                if (s == t)
+                    result.push_back(
+                        vector<int>{nums[i], nums[j], nums[m], nums[n]});
+                if (s <= t) {
+                    while (m + 1 < n && nums[m] == nums[m + 1])
+                        m++;
+                    m++;
+                }
+                if (s >= t) {
+                    while (m < n - 1 && nums[n - 1] == nums[n])
+                        n--;
+                    n--;
+                }
+            }
+            while (j + 1 < nums.size() && nums[j] == nums[j + 1])
+                j++;
+            j++;
+        }
+        while (i + 1 < nums.size() && nums[i] == nums[i + 1])
+            i++;
+        i++;
+    }
+    return result;
+}
+vector<vector<int>> fourSum2(vector<int> &num, int target) {
+    if (num.size() < 4)
+        return vector<vector<int>>{};
+    sort(num.begin(), num.end());
+    unordered_map<int, set<pair<int, int>>> twosum;
+    set<vector<int>> ans;
+    for (int i = 0; i < (int)num.size() - 1; i++) {
+        for (int j = i + 1; j < (int)num.size(); j++) {
+            int s = num[i] + num[j];
+            int t = target - s;
+            if (twosum.find(t) != twosum.end()) {
+                for_each(
+                    twosum[t].begin(), twosum[t].end(), [&](pair<int, int> p) {
+                        vector<int> a = {p.first, p.second, num[i], num[j]};
+                        ans.insert(a);
+                    });
+            }
+        }
+        for (int j = 0; j < i; j++) {
+            int s = num[j] + num[i];
+            if (twosum.find(s) == twosum.end()) {
+                twosum[s] = set<pair<int, int>>{};
+            }
+            twosum[s].insert(make_pair(num[j], num[i]));
+        }
+    }
+    return vector<vector<int>>(ans.begin(), ans.end());
+}
+// [TODO] Generalize to X-Sum
+vector<vector<int>> fourSum3(vector<int> &num, int target) {
+    if (num.size() < 4)
+        return vector<vector<int>>{};
+    sort(num.begin(), num.end());
+    function<void(vector<int> &, int, int, const vector<int> &,
+                  vector<vector<int>> &)>
+        solve = [&](vector<int> &n, int i, int t, const vector<int> &s,
+                    vector<vector<int>> &o) {
+            if (s.size() == 3) {
+                int l = i;
+                int h = n.size() - 1;
+                int m;
+                while (l <= h) {
+                    m = l + ((h - l) >> 1);
+                    if (t < n[m]) {
+                        if (l == m)
+                            break;
+                        h = m - 1;
+                    } else if (n[m] < t) {
+                        if (m == h)
+                            break;
+                        l = m + 1;
+                    } else {
+                        vector<int> v(s);
+                        v.push_back(n[m]);
+                        o.push_back(v);
+                        break;
+                    }
+                }
+                return;
+            }
+            // while (i <= (int)n.size() - 4 + (int)s.size() && n[i] <= t) {
+            while (i <= (int)n.size() - 4 + (int)s.size()) {
+                int j = i;
+                while (j + 1 < (int)n.size() && n[j + 1] == n[j])
+                    j++;
+                int k = i;
+                int u = n[k];
+                vector<int> v(s);
+                while (k <= j) {
+                    v.push_back(n[k]);
+                    if (v.size() == 4) {
+                        if (u == t)
+                            o.push_back(v);
+                        break;
+                    } else {
+                        solve(n, j + 1, t - u, v, o);
+                    }
+                    k++;
+                    u += n[k];
+                }
+                i = j + 1;
+            }
+        };
+    vector<vector<int>> o;
+    solve(num, 0, target, vector<int>{}, o);
+    return o;
+}
+// [TODO] Generalize to X-Sum
+vector<vector<int>> fourSum4(vector<int> &num, int target) {
+    if (num.size() < 4)
+        return vector<vector<int>>{};
+    sort(num.begin(), num.end());
+    function<void(vector<int> &, int, int, int, const vector<int> &,
+                  vector<vector<int>> &)>
+        solve = [&](vector<int> &n, int i, int r, int t, const vector<int> &s,
+                    vector<vector<int>> &o) {
+            // Search n[i..] for remaining r numbers whose sum is t
+            // while (r > 0 && i <= (int)n.size() - r && n[i] <= t) {
+            while (r > 0 && i <= (int)n.size() - r) {
+                int j = i;
+                while (j + 1 < (int)n.size() && n[j + 1] == n[j])
+                    j++;
+                // Range num[i..j] contains the same number
+                int k = i;
+                int u = 0; // n[k];
+                int c = 0; // 1;
+                vector<int> v(s);
+                // while (k <= j && u <= t && c <= r) {
+                while (k <= j && c <= r) {
+                    v.push_back(n[k]);
+                    u += n[k];
+                    c++;
+                    if (c == r) {
+                        if (u == t)
+                            o.push_back(v);
+                        break;
+                    } else {
+                        solve(n, j + 1, r - c, t - u, v, o);
+                    }
+                    k++;
+                    // u += n[k];
+                    // c++;
+                }
+                i = j + 1;
+            }
+        };
+    vector<vector<int>> o;
+    solve(num, 0, 4, target, vector<int>{}, o);
+    return o;
+}
+
 } // namespace LeetCode
 } // namespace Test
 

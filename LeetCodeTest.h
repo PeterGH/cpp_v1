@@ -379,5 +379,51 @@ void LeetCodeTest::Init(void) {
             check(v, Random::Int(1000, -1000));
         }
     });
+
+    Add("18. 4Sum", [&]() {
+        auto check = [&](const vector<int> &n, int t) {
+            Logger() << n;
+            Logger().WriteInformation("Target: %d\n", t);
+            vector<int> m(n);
+            vector<vector<int>> o = fourSum(m, t);
+            vector<int> m2(n);
+            vector<vector<int>> o2 = fourSum2(m2, t);
+            vector<int> m3(n);
+            vector<vector<int>> o3 = fourSum3(m3, t);
+            vector<int> m4(n);
+            vector<vector<int>> o4 = fourSum4(m4, t);
+            Util::SortGrid(o);
+            Logger() << o;
+            Util::SortGrid(o2);
+            Logger() << o2;
+            Util::SortGrid(o3);
+            Logger() << o3;
+            Util::SortGrid(o4);
+            Logger() << o4;
+            ASSERT1(0 == Util::Compare(o, o2));
+            ASSERT1(0 == Util::Compare(o, o3));
+            ASSERT1(0 == Util::Compare(o, o4));
+        };
+        check(vector<int>{633, -649, -975, 409, -678, 624, -976, -460, -102,
+                          -983, 120, 202, 75, 826, -339, -709, 620, 204},
+              -666);
+        check(vector<int>{1, 0, -1, 0, -2, 2}, 0);
+        check(vector<int>{1, 1, 1, 1, 1, 1}, 4);
+        {
+            vector<int> v = {
+                -463, -428, -392, -386, -348, -312, -280, -248, -247, -244,
+                -224, -216, -198, -195, -195, -189, -175, -173, -167, -155,
+                -111, -96,  -36,  -28,  -3,   10,   15,   22,   25,   44,
+                44,   49,   50,   68,   84,   88,   104,  107,  111,  116,
+                171,  208,  233,  304,  309,  313,  318,  323,  330,  331,
+                331,  358,  364,  365,  388,  396,  403,  425,  449};
+            check(v, 2110);
+            check(v, 1284);
+        }
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
+            check(v, Random::Int(1000, -1000));
+        }
+    });
 }
 #endif

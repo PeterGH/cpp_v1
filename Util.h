@@ -2,6 +2,7 @@
 #define _UTIL_H_
 
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
@@ -170,5 +171,18 @@ static void SortGrid(vector<vector<int>> &grid) {
              return lhs.size() < rhs.size();
          });
 }
+
 } // namespace Util
+
+template <class T> ostream &operator<<(ostream &os, const vector<T> &v) {
+    os << "{";
+    for (size_t i = 0; i < v.size(); i++) {
+        if (i > 0)
+            os << ", ";
+        os << v[i];
+    }
+    os << "}" << endl;
+    return os;
+}
+
 #endif
