@@ -1351,6 +1351,132 @@ vector<vector<int>> fourSum4(vector<int> &num, int target) {
     return o;
 }
 
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+void Print(ListNode *node) {
+    if (node == nullptr)
+        return;
+    while (node != nullptr) {
+        cout << node->val << "->";
+        node = node->next;
+    }
+    cout << "null" << endl;
+}
+
+void DeleteList(ListNode *node) {
+    if (node == nullptr)
+        return;
+    ListNode *p = node;
+    while (p != nullptr) {
+        node = p->next;
+        delete p;
+        p = node;
+    }
+}
+
+ListNode *ToList(const vector<int> &numbers) {
+    ListNode *list = nullptr;
+    if (numbers.empty())
+        return list;
+    list = new ListNode(numbers[0]);
+    ListNode *n = list;
+    for (size_t i = 1; i < numbers.size(); i++) {
+        n->next = new ListNode(numbers[i]);
+        n = n->next;
+    }
+    return list;
+}
+
+ListNode *DuplicateList(ListNode *node) {
+    ListNode *list = nullptr;
+    ListNode *node2 = nullptr;
+    while (node != nullptr) {
+        if (list == nullptr) {
+            list = new ListNode(node->val);
+            node2 = list;
+        } else {
+            node2->next = new ListNode(node->val);
+            node2 = node2->next;
+        }
+        node = node->next;
+    }
+    return list;
+}
+
+int CompareLists(ListNode *node1, ListNode *node2) {
+    while (node1 != nullptr && node2 != nullptr) {
+        if (node1->val < node2->val)
+            return -1;
+        if (node1->val > node2->val)
+            return 1;
+        node1 = node1->next;
+        node2 = node2->next;
+    }
+    if (node1 == nullptr && node2 == nullptr)
+        return 0;
+    if (node1 == nullptr)
+        return -1;
+    return 1;
+}
+
+// 19. Remove Nth Node From End of List
+// Given a linked list, remove the n-th node from the end of list and return its
+// head. Example: Given linked list: 1->2->3->4->5, and n = 2. After removing
+// the second node from the end, the linked list becomes 1->2->3->5. Note: Given
+// n will always be valid. Follow up: Could you do this in one pass?
+ListNode *removeNthFromEnd(ListNode *head, int n) {
+    ListNode *q = head;
+    for (int i = 0; i < n - 1; i++)
+        q = q->next;
+    ListNode *p = head;
+    if (q->next == nullptr) {
+        head = p->next;
+        p->next = nullptr;
+        delete p;
+        return head;
+    }
+    q = q->next;
+    while (q->next != nullptr) {
+        q = q->next;
+        p = p->next;
+    }
+    q = p->next;
+    p->next = q->next;
+    q->next = nullptr;
+    delete q;
+    return head;
+}
+ListNode *removeNthFromEnd2(ListNode *head, int n) {
+    if (head == nullptr || n <= 0)
+        return head;
+    ListNode *q = head;
+    int i = 0;
+    while (i < n && q->next != nullptr) {
+        q = q->next;
+        i++;
+    }
+    if (i < n - 1) // only i + 1 (less than n) nodes in the list
+        return head;
+    ListNode *p = head;
+    if (i == n - 1) {
+        // Exact i + 1 (= n) nodes in the list
+        head = p->next;
+        delete p;
+        return head;
+    }
+    while (q->next != nullptr) {
+        p = p->next;
+        q = q->next;
+    }
+    q = p->next;
+    p->next = q->next;
+    delete q;
+    return head;
+}
 } // namespace LeetCode
 } // namespace Test
 

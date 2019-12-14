@@ -425,5 +425,30 @@ void LeetCodeTest::Init(void) {
             check(v, Random::Int(1000, -1000));
         }
     });
+
+    Add("19. Remove Nth Node From End of List", [&]() {
+        auto check = [&](ListNode *l, int n) {
+            Print(l);
+            ListNode *l2 = DuplicateList(l);
+            Print(l2);
+            l = removeNthFromEnd(l, n);
+            l2 = removeNthFromEnd(l2, n);
+            Print(l);
+            Print(l2);
+            ASSERT1(0 == CompareLists(l, l2));
+            DeleteList(l);
+            DeleteList(l2);
+        };
+        check(ToList(Util::IncreasingVector(1)), 1);
+        check(ToList(Util::IncreasingVector(2)), 1);
+        check(ToList(Util::IncreasingVector(2)), 2);
+        check(ToList(Util::IncreasingVector(3)), 1);
+        check(ToList(Util::IncreasingVector(3)), 2);
+        check(ToList(Util::IncreasingVector(3)), 3);
+        for (int i = 4; i <= 10; i++) {
+            for (int j = 1; j <= i; j++)
+                check(ToList(Util::IncreasingVector(i)), j);
+        }
+    });
 }
 #endif
