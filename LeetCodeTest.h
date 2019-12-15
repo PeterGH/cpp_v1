@@ -450,5 +450,78 @@ void LeetCodeTest::Init(void) {
                 check(ToList(Util::IncreasingVector(i)), j);
         }
     });
+
+    Add("20. Valid Parentheses", [&]() {
+        auto check = [&](const string &s, bool e) {
+            bool r = isValid(s);
+            Logger() << s << ", " << r << ", " << e << endl;
+            ASSERT1(r == e);
+        };
+        check("", true);
+        check("(", false);
+        check("]", false);
+        check("[]", true);
+        check(")(", false);
+        check("()[]{}", true);
+        check("(]", false);
+        check("([)]", false);
+        check("([{}])", true);
+    });
+
+    Add("21. Merge Two Sorted Lists", [&]() {
+        auto check = [&](const vector<int> &v1, const vector<int> &v2) {
+            ListNode *l1 = ToList(v1);
+            ListNode *l2 = ToList(v2);
+            Print(l1);
+            Print(l2);
+            ListNode *l = mergeTwoLists(l1, l2);
+            Print(l);
+            bool r = IsSorted(l);
+            DeleteList(l);
+            ASSERT1(r);
+        };
+        check({}, {});
+        check({}, {1});
+        check({1}, {});
+        check({1}, {1});
+        check({2}, {1});
+        check({1, 3}, {2, 4});
+        check({1, 4, 6}, {2, 3, 5});
+        for (int i = 0; i < 100; i++) {
+            vector<int> v1 = Random::Vector(Random::Int(100));
+            vector<int> v2 = Random::Vector(Random::Int(100));
+            sort(v1.begin(), v1.end());
+            sort(v2.begin(), v2.end());
+            check(v1, v2);
+        }
+    });
+
+    Add("22. Generate Parentheses", [&]() {
+        auto check = [&](int n) {
+            Logger().WriteInformation("%d pairs of parentheses:\n", n);
+            vector<string> pa = generateParenthesis(n);
+            vector<string> pa2 = generateParenthesis2(n);
+            vector<string> pa3 = generateParenthesis3(n);
+            vector<string> pa5 = generateParenthesis5(n);
+            sort(pa.begin(), pa.end());
+            Logger() << pa;
+            sort(pa2.begin(), pa2.end());
+            Logger() << pa2;
+            sort(pa3.begin(), pa3.end());
+            Logger() << pa3;
+            sort(pa5.begin(), pa5.end());
+            Logger() << pa5;
+            ASSERT1(0 == Util::Compare(pa, pa2));
+            ASSERT1(0 == Util::Compare(pa, pa3));
+            ASSERT1(0 == Util::Compare(pa, pa5));
+        };
+        check(1);
+        check(2);
+        check(3);
+        check(4);
+        check(5);
+        check(6);
+        check(7);
+    });
 }
 #endif

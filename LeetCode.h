@@ -1423,6 +1423,15 @@ int CompareLists(ListNode *node1, ListNode *node2) {
     return 1;
 }
 
+bool IsSorted(ListNode *node) {
+    while (node != nullptr && node->next != nullptr) {
+        if (node->val > node->next->val)
+            return false;
+        node = node->next;
+    }
+    return true;
+}
+
 // 19. Remove Nth Node From End of List
 // Given a linked list, remove the n-th node from the end of list and return its
 // head. Example: Given linked list: 1->2->3->4->5, and n = 2. After removing
@@ -1468,15 +1477,274 @@ ListNode *removeNthFromEnd2(ListNode *head, int n) {
         delete p;
         return head;
     }
+    // i = n
+    // q is the (i+1)-th, i.e. (n+1)-th, node
+    // p is the 1-st node
     while (q->next != nullptr) {
         p = p->next;
         q = q->next;
     }
+    // q is the 1-st node from the end, i.e. the last node
+    // p is the (n+1)-th node from the end
     q = p->next;
     p->next = q->next;
     delete q;
     return head;
 }
+
+// 20. Valid Parentheses
+// Given a string containing just the characters '(', ')', '{', '}', '[' and
+// ']', determine if the input string is valid. An input string is valid if:
+//     Open brackets must be closed by the same type of brackets.
+//     Open brackets must be closed in the correct order.
+// Note that an empty string is also considered valid.
+// Example 1: Input: "()" Output: true
+// Example 2: Input: "()[]{}" Output: true
+// Example 3: Input: "(]" Output: false
+// Example 4: Input: "([)]" Output: false
+// Example 5: Input: "{[]}" Output: true
+bool isValid(const string &s) {
+    stack<char> a;
+    for (size_t i = 0; i < s.size(); i++) {
+        switch (s[i]) {
+        case '(':
+        case '{':
+        case '[':
+            a.push(s[i]);
+            break;
+        case ')':
+            if (a.empty() || a.top() != '(')
+                return false;
+            a.pop();
+            break;
+        case '}':
+            if (a.empty() || a.top() != '{')
+                return false;
+            a.pop();
+            break;
+        case ']':
+            if (a.empty() || a.top() != '[')
+                return false;
+            a.pop();
+            break;
+        default:
+            return false;
+        }
+    }
+    return a.empty();
+}
+
+// 21. Merge Two Sorted Lists
+// Merge two sorted linked lists and return it as a new list.
+// The new list should be made by splicing together the nodes
+// of the first two lists. Example:
+// Input: 1->2->4, 1->3->4
+// Output: 1->1->2->3->4->4
+ListNode *mergeTwoLists(ListNode *l1, ListNode *l2) {
+    if (l1 == nullptr)
+        return l2;
+    if (l2 == nullptr)
+        return l1;
+    ListNode *l = nullptr;
+    if (l1->val < l2->val) {
+        l = l1;
+        l1 = l1->next;
+    } else {
+        l = l2;
+        l2 = l2->next;
+    }
+    ListNode *n = l;
+    while (l1 != nullptr && l2 != nullptr) {
+        if (l1->val < l2->val) {
+            n->next = l1;
+            n = n->next;
+            l1 = l1->next;
+        } else {
+            n->next = l2;
+            n = n->next;
+            l2 = l2->next;
+        }
+    }
+    if (l1 == nullptr)
+        n->next = l2;
+    else
+        n->next = l1;
+    return l;
+}
+
+// 22. Generate Parentheses
+// Given n pairs of parentheses, write a function to generate all combinations
+// of well-formed parentheses. For example, given n = 3, a solution set is:
+// [
+//   "((()))",
+//   "(()())",
+//   "(())()",
+//   "()(())",
+//   "()()()"
+// ]
+vector<string> generateParenthesis(int n) {
+    vector<string> result;
+    function<void(int, int, const string &)> gen = [&](int l, int r,
+                                                       const string &s) {
+        if (l == n && r == n) {
+            result.push_back(s);
+            return;
+        }
+        if (l < n) {
+            string s1(s);
+            s1.append(1, '(');
+            gen(l + 1, r, s1);
+        }
+        if (r < n && l > r) {
+            string s2(s);
+            s2.append(1, ')');
+            gen(l, r + 1, s2);
+        }
+    };
+    gen(0, 0, "");
+    return result;
+}
+vector<string> generateParenthesis2(int n) {
+    if (n <= 0)
+        return vector<string>{};
+
+    function<void(int, int, map<pair<int, int>, vector<string>> &)> solve =
+        [&](
+            // l <= r
+            int l, // count '(' needed
+            int r, // count ')' needed
+            map<pair<int, int>, vector<string>> &m) {
+            pair<int, int> p = make_pair(l, r);
+            m[p] = vector<string>{};
+            string s;
+            for (int i = 1; i < l; i++) {
+                s.append(1, '(');
+                string t(s);
+                for (int j = 1; j <= r - l + i; j++) {
+                    t.append(1, ')');
+                    // l - i <= r - j
+                    pair<int, int> q = make_pair(l - i, r - j);
+                    if (m.find(q) == m.end())
+                        solve(l - i, r - j, m);
+                    for_each(m[q].begin(), m[q].end(), [&](string &u) {
+                        string v(t);
+                        v.append(u);
+                        m[p].push_back(v);
+                    });
+                }
+            }
+            s.append(1, '(');
+            s.append(r, ')');
+            m[p].push_back(s);
+        };
+
+    map<pair<int, int>, vector<string>> m;
+    solve(n, n, m);
+    pair<int, int> p = make_pair(n, n);
+    return m[p];
+}
+vector<string> generateParenthesis3(int n) {
+    if (n <= 0)
+        return vector<string>{};
+    if (n == 1)
+        return vector<string>{"()"};
+
+    function<void(string, int, int, int, vector<string> &)> solve =
+        [&](string s,
+            int l, // count '(' in s
+            int r, // count ')' in s
+            int n, vector<string> &o) {
+            for (int i = 1; i < n - l; i++) {
+                s.append(1, '(');
+                string t(s);
+                for (int j = 1; j <= l - r + i; j++) {
+                    t.append(1, ')');
+                    solve(t, l + i, r + j, n, o);
+                }
+            }
+            s.append(1, '(');
+            s.append(n - r, ')');
+            o.push_back(s);
+        };
+
+    vector<string> result;
+    string s;
+    solve(s, 0, 0, n, result);
+    return result;
+}
+// This algorithm is wrong
+vector<string> generateParenthesis4(int n) {
+    vector<string> result;
+    if (n <= 0)
+        return result;
+    result.push_back("()");
+    if (n == 1)
+        return result;
+    for (int i = 2; i <= n; i++) {
+        int j = result.size();
+        for (int k = 0; k < j; k++) {
+            string s = result.front();
+            result.erase(result.begin());
+            string o = s;
+            o.append("()");
+            result.push_back(o);
+            bool symmetric = true;
+            int a = 0;
+            int b = o.length() - 1;
+            while (a < b) {
+                if (o[a] == o[b]) {
+                    symmetric = false;
+                    break;
+                }
+                a++;
+                b--;
+            }
+            if (!symmetric) {
+                o = "()";
+                o.append(s);
+                result.push_back(o);
+            }
+            o = "(";
+            o.append(s);
+            o.append(")");
+            result.push_back(o);
+        }
+    }
+    return result;
+}
+vector<string> generateParenthesis5(int n) {
+    if (n <= 0)
+        return vector<string>{};
+    if (n == 1)
+        return vector<string>{"()"};
+
+    function<void(string, int, int, int, vector<string> &)> solve =
+        [&](string s,
+            int l, // count '(' in s
+            int r, // count ')' in s
+            int n, vector<string> &o) {
+            if (l == n) {
+                s.append(n - r, ')');
+                o.push_back(s);
+                return;
+            }
+
+            string tl(s);
+            tl.append(1, '(');
+            solve(tl, l + 1, r, n, o);
+            if (l > r) {
+                string tr(s);
+                tr.append(1, ')');
+                solve(tr, l, r + 1, n, o);
+            }
+        };
+
+    vector<string> result;
+    string s;
+    solve(s, 0, 0, n, result);
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 

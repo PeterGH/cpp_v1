@@ -77,7 +77,8 @@ static vector<basic_string<T>> Strings(size_t count, size_t maxStringlength,
 } // namespace Random
 
 namespace Util {
-static int Compare(const vector<int> &lhs, const vector<int> &rhs) {
+template<class T>
+static int Compare(const vector<T> &lhs, const vector<T> &rhs) {
     if (lhs.empty() && rhs.empty())
         return 0;
     if (lhs.empty())
@@ -99,8 +100,9 @@ static int Compare(const vector<int> &lhs, const vector<int> &rhs) {
         return 0;
 }
 
-static int Compare(const vector<vector<int>> &lhs,
-                   const vector<vector<int>> &rhs) {
+template<class T>
+static int Compare(const vector<vector<T>> &lhs,
+                   const vector<vector<T>> &rhs) {
     if (lhs.empty() && rhs.empty())
         return 0;
     if (lhs.empty())
