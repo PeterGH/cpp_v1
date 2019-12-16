@@ -523,5 +523,193 @@ void LeetCodeTest::Init(void) {
         check(6);
         check(7);
     });
+
+    Add("24. Swap Nodes in Pairs", [&]() {
+        auto checkPair = [&](ListNode *l) -> bool {
+            while (l != nullptr && l->next != nullptr) {
+                if (l->val != l->next->val + 1)
+                    return false;
+                l = l->next->next;
+            }
+            return true;
+        };
+        auto check = [&](const vector<int> &v) {
+            Logger().WriteInformation("Swap pairs:\n");
+            ListNode *l = ToList(v);
+            ListNode *l2 = DuplicateList(l);
+            Print(l);
+            l = swapPairs(l);
+            Print(l);
+            l2 = swapPairs(l2);
+            Print(l2);
+            bool r = checkPair(l);
+            bool r2 = checkPair(l2);
+            int c = CompareLists(l, l2);
+            DeleteList(l);
+            DeleteList(l2);
+            ASSERT1(r);
+            ASSERT1(r2);
+            ASSERT1(c == 0);
+        };
+        check(vector<int>{1, 2});
+        check(vector<int>{1, 2, 3});
+        check(vector<int>{1, 2, 3, 4});
+        check(vector<int>{1, 2, 3, 4, 5});
+        check(vector<int>{1, 2, 3, 4, 5, 6});
+    });
+
+    Add("26. Remove Duplicates from Sorted Array", [&]() {
+        auto check = [&](vector<int> &v) {
+            Logger() << v;
+            set<int> s;
+            for (size_t i = 0; i < v.size(); i++) {
+                s.insert(v[i]);
+            }
+            vector<int> v2(v);
+            size_t len = removeDuplicates(v);
+            Logger() << v;
+            size_t len2 = removeDuplicates2(v2);
+            Logger() << v2;
+            ASSERT1(len == s.size());
+            ASSERT1(len2 == s.size());
+            for (size_t i = 0; i < len; i++) {
+                ASSERT1(v[i] == *s.begin());
+                ASSERT1(v2[i] == *s.begin());
+                s.erase(s.begin());
+            }
+        };
+        {
+            vector<int> v = {0, 1, 2, 3, 4, 5};
+            check(v);
+        }
+        {
+            vector<int> v = {0, 0, 0};
+            check(v);
+        }
+        {
+            for (int i = 0; i < 20; i++) {
+                vector<int> input = Random::Vector(Random::Int(50, 1), 10, -10);
+                sort(input.begin(), input.end());
+                int length = (int)input.size();
+                Logger().WriteInformation("Run %d: %d elements\n", i, length);
+                check(input);
+            }
+        }
+    });
+
+    Add("27. Remove Element", [&]() {
+        auto check = [&](vector<int> &v, int e) {
+            Logger() << v << "Removing " << e << endl;
+            vector<int> s;
+            for (size_t i = 0; i < v.size(); i++) {
+                if (v[i] != e)
+                    s.push_back(v[i]);
+            }
+            vector<int> v2(v);
+            vector<int> v3(v);
+            int len = removeElement(v, e);
+            Logger() << v << "Length " << len << endl;
+            int len2 = removeElement2(v2, e);
+            Logger() << v2 << "Length " << len2 << endl;
+            int len3 = removeElement3(v3, e);
+            Logger() << v3 << "Length " << len3 << endl;
+            ASSERT1(len == (int)s.size());
+            ASSERT1(len2 == (int)s.size());
+            ASSERT1(len3 == (int)s.size());
+            sort(v.begin(), v.begin() + len);
+            sort(v2.begin(), v2.begin() + len2);
+            sort(v3.begin(), v3.begin() + len2);
+            sort(s.begin(), s.end());
+            for (int i = 0; i < len; i++) {
+                ASSERT1(v[i] == s[i]);
+                ASSERT1(v2[i] == s[i]);
+                ASSERT1(v3[i] == s[i]);
+            }
+        };
+        {
+            vector<int> v = {0, 1, 2, 3, 4, 5};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {0, 0, 0};
+            check(v, 0);
+        }
+        for (int i = 0; i < 20; i++) {
+            vector<int> input = Random::Vector(Random::Int(50, 1), 10, -10);
+            int length = (int)input.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            check(input, Random::Int(10, -10));
+        }
+    });
+
+    Add("28. Implement strStr()", [&]() {
+        auto check = [&](const char *input1, const char *input2, int index) {
+            Logger().WriteInformation("\nInput1:\t%s\n", input1);
+            Logger().WriteInformation("Input2:\t%s\n", input2);
+            int i = strStr(input1, input2);
+            int i2 = strStr2(input1, input2);
+            const char *p3 = strStr3(input1, input2);
+            int i3 = (int)(p3 == nullptr ? -1 : p3 - input1);
+            const char *p4 = strStr4(input1, input2);
+            int i4 = (int)(p4 == nullptr ? -1 : p4 - input1);
+            const char *p5 = strStr5(input1, input2);
+            int i5 = (int)(p5 == nullptr ? -1 : p5 - input1);
+            const char *p6 = strstr(input1, input2);
+            int i6 = (int)(p6 == nullptr ? -1 : p6 - input1);
+            Logger().WriteInformation("Index:\t%d\t%d\t%d\t%d\t%d\t%d\n", i, i2,
+                                      i3, i4, i5, i6);
+            if (index >= -1) {
+                ASSERT1(i == index);
+                ASSERT1(i2 == index);
+                ASSERT1(i3 == index);
+                ASSERT1(i4 == index);
+                ASSERT1(i5 == index);
+                ASSERT1(i6 == index);
+            } else {
+                ASSERT1(i2 == i);
+                ASSERT1(i3 == i);
+                ASSERT1(i4 == i);
+                ASSERT1(i5 == i);
+                ASSERT1(i6 == i);
+            }
+        };
+        check("", "", 0);
+        check("", "a", -1);
+        check("a", "", 0);
+        check("a", "a", 0);
+        check("a", "b", -1);
+        check("a", "aa", -1);
+        check("aa", "a", 0);
+        check("aa", "b", -1);
+        check("aa", "aa", 0);
+        check("aa", "aaa", -1);
+        check("ab", "a", 0);
+        check("ab", "b", 1);
+        check("ab", "c", -1);
+        check("ab", "ab", 0);
+        check("abc", "a", 0);
+        check("abc", "b", 1);
+        check("abc", "c", 2);
+        check("abc", "d", -1);
+        check("abc", "ab", 0);
+        check("abc", "bc", 1);
+        check("abc", "abc", 0);
+        check("ababa", "ab", 0);
+        check("ababa", "ba", 1);
+        check("ababa", "aba", 0);
+        check("ababa", "bab", 1);
+        check("ababa", "ababa", 0);
+        check("abcabcab", "abc", 0);
+        check("abcabcab", "bca", 1);
+        check("abcabcab", "cab", 2);
+        check("abdabcab", "abc", 3);
+        check("abdabcab", "bca", 4);
+        check("abdabcab", "cab", 5);
+        for (int i = 0; i < 100; i++) {
+            string haystack = Random::String<char>(Random::Int(100), "abc");
+            string needle = Random::String<char>(Random::Int(5), "ab");
+            check(haystack.c_str(), needle.c_str(), -2);
+        }
+    });
 }
 #endif

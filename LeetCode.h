@@ -1745,6 +1745,283 @@ vector<string> generateParenthesis5(int n) {
     return result;
 }
 
+// 24. Swap Nodes in Pairs
+// Given a linked list, swap every two adjacent nodes and return its head.
+// You may not modify the values in the list's nodes, only nodes itself may
+// be changed. Example:
+// Given 1->2->3->4, you should return the list as 2->1->4->3.
+ListNode *swapPairs(ListNode *head) {
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    // swap first two nodes
+    ListNode *p = head;
+    head = p->next;
+    p->next = head->next;
+    head->next = p;
+    // Swap the two nodes after p
+    // i.e. p->next->next
+    while (p->next != nullptr && p->next->next != nullptr) {
+        ListNode *q = p->next->next;
+        p->next->next = q->next;
+        q->next = p->next;
+        p->next = q;
+        p = p->next->next;
+    }
+    return head;
+}
+ListNode *swapPairs2(ListNode *head) {
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    // swap f->s
+    ListNode *f = head;
+    ListNode *s = f->next;
+    f->next = s->next;
+    s->next = f;
+    head = s;
+    ListNode *p = f;
+    f = f->next;
+    // two nodes after p
+    // p->f->s
+    while (f != nullptr) {
+        s = f->next;
+        if (s == nullptr)
+            break;
+        f->next = s->next;
+        s->next = f;
+        p->next = s;
+        p = f;
+        f = f->next;
+    }
+    return head;
+}
+
+// 26. Remove Duplicates from Sorted Array
+// Given a sorted array nums, remove the duplicates in-place such that each
+// element appear only once and return the new length. Do not allocate extra
+// space for another array, you must do this by modifying the input array
+// in-place with O(1) extra memory.
+// Example 1:
+// Given nums = [1,1,2], Your function should return length = 2, with the first
+// two elements of nums being 1 and 2 respectively.
+// It doesn't matter what you leave beyond the returned length.
+// Example 2:
+// Given nums = [0,0,1,1,1,2,2,3,3,4], Your function should return length = 5,
+// with the first five elements of nums being modified to 0, 1, 2, 3, and 4
+// respectively. It doesn't matter what values are set beyond the returned
+// length.
+int removeDuplicates(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    size_t i = 0;
+    for (size_t j = 1; j < nums.size(); j++) {
+        if (nums[j - 1] != nums[j]) {
+            if (i + 1 != j)
+                nums[i + 1] = nums[j];
+            i++;
+        }
+    }
+    return i + 1;
+}
+int removeDuplicates2(vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    size_t i = 0;
+    for (size_t j = 1; j < nums.size(); j++) {
+        // i increases only when j should be kept
+        if (nums[j - 1] != nums[j] && (++i) != j)
+            nums[i] = nums[j];
+    }
+    return i + 1;
+}
+
+// 27. Remove Element
+// Given an array nums and a value val, remove all instances of that value
+// in-place and return the new length. Do not allocate extra space for another
+// array, you must do this by modifying the input array in-place with O(1)
+// extra memory. The order of elements can be changed. It doesn't matter what
+// you leave beyond the new length.
+// Example 1:
+// Given nums = [3,2,2,3], val = 3, Your function should return length = 2,
+// with the first two elements of nums being 2.
+// It doesn't matter what you leave beyond the returned length.
+// Example 2:
+// Given nums = [0,1,2,2,3,0,4,2], val = 2, Your function should return length =
+// 5, with the first five elements of nums containing 0, 1, 3, 0, and 4. Note
+// that the order of those five elements can be arbitrary. It doesn't matter
+// what values are set beyond the returned length.
+int removeElement(vector<int> &nums, int val) {
+    int i = -1;
+    for (int j = 0; j < (int)nums.size(); j++) {
+        if (nums[j] != val) {
+            if (i + 1 != j)
+                nums[i + 1] = nums[j];
+            i++;
+        }
+    }
+    return i + 1;
+}
+int removeElement2(vector<int> &nums, int val) {
+    int i = -1;
+    for (int j = 0; j < (int)nums.size(); j++) {
+        // i increases only when j should be kept
+        if (nums[j] != val && (++i) != j)
+            nums[i] = nums[j];
+    }
+    return i + 1;
+}
+// Remove by swaping to end, not stable
+int removeElement3(vector<int> &nums, int val) {
+    int i = 0;
+    int n = nums.size();
+    while (i < n) {
+        if (nums[i] == val)
+            swap(nums[i], nums[--n]);
+        else
+            i++;
+    }
+    return n;
+}
+
+// 28. Implement strStr()
+// Return the index of the first occurrence of needle in haystack, or -1 if
+// needle is not part of haystack.
+// Example 1:
+// Input: haystack = "hello", needle = "ll", Output: 2
+// Example 2:
+// Input: haystack = "aaaaa", needle = "bba", Output: -1
+// Clarification:
+// What should we return when needle is an empty string? This is a great
+// question to ask during an interview. For the purpose of this problem, we will
+// return 0 when needle is an empty string. This is consistent to C's strstr()
+// and Java's indexOf().
+int strStr(string haystack, string needle) {
+    if (needle.empty())
+        return 0;
+    if (haystack.size() < needle.size())
+        return -1;
+    size_t i = 0;
+    while (i <= haystack.size() - needle.size()) {
+        if (haystack[i] == needle[0]) {
+            size_t j = i;
+            size_t k = 0;
+            while (j < haystack.size() && k < needle.size() &&
+                   haystack[j] == needle[k]) {
+                j++;
+                k++;
+            }
+            if (k == needle.size())
+                return i;
+        }
+        i++;
+    }
+    return -1;
+}
+int strStr2(string haystack, string needle) {
+    if (needle.empty())
+        return 0;
+    size_t i = 0;
+    while (i + needle.size() <= haystack.size()) {
+        while (i + needle.size() <= haystack.size() && haystack[i] != needle[0])
+            i++;
+        if (i + needle.size() > haystack.size())
+            break;
+        size_t j = 1;
+        while (j < needle.size() && haystack[i + j] == needle[j])
+            j++;
+        if (j == needle.size())
+            return i;
+        i++;
+    }
+    return -1;
+}
+const char *strStr3(const char *haystack, const char *needle) {
+    if (*needle == '\0')
+        return haystack;
+    if (*haystack == '\0')
+        return nullptr;
+    int lh = 0;
+    const char *h = haystack;
+    while (*h != '\0') {
+        lh++;
+        h++;
+    }
+    int ln = 0;
+    const char *n = needle;
+    while (*n != '\0') {
+        ln++;
+        n++;
+    }
+    if (lh < ln)
+        return nullptr;
+    for (int i = 0; i <= lh - ln; i++, haystack++) {
+        if (*haystack == *needle) {
+            h = haystack;
+            n = needle;
+            while (*h != '\0' && *n != '\0' && *n == *h) {
+                h++;
+                n++;
+            }
+            if (*n == '\0')
+                return haystack;
+        }
+    }
+    return nullptr;
+}
+const char *strStr4(const char *input1, const char *input2) {
+    if (input1 == nullptr || input2 == nullptr)
+        return nullptr;
+    if (*input2 == '\0')
+        return input1;
+    const char *q = input1;
+    const char *p = input2;
+    while (*(q + 1) != '\0' && *(p + 1) != '\0') {
+        q++;
+        p++;
+    }
+    if (*(q + 1) == '\0' && *(p + 1) != '\0') {
+        return nullptr; // input2 is longer than input1
+    }
+    // now input1 is not shorter than input2
+    // set p to the beginning of input1
+    p = input1;
+    // Hop p and q at same step until q reaches the end of input1
+    while (*q != '\0') {
+        if (*p == *input2) {
+            const char *r = p;
+            const char *s = input2;
+            while (*s != '\0' && *r == *s) {
+                r++;
+                s++;
+            }
+            if (*s == '\0')
+                return p;
+        }
+        p++;
+        q++;
+    }
+    return nullptr;
+}
+// Return a pointer to the first occurrence of input2 in input1, or nullptr
+const char *strStr5(const char *input1, const char *input2) {
+    if (input1 == nullptr || input2 == nullptr)
+        return nullptr;
+    const char *p = input1;
+    while (*p != '\0') {
+        if (*p == *input2) {
+            const char *r = p;
+            const char *s = input2;
+            while (*r != '\0' && *s != '\0' && *r == *s) {
+                r++;
+                s++;
+            }
+            if (*s == '\0')
+                return p;
+        }
+        p++;
+    }
+    return *input2 == '\0' ? input1 : nullptr;
+}
+
 } // namespace LeetCode
 } // namespace Test
 
