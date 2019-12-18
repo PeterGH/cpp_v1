@@ -2037,10 +2037,208 @@ const char *strStr5(const char *input1, const char *input2) {
 // store integers within the 32-bit signed integer range: [−2^31,  2^31 − 1].
 // For the purpose of this problem, assume that your function returns 2^31 − 1
 // when the division result overflows.
-
-} // namespace LeetCode
-} // namespace Test
 int divide(int dividend, int divisor) {
+    if (divisor == 1)
+        return dividend;
+    if (divisor == -1)
+        return dividend == INT_MIN ? INT_MAX : -dividend;
+    if (divisor == INT_MIN)
+        return dividend == INT_MIN ? 1 : 0;
+    bool negative = false;
+    if (divisor < 0) {
+        if (dividend < 0) {
+            if (divisor < dividend)
+                return 0;
+            dividend -= divisor;
+            dividend = -dividend;
+        } else {
+            if (dividend < -divisor)
+                return 0;
+            dividend += divisor;
+            negative = true;
+        }
+        divisor = -divisor;
+    } else {
+        if (dividend < 0) {
+            if (-divisor < dividend)
+                return 0;
+            dividend += divisor;
+            negative = true;
+            dividend = -dividend;
+        } else {
+            if (dividend < divisor)
+                return 0;
+            dividend -= divisor;
+        }
+    }
+    int q = 1; // already subtract one divisor from dividend
+    int n = 1;
+    int d = divisor;
+    while (dividend >= divisor) {
+        if (dividend - d < 0) {
+            d = d >> 1;
+            n = n >> 1;
+        } else if (dividend - d >= d) {
+            d = d << 1;
+            n = n << 1;
+        } else {
+            dividend -= d;
+            q += n;
+        }
+    }
+    return negative ? -q : q;
+}
+int divide2(int dividend, int divisor) {
+    if (divisor == 1)
+        return dividend;
+    if (divisor == -1)
+        return dividend == INT_MIN ? INT_MAX : -dividend;
+    if (divisor == INT_MIN)
+        return dividend == INT_MIN ? 1 : 0;
+    bool negative = false;
+    // use long in case of overflow when fliping the sign
+    long longDividend = (long)dividend;
+    long longDivisor = (long)divisor;
+    if (longDividend < 0) {
+        longDividend = -longDividend;
+        if (longDivisor < 0)
+            longDivisor = -longDivisor;
+        else
+            negative = true;
+    } else if (longDivisor < 0) {
+        longDivisor = -longDivisor;
+        negative = true;
+    }
+    int quotient = 0;
+    // use long in case of overflow when left shift by 1
+    long d = longDivisor;
+    int m = 1;
+    while (longDividend >= longDivisor) {
+        if (d <= longDividend && longDividend < d << 1) {
+            quotient += m;
+            longDividend -= d;
+        } else if (longDividend < d) {
+            d = d >> 1;
+            m = m >> 1;
+        } else { // d << 1 <= longDividend
+            d = d << 1;
+            m = m << 1;
+        }
+    }
+    return negative ? -quotient : quotient;
+}
+int divide3(int dividend, int divisor) {
+    if (divisor == 1)
+        return dividend;
+    if (divisor == -1)
+        return dividend == INT_MIN ? INT_MAX : -dividend;
+    if (divisor == INT_MIN)
+        return dividend == INT_MIN ? 1 : 0;
+    long long de = dividend;
+    long long ds = divisor;
+    bool negative = false;
+    if (de > 0 && ds < 0) {
+        negative = true;
+        ds = -ds;
+    } else if (de < 0 && ds > 0) {
+        negative = true;
+        de = -de;
+    } else if (de < 0 && ds < 0) {
+        de = -de;
+        ds = -ds;
+    }
+    long long r = 0;
+    while (de >= ds) {
+        long long d = ds;
+        long long i = 1;
+        while (de >= d) {
+            d = d << 1;
+            i = i << 1;
+        }
+        d = d >> 1;
+        i = i >> 1;
+        de -= d;
+        r += i;
+    }
+    if (negative)
+        r = -r;
+    return (int)r;
+}
+int divide4(int dividend, int divisor) {
+    if (divisor == 1)
+        return dividend;
+    if (divisor == -1)
+        return dividend == INT_MIN ? INT_MAX : -dividend;
+    if (divisor == INT_MIN)
+        return dividend == INT_MIN ? 1 : 0;
+    long long de = dividend;
+    long long ds = divisor;
+    bool negative = false;
+    if (de > 0 && ds < 0) {
+        negative = true;
+        ds = -ds;
+    } else if (de < 0 && ds > 0) {
+        negative = true;
+        de = -de;
+    } else if (de < 0 && ds < 0) {
+        de = -de;
+        ds = -ds;
+    }
+    if (de < ds)
+        return 0;
+    if (de == ds)
+        return negative ? -1 : 1;
+    long long r = 0;
+    long long d = ds;
+    long long i = 1;
+    vector<long long> v(1, d);
+    while (de >= d) {
+        d = d << 1;
+        i = i << 1;
+        v.push_back(d);
+    }
+    d = d >> 1;
+    i = i >> 1;
+    de -= d;
+    v.pop_back();
+    r += i;
+    while (de >= ds) {
+        int j = 0;
+        int k = v.size() - 1;
+        while (j <= k) {
+            int m = j + ((k - j) >> 1);
+            if (de < v[m]) {
+                if (j == m) {
+                    if (m > 0) {
+                        r += (long long)(1 << (m - 1));
+                        de -= v[m - 1];
+                    }
+                    while ((int)v.size() > m)
+                        v.pop_back();
+                    break;
+                }
+                k = m - 1;
+            } else if (v[m] < de) {
+                if (m == k) {
+                    r += (long long)(1 << m);
+                    de -= v[m];
+                    while ((int)v.size() > m + 1)
+                        v.pop_back();
+                    break;
+                }
+                j = m + 1;
+            } else {
+                r += (long long)(1 << m);
+                de -= v[m];
+                break;
+            }
+        }
+    }
+    if (negative)
+        r = -r;
+    return (int)r;
+}
+int divide5(int dividend, int divisor) {
     bool negative = false;
     if (dividend < 0) {
         if (divisor > 0) {
@@ -2056,7 +2254,6 @@ int divide(int dividend, int divisor) {
             divisor = -divisor;
         }
     }
-
     int q = 0;
     int n = 1;
     int d = divisor;
@@ -2091,7 +2288,7 @@ int divide(int dividend, int divisor) {
     }
     return negative ? -q : q;
 }
-int divide2(int dividend, int divisor) {
+int divide6(int dividend, int divisor) {
     bool negative = false;
     if (dividend < 0) {
         if (divisor > 0) {
@@ -2109,7 +2306,6 @@ int divide2(int dividend, int divisor) {
             divisor = -divisor;
         }
     }
-
     int q = 0;
     int n = 1;
     int d = divisor;
@@ -2127,7 +2323,6 @@ int divide2(int dividend, int divisor) {
                 q += n;
             }
         }
-
     } else {
         while (dividend >= divisor) {
             if (dividend - d < 0) {
@@ -2144,7 +2339,7 @@ int divide2(int dividend, int divisor) {
     }
     return negative ? -q : q;
 }
-int divide3(int dividend, int divisor) {
+int divide7(int dividend, int divisor) {
     if (dividend == INT_MIN) {
         if (divisor == -1)
             return INT_MAX;
@@ -2176,4 +2371,66 @@ int divide3(int dividend, int divisor) {
     }
     return negative ? -q : q;
 }
+
+// 31. Next Permutation
+// Implement next permutation, which rearranges numbers into the
+// lexicographically next greater permutation of numbers. If such arrangement is
+// not possible, it must rearrange it as the lowest possible order (ie, sorted
+// in ascending order). The replacement must be in-place and use only constant
+// extra memory. Here are some examples. Inputs are in the left-hand column and
+// its corresponding outputs are in the right-hand column. 1,2,3 -> 1,3,2 3,2,1
+// -> 1,2,3 1,1,5 -> 1,5,1
+void nextPermutation(vector<int> &nums) {
+    if (nums.empty())
+        return;
+    int i = nums.size() - 1;
+    while (0 < i && nums[i - 1] >= nums[i])
+        i--;
+    int j = i;
+    int k = nums.size() - 1;
+    while (j < k)
+        swap(nums[j++], nums[k--]);
+    if (i == 0)
+        return;
+    j = i;
+    k = nums.size() - 1;
+    i--;
+    while (j <= k) {
+        int m = j + ((k - j) >> 1);
+        if (nums[i] < nums[m]) {
+            if (0 <= m - 1 && nums[m - 1] <= nums[i]) {
+                swap(nums[i], nums[m]);
+                break;
+            }
+            k = m - 1;
+        } else {
+            if (m + 1 < (int)nums.size() && nums[i] < nums[m + 1]) {
+                swap(nums[i], nums[m + 1]);
+                break;
+            }
+            j = m + 1;
+        }
+    }
+}
+void nextPermutation2(vector<int> &nums) {
+    if (nums.size() < 2)
+        return;
+    size_t i = nums.size() - 1;
+    while (1 <= i && nums[i - 1] >= nums[i])
+        i--;
+    size_t j = i;
+    size_t k = nums.size() - 1;
+    while (j < k)
+        swap(nums[j++], nums[k--]);
+    if (1 <= i) {
+        j = i;
+        while (j < nums.size() && nums[i - 1] >= nums[j])
+            j++;
+        if (j < nums.size())
+            swap(nums[i - 1], nums[j]);
+    }
+}
+
+} // namespace LeetCode
+} // namespace Test
 #endif

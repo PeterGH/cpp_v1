@@ -711,5 +711,133 @@ void LeetCodeTest::Init(void) {
             check(haystack.c_str(), needle.c_str(), -2);
         }
     });
+
+    Add("29. Divide Two Integers", [&]() {
+        auto check = [&](int e, int r) {
+            int s = divide(e, r);
+            int s2 = divide2(e, r);
+            int s3 = divide3(e, r);
+            int s4 = divide4(e, r);
+            int s5 = (e == INT_MIN && r == -1) ? INT_MAX
+                                               : (long long)e / (long long)r;
+            Logger().WriteInformation(" %d / %d = %d, %d, %d, %d, %d\n", e, r,
+                                      s, s2, s3, s4, s5);
+            ASSERT1(s == s5);
+            ASSERT1(s2 == s5);
+            ASSERT1(s3 == s5);
+            ASSERT1(s4 == s5);
+        };
+        check(5, 2);
+        check(-5, 2);
+        check(5, -2);
+        check(-5, -2);
+        check(7, 3);
+        check(-7, 3);
+        check(7, -3);
+        check(-7, -3);
+        check(1, 3);
+        check(-1, 3);
+        check(1, -3);
+        check(-1, -3);
+        check(INT_MAX, 1);
+        check(INT_MIN, 1);
+        check(INT_MAX, 2);
+        check(INT_MIN, 2);
+        check(INT_MAX, 3);
+        check(INT_MIN, 3);
+        check(INT_MAX, 4);
+        check(INT_MIN, 4);
+        check(INT_MAX, -1);
+        check(INT_MIN, -1);
+        check(INT_MAX, -2);
+        check(INT_MIN, -2);
+        check(INT_MAX, -3);
+        check(INT_MIN, -3);
+        check(INT_MAX, -4);
+        check(INT_MIN, -4);
+        check(INT_MIN, INT_MIN);
+        check(INT_MAX, INT_MIN);
+        check(INT_MIN, INT_MAX);
+        check(INT_MAX, INT_MAX);
+        for (int i = 0; i < 1000; i++) {
+            int e;
+            int r;
+            switch (i % 3) {
+            case 0:
+                e = rand();
+                if (e == 0)
+                    e = 1;
+                r = rand();
+                if (r == 0)
+                    r = 1;
+                break;
+            case 1:
+                e = INT_MIN;
+                r = rand();
+                if (r == 0)
+                    r = 1;
+                break;
+            case 2:
+                e = INT_MAX;
+                r = rand();
+                if (r == 0)
+                    r = 1;
+                break;
+            }
+            if (e > 0 && e < r)
+                swap(e, r);
+            check(e, r);
+        }
+    });
+
+    Add("31. Next Permutation", [&]() {
+        auto check = [&](vector<int> &v) {
+            sort(v.begin(), v.end());
+            Logger() << v;
+            vector<int> v2(v);
+            vector<int> v3(v);
+            while (std::next_permutation(v.begin(), v.end())) {
+                nextPermutation(v2);
+                nextPermutation2(v3);
+                Logger() << v2;
+                Logger() << v3;
+                for (size_t i = 0; i < v.size(); i++) {
+                    ASSERT1(v[i] == v2[i]);
+                    ASSERT1(v[i] == v3[i]);
+                }
+            }
+            nextPermutation(v2);
+            nextPermutation2(v3);
+            Logger() << v2;
+            Logger() << v3;
+            for (size_t i = 0; i < v.size(); i++) {
+                ASSERT1(v[i] == v2[i]);
+                ASSERT1(v[i] == v3[i]);
+            }
+        };
+        for (int i = 0; i < 10; i++) {
+            vector<int> input = Random::Vector(Random::Int(6, 1), 6);
+            int length = (int)input.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            check(input);
+        }
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(10, 1), 10);
+            int length = (int)v.size();
+            Logger().WriteInformation("Run %d: %d elements\n", i, length);
+            Logger() << v;
+            vector<int> v2(v);
+            vector<int> v3(v);
+            std::next_permutation(v.begin(), v.end());
+            nextPermutation(v2);
+            nextPermutation2(v3);
+            Logger() << v2;
+            Logger() << v3;
+            for (size_t i = 0; i < v.size(); i++) {
+                ASSERT1(v[i] == v2[i]);
+                ASSERT1(v[i] == v3[i]);
+            }
+        }
+    });
 }
 #endif
