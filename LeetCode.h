@@ -2431,6 +2431,261 @@ void nextPermutation2(vector<int> &nums) {
     }
 }
 
+// 32. Longest Valid Parentheses
+// Given a string containing just the characters '(' and ')', find the length
+// of the longest valid (well-formed) parentheses substring.
+// Example 1:
+// Input: "(()", Output: 2
+// Explanation: The longest valid parentheses substring is "()"
+// Example 2:
+// Input: ")()())", Output: 4
+// Explanation: The longest valid parentheses substring is "()()"
+int longestValidParentheses(const string &s) {
+    size_t m = 0;
+    stack<size_t> p;
+    for (size_t i = 0; i < s.size(); i++) {
+        if (!p.empty() && s[i] == ')' && s[p.top()] == '(') {
+            p.pop();
+            m = max(m, p.empty() ? i + 1 : i - p.top());
+        } else {
+            p.push(i);
+        }
+    }
+    return (int)m;
+}
+int longestValidParentheses2(const string &s) {
+    int len = s.length();
+    if (len == 0)
+        return 0;
+    vector<pair<int, int>> p;
+    int i = 0;
+    while (i + 1 < len) {
+        if (s[i] == '(' && s[i + 1] == ')') {
+            int j = i;
+            int k = i + 1;
+            while (j >= 0 && k < len && s[j] == '(' && s[k] == ')') {
+                j--;
+                k++;
+            }
+            p.push_back(make_pair(j + 1, k - 1));
+            i = k;
+        } else
+            i++;
+    }
+    if (p.size() == 0)
+        return 0;
+    vector<pair<int, int>>::iterator it = p.begin();
+    while (it + 1 != p.end()) {
+        if (it->second + 1 == (it + 1)->first) {
+            it->second = (it + 1)->second;
+            p.erase(it + 1);
+        } else {
+            it++;
+        }
+    }
+    bool stop = false;
+    while (!stop) {
+        stop = true;
+        for (int j = 0; j < (int)p.size(); j++) {
+            int l = p[j].first - 1;
+            int r = p[j].second + 1;
+            while (l >= 0 && r < len && s[l] == '(' && s[r] == ')') {
+                stop = false;
+                p[j].first = l;
+                p[j].second = r;
+                l--;
+                r++;
+            }
+        }
+        it = p.begin();
+        while (it + 1 != p.end()) {
+            if (it->second + 1 == (it + 1)->first) {
+                stop = false;
+                it->second = (it + 1)->second;
+                p.erase(it + 1);
+            } else {
+                it++;
+            }
+        }
+    }
+    int m = 0;
+    for (int j = 0; j < (int)p.size(); j++) {
+        if (p[j].second - p[j].first + 1 > m) {
+            m = p[j].second - p[j].first + 1;
+        }
+    }
+    return m;
+}
+int longestValidParentheses3(const string &s) {
+    int len = s.length();
+    if (len == 0)
+        return 0;
+    function<bool(int &, int &)> expand = [&](int &j, int &k) -> bool {
+        bool e = false;
+        while (j - 1 >= 0 && k + 1 < len && s[j - 1] == '(' &&
+               s[k + 1] == ')') {
+            e = true;
+            j--;
+            k++;
+        }
+        return e;
+    };
+    int m = 0;
+    stack<pair<int, int>> p;
+    int i = 0;
+    while (i + 1 < len) {
+        if (s[i] == '(' && s[i + 1] == ')') {
+            int j = i;
+            int k = i + 1;
+            expand(j, k);
+            while (!p.empty() && p.top().second + 1 == j) {
+                j = p.top().first;
+                p.pop();
+                if (!expand(j, k))
+                    break;
+            }
+            if (k - j + 1 > m)
+                m = k - j + 1;
+            p.push(make_pair(j, k));
+            i = k + 1;
+        } else {
+            i++;
+        }
+    }
+    return m;
+}
+// This is wrong. e.g. "((()())((" return 0 but the answer should be 6
+int longestValidParentheses4(const string &s) {
+    int len = s.length();
+    if (len == 0)
+        return 0;
+    int i = -1;
+    int n = -1;
+    int m = 0;
+    for (int j = 0; j < len; j++) {
+        if (s[j] == '(') {
+            if (n < 0) {
+                n = 1;
+                i = j;
+            } else {
+                n++;
+            }
+        } else if (s[j] == ')') {
+            if (n == 0) {
+                m = std::max(m, j - i);
+            }
+            n--;
+        }
+    }
+    if (n == 0) {
+        m = std::max(m, len - i);
+    }
+    return m;
+}
+// This is wrong. e.g. "()()" return 2 but the answer should be 4
+int longestValidParentheses5(const string &s) {
+    int m = 0;
+    stack<int> p;
+    for (int i = 0; i < (int)s.length(); i++) {
+        switch (s[i]) {
+        case '(':
+            p.push(i);
+            break;
+        case ')':
+            if (!p.empty()) {
+                m = std::max(m, i - p.top() + 1);
+                p.pop();
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return m;
+}
+
+// 33. Search in Rotated Sorted Array
+// Suppose an array sorted in ascending order is rotated at some pivot unknown
+// to you beforehand. (i.e., [0,1,2,4,5,6,7] might become [4,5,6,7,0,1,2]).
+// You are given a target value to search. If found in the array return its
+// index, otherwise return -1. You may assume no duplicate exists in the array.
+// Your algorithm's runtime complexity must be in the order of O(log n).
+// Example 1:
+// Input: nums = [4,5,6,7,0,1,2], target = 0
+// Output: 4
+// Example 2:
+// Input: nums = [4,5,6,7,0,1,2], target = 3
+// Output: -1
+// Note: The pivot may be 0, i.e., no rotation
+int search(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (nums[0] <= nums[m]) {
+                if (nums[0] <= target) {
+                    if (l == m)
+                        break;
+                    h = m - 1;
+                } else {
+                    if (m == h)
+                        break;
+                    l = m + 1;
+                }
+            } else {
+                if (l == m)
+                    break;
+                h = m - 1;
+            }
+        } else if (nums[m] < target) {
+            if (nums[0] <= nums[m]) {
+                if (m == h)
+                    break;
+                l = m + 1;
+            } else {
+                if (nums[0] <= target) {
+                    if (l == m)
+                        break;
+                    h = m - 1;
+                } else {
+                    if (m == h)
+                        break;
+                    l = m + 1;
+                }
+            }
+        } else {
+            return m;
+        }
+    }
+    return -1;
+}
+int search2(const vector<int> &nums, int target) {
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r) {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return m;
+        else if (nums[m] < target) {
+            if (nums[0] < nums[m])
+                l = m + 1;
+            else if (target <= nums[r])
+                l = m + 1;
+            else
+                r = m - 1;
+        } else {
+            if (nums[0] > nums[m])
+                r = m - 1;
+            else if (nums[l] <= target)
+                r = m - 1;
+            else
+                l = m + 1;
+        }
+    }
+    return -1;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

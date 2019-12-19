@@ -839,5 +839,54 @@ void LeetCodeTest::Init(void) {
             }
         }
     });
+
+    Add("32. Longest Valid Parentheses", [&]() {
+        auto check = [&](const string &s) {
+            int l = longestValidParentheses(s);
+            int l2 = longestValidParentheses2(s);
+            int l3 = longestValidParentheses3(s);
+            Logger().WriteInformation("%s: %d, %d, %d\n", s.c_str(), l, l2, l3);
+            ASSERT1(l == l2);
+            ASSERT1(l == l3);
+        };
+        check("()");
+        check("()()");
+        check("(())");
+        check("(()())");
+        check("(()())((()())(()()))");
+        for (int i = 0; i < 10; i++) {
+            size_t n = Random::Int(50, 2);
+            string s = Random::String(n, string("()"));
+            check(s);
+        }
+    });
+
+    Add("33. Search in Rotated Sorted Array", [&]() {
+        auto check = [&](const vector<int> v, int t, int e,
+                         bool ignoreE = false) {
+            int i = search(v, t);
+            int i2 = search2(v, t);
+            if (ignoreE) {
+                Logger() << v << t << ", " << i << ", " << i2 << endl;
+                ASSERT1(i == i2);
+            } else {
+                Logger() << v << t << ", " << i << ", " << i2 << ", " << e
+                         << endl;
+                ASSERT1(i == e);
+                ASSERT1(i2 == e);
+            }
+        };
+        check({4, 5, 6, 7, 0, 1, 2}, 0, 4);
+        check({4, 5, 6, 7, 0, 1, 2}, 3, -1);
+        check({1, 3}, 1, 0);
+        check({1, 3}, 3, 1);
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            int d = (i % 10) == 0 ? 0 : Random::Int(n);
+            Util::RotateLeft(v, d);
+            check(v, Random::Int(n * 2), -2, true);
+        }
+    });
 }
 #endif

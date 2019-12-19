@@ -77,7 +77,7 @@ static vector<basic_string<T>> Strings(size_t count, size_t maxStringlength,
 } // namespace Random
 
 namespace Util {
-template<class T>
+template <class T>
 static int Compare(const vector<T> &lhs, const vector<T> &rhs) {
     if (lhs.empty() && rhs.empty())
         return 0;
@@ -100,9 +100,8 @@ static int Compare(const vector<T> &lhs, const vector<T> &rhs) {
         return 0;
 }
 
-template<class T>
-static int Compare(const vector<vector<T>> &lhs,
-                   const vector<vector<T>> &rhs) {
+template <class T>
+static int Compare(const vector<vector<T>> &lhs, const vector<vector<T>> &rhs) {
     if (lhs.empty() && rhs.empty())
         return 0;
     if (lhs.empty())
@@ -127,6 +126,40 @@ static vector<int> IncreasingVector(size_t n, int init = 0) {
     vector<int> result(n);
     std::generate(result.begin(), result.end(), [&]() { return init++; });
     return result;
+}
+
+template <class T> static void RotateLeft(vector<T> &input, size_t distance) {
+    if (input.empty())
+        return;
+    distance = distance % input.size();
+    if (distance == 0)
+        return;
+    int i = 0;
+    int j = input.size() - 1;
+    int k = distance;
+    // input[i..k-1] and input[k..j]
+    while (i < k && k <= j) {
+        if (k - i < j - k + 1) {
+            // Left range is shorter. Swap it to the right, and
+            // repeat with the rest on its left.
+            // input[i..k-1], input[k..j-(k-i)], input[j-(k-i)+1..j]
+            for (int n = 0; n < k - i; n++)
+                swap(input[i + n], input[j - (k - i) + 1 + n]);
+            j = j - (k - i);
+        } else if (k - i > j - k + 1) {
+            // Right range is shorter. Swap it to the left, and
+            // repeat with the rest on its right.
+            // input[i..i+(j-k)], input[i+(j-k)+1..k-1], input[k..j]
+            for (int n = 0; n < j - k + 1; n++)
+                swap(input[i + n], input[k + n]);
+            i = i + (j - k) + 1;
+        } else {
+            // Both ranges have the same length
+            for (int n = 0; n < k - i; n++)
+                swap(input[i + n], input[k + n]);
+            break;
+        }
+    }
 }
 
 static void Shuffle(vector<int> &input) {
