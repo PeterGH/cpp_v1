@@ -2686,6 +2686,328 @@ int search2(const vector<int> &nums, int target) {
     return -1;
 }
 
+// 34. Find First and Last Position of Element in Sorted Array
+// Given an array of integers nums sorted in ascending order, find the starting
+// and ending position of a given target value. Your algorithm's runtime
+// complexity must be in the order of O(log n). If the target is not found in
+// the array, return [-1, -1]. Example 1: Input: nums = [5,7,7,8,8,10], target =
+// 8 Output: [3,4] Example 2: Input: nums = [5,7,7,8,8,10], target = 6 Output:
+// [-1,-1]
+vector<int> searchRange(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = (int)nums.size() - 1;
+    int first = -1;
+    int second = -1;
+    bool foundFirst = false;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (l == m)
+                break;
+            h = m - 1;
+        } else if (nums[m] < target) {
+            if (m == h)
+                break;
+            l = m + 1;
+        } else {
+            if (!foundFirst) {
+                if (l == m || nums[m - 1] < target) {
+                    foundFirst = true;
+                    first = m;
+                    l = m;
+                    h = (int)nums.size() - 1;
+                } else {
+                    h = m - 1;
+                }
+            } else {
+                if (m == h || target < nums[m + 1]) {
+                    second = m;
+                    break;
+                } else {
+                    l = m + 1;
+                }
+            }
+        }
+    }
+    return vector<int>{first, second};
+}
+vector<int> searchRange2(const vector<int> &nums, int target) {
+    if (nums.empty())
+        return vector<int>{-1, -1};
+    int l = 0;
+    int r = nums.size() - 1;
+    int m = -1;
+    while (l <= r) {
+        m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            break;
+        if (nums[m] < target)
+            l = m + 1;
+        else
+            r = m - 1;
+    }
+    if (l > r)
+        return vector<int>{-1, -1};
+    int b = m;
+    int n;
+    if (l < m) {
+        n = m - 1;
+        while (l <= n) {
+            b = l + ((n - l) >> 1);
+            if (nums[b] == target) {
+                if (b == 0 || nums[b - 1] < target)
+                    break;
+                else
+                    n = b - 1;
+            } else {
+                if (nums[b + 1] == target) {
+                    b++;
+                    break;
+                } else
+                    l = b + 1;
+            }
+        }
+        if (l > n)
+            b = -1;
+    }
+    int e = m;
+    if (m < r) {
+        n = m + 1;
+        while (n <= r) {
+            e = n + ((r - n) >> 1);
+            if (nums[e] == target) {
+                if (e == (int)nums.size() - 1 || nums[e + 1] > target)
+                    break;
+                else
+                    n = e + 1;
+            } else {
+                if (nums[e - 1] == target) {
+                    e--;
+                    break;
+                } else
+                    r = e - 1;
+            }
+        }
+        if (n > r)
+            e = -1;
+    }
+    return vector<int>{b, e};
+}
+vector<int> searchRange3(const vector<int> &nums, int target) {
+    int b = -1;
+    int e = -1;
+    bool foundBegin = false;
+    bool foundEnd = false;
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r) {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] < target)
+            l = m + 1;
+        else if (target < nums[m])
+            r = m - 1;
+        else if (!foundBegin) {
+            if (l == m) {
+                foundBegin = true;
+                b = m;
+                l = b;
+                r = nums.size() - 1;
+            } else
+                r = m;
+        } else if (!foundEnd) {
+            if (l < m)
+                l = m;
+            else {
+                foundEnd = true;
+                e = m == r ? m : (nums[r] == target ? r : m);
+            }
+        } else {
+            break;
+        }
+    }
+    return vector<int>{b, e};
+}
+
+// 35. Search Insert Position
+// Given a sorted array and a target value, return the index if the target is
+// found. If not, return the index where it would be if it were inserted in
+// order. You may assume no duplicates in the array. Example 1: Input:
+// [1,3,5,6], 5 Output: 2 Example 2: Input: [1,3,5,6], 2 Output: 1 Example 3:
+// Input: [1,3,5,6], 7
+// Output: 4
+// Example 4:
+// Input: [1,3,5,6], 0
+// Output: 0
+int searchInsert(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (l == m)
+                return m;
+            h = m - 1;
+        } else if (nums[m] < target) {
+            if (m == h)
+                return m + 1;
+            l = m + 1;
+        } else {
+            return m;
+        }
+    }
+    return 0;
+}
+int searchInsert2(const vector<int> &nums, int target) {
+    int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r) {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return m;
+        if (nums[m] < target) {
+            if (m == r || nums[m + 1] > target)
+                return m + 1;
+            else
+                l = m + 1;
+        } else {
+            if (m == l || nums[m - 1] < target)
+                return m;
+            else
+                r = m - 1;
+        }
+    }
+    return -1;
+}
+
+// 36. Valid Sudoku
+// Determine if a 9x9 Sudoku board is valid. Only the filled cells need to be
+// validated according to the following rules:
+// Each row must contain the digits 1-9 without repetition.
+// Each column must contain the digits 1-9 without repetition.
+// Each of the 9 3x3 sub-boxes of the grid must contain the digits 1-9 without
+// repetition. A partially filled sudoku which is valid. The Sudoku board could
+// be partially filled, where empty cells are filled with the character '.'.
+// Example 1:
+// Input:
+// [
+//   ["5","3",".",".","7",".",".",".","."],
+//   ["6",".",".","1","9","5",".",".","."],
+//   [".","9","8",".",".",".",".","6","."],
+//   ["8",".",".",".","6",".",".",".","3"],
+//   ["4",".",".","8",".","3",".",".","1"],
+//   ["7",".",".",".","2",".",".",".","6"],
+//   [".","6",".",".",".",".","2","8","."],
+//   [".",".",".","4","1","9",".",".","5"],
+//   [".",".",".",".","8",".",".","7","9"]
+// ]
+// Output: true
+// Example 2:
+// Input:
+// [
+//   ["8","3",".",".","7",".",".",".","."],
+//   ["6",".",".","1","9","5",".",".","."],
+//   [".","9","8",".",".",".",".","6","."],
+//   ["8",".",".",".","6",".",".",".","3"],
+//   ["4",".",".","8",".","3",".",".","1"],
+//   ["7",".",".",".","2",".",".",".","6"],
+//   [".","6",".",".",".",".","2","8","."],
+//   [".",".",".","4","1","9",".",".","5"],
+//   [".",".",".",".","8",".",".","7","9"]
+// ]
+// Output: false
+// Explanation: Same as Example 1, except with the 5 in the top left corner
+// being modified to 8. Since there are two 8's in the top left 3x3 sub-box, it
+// is invalid. Note: A Sudoku board (partially filled) could be valid but is not
+// necessarily solvable. Only the filled cells need to be validated according to
+// the mentioned rules. The given board contain only digits 1-9 and the
+// character '.'. The given board size is always 9x9.
+bool isValidSudoku(const vector<vector<char>> &board) {
+    map<size_t, set<char>> row;
+    map<size_t, set<char>> col;
+    map<size_t, set<char>> cell;
+    for (size_t i = 0; i < board.size(); i++) {
+        row[i] = set<char>{};
+        for (size_t j = 0; j < board[0].size(); j++) {
+            if (i == 0)
+                col[j] = set<char>{};
+            int k = (i / 3) * 3 + (j / 3);
+            if (cell.find(k) == cell.end())
+                cell[k] = set<char>{};
+            if (board[i][j] != '.') {
+                if (row[i].find(board[i][j]) != row[i].end())
+                    return false;
+                row[i].insert(board[i][j]);
+                if (col[j].find(board[i][j]) != col[j].end())
+                    return false;
+                col[j].insert(board[i][j]);
+                if (cell[k].find(board[i][j]) != cell[k].end())
+                    return false;
+                cell[k].insert(board[i][j]);
+            }
+        }
+    }
+    return true;
+}
+bool isValidSudoku2(const vector<vector<char>> &board) {
+    map<size_t, set<char>> rows;
+    map<size_t, set<char>> cols;
+    map<size_t, set<char>> grids;
+    for (size_t i = 0; i < board.size(); i++) {
+        if (rows.find(i) == rows.end())
+            rows[i] = set<char>{};
+        for (size_t j = 0; j < board[i].size(); j++) {
+            if (i == 0 && cols.find(j) == cols.end())
+                cols[j] = set<char>();
+            if (i % 3 == 0 && j % 3 == 0 &&
+                grids.find(i * 3 + j) == grids.end()) {
+                grids[i * 3 + j] = set<char>{};
+            }
+            if (board[i][j] != '.') { // A real check may be against '0'-'9'
+                if (rows[i].find(board[i][j]) != rows[i].end())
+                    return false;
+                rows[i].insert(board[i][j]);
+                if (cols[j].find(board[i][j]) != cols[j].end())
+                    return false;
+                cols[j].insert(board[i][j]);
+                auto k = (i / 3) * 3 + (j / 3);
+                if (grids[k].find(board[i][j]) != grids[k].end())
+                    return false;
+                grids[k].insert(board[i][j]);
+            }
+        }
+    }
+    return true;
+}
+bool isValidSudoku3(const vector<vector<char>> &board) {
+    map<char, set<size_t>> row;
+    map<char, set<size_t>> col;
+    map<char, set<size_t>> cell;
+    for (size_t i = 0; i < board.size(); i++) {
+        for (size_t j = 0; j < board[0].size(); j++) {
+            char c = board[i][j];
+            if (c != '.') {
+                if (row.find(c) == row.end())
+                    row[c] = set<size_t>{};
+                if (row[c].find(i) != row[c].end())
+                    return false;
+                row[c].insert(i);
+                if (col.find(c) == col.end())
+                    col[c] = set<size_t>{};
+                if (col[c].find(j) != col[c].end())
+                    return false;
+                col[c].insert(j);
+                size_t k = (i / 3) * 3 + (j / 3);
+                if (cell.find(c) == cell.end())
+                    cell[c] = set<size_t>{};
+                if (cell[c].find(k) != cell[c].end())
+                    return false;
+                cell[c].insert(k);
+            }
+        }
+    }
+    return true;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

@@ -888,5 +888,77 @@ void LeetCodeTest::Init(void) {
             check(v, Random::Int(n * 2), -2, true);
         }
     });
+
+    Add("34. Find First and Last Position of Element in Sorted Array", [&]() {
+        auto check = [&](const vector<int> &v, int e) {
+            Logger() << v;
+            Logger() << "Range " << e << ": ";
+            vector<int> p = searchRange(v, e);
+            vector<int> p2 = searchRange2(v, e);
+            vector<int> p3 = searchRange3(v, e);
+            Logger() << p << p2 << p3;
+            ASSERT1(p[0] == p2[0]);
+            ASSERT1(p[1] == p2[1]);
+            ASSERT1(p[0] == p3[0]);
+            ASSERT1(p[1] == p3[1]);
+            if (p[0] > 0) {
+                ASSERT1(v[p[0] - 1] < v[p[0]]);
+                ASSERT1(v[p[0]] == e);
+            }
+            if (0 <= p[1] && p[1] < (int)v.size() - 1) {
+                ASSERT1(v[p[1]] < v[p[1] + 1]);
+                ASSERT1(v[p[1]] == e);
+            }
+        };
+        {
+            vector<int> v = {0};
+            check(v, 0);
+            check(v, 1);
+        }
+        {
+            vector<int> v = {1, 1};
+            check(v, 1);
+            check(v, 2);
+        }
+        {
+            vector<int> v = {2, 3};
+            check(v, 1);
+            check(v, 2);
+            check(v, 3);
+            check(v, 4);
+        }
+        for (int i = 0; i < 100; i++) {
+            vector<int> input = Random::Vector(Random::Int(100, 1), 5, -5);
+            sort(input.begin(), input.end());
+            check(input, Random::Int(6, -6));
+        }
+    });
+
+    Add("35. Search Insert Position", [&]() {
+        auto check = [&](const vector<int> &v, int t) {
+            Logger() << v << t << endl;
+            int i = searchInsert(v, t);
+            int i2 = searchInsert2(v, t);
+            Logger() << i << ", " << i2 << endl;
+            ASSERT1(i == i2);
+            if (i < (int)v.size())
+                ASSERT1(t <= v[i]);
+            else
+                ASSERT1(i == (int)v.size());
+            if (0 < i)
+                ASSERT1(v[i - 1] <= t);
+            else
+                ASSERT1(i == 0);
+        };
+        check({1, 3, 5, 6}, 5);
+        check({1, 3, 5, 6}, 2);
+        check({1, 3, 5, 6}, 7);
+        check({1, 3, 5, 6}, 0);
+        for (int i = 0; i < 100; i++) {
+            vector<int> input = Random::Vector(Random::Int(100, 1), 100);
+            sort(input.begin(), input.end());
+            check(input, Random::Int(200, -100));
+        }
+    });
 }
 #endif
