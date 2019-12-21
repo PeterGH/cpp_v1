@@ -960,5 +960,42 @@ void LeetCodeTest::Init(void) {
             check(input, Random::Int(200, -100));
         }
     });
+
+    Add("37. Sudoku Solver", [&]() {
+        auto check = [&](const vector<vector<char>> &board) {
+            Logger().WriteInformation("Sudoku:\n");
+            Logger() << board;
+            vector<vector<char>> b(board);
+            solveSudoku(b);
+            vector<vector<char>> b2(board);
+            solveSudoku(b2);
+            Logger() << b << b2;
+            bool r = isValidSudoku(b);
+            bool r2 = isValidSudoku2(b);
+            bool r3 = isValidSudoku3(b);
+            ASSERT1(r == true);
+            ASSERT1(r2 == true);
+            ASSERT1(r3 == true);
+            bool s = isValidSudoku(b2);
+            bool s2 = isValidSudoku2(b2);
+            bool s3 = isValidSudoku3(b2);
+            ASSERT1(s == true);
+            ASSERT1(s2 == true);
+            ASSERT1(s3 == true);
+        };
+        {
+            vector<vector<char>> b = {
+                {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+                {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+                {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+                {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+                {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+                {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+                {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+                {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+                {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
+            check(b);
+        }
+    });
 }
 #endif

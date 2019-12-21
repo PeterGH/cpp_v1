@@ -3008,6 +3008,156 @@ bool isValidSudoku3(const vector<vector<char>> &board) {
     return true;
 }
 
+// 37. Sudoku Solver
+// Write a program to solve a Sudoku puzzle by filling the empty cells.
+// A sudoku solution must satisfy all of the following rules:
+// Each of the digits 1-9 must occur exactly once in each row.
+// Each of the digits 1-9 must occur exactly once in each column.
+// Each of the the digits 1-9 must occur exactly once in each of
+// the 9 3x3 sub-boxes of the grid.
+// Empty cells are indicated by the character '.'. Note:
+// The given board contain only digits 1-9 and the character '.'.
+// You may assume that the given Sudoku puzzle will have a single unique
+// solution. The given board size is always 9x9.
+void solveSudoku(vector<vector<char>> &board) {
+    function<bool(size_t, size_t, vector<vector<char>> &)> solve =
+        [&](size_t i, size_t j, vector<vector<char>> &b) -> bool {
+        if (i == 9 && j == 0)
+            return true;
+        if (b[i][j] != '.')
+            return solve(j < 8 ? i : i + 1, j < 8 ? j + 1 : 0, b);
+        for (char c = '1'; c <= '9'; c++) {
+            bool isCandidate = true;
+            for (size_t k = 0; k < 9; k++) {
+                if (b[i][k] == c) {
+                    isCandidate = false;
+                    break;
+                }
+            }
+            if (!isCandidate)
+                continue;
+            for (size_t k = 0; k < 9; k++) {
+                if (b[k][j] == c) {
+                    isCandidate = false;
+                    break;
+                }
+            }
+            if (!isCandidate)
+                continue;
+            size_t m = (i / 3) * 3;
+            size_t n = (j / 3) * 3;
+            for (size_t p = m; p < m + 3; p++) {
+                for (size_t q = n; q < n + 3; q++) {
+                    if (b[p][q] == c) {
+                        isCandidate = false;
+                        break;
+                    }
+                }
+                if (!isCandidate)
+                    break;
+            }
+            if (!isCandidate)
+                continue;
+            b[i][j] = c;
+            if (solve(j < 8 ? i : i + 1, j < 8 ? j + 1 : 0, b))
+                return true;
+        }
+        b[i][j] = '.';
+        return false;
+    };
+    solve(0, 0, board);
+}
+void solveSudoku2(vector<vector<char>> &board) {
+    function<void(int &, int, int &, int)> oneStep = [&](int &i, int r, int &j,
+                                                         int c) {
+        j++;
+        j = j % c;
+        if (j == 0) {
+            i++;
+            i = i % r;
+        }
+    };
+    function<bool(vector<vector<char>> &, int, int, vector<set<char>> &,
+                  vector<set<char>> &, vector<vector<set<char>>> &,
+                  map<pair<int, int>, set<char>> &)>
+        solve =
+            [&](vector<vector<char>> &b, int i, int j,
+                vector<set<char>> &row, // existing characters on every row
+                vector<set<char>> &col, // existing characters on every column
+                vector<vector<set<char>>>
+                    cell, // existing characters in every 3x3 cell
+                map<pair<int, int>, set<char>>
+                    &m // available characters for every empty cell
+                ) -> bool {
+        while (i != (int)b.size() - 1 || j != (int)b[i].size() - 1) {
+            if (b[i][j] == '.')
+                break;
+            oneStep(i, (int)b.size(), j, (int)b[i].size());
+        }
+        // Now (i, j) is either empty or it is the bottom-right element of b
+        if (b[i][j] != '.')
+            return true;
+        pair<int, int> p = make_pair(i, j);
+        for (set<char>::iterator it = m[p].begin(); it != m[p].end(); it++) {
+            char c = *it;
+            if (row[i].find(c) == row[i].end() &&
+                col[j].find(c) == col[j].end() &&
+                cell[i / 3][j / 3].find(c) == cell[i / 3][j / 3].end()) {
+                b[i][j] = c;
+                row[i].insert(c);
+                col[j].insert(c);
+                cell[i / 3][j / 3].insert(c);
+                if (i == (int)b.size() - 1 && j == (int)b[i].size() - 1)
+                    return true;
+                int i1 = i;
+                int j1 = j;
+                oneStep(i1, (int)b.size(), j1, (int)b[i].size());
+                if (solve(b, i1, j1, row, col, cell, m))
+                    return true;
+                b[i][j] = '.';
+                row[i].erase(c);
+                col[j].erase(c);
+                cell[i / 3][j / 3].erase(c);
+            }
+        }
+        return false;
+    };
+    if (board.size() == 0 || board[0].size() == 0)
+        return;
+    vector<set<char>> row = vector<set<char>>(9, set<char>{});
+    vector<set<char>> col = vector<set<char>>(9, set<char>{});
+    vector<vector<set<char>>> cell =
+        vector<vector<set<char>>>(3, vector<set<char>>(3, set<char>{}));
+    for (int i = 0; i < (int)board.size(); i++) {
+        for (int j = 0; j < (int)board[i].size(); j++) {
+            if (board[i][j] != '.') {
+                row[i].insert(board[i][j]);
+                col[j].insert(board[i][j]);
+                cell[i / 3][j / 3].insert(board[i][j]);
+            }
+        }
+    }
+    map<pair<int, int>, set<char>> m;
+    for (int i = 0; i < (int)board.size(); i++) {
+        for (int j = 0; j < (int)board[i].size(); j++) {
+            if (board[i][j] == '.') {
+                pair<int, int> p = make_pair(i, j);
+                m[p] = set<char>{};
+                for (char c = '1'; c <= '9'; c++) {
+                    if (row[i].find(c) == row[i].end() &&
+                        col[j].find(c) == col[j].end() &&
+                        cell[i / 3][j / 3].find(c) ==
+                            cell[i / 3][j / 3].end()) {
+                        m[p].insert(c);
+                    }
+                }
+            }
+        }
+    }
+    solve(board, 0, 0, row, col, cell, m);
+    return;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
