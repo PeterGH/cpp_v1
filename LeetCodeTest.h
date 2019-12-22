@@ -1032,9 +1032,9 @@ void LeetCodeTest::Init(void) {
             vector<int> v3(v);
             vector<int> v4(v);
             auto c = combinationSum(v1, t);
-            auto c2 = combinationSum2(v2, t);
-            auto c3 = combinationSum3(v3, t);
-            auto c4 = combinationSum4(v4, t);
+            auto c2 = combinationSum_2(v2, t);
+            auto c3 = combinationSum_3(v3, t);
+            auto c4 = combinationSum_4(v4, t);
             Util::SortGrid(c);
             Util::SortGrid(c2);
             Util::SortGrid(c3);
@@ -1065,6 +1065,38 @@ void LeetCodeTest::Init(void) {
         {
             vector<int> v = {6, 11, 5, 3, 2, 8, 7, 4, 10, 9};
             check(v, 24);
+        }
+    });
+
+    Add("40. Combination Sum II", [&]() {
+        auto check = [&](const vector<int> &v, int t) {
+            Logger() << v << "Target " << t << endl;
+            vector<int> v1(v);
+            vector<int> v2(v);
+            vector<int> v3(v);
+            auto c1 = combinationSum2(v1, t);
+            auto c2 = combinationSum2_2(v2, t);
+            auto c3 = combinationSum2_2(v3, t);
+            Util::SortGrid(c1);
+            Util::SortGrid(c2);
+            Util::SortGrid(c3);
+            Logger() << c1 << c2 << c3;
+            ASSERT1(0 == Util::Compare(c1, c2));
+            ASSERT1(0 == Util::Compare(c1, c3));
+        };
+        {
+            vector<int> v = {10, 1, 2, 7, 6, 1, 5};
+            check(v, 8);
+        }
+        for (int i = 0; i < 20; i++) {
+            vector<int> input = Random::Vector(Random::Int(20, 1), 20, 1);
+            Util::Shuffle(input);
+            int t = 0;
+            int c = 1 + (input.size() >> 2);
+            for (int j = 0; j < c; j++) {
+                t += input[Random::Int(input.size() - 1)];
+            }
+            check(input, t);
         }
     });
 }
