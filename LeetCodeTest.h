@@ -997,5 +997,75 @@ void LeetCodeTest::Init(void) {
             check(b);
         }
     });
+
+    Add("38. Count and Say", [&]() {
+        auto check = [&](int n, const string &e, bool ignoreE = false) {
+            string s = countAndSay(n);
+            string s2 = countAndSay2(n);
+            if (ignoreE) {
+                Logger() << n << ", " << s << ", " << s2 << endl;
+                ASSERT1(s == s2);
+            } else {
+                Logger() << n << ", " << s << ", " << s2 << ", " << e << endl;
+                ASSERT1(s == e);
+                ASSERT1(s2 == e);
+            }
+        };
+        check(1, "1");
+        check(2, "11");
+        check(3, "21");
+        check(4, "1211");
+        check(5, "111221");
+        check(6, "312211");
+        check(7, "13112221");
+        check(8, "1113213211");
+        for (int i = 9; i <= 20; i++) {
+            check(i, "", true);
+        }
+    });
+
+    Add("39. Combination Sum", [&]() {
+        auto check = [&](const vector<int> &v, int t) {
+            Logger() << v << "Target " << t << endl;
+            vector<int> v1(v);
+            vector<int> v2(v);
+            vector<int> v3(v);
+            vector<int> v4(v);
+            auto c = combinationSum(v1, t);
+            auto c2 = combinationSum2(v2, t);
+            auto c3 = combinationSum3(v3, t);
+            auto c4 = combinationSum4(v4, t);
+            Util::SortGrid(c);
+            Util::SortGrid(c2);
+            Util::SortGrid(c3);
+            Util::SortGrid(c4);
+            Logger() << c;
+            ASSERT1(0 == Util::Compare(c, c2));
+            ASSERT1(0 == Util::Compare(c, c3));
+            ASSERT1(0 == Util::Compare(c, c4));
+        };
+        for (int i = 0; i < 20; i++) {
+            vector<int> input = Util::IncreasingVector(Random::Int(10, 1), 2);
+            Util::Shuffle(input);
+            int t = 0;
+            int c = 1 + (input.size() >> 2);
+            for (int j = 0; j < c; j++) {
+                t += input[Random::Int(input.size() - 1)];
+            }
+            check(input, t);
+        }
+        {
+            vector<int> v = {6, 7, 5};
+            check(v, 24);
+        }
+        {
+            vector<int> v = {7, 10};
+            check(v, 24);
+        }
+        {
+            vector<int> v = {6, 11, 5, 3, 2, 8, 7, 4, 10, 9};
+            check(v, 24);
+        }
+    });
 }
 #endif
