@@ -1099,5 +1099,31 @@ void LeetCodeTest::Init(void) {
             check(input, t);
         }
     });
+
+    Add("41. First Missing Positive", [&]() {
+        auto check = [&](const vector<int> &v, int e, bool ignoreE = false) {
+            Logger() << v;
+            vector<int> v1(v);
+            int i = firstMissingPositive(v1);
+            vector<int> v2(v);
+            int i2 = firstMissingPositive2(v2);
+            if (ignoreE) {
+                Logger() << i << ", " << i2 << endl;
+                ASSERT1(i == i2);
+            } else {
+                Logger() << i << ", " << i2 << ", " << e << endl;
+                ASSERT1(i == e);
+                ASSERT1(i2 == e);
+            }
+        };
+        check({1, 2, 0}, 3);
+        check({3, 4, -1, 1}, 2);
+        check({7, 8, 9, 11, 12}, 1);
+        check({0, 2, 2, 1, 1}, 3);
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(50), 20, -10);
+            check(v, 0, true);
+        }
+    });
 }
 #endif

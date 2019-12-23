@@ -3439,6 +3439,68 @@ vector<vector<int>> combinationSum2_3(vector<int> &candidates, int target) {
     return result;
 }
 
+// 41. First Missing Positive
+// Given an unsorted integer array, find the smallest missing positive integer.
+// Example 1: Input: [1,2,0], Output: 3
+// Example 2: Input: [3,4,-1,1], Output: 2
+// Example 3: Input: [7,8,9,11,12], Output: 1
+// Note: Your algorithm should run in O(n) time and uses constant extra space.
+int firstMissingPositive(vector<int> &nums) {
+    if (nums.empty())
+        return 1;
+    int m = INT_MAX;
+    for (size_t i = 0; i < nums.size(); i++) {
+        if (nums[i] > 0 && m > nums[i])
+            m = nums[i];
+    }
+    if (m > 1)
+        return 1;
+    for (int i = 0; i < (int)nums.size(); i++) {
+        while (nums[i] > 0 && nums[i] != i + 1) {
+            int j = nums[i] - 1;
+            if (j >= (int)nums.size() || nums[j] == nums[i])
+                break;
+            swap(nums[i], nums[j]);
+        }
+    }
+    for (int i = 0; i < (int)nums.size(); i++) {
+        if (nums[i] != i + 1)
+            return i + 1;
+    }
+    return nums.size() + 1;
+}
+int firstMissingPositive2(vector<int> &nums) {
+    if (nums.empty())
+        return 1;
+    set<int> s;
+    for (size_t i = 0; i < nums.size(); i++) {
+        if (nums[i] > 0)
+            s.insert(nums[i]);
+    }
+    int j = 1;
+    for (auto it = s.cbegin(); it != s.cend(); it++) {
+        if (*it != j)
+            break;
+        j++;
+    }
+    return j;
+}
+// This is wrong. For [0,2,2,1,1], expect 3 but get 2
+int firstMissingPositive3(vector<int> &nums) {
+    if (nums.empty())
+        return 1;
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    while (i < nums.size() && nums[i] <= 0)
+        i++;
+    int j = 1;
+    while (i < nums.size() && nums[i] == j) {
+        i++;
+        j++;
+    }
+    return j;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
