@@ -1180,5 +1180,30 @@ void LeetCodeTest::Init(void) {
         for (int i = 0; i < 100; i++)
             check(Random::Int(), Random::Int());
     });
+
+    Add("44. Wildcard Matching", [&]() {
+        auto check = [&](const string &s, const string &p) {
+            bool e = isMatch(s, p);
+            bool e2 = isMatch(s.c_str(), p.c_str());
+            Logger() << s << ", " << p << ", " << e << ", " << e2 << endl;
+            ASSERT1(e == e2);
+        };
+        check("aa", "a");
+        check("aa", "aa");
+        check("aaa", "aa");
+        check("aa", "*");
+        check("aa", "a*");
+        check("ab", "?*");
+        check("aab", "c*a*b");
+        check("abbbaaaaaaaabbbabaaabbabbbaabaabbbbaabaabbabaabbabbaabbbaabaabba"
+              "baabaabbbbaabbbaabaaababbbbabaaababbaaa",
+              "ab**b*bb*ab**ab***b*abaa**b*a*aaa**bba*aa*a*abb*a*a");
+        check("abbabaaabbabbaababbabbbbbabbbabbbabaaaaababababbbabababaabbababa"
+              "abbbbbbaaaabababbbaabbbbaabbbbababababbaabbaababaabbbababababbbb"
+              "aaabbbbbabaaaabbababbbbaababaabbababbbbbababbbabaaaaaaaabbbbbaab"
+              "aaababaaaabb",
+              "**aa*****ba*a*bb**aa*ab****a*aaaaaa***a*aaaa**bbabb*b*b**"
+              "aaaaaaaaa*a********ba*bbb***a*ba*bb*bb**a*b*bb");
+    });
 }
 #endif
