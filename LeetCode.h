@@ -3501,6 +3501,242 @@ int firstMissingPositive3(vector<int> &nums) {
     return j;
 }
 
+// 42. Trapping Rain Water
+// Given n non-negative integers representing an elevation map where the width
+// of each bar is 1, compute how much water it is able to trap after raining.
+// The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1].
+// In this case, 6 units of rain water (blue section) are being trapped.
+// Example:
+// Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+// Output: 6
+int trap(const vector<int> &height) {
+    int v = 0;
+    int i = 0;
+    while (i < (int)height.size()) {
+        int j = i;
+        while (j + 1 < (int)height.size() && height[i] > height[j + 1])
+            j++;
+        if (j + 1 == (int)height.size())
+            break;
+        for (int k = i + 1; k <= j; k++) {
+            v += (height[i] - height[k]);
+        }
+        i = j + 1;
+    }
+    int h = i; // The peak
+    if (h < (int)height.size() - 1) {
+        i = (int)height.size() - 1;
+        while (h <= i) {
+            int j = i;
+            while (h <= j - 1 && height[j - 1] < height[i])
+                j--;
+            if (j == h)
+                break;
+            for (int k = i - 1; k >= j; k--) {
+                v += (height[i] - height[k]);
+            }
+            i = j - 1;
+        }
+    }
+    return v;
+}
+int trap2(const vector<int> &height) {
+    if (height.size() <= 2)
+        return 0;
+    function<int(int, int)> count = [&](int i, int j) -> int {
+        int m = min(height[i], height[j]);
+        int s = 0;
+        for (int k = i + 1; k < j; k++)
+            s += (m - height[k]);
+        return s;
+    };
+    // contains non-increasing integers
+    stack<int> tips;
+    tips.push(0);
+    int i;
+    int v = 0;
+    for (int j = 1; j < (int)height.size(); j++) {
+        while (!tips.empty() && height[tips.top()] < height[j]) {
+            i = tips.top();
+            tips.pop();
+        }
+        if (tips.empty()) {
+            // Now A[i] and A[j] are the two most higher tips seen so far
+            // and A[i] < A[j]
+            if (j - i > 1)
+                v += count(i, j);
+        }
+        tips.push(j);
+    }
+    if (tips.size() == 1)
+        return v; // A is an increasing sequence
+    int j = tips.top();
+    tips.pop();
+    while (!tips.empty()) {
+        // A[i] >= A[j]
+        i = tips.top();
+        if (j - i > 1)
+            v += count(i, j);
+        j = i;
+        tips.pop();
+    }
+    return v;
+}
+// This algorithm is wrong.
+// Not every tip is a valid tip.
+// If a tip is trapped between two higher tips, then it should be removed.
+int TrapWater2(int A[], int n) {
+    if (A == nullptr || n <= 2)
+        return 0;
+    stack<int> tips;
+    if (A[0] > A[1])
+        tips.push(0);
+    for (int i = 1; i < n; i++) {
+        if (A[i - 1] < A[i] && (i == n - 1 || A[i] >= A[i + 1])) {
+            // This loop is wrong because tips[0] can be the lowest tip
+            // e.g., [1, 0, 2, 0, 3]
+            while (tips.size() > 1 && A[tips.top()] < A[i]) {
+                tips.pop();
+            }
+            tips.push(i);
+        }
+    }
+    if (tips.size() == 1)
+        return 0;
+    int v = 0;
+    int j = tips.top();
+    tips.pop();
+    while (!tips.empty()) {
+        int i = tips.top();
+        if (j - i > 1) {
+            int m = min(A[i], A[j]);
+            for (int k = i + 1; k < j; k++) {
+                if (A[k] < m) {
+                    v += (m - A[k]);
+                }
+            }
+        }
+        j = i;
+        tips.pop();
+    }
+    return v;
+}
+
+// 43. Multiply Strings
+// Given two non-negative integers num1 and num2 represented as strings, return
+// the product of num1 and num2, also represented as a string.
+// Example 1: Input: num1 = "2", num2 = "3", Output: "6"
+// Example 2: Input: num1 = "123", num2 = "456", Output: "56088"
+// Note: The length of both num1 and num2 is < 110. Both num1 and num2 contain
+// only digits 0-9. Both num1 and num2 do not contain any leading zero, except
+// the number 0 itself. You must not use any built-in BigInteger library or
+// convert the inputs to integer directly.
+string multiply(string num1, string num2) {
+    if (num1 == "0" || num2 == "0")
+        return "0";
+    function<string(const string &, char)> mul = [&](const string &s,
+                                                     char d) -> string {
+        string r;
+        char c = '0';
+        int i = s.size() - 1;
+        while (0 <= i || c != '0') {
+            int t = c - '0';
+            if (0 <= i)
+                t += (s[i--] - '0') * (d - '0');
+            if (t >= 10) {
+                c = '0' + t / 10;
+                t %= 10;
+            } else {
+                c = '0';
+            }
+            r.insert(r.begin(), '0' + t);
+        }
+        return r;
+    };
+    function<string(const string &, const string &)> add =
+        [&](const string &s1, const string &s2) -> string {
+        string r;
+        char c = '0';
+        int i = s1.size() - 1;
+        int j = s2.size() - 1;
+        while (0 <= i || 0 <= j || c != '0') {
+            int t = c - '0';
+            if (0 <= i)
+                t += (s1[i--] - '0');
+            if (0 <= j)
+                t += (s2[j--] - '0');
+            if (t >= 10) {
+                c = '1';
+                t -= 10;
+            } else {
+                c = '0';
+            }
+            r.insert(r.begin(), '0' + t);
+        }
+        return r;
+    };
+    string result = "0";
+    for (int i = num2.size() - 1; i >= 0; i--) {
+        string m = mul(num1, num2[i]);
+        result = add(result, m);
+        num1.append(1, '0');
+    }
+    return result;
+}
+string multiply2(string num1, string num2) {
+    if (num1.length() == 1 && num1[0] == '0')
+        return string("0");
+    if (num2.length() == 1 && num2[0] == '0')
+        return string("0");
+    function<int(char)> toDigit = [&](char c) { return c - '0'; };
+    function<char(int)> toChar = [&](int i) { return i + '0'; };
+    function<string(string, char)> multiplyDigit = [&](string str, char ch) {
+        string result;
+        int i = str.length() - 1;
+        int c = 0;
+        int m;
+        while (0 <= i) {
+            m = c + toDigit(str[i--]) * toDigit(ch);
+            c = m / 10;
+            result.insert(result.begin(), toChar(m % 10));
+        }
+        if (c > 0)
+            result.insert(result.begin(), toChar(c));
+        return result;
+    };
+    function<string(string, string)> sum = [&](string str1, string str2) {
+        string result;
+        int i = str1.length() - 1;
+        int j = str2.length() - 1;
+        int c = 0;
+        int m;
+        while (0 <= i || 0 <= j) {
+            if (0 <= i && 0 <= j)
+                m = toDigit(str1[i--]) + toDigit(str2[j--]);
+            else if (0 <= i)
+                m = toDigit(str1[i--]);
+            else
+                m = toDigit(str2[j--]);
+            m += c;
+            c = m / 10;
+            result.insert(result.begin(), toChar(m % 10));
+        }
+        if (c > 0)
+            result.insert(result.begin(), toChar(c));
+        return result;
+    };
+    string result = "0";
+    char c;
+    int i = num2.length() - 1;
+    while (0 <= i) {
+        c = num2[i--];
+        if (c != '0')
+            result = sum(result, multiplyDigit(num1, c));
+        num1.append(1, '0');
+    }
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

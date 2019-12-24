@@ -1125,5 +1125,60 @@ void LeetCodeTest::Init(void) {
             check(v, 0, true);
         }
     });
+
+    Add("42. Trapping Rain Water", [&]() {
+        auto check = [&](const vector<int> &a) {
+            Logger() << a;
+            int s = trap(a);
+            int s2 = trap2(a);
+            Logger().WriteInformation("  Trapped water: %d, %d\n", s, s2);
+            ASSERT1(s == s2);
+        };
+        check({1});
+        check({1, 2});
+        check({2, 1});
+        check({1, 2, 3});
+        check({3, 2, 1});
+        check({2, 1, 3});
+        check({3, 1, 2});
+        check({2, 0, 2, 1, 3});
+        check({0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1});
+        check({5, 2, 1, 2, 1, 5});
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(50), 100);
+            check(v);
+        }
+    });
+
+    Add("43. Multiply Strings", [&]() {
+        auto toString = [&](unsigned long long u) -> string {
+            ostringstream o;
+            o << u;
+            return o.str();
+        };
+        auto check = [&](unsigned long long u1, unsigned long long u2) {
+            string s1 = toString(u1);
+            string s2 = toString(u2);
+            string o = multiply(s1, s2);
+            string o2 = multiply2(s1, s2);
+            unsigned long long u = u1 * u2;
+            string o3 = toString(u);
+            Logger().WriteInformation("%s X %s = %s, %s, %s\n", s1.c_str(),
+                                      s2.c_str(), o.c_str(), o2.c_str(),
+                                      o3.c_str());
+            ASSERT1(o == o3);
+            ASSERT1(o2 == o3);
+        };
+        check(0, 0);
+        check(1, 1);
+        check(2, 2);
+        check(5, 5);
+        check(10, 5);
+        check(11, 11);
+        check(222, 11);
+        check(1111, 22222);
+        for (int i = 0; i < 100; i++)
+            check(Random::Int(), Random::Int());
+    });
 }
 #endif
