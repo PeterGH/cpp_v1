@@ -13,6 +13,7 @@
 #include <stack>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -3781,6 +3782,67 @@ bool isMatch(string s, string p) {
     };
     return match(0, 0);
 }
+bool isMatch2(string s, string p) {
+    map<pair<size_t, size_t>, bool> m;
+    function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool {
+        pair<size_t, size_t> v = make_pair(i, j);
+        if (m.find(v) != m.end())
+            return m[v];
+        if (i == s.size() && j == p.size()) {
+            m[v] = true;
+            return true;
+        }
+        if (j == p.size()) {
+            m[v] = false;
+            return false;
+        }
+        if (i < s.size() && (s[i] == p[j] || p[j] == '?'))
+            return match(i + 1, j + 1);
+        if (p[j] == '*') {
+            while (j < p.size() && p[j] == '*')
+                j++;
+            size_t k = i;
+            while (k <= s.size()) {
+                if (match(k, j)) {
+                    m[v] = true;
+                    return true;
+                }
+                k++;
+            }
+        }
+        m[v] = false;
+        return false;
+    };
+    return match(0, 0);
+}
+// http://yucoding.blogspot.com/2013/02/leetcode-question-123-wildcard-matching.html
+bool isMatch3(string s, string p) {
+    int lastStartIndex = -1;
+    int currentIndex = 0;
+    int i = 0;
+    int j = 0;
+    while (i < (int)s.size()) {
+        if (j < (int)p.size() && (s[i] == p[j] || p[j] == '?')) {
+            i++;
+            j++;
+            continue;
+        }
+        if (j < (int)p.size() && p[j] == '*') {
+            lastStartIndex = j++;
+            currentIndex = i;
+            continue;
+        }
+        if (lastStartIndex != -1) {
+            j = lastStartIndex + 1;
+            i = ++currentIndex;
+            continue;
+        }
+        return false;
+    }
+    while (j < (int)p.size() && p[j] == '*')
+        j++;
+    return j == (int)p.size();
+}
 bool isMatch(const char *s, const char *p) {
     function<int(const char *)> length = [&](const char *c) -> int {
         // Count characters in c that is not '*'
@@ -3833,6 +3895,160 @@ bool isMatch(const char *s, const char *p) {
     };
     map<pair<const char *, const char *>, bool> m;
     return isMatchInternal(s, p, m);
+}
+
+// 45. Jump Game II
+// Given an array of non-negative integers, you are initially positioned at
+// the first index of the array. Each element in the array represents your
+// maximum jump length at that position. Your goal is to reach the last index
+// in the minimum number of jumps.
+// Example:
+// Input: [2,3,1,1,4]
+// Output: 2
+// Explanation: The minimum number of jumps to reach the last index is 2.
+// Jump 1 step from index 0 to 1, then 3 steps to the last index.
+// Note: You can assume that you can always reach the last index.
+int jump(const vector<int> &nums) {
+    size_t i = 0;
+    int s = 0;
+    size_t j = i + nums[i];
+    while (i + 1 < nums.size()) {
+        size_t t = j;
+        for (size_t k = i + 1; k <= j && k < nums.size(); k++)
+            t = max(t, k + nums[k]);
+        s++;
+        i = j;
+        j = t;
+    }
+    return s;
+}
+int jump2(const vector<int> &nums) {
+    if (nums.size() < 2)
+        return 0;
+    vector<int> steps(nums.size(), nums.size());
+    for (int i = (int)nums.size() - 2; i >= 0; i--) {
+        int j = i + nums[i];
+        if (j >= (int)nums.size() - 1)
+            steps[i] = 1;
+        else {
+            int m = steps[j];
+            for (int k = j - 1; k > i; k--) {
+                if (steps[k] < m)
+                    m = steps[k];
+            }
+            steps[i] = 1 + m;
+        }
+    }
+    return steps[0];
+}
+int jump3(const vector<int> &nums) {
+    if (nums.size() < 2)
+        return 0;
+    map<int, int> step; // Key is the number of steps, value is the index where
+                        // to take the steps
+    map<int, int>::iterator it;
+    step[0] = nums.size() - 1;
+    for (int i = (int)nums.size() - 2; i >= 0; i--) {
+        int j = i + nums[i];
+        for (it = step.begin(); it != step.end(); it++) {
+            if (j >= it->second) {
+                int s = it->first + 1;
+                if (i == 0)
+                    return s;
+                else
+                    step[s] = i;
+                break;
+            }
+        }
+    }
+    return 0;
+}
+int jump4(const vector<int> &nums) {
+    if (nums.size() < 2)
+        return 0;
+    int currentIndex = nums[0];   // max distance current step can reach
+    int nextIndex = currentIndex; // max distance next step can reach
+    int step = 1;
+    int i = 1;
+    while (currentIndex < (int)nums.size() - 1 && i <= currentIndex) {
+        if (i + nums[i] > nextIndex)
+            nextIndex = i + nums[i];
+        i++;
+        if (i > currentIndex) {
+            step++;
+            currentIndex = nextIndex;
+        }
+    }
+    return step;
+}
+
+// 46. Permutations
+// Given a collection of distinct integers, return all possible permutations.
+// Example: Input: [1,2,3], Output:
+// [
+//   [1,2,3],
+//   [1,3,2],
+//   [2,1,3],
+//   [2,3,1],
+//   [3,1,2],
+//   [3,2,1]
+// ]
+vector<vector<int>> permute(vector<int> &nums) {
+    vector<vector<int>> result;
+    function<void(size_t)> solve = [&](size_t i) {
+        if (i + 1 == nums.size()) {
+            result.push_back(nums);
+            return;
+        }
+        for (size_t j = i; j < nums.size(); j++) {
+            swap(nums[i], nums[j]);
+            solve(i + 1);
+            swap(nums[i], nums[j]);
+        }
+    };
+    solve(0);
+    return result;
+}
+vector<vector<int>> permute2(vector<int> &nums) {
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)> solve = [&](size_t i,
+                                                      vector<int> &n) {
+        if (i == nums.size()) {
+            result.push_back(n);
+            return;
+        }
+        for (size_t j = i; j < nums.size(); j++) {
+            vector<int> n1(n);
+            swap(n1[i], n1[j]);
+            solve(i + 1, n1);
+        }
+    };
+    solve(0, nums);
+    return result;
+}
+vector<vector<int>> permute3(vector<int> &nums) {
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)> solve = [&](size_t i,
+                                                      vector<int> &n) {
+        if (i == nums.size()) {
+            result.push_back(n);
+            return;
+        }
+        for (size_t j = i; j < nums.size(); j++) {
+            vector<int> n1(n);
+            if (j > i) {
+                // Erase and insert, which effectively push ns[i] one more
+                // positin to the right. This way keeps the lexicographical
+                // order.
+                int t = n1[j];
+                n1.erase(n1.begin() + j);
+                n1.insert(n1.begin() + i, t);
+            }
+            solve(i + 1, n1);
+        }
+    };
+    solve(0, nums);
+    return result;
 }
 
 } // namespace LeetCode

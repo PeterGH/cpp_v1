@@ -1183,10 +1183,14 @@ void LeetCodeTest::Init(void) {
 
     Add("44. Wildcard Matching", [&]() {
         auto check = [&](const string &s, const string &p) {
-            bool e = isMatch(s, p);
-            bool e2 = isMatch(s.c_str(), p.c_str());
-            Logger() << s << ", " << p << ", " << e << ", " << e2 << endl;
-            ASSERT1(e == e2);
+            // bool e = isMatch(s, p);
+            bool e2 = isMatch2(s, p);
+            bool e3 = isMatch3(s, p);
+            bool e4 = isMatch(s.c_str(), p.c_str());
+            Logger() << s << ", " << p << ", " << e2 << ", " << e3 << ", " << e4
+                     << endl;
+            ASSERT1(e2 == e3);
+            ASSERT1(e2 == e4);
         };
         check("aa", "a");
         check("aa", "aa");
@@ -1204,6 +1208,61 @@ void LeetCodeTest::Init(void) {
               "aaababaaaabb",
               "**aa*****ba*a*bb**aa*ab****a*aaaaaa***a*aaaa**bbabb*b*b**"
               "aaaaaaaaa*a********ba*bbb***a*ba*bb*bb**a*b*bb");
+    });
+
+    Add("45. Jump Game II", [&]() {
+        auto check = [&](const vector<int> &a) {
+            Logger() << a;
+            int c = jump(a);
+            int c2 = jump2(a);
+            int c3 = jump3(a);
+            int c4 = jump4(a);
+            Logger() << c << ", " << c2 << ", " << c3 << ", " << c4 << endl;
+            ASSERT1(c == c2);
+            ASSERT1(c == c3);
+            ASSERT1(c == c4);
+        };
+        check({0});
+        check({2, 3, 1, 1, 4});
+        check({1, 1, 1, 1, 1});
+    });
+
+    Add("46. Permutations", [&]() {
+        auto check = [&](vector<int> &v) {
+            Logger() << v;
+            vector<vector<int>> p = {v};
+            while (std::next_permutation(v.begin(), v.end()))
+                p.push_back(vector<int>(v));
+            Logger() << p;
+            Util::Sort(p);
+            vector<int> v1(v);
+            vector<vector<int>> p1 = permute(v1);
+            Logger() << p1;
+            Util::Sort(p1);
+            vector<int> v2(v);
+            vector<vector<int>> p2 = permute2(v2);
+            Logger() << p2;
+            Util::Sort(p2);
+            vector<int> v3(v);
+            vector<vector<int>> p3 = permute3(v3);
+            Logger() << p3;
+            Util::Sort(p3);
+            ASSERT1(0 == Util::Compare(p1, p));
+            ASSERT1(0 == Util::Compare(p2, p));
+            ASSERT1(0 == Util::Compare(p3, p));
+        };
+        {
+            vector<int> v = {3};
+            check(v);
+        }
+        {
+            vector<int> v = {0, 1, 2, 3, 4};
+            check(v);
+        }
+        {
+            vector<int> v = {1, 2, 3, 4};
+            check(v);
+        }
     });
 }
 #endif
