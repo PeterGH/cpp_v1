@@ -1309,5 +1309,19 @@ void LeetCodeTest::Init(void) {
         check({2, 1, 2});
         check({2, 2, 1});
     });
+    Add("48. Rotate Image", [&]() {
+        auto check = [&](const vector<vector<int>> w) {
+            Logger() << w;
+            vector<vector<int>> v(w);
+            rotate(v);
+            Logger() << v;
+            vector<vector<int>> v2(w);
+            rotate2(v2);
+            Logger() << v2;
+            ASSERT1(Util::Compare(v, v2) == 0);
+        };
+        for (int i = 1; i <= 10; i++)
+            check(Random::Grid(i, i));
+    });
 }
 #endif
