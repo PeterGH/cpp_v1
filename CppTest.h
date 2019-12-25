@@ -545,6 +545,20 @@ void CppTest::Init(void) {
             cout << endl;
         }
     });
+
+    Add("Next_Permutation", [&]() {
+        auto check = [&](const vector<int> &w) {
+            vector<int> v(w);
+            Logger() << v;
+            while (std::next_permutation(v.begin(), v.end()))
+                Logger() << v;
+            Logger() << endl;
+        };
+        check({1, 1, 2});
+        check({2, 1, 1});
+        check({2, 1, 2});
+        check({3, 3, 3});
+    });
 }
 
 #endif

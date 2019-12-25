@@ -122,6 +122,12 @@ static int Compare(const vector<vector<T>> &lhs, const vector<vector<T>> &rhs) {
         return 0;
 }
 
+template <class T> struct VectorLess : std::less<T> {
+    bool operator()(const vector<T> &v1, const vector<T> &v2) {
+        return Compare(v1, v2) == -1;
+    }
+};
+
 static vector<int> IncreasingVector(size_t n, int init = 0) {
     vector<int> result(n);
     std::generate(result.begin(), result.end(), [&]() { return init++; });

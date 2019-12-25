@@ -1247,9 +1247,19 @@ void LeetCodeTest::Init(void) {
             vector<vector<int>> p3 = permute3(v3);
             Logger() << p3;
             Util::Sort(p3);
+            vector<int> v4(v);
+            vector<vector<int>> p4 = permuteUnique(v4);
+            Logger() << p4;
+            Util::Sort(p4);
+            vector<int> v5(v);
+            vector<vector<int>> p5 = permuteUnique2(v5);
+            Logger() << p5;
+            Util::Sort(p5);
             ASSERT1(0 == Util::Compare(p1, p));
             ASSERT1(0 == Util::Compare(p2, p));
             ASSERT1(0 == Util::Compare(p3, p));
+            ASSERT1(0 == Util::Compare(p4, p));
+            ASSERT1(0 == Util::Compare(p5, p));
         };
         {
             vector<int> v = {3};
@@ -1263,6 +1273,41 @@ void LeetCodeTest::Init(void) {
             vector<int> v = {1, 2, 3, 4};
             check(v);
         }
+    });
+    Add("47. Permutations II", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            vector<int> v1(v);
+            sort(v1.begin(), v1.end());
+            set<vector<int>, Util::VectorLess<int>> s = {v1};
+            vector<vector<int>> p = {v1};
+            while (std::next_permutation(v1.begin(), v1.end())) {
+                if (s.find(v1) == s.end()) {
+                    p.push_back(vector<int>(v1));
+                    s.insert(v1);
+                }
+            }
+            Logger() << p;
+            Util::Sort(p);
+            vector<int> v2(v);
+            vector<vector<int>> p2 = permuteUnique(v2);
+            Logger() << p2;
+            Util::Sort(p2);
+            vector<int> v3(v);
+            vector<vector<int>> p3 = permuteUnique2(v3);
+            Logger() << p3;
+            Util::Sort(p3);
+            ASSERT1(0 == Util::Compare(p2, p));
+            ASSERT1(0 == Util::Compare(p3, p));
+        };
+        check({2, 2});
+        check({3, 3, 3});
+        check({1, 1, 2});
+        check({1, 2, 1});
+        check({2, 1, 1});
+        check({1, 2, 2});
+        check({2, 1, 2});
+        check({2, 2, 1});
     });
 }
 #endif

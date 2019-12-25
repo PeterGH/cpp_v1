@@ -4051,6 +4051,58 @@ vector<vector<int>> permute3(vector<int> &nums) {
     return result;
 }
 
+// 47. Permutations II
+// Given a collection of numbers that might contain duplicates,
+// return all possible unique permutations.
+// Example:
+// Input: [1,1,2], Output:
+// [
+//   [1,1,2],
+//   [1,2,1],
+//   [2,1,1]
+// ]
+vector<vector<int>> permuteUnique(vector<int> &nums) {
+    vector<vector<int>> result;
+    function<void(size_t)> solve = [&](size_t i) {
+        if (i + 1 == nums.size()) {
+            result.push_back(nums);
+            return;
+        }
+        set<int> visited;
+        for (size_t j = i; j < nums.size(); j++) {
+            if (visited.find(nums[j]) != visited.end())
+                continue;
+            swap(nums[i], nums[j]);
+            solve(i + 1);
+            swap(nums[i], nums[j]);
+            visited.insert(nums[j]);
+        }
+    };
+    solve(0);
+    return result;
+}
+vector<vector<int>> permuteUnique2(vector<int> &nums) {
+    vector<vector<int>> result = vector<vector<int>>{};
+    function<void(size_t, vector<int> &)> solve = [&](size_t i,
+                                                      vector<int> &n) {
+        if (i == nums.size()) {
+            result.push_back(n);
+            return;
+        }
+        set<int> visited = {};
+        for (size_t j = i; j < nums.size(); j++) {
+            if (visited.find(n[j]) == visited.end()) {
+                vector<int> n1(n);
+                swap(n1[i], n1[j]);
+                solve(i + 1, n1);
+                visited.insert(n[j]);
+            }
+        }
+    };
+    solve(0, nums);
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
