@@ -4,7 +4,9 @@
 #include "LeetCode.h"
 #include "Test.h"
 #include "Util.h"
+#include <math.h>
 
+using namespace std;
 using namespace Test;
 using namespace Test::LeetCode;
 
@@ -1309,6 +1311,7 @@ void LeetCodeTest::Init(void) {
         check({2, 1, 2});
         check({2, 2, 1});
     });
+
     Add("48. Rotate Image", [&]() {
         auto check = [&](const vector<vector<int>> w) {
             Logger() << w;
@@ -1322,6 +1325,52 @@ void LeetCodeTest::Init(void) {
         };
         for (int i = 1; i <= 10; i++)
             check(Random::Grid(i, i));
+    });
+
+    Add("49. Group Anagrams", [&]() {
+        auto check = [&](const vector<string> &strs) {
+            Logger() << strs;
+            vector<vector<string>> g = groupAnagrams(strs);
+            Logger() << g;
+            Util::SortGrid(g);
+            Logger() << g;
+            vector<vector<string>> g2 = groupAnagrams2(strs);
+            Logger() << g2;
+            Util::SortGrid(g2);
+            Logger() << g2;
+            ASSERT1(0 == Util::Compare(g, g2));
+        };
+        check({"eat", "tea", "tan", "ate", "nat", "bat"});
+    });
+
+    Add("50. Pow(x, n)", [&]() {
+        auto check = [&](double x, int n) {
+            double p = myPow(x, n);
+            double p2 = myPow2(x, n);
+            double p3 = myPow3(x, n);
+            double p4 = myPow4(x, n);
+            double p5 = myPow5(x, n);
+            double e = pow(x, n);
+            Logger().WriteInformation("%f^%s%d%s = %f, %f, %f, %f, %f, %f\n", x,
+                                      n < 0 ? "(" : "", n, n < 0 ? ")" : "", p,
+                                      p2, p3, p4, p5, e);
+            ASSERT1(p == e);
+            ASSERT1(p2 == e);
+            ASSERT1(p3 == e);
+            ASSERT1(p4 == e);
+            ASSERT1(p5 == e);
+        };
+        for (int i = -10; i <= 10; i++) {
+            check(2, i);
+        }
+        check(-1, INT_MIN);
+        check(-1, INT_MAX);
+        check(-0.5, INT_MIN);
+        check(-0.5, INT_MAX);
+        check(0.5, INT_MIN);
+        check(0.5, INT_MAX);
+        check(1, INT_MIN);
+        check(1, INT_MAX);
     });
 }
 #endif

@@ -347,7 +347,43 @@ void CppTest::Init(void) {
         print(p);
     });
 
-    Add("Sort vector<vector>", [&]() {
+    Add("CompareStrings", [&]() {
+        auto check = [&](const string &l, const string &r, int e) {
+            int c = l.compare(r);
+            Logger() << "compare(" << l << ", " << r << ") = " << c << endl;
+            ASSERT1(c == e);
+        };
+        check("a", "b", -1);
+        check("b", "a", 1);
+        check("ab", "cd", -2);
+        check("c", "ab", 2);
+        check("", "ab", -2);
+        check("", "c", -1);
+        check("", "def", -3);
+        check("f", "", 1);
+        check("gh", "", 2);
+        check("fasdf", "", 5);
+        check("", "", 0);
+    });
+
+    Add("SortStrings", [&]() {
+        auto check = [&](vector<string> &v) {
+            Logger() << v;
+            sort(v.begin(), v.end(),
+                 [&](const string &l, const string &r) -> bool {
+                     return l.compare(r) < 0;
+                 });
+            Logger() << v;
+            for (size_t i = 0; i + 1 < v.size(); i++)
+                ASSERT1(v[i].compare(v[i + 1]) < 0);
+        };
+        {
+            vector<string> v = {"eat", "tea", "ate"};
+            check(v);
+        }
+    });
+
+    Add("Sort vector<vector<int>>", [&]() {
         auto check = [&](vector<vector<int>> &g) {
             Logger() << "Before sort" << endl << g;
             sort(g.begin(), g.begin());
@@ -361,6 +397,21 @@ void CppTest::Init(void) {
         {
             vector<vector<int>> g = {{1, 2, 3}, {1, 2}, {1, 3},
                                      {2, 3},    {2},    {1}};
+            check(g);
+        }
+    });
+
+    Add("Sort vector<vector<string>>", [&]() {
+        auto check = [&](vector<vector<string>> &g) {
+            Logger() << "Before sort" << endl << g;
+            sort(g.begin(), g.begin());
+            Logger() << "After sort" << endl << g;
+        };
+        {
+            vector<vector<string>> g = {{"abc", "def", "hij"},
+                                        {"xyz", "uvw", "rst"},
+                                        {"l"},
+                                        {"n", "m"}};
             check(g);
         }
     });

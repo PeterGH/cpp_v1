@@ -4164,6 +4164,187 @@ void rotate2(vector<vector<int>> &matrix) {
     }
 }
 
+// 49. Group Anagrams
+// Given an array of strings, group anagrams together.
+// Example:
+// Input: ["eat", "tea", "tan", "ate", "nat", "bat"],
+// Output:
+// [
+//   ["ate","eat","tea"],
+//   ["nat","tan"],
+//   ["bat"]
+// ]
+// Note: All inputs will be in lowercase. The order of your output does not
+// matter.
+vector<vector<string>> groupAnagrams(const vector<string> &strs) {
+    map<string, vector<size_t>> m;
+    for (size_t i = 0; i < strs.size(); i++) {
+        string s(strs[i]);
+        sort(s.begin(), s.end());
+        if (m.find(s) == m.end())
+            m[s] = {i};
+        else
+            m[s].push_back(i);
+    }
+    vector<vector<string>> result;
+    for (auto it = m.begin(); it != m.end(); it++) {
+        vector<string> v;
+        for (size_t i = 0; i < it->second.size(); i++)
+            v.push_back(strs[it->second[i]]);
+        result.push_back(v);
+    }
+    return result;
+}
+vector<vector<string>> groupAnagrams2(const vector<string> &strs) {
+    vector<vector<string>> result = vector<vector<string>>{};
+    map<string, vector<string>> m = map<string, vector<string>>{};
+    for_each(strs.begin(), strs.end(), [&](const string &s) {
+        string k(s);
+        sort(k.begin(), k.end());
+        if (m.find(k) == m.end())
+            m[k] = vector<string>{};
+        m[k].push_back(s);
+    });
+    for (map<string, vector<string>>::iterator it = m.begin(); it != m.end();
+         it++) {
+        result.push_back(it->second);
+    }
+    return result;
+}
+
+// 50. Pow(x, n)
+// Implement pow(x, n), which calculates x raised to the power n (xn).
+// Example 1:
+// Input: 2.00000, 10
+// Output: 1024.00000
+// Example 2:
+// Input: 2.10000, 3
+// Output: 9.26100
+// Example 3:
+// Input: 2.00000, -2
+// Output: 0.25000
+// Explanation: 2^(-2) = 1/(2^2) = 1/4 = 0.25
+// Note:
+// -100.0 < x < 100.0
+// n is a 32-bit signed integer, within the range [−2^31, 2^31 − 1]
+double myPow(double x, int n) {
+    double y = 1;
+    bool negative = false;
+    if (n < 0) {
+        negative = true;
+        if (n == INT_MIN) {
+            y = x;
+            n = -(n + 1);
+        } else {
+            n = -n;
+        }
+    }
+    while (n > 0) {
+        if ((n & 0x1) > 0) {
+            y *= x;
+        }
+        n = n >> 1;
+        x *= x;
+    }
+    return negative ? 1 / y : y;
+}
+double myPow2(double x, int n) {
+    // Use long long to avoid overflow when flip the sign.
+    long long n1 = n;
+    bool inverse = false;
+    if (n1 < 0) {
+        inverse = true;
+        n1 = -n1;
+    }
+    // Use long long to avoid overflow when left-shift the bits.
+    long long d;
+    double y;
+    double z = 1;
+    while (n1 > 0) {
+        d = 1;
+        y = x; // = x^d
+        // loop x^2, x^4, x^8, ...
+        while ((d << 1) <= n1) {
+            y *= y;
+            d = d << 1;
+        }
+        z *= y;
+        n1 -= d;
+    }
+    return inverse ? 1 / z : z;
+}
+// Keep dividing n by 2 and get the remainder r (0 or 1)
+// then there is a sequence:
+// n n_1 n_2 n_3 n_4 ...... n_k (= 0)
+//   r_1 r_2 r_3 r_4 ...... r_k (= 0)
+// x^n = x^{r_1} * (x^2)^{n_1}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{n_2}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{n_3}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4}
+//     ......
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4} ......
+//     * (x^{2^(k-1)})^{r_(k-1)} * (x^{2^k})^{n_k}
+double myPow3(double x, int n) {
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    long long n1 = n;
+    bool negative = n1 < 0;
+    if (negative)
+        n1 = -n1;
+    double m = x;
+    double p = (n1 & 0x1) == 1 ? x : 1;
+    n1 = n1 >> 1;
+    while (n1 > 0) {
+        m = m * m;
+        if ((n1 & 0x1) == 1) {
+            p = p * m;
+        }
+        n1 = n1 >> 1;
+    }
+    if (negative)
+        p = 1 / p;
+    return p;
+}
+double myPow4(double x, int n) {
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    long long n1 = n;
+    bool negative = n1 < 0;
+    if (negative)
+        n1 = -n1;
+    double m = x;
+    double p = 1;
+    while (n1 > 0) {
+        if ((n1 & 0x1) == 1) {
+            p = p * m;
+        }
+        m = m * m;
+        n1 = n1 >> 1;
+    }
+    if (negative)
+        p = 1 / p;
+    return p;
+}
+double myPow5(double x, int n) {
+    if (x == 0)
+        return 0;
+    if (n == 0)
+        return 1;
+    long long n1 = n;
+    bool negative = n1 < 0;
+    if (negative)
+        n1 = -n1;
+    double p = (n1 & 0x1) == 1 ? x : 1;
+    p = p * myPow5(x * x, n1 >> 1);
+    if (negative)
+        p = 1 / p;
+    return p;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

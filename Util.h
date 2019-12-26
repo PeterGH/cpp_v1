@@ -100,6 +100,27 @@ static int Compare(const vector<T> &lhs, const vector<T> &rhs) {
         return 0;
 }
 
+static int Compare(const vector<string> &lhs, const vector<string> &rhs) {
+    if (lhs.empty() && rhs.empty())
+        return 0;
+    if (lhs.empty())
+        return -1;
+    if (rhs.empty())
+        return 1;
+    size_t n = min(lhs.size(), rhs.size());
+    for (size_t i = 0; i < n; i++) {
+        int c = lhs[i].compare(rhs[i]);
+        if (c != 0)
+            return c;
+    }
+    if (lhs.size() < rhs.size())
+        return -1;
+    else if (lhs.size() > rhs.size())
+        return 1;
+    else
+        return 0;
+}
+
 template <class T>
 static int Compare(const vector<vector<T>> &lhs, const vector<vector<T>> &rhs) {
     if (lhs.empty() && rhs.empty())
@@ -175,6 +196,7 @@ static void Shuffle(vector<int> &input) {
     }
 }
 
+// Sort a vector of vectors. Each vector element is not sorted.
 static void Sort(vector<vector<int>> &grid) {
     sort(grid.begin(), grid.end(),
          [&](vector<int> &lhs, vector<int> &rhs) -> bool {
@@ -193,6 +215,7 @@ static void Sort(vector<vector<int>> &grid) {
          });
 }
 
+// Sort a grid. First sort each row, then sort the vector of rows.
 static void SortGrid(vector<vector<int>> &grid) {
     for_each(grid.begin(), grid.end(),
              [&](vector<int> &v) { sort(v.begin(), v.end()); });
@@ -207,6 +230,33 @@ static void SortGrid(vector<vector<int>> &grid) {
                  if (lhs[i] < rhs[i])
                      return true;
                  else if (lhs[i] > rhs[i])
+                     return false;
+             }
+             return lhs.size() < rhs.size();
+         });
+}
+
+static void Sort(vector<string> &v) {
+    sort(v.begin(), v.end(), [&](const string &l, const string &r) -> bool {
+        return l.compare(r) < 0;
+    });
+}
+
+// Sort a grid. First sort each row, then sort the vector of rows.
+static void SortGrid(vector<vector<string>> &grid) {
+    for_each(grid.begin(), grid.end(), [&](vector<string> &v) { Sort(v); });
+    sort(grid.begin(), grid.end(),
+         [&](vector<string> &lhs, vector<string> &rhs) -> bool {
+             if (lhs.empty() && rhs.empty())
+                 return false;
+             if (lhs.empty())
+                 return true;
+             size_t n = min(lhs.size(), rhs.size());
+             for (size_t i = 0; i < n; i++) {
+                 int c = lhs[i].compare(rhs[i]);
+                 if (c < 0)
+                     return true;
+                 else if (c > 0)
                      return false;
              }
              return lhs.size() < rhs.size();
