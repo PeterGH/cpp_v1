@@ -215,6 +215,26 @@ static void Sort(vector<vector<int>> &grid) {
          });
 }
 
+// Sort a vector of vectors. Each vector element is not sorted.
+static void Sort(vector<vector<string>> &grid) {
+    sort(grid.begin(), grid.end(),
+         [&](vector<string> &lhs, vector<string> &rhs) -> bool {
+             if (lhs.empty() && rhs.empty())
+                 return false;
+             if (lhs.empty())
+                 return true;
+             size_t n = min(lhs.size(), rhs.size());
+             for (size_t i = 0; i < n; i++) {
+                 int c = lhs[i].compare(rhs[i]);
+                 if (c < 0)
+                     return true;
+                 else if (c > 0)
+                     return false;
+             }
+             return lhs.size() < rhs.size();
+         });
+}
+
 // Sort a grid. First sort each row, then sort the vector of rows.
 static void SortGrid(vector<vector<int>> &grid) {
     for_each(grid.begin(), grid.end(),

@@ -1372,5 +1372,243 @@ void LeetCodeTest::Init(void) {
         check(1, INT_MIN);
         check(1, INT_MAX);
     });
+
+    Add("51. N-Queens", [&]() {
+        auto print = [&](const vector<vector<string>> &solutions) {
+            for (size_t i = 0; i < solutions.size(); i++) {
+                Logger().WriteInformation("  Solution %d:\n", i);
+                for (size_t j = 0; j < solutions[i].size(); j++) {
+                    Logger().WriteInformation("\t");
+                    for (size_t k = 0; k < solutions[i][j].length(); k++) {
+                        Logger().WriteInformation(" %c", solutions[i][j][k]);
+                    }
+                    Logger().WriteInformation("\n");
+                }
+            }
+        };
+        auto check = [&](int n) {
+            Logger().WriteInformation("Solutions of %d-Queens problem:\n", n);
+            vector<vector<string>> solutions = solveNQueens(n);
+            vector<vector<string>> solutions2 = solveNQueens2(n);
+            int count = totalNQueens(n);
+            int count2 = totalNQueens2(n);
+            Util::Sort(solutions);
+            Util::Sort(solutions2);
+            print(solutions);
+            print(solutions2);
+            ASSERT1(Util::Compare(solutions, solutions2) == 0);
+            ASSERT1(count == count2);
+            ASSERT1((int)solutions.size() == count);
+            ASSERT1((int)solutions2.size() == count);
+        };
+        check(1);
+        check(2);
+        check(3);
+        check(4);
+        check(5);
+        check(6);
+        check(7);
+        check(8);
+    });
+
+    Add("53. Maximum Subarray", [&]() {
+        auto check = [&](const vector<int> &a, int el, int er, int es,
+                         bool ignoreE = false) -> void {
+            Logger() << a;
+            int sum = LeetCode::maxSubArray(a);
+            int sum2 = LeetCode::maxSubArray2(a);
+            Logger() << sum << ", " << sum2 << endl;
+            int l3, r3;
+            int sum3 = LeetCode::maxSubArray2(a, l3, r3);
+            Logger().WriteInformation("a[%d..%d] = %d\n", l3, r3, sum3);
+            int l4, r4;
+            int sum4 = LeetCode::maxSubArray3(a, l4, r4);
+            Logger().WriteInformation("a[%d..%d] = %d\n", l4, r4, sum4);
+            if (ignoreE) {
+                ASSERT1(sum == sum2);
+                ASSERT1(sum == sum3);
+                ASSERT1(sum == sum4);
+            } else {
+                ASSERT1(es == sum);
+                ASSERT1(es == sum2);
+                ASSERT1(el == l3);
+                ASSERT1(er == r3);
+                ASSERT1(es == sum3);
+                ASSERT1(el == l4);
+                ASSERT1(er == r4);
+                ASSERT1(es == sum4);
+            }
+        };
+        {
+            vector<int> A = {13, -3, -25, 20, -3,  -16, -23, 18,
+                             20, -7, 12,  -5, -22, 15,  -4,  7};
+            check(A, 7, 10, 43);
+        }
+        {
+            vector<int> A = {13};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3, -25};
+            check(A, 0, 0, 13);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20, -3};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, -3, -25, 20, -3, -16, -23, 18};
+            check(A, 3, 3, 20);
+        }
+        {
+            vector<int> A = {13, 3, 25, 20, 3,  16, 23, 18,
+                             20, 7, 12, 5,  22, 15, 4,  7};
+            check(A, 0, (int)A.size() - 1, 213);
+        }
+        {
+            vector<int> A = {13, 3};
+            check(A, 0, 1, 16);
+        }
+        {
+            vector<int> A = {13, 3, 25};
+            check(A, 0, 2, 41);
+        }
+        {
+            vector<int> A = {-13, -3, -25, -20, -3,  -16, -23, -18,
+                             -20, -7, -12, -5,  -22, -15, -4,  -7};
+            check(A, 1, 1, -3);
+        }
+        {
+            vector<int> A = {-13};
+            check(A, 0, 0, -13);
+        }
+        {
+            vector<int> A = {-13, -3};
+            check(A, 1, 1, -3);
+        }
+        {
+            vector<int> A = {0,   0,  -25, -20, -3,  -16, -23, -18,
+                             -20, -7, -12, -5,  -22, -15, -4,  -7};
+            check(A, 0, 0, 0);
+        }
+        {
+            vector<int> A = {0};
+            check(A, 0, 0, 0);
+        }
+        {
+            vector<int> A = {0,  0, 25, 20, 3,  16, 23, 18,
+                             20, 7, 12, 5,  22, 15, 0,  0};
+            check(A, 2, 13, 186);
+        }
+        {
+            vector<int> A = {-25, -20, -3,  0,  0,   -16, -23, -18,
+                             -20, -7,  -12, -5, -22, -15, -4,  -7};
+            check(A, 3, 3, 0);
+        }
+        {
+            vector<int> A = {-25, -20, -3, 0, 0};
+            check(A, 3, 3, 0);
+        }
+        {
+            vector<int> A = {1,   1,  1,   -1, -1,  -1,  -1, -18,
+                             -20, -7, -12, -5, -22, -15, -4, -7};
+            check(A, 0, 2, 3);
+        }
+        {
+            vector<int> A = {1, 1, 1, -1, -1, -1};
+            check(A, 0, 2, 3);
+        }
+        {
+            vector<int> A = {1,   1,  1,   -1, -1,  -1,  -1, -18,
+                             -20, -7, -12, -5, -22, -15, -4, 7};
+            check(A, (int)A.size() - 1, (int)A.size() - 1, 7);
+        }
+        {
+            vector<int> A = {
+                -226810937, 607950954,   640895092,  884005970,  -649503488,
+                -353856437, 576018669,   -477225174, 115899598,  -48539461,
+                276748204,  -290373133,  28778236,   971155940,  893772103,
+                291438717,  466641603,   -769652651, 229713913,  -1038736612,
+                -552146455, -779039256,  653214606,  -737276041, -212720293,
+                -795018961, -840076700,  1071432244, -605038688, 27772106,
+                728237979,  241892199,   -438018765, 295391246,  52156344,
+                -13780430,  1015276633,  -445566812, 582736219,  57434406,
+                579635550,  -214257402,  840803096,  -465328039, -316843286,
+                660833375,  899852501,   -923943508, 964922547,  55824590,
+                -888938297, -660965732,  350527157,  838018133,  -324499950,
+                -935934961, -1030742653, -90834827,  -938244542, -562039518,
+                1010679102, 863735261,   753594504,  -501081487, 85384682,
+                -267990977, 558879906,   26919490,   360184034,  67874301,
+                -989387928, -133922241,  927358722,  925156991,  474491544,
+                -463226389, 512248541,   300602220,  -313428073, 403429264,
+                -717315015, -128624547,  816205355,  706953965};
+            long long s = 0;
+            for (size_t i = 27; i <= 83; i++) {
+                s += A[i];
+            }
+            Logger() << "Actual sum[27..83] = " << s << ", " << (int)s << endl;
+            check(A, 27, 83, 1391522844);
+        }
+        {
+            int d = RAND_MAX >> 1;
+            for (int i = 0; i < 1000; i++) {
+                vector<int> input;
+                int length = 1 + (rand() % 100);
+                for (int j = 0; j < length; j++) {
+                    input.push_back(rand() - d);
+                }
+                check(input, -1, -1, -1, true);
+            }
+        }
+        {
+            for (int i = 0; i < 1000; i++) {
+                vector<int> input;
+                int length = 1 + (rand() % 100);
+                for (int j = 0; j < length; j++) {
+                    input.push_back(rand() % 20 - 10);
+                }
+                Logger() << input;
+                check(input, -1, -1, -1, true);
+            }
+        }
+    });
+
+    Add("54. Spiral Matrix", [&]() {
+        auto check = [&](const vector<vector<int>> &m) {
+            Logger() << m;
+            vector<int> o = LeetCode::spiralOrder(m);
+            vector<int> o2 = LeetCode::spiralOrder2(m);
+            vector<int> o3 = LeetCode::spiralOrder3(m);
+            Logger() << o << o2 << o3;
+            ASSERT1(Util::Compare(o, o2) == 0);
+            ASSERT1(Util::Compare(o, o3) == 0);
+        };
+        check({{0}});
+        check({{0, 1}});
+        check({{0, 1, 2}});
+        check({{0}, {1}});
+        check({{0}, {1}, {2}});
+        check({{0, 1}, {3, 2}});
+        check({{0, 1, 2}, {5, 4, 3}});
+        check({{0, 1}, {5, 2}, {4, 3}});
+        check({{0, 1, 2}, {7, 8, 3}, {6, 5, 4}});
+        check({{0, 1, 2, 3}, {9, 10, 11, 4}, {8, 7, 6, 5}});
+        check({{0, 1, 2}, {9, 10, 3}, {8, 11, 4}, {7, 6, 5}});
+        check({{0, 1, 2, 3}, {11, 12, 13, 4}, {10, 15, 14, 5}, {9, 8, 7, 6}});
+        for (int i = 0; i < 100; i++) {
+            vector<vector<int>> m =
+                Random::Grid(Random::Int(50, 1), Random::Int(50, 1));
+            Logger() << m;
+            check(m);
+        }
+    });
 }
 #endif
