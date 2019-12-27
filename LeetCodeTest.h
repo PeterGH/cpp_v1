@@ -1610,5 +1610,101 @@ void LeetCodeTest::Init(void) {
             check(m);
         }
     });
+
+    Add("55. Jump Game", [&]() {
+        auto check = [&](const vector<int> a) {
+            Logger() << a;
+            bool c = LeetCode::canJump(a);
+            bool c2 = LeetCode::canJump2(a);
+            Logger().WriteInformation("Can %sjump\n", c ? "" : "not ");
+            Logger().WriteInformation("Can %sjump\n", c2 ? "" : "not ");
+            ASSERT1(c == c2);
+        };
+        check({0});
+        check({1});
+        check({2});
+        check({0, 1});
+        check({2, 3, 1, 1, 4});
+        check({3, 2, 1, 0, 4});
+        for (int i = 0; i < 100; i++) {
+            vector<int> a = Random::Vector(Random::Int(100, 1), 10);
+            check(a);
+        }
+    });
+
+    Add("56. Merge Intervals", [&]() {
+        auto print = [&](vector<Interval> it) {
+            for_each(it.begin(), it.end(), [&](const Interval &i) {
+                Logger().WriteInformation(" [%d,%d]", i.start, i.end);
+            });
+            Logger().WriteInformation("\n");
+        };
+        auto check = [&](vector<Interval> it) {
+            Logger().WriteInformation("Input: ");
+            print(it);
+            vector<vector<int>> v;
+            for_each(it.begin(), it.end(), [&](const Interval &i) {
+                v.push_back(vector<int>{i.start, i.end});
+            });
+            vector<vector<int>> o = merge(v);
+            vector<Interval> o2 = merge(it);
+            vector<Interval> o3 = merge2(it);
+            Logger().WriteInformation("Output:");
+            Logger() << o;
+            print(o2);
+            print(o3);
+            ASSERT1(o.size() == o2.size());
+            ASSERT1(o.size() == o3.size());
+            for (size_t i = 0; i < o.size(); i++) {
+                ASSERT1(o2[i].start == o[i][0]);
+                ASSERT1(o2[i].end == o[i][1]);
+                ASSERT1(o3[i].start == o[i][0]);
+                ASSERT1(o3[i].end == o[i][1]);
+            }
+        };
+        {
+            vector<Interval> it = {
+                Interval(74, 78), Interval(61, 63), Interval(46, 50),
+                Interval(51, 54), Interval(50, 50), Interval(60, 64),
+                Interval(39, 42), Interval(25, 27), Interval(91, 95)};
+            check(it);
+        }
+    });
+
+    Add("57. Insert Interval", [&]() {
+        auto print = [&](const vector<Interval> &it) {
+            for_each(it.begin(), it.end(), [&](const Interval &i) {
+                Logger().WriteInformation(" [%d,%d]", i.start, i.end);
+            });
+            Logger().WriteInformation("\n");
+        };
+        auto check = [&](const vector<vector<int>> &it, const vector<int> &n) {
+            Logger().WriteInformation("Input: ");
+            Logger() << it << n;
+            vector<Interval> v;
+            for_each(it.begin(), it.end(), [&](const vector<int> &i) {
+                v.push_back(Interval(i[0], i[1]));
+            });
+            vector<vector<int>> o = insert(it, n);
+            vector<Interval> o2 =
+                InsertMergeSortedInterval(v, Interval(n[0], n[1]));
+            Logger().WriteInformation("Output:");
+            Logger() << o;
+            print(o2);
+            ASSERT1(o.size() == o2.size());
+            for (size_t i = 0; i < o.size(); i++) {
+                ASSERT1(o2[i].start == o[i][0]);
+                ASSERT1(o2[i].end == o[i][1]);
+            }
+        };
+        check({}, {2, 3});
+        check({{1, 2}}, {4, 5});
+        check({{3, 5}}, {1, 2});
+        check({{4, 6}}, {4, 5});
+        check({{2, 6}}, {4, 6});
+        check({{1, 6}}, {4, 5});
+        check({{1, 3}, {6, 9}}, {2, 5});
+        check({{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8});
+    });
 }
 #endif
