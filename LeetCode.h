@@ -1424,6 +1424,15 @@ int CompareLists(ListNode *node1, ListNode *node2) {
     return 1;
 }
 
+vector<int> ToVector(ListNode *node) {
+    vector<int> v;
+    while (node != nullptr) {
+        v.push_back(node->val);
+        node = node->next;
+    }
+    return v;
+}
+
 bool IsSorted(ListNode *node) {
     while (node != nullptr && node->next != nullptr) {
         if (node->val > node->next->val)
@@ -5137,6 +5146,268 @@ vector<vector<int>> generateMatrix2(int n) {
         }
     }
     return o;
+}
+
+// 60. Permutation Sequence
+// The set [1,2,3,...,n] contains a total of n! unique permutations.
+// By listing and labeling all of the permutations in order, we get the
+// following sequence for n = 3:
+// 1    "123"
+// 2    "132"
+// 3    "213"
+// 4    "231"
+// 5    "312"
+// 6    "321"
+// Given n and k, return the k-th permutation sequence. Note:
+// Given n will be between 1 and 9 inclusive.
+// Given k will be between 1 and n! inclusive.
+// Example 1:
+// Input: n = 3, k = 3
+// Output: "213"
+// Example 2:
+// Input: n = 4, k = 9
+// Output: "2314"
+string getPermutation(int n, int k) {
+    // f = (n - 1)!
+    long long f = 1;
+    for (int i = 1; i < n; i++)
+        f *= i;
+    vector<int> d(n, 0);
+    k--; // Make k a 0-based index
+    for (int i = 0; i < n - 1; i++) {
+        d[i] = k / f;
+        k = k - (d[i] * f);
+        f = f / (n - 1 - i);
+    }
+    string s;
+    for (int i = 1; i <= n; i++)
+        s.append(1, '0' + i);
+    for (int i = 0; i < n; i++) {
+        if (d[i] > 0) {
+            char c = s[i + d[i]];
+            s.erase(s.begin() + i + d[i]);
+            s.insert(s.begin() + i, c);
+        }
+    }
+    return s;
+}
+string getPermutation2(int n, int k) {
+    if (n <= 0 || k <= 0)
+        return string();
+    int m = 1;
+    string p;
+    for (int i = 1; i <= n; i++) {
+        m *= i;
+        p.append(1, '0' + i);
+    }
+    vector<int> indices = vector<int>{};
+    for (int i = n; i >= 1; i--) {
+        m = m / i;
+        indices.push_back(((k - 1) / m + 1));
+        k = ((k - 1) % m) + 1;
+    }
+    for (int i = 0; i < n; i++) {
+        if (indices[i] > 1) {
+            int j = i + indices[i] - 1;
+            char c = p[j];
+            p.erase(j, 1);
+            p.insert(i, 1, c);
+        }
+    }
+    return p;
+}
+
+// 61. Rotate List
+// Given a linked list, rotate the list to the right by k places,
+// where k is non-negative.
+// Example 1:
+// Input: 1->2->3->4->5->NULL, k = 2
+// Output: 4->5->1->2->3->NULL
+// Explanation:
+// rotate 1 steps to the right: 5->1->2->3->4->NULL
+// rotate 2 steps to the right: 4->5->1->2->3->NULL
+// Example 2:
+// Input: 0->1->2->NULL, k = 4
+// Output: 2->0->1->NULL
+// Explanation:
+// rotate 1 steps to the right: 2->0->1->NULL
+// rotate 2 steps to the right: 1->2->0->NULL
+// rotate 3 steps to the right: 0->1->2->NULL
+// rotate 4 steps to the right: 2->0->1->NULL
+ListNode *rotateRight(ListNode *head, int k) {
+    if (head == nullptr)
+        return head;
+    ListNode *q = head;
+    int i = 0;
+    while (i < k) {
+        q = q->next;
+        i++;
+        if (q == nullptr) {
+            k %= i;
+            q = head;
+            i = 0;
+        }
+    }
+    if (k == 0)
+        return head;
+    ListNode *p = head;
+    while (q->next != nullptr) {
+        q = q->next;
+        p = p->next;
+    }
+    q->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+ListNode *rotateRight2(ListNode *head, int k) {
+    if (head == nullptr)
+        return head;
+    ListNode *tail = head;
+    int i = 1;
+    while (tail->next != nullptr) {
+        i++;
+        tail = tail->next;
+    }
+    // tail is the last element and is the i-th element (1-based)
+    k %= i;
+    if (k == 0)
+        return head;
+    int j = i - k;
+    // TODO: compute p in the while loop above.
+    // Be careful when k is larger than the list length.
+    ListNode *p = head;
+    while (j > 1) {
+        p = p->next;
+        j--;
+    }
+    tail->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+ListNode *rotateRight3(ListNode *head, int k) {
+    if (head == nullptr || k <= 0)
+        return head;
+    ListNode *p = head;
+    ListNode *q = head;
+    int i = 0;
+    while (i < k && q->next != nullptr) {
+        q = q->next;
+        i++;
+    }
+    // q is the i-th element (0-based)
+    if (q->next == nullptr) {
+        int l = i + 1; // total length
+        k = k % l;
+        if (k == 0)
+            return head;
+        i = 0;
+        q = head;
+        while (i < k && q->next != nullptr) {
+            q = q->next;
+            i++;
+        }
+    }
+    // q is the k-th element (0-based)
+    while (q->next != nullptr) {
+        q = q->next;
+        p = p->next;
+    }
+    q->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+
+// 62. Unique Paths
+// A robot is located at the top-left corner of a m x n grid (marked 'Start' in
+// the diagram below). The robot can only move either down or right at any point
+// in time. The robot is trying to reach the bottom-right corner of the grid
+// (marked 'Finish' in the diagram below). How many possible unique paths are
+// there? Above is a 7 x 3 grid. How many possible unique paths are there? Note:
+// m and n will be at most 100. Example 1: Input: m = 3, n = 2 Output: 3
+// Explanation:
+// From the top-left corner, there are a total of 3 ways to reach the
+// bottom-right corner:
+// 1. Right -> Right -> Down
+// 2. Right -> Down -> Right
+// 3. Down -> Right -> Right
+// Example 2:
+// Input: m = 7, n = 3
+// Output: 28
+int uniquePaths(int m, int n) {
+    if (m <= 0 || n <= 0)
+        return 0;
+    vector<int> p(n, 1);
+    for (int i = m - 2; i >= 0; i--) {
+        for (int j = n - 2; j >= 0; j--)
+            p[j] += p[j + 1];
+    }
+    return p[0];
+}
+int uniquePaths2(int m, int n) {
+    if (m <= 0 || n <= 0)
+        return 0;
+    vector<vector<int>> grid(m, vector<int>(n, 0));
+    for (int j = n - 1; j >= 0; j--) {
+        grid[m - 1][j] = 1;
+    }
+    for (int i = m - 2; i >= 0; i--) {
+        grid[i][n - 1] = 1;
+        for (int j = n - 2; j >= 0; j--) {
+            grid[i][j] = grid[i + 1][j] + grid[i][j + 1];
+        }
+    }
+    return grid[0][0];
+}
+
+// 63. Unique Paths II
+// A robot is located at the top-left corner of a m x n grid (marked 'Start'
+// in the diagram below). The robot can only move either down or right at any
+// point in time. The robot is trying to reach the bottom-right corner of the
+// grid (marked 'Finish' in the diagram below). Now consider if some obstacles
+// are added to the grids. How many unique paths would there be?
+// An obstacle and empty space is marked as 1 and 0 respectively in the grid.
+// Note: m and n will be at most 100.
+// Example 1:
+// Input:
+// [
+//   [0,0,0],
+//   [0,1,0],
+//   [0,0,0]
+// ]
+// Output: 2
+// Explanation:
+// There is one obstacle in the middle of the 3x3 grid above.
+// There are two ways to reach the bottom-right corner:
+// 1. Right -> Right -> Down -> Down
+// 2. Down -> Down -> Right -> Right
+int uniquePathsWithObstacles(const vector<vector<int>> &obstacleGrid) {
+    if (obstacleGrid.empty() || obstacleGrid[0].empty())
+        return 0;
+    int m = obstacleGrid.size();
+    int n = obstacleGrid[0].size();
+    vector<long long> p(n, 0); // long long to avoid overflow
+    for (int j = n - 1; j >= 0; j--) {
+        if (obstacleGrid[m - 1][j] == 1)
+            p[j] = 0;
+        else if (j == n - 1)
+            p[j] = 1;
+        else
+            p[j] = p[j + 1];
+    }
+    for (int i = m - 2; i >= 0; i--) {
+        if (obstacleGrid[i][n - 1] == 1)
+            p[n - 1] = 0;
+        for (int j = n - 2; j >= 0; j--) {
+            if (obstacleGrid[i][j] == 1)
+                p[j] = 0;
+            else
+                p[j] += p[j + 1];
+        }
+    }
+    return p[0];
 }
 
 } // namespace LeetCode

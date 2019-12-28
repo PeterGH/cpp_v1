@@ -1762,5 +1762,95 @@ void LeetCodeTest::Init(void) {
             check(s);
         }
     });
+
+    Add("60. Permutation Sequence", [&]() {
+        auto check = [&](int n) {
+            string s;
+            for (int i = 1; i <= n; i++)
+                s.append(1, '0' + i);
+            int k = 0;
+            do {
+                k++;
+                string p = getPermutation(n, k);
+                string p2 = getPermutation2(n, k);
+                Logger() << "permute(" << n << ", " << k << ") = " << s << ", "
+                         << p << ", " << p2 << endl;
+                ASSERT1(p.compare(s) == 0);
+                ASSERT1(p2.compare(s) == 0);
+            } while (std::next_permutation(s.begin(), s.end()));
+        };
+        for (int i = 1; i < 10; i++)
+            check(i);
+    });
+
+    Add("61. Rotate List", [&]() {
+        auto check = [&](const vector<int> &v, int k) {
+            Logger().WriteInformation("Right rotate list by %d\n", k);
+            ListNode *l = ToList(v);
+            Print(l);
+            l = rotateRight(l, k);
+            Print(l);
+            vector<int> w = ToVector(l);
+            DeleteList(l);
+            ListNode *l2 = ToList(v);
+            Print(l2);
+            l2 = rotateRight2(l2, k);
+            Print(l2);
+            vector<int> w2 = ToVector(l2);
+            DeleteList(l2);
+            ListNode *l3 = ToList(v);
+            Print(l3);
+            l3 = rotateRight(l3, k);
+            Print(l3);
+            vector<int> w3 = ToVector(l3);
+            DeleteList(l3);
+            ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(0 == Util::Compare(w, w3));
+        };
+        {
+            vector<int> v = {0};
+            check(v, 0);
+            check(v, 1);
+            check(v, 2);
+        }
+        {
+            vector<int> v = {0, 1};
+            check(v, 0);
+            check(v, 1);
+            check(v, 2);
+            check(v, 3);
+            check(v, 4);
+            check(v, 5);
+        }
+        {
+            vector<int> v = {0, 1, 2};
+            check(v, 0);
+            check(v, 1);
+            check(v, 2);
+            check(v, 3);
+            check(v, 4);
+            check(v, 5);
+            check(v, 6);
+            check(v, 7);
+            check(v, 8);
+        }
+        for (int i = 0; i < 100; i++) {
+            vector<int> v = Random::Vector(Random::Int(20, 1), 20);
+            int k = Random::Int(40);
+            check(v, k);
+        }
+    });
+
+    Add("62. Unique Paths", [&]() {
+        for (int m = 1; m <= 10; m++) {
+            for (int n = 1; n <= 10; n++) {
+                Logger() << "UniquePaths(" << m << ", " << n << ") = ";
+                int v = uniquePaths(m, n);
+                int v2 = uniquePaths2(m, n);
+                Logger() << v << ", " << v2 << endl;
+                ASSERT1(v == v2);
+            }
+        }
+    });
 }
 #endif
