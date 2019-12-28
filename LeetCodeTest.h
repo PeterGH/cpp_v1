@@ -1852,5 +1852,125 @@ void LeetCodeTest::Init(void) {
             }
         }
     });
+
+    Add("63. Unique Paths II", [&]() {
+        auto check = [&](const vector<vector<int>> &grid, int expected) {
+            int count = uniquePathsWithObstacles(grid);
+            int count2 = uniquePathsWithObstacles2(grid);
+            Logger() << grid << "Unique paths: " << count << ", " << count2
+                     << endl;
+            if (expected < 0) {
+                ASSERT1(count == count2);
+            } else {
+                ASSERT1(count == expected);
+                ASSERT1(count2 == expected);
+            }
+        };
+        vector<vector<int>> grid = {{0, 0}, {0, 0}};
+        check(grid, 2);
+        for (int i = 0; i < 10; i++) {
+            int m = Random::Int(20, 1);
+            int n = Random::Int(20, 1);
+            vector<vector<int>> v(m, vector<int>(n, 0));
+            for (int j = 0; j < m; j++) {
+                int p = Random::Int(m - 1);
+                int q = Random::Int(n - 1);
+                v[p][q] = 1;
+            }
+            check(v, -1);
+        }
+    });
+
+    Add("64. Minimum Path Sum", [&]() {
+        auto check = [&](const vector<vector<int>> &grid) {
+            Logger() << grid;
+            int s = minPathSum(grid);
+            int s2 = minPathSum2(grid);
+            Logger() << "MinPathSum = " << s << ", " << s2 << endl;
+            ASSERT1(s == s2);
+        };
+        for (int i = 1; i <= 10; i++) {
+            for (int j = 1; j <= 10; j++) {
+                check(Random::Grid(i, j, Random::Int(100)));
+            }
+        }
+    });
+
+    Add("65. Valid Number", [&]() {
+        auto check = [&](const string &s, bool e) {
+            Logger() << s;
+            bool a = isNumber(s);
+            bool a2 = isNumber(s.c_str());
+            Logger() << " is a number: " << a << ", " << a2 << endl;
+            ASSERT1(a == e);
+            ASSERT1(a2 == e);
+        };
+        check("  00  ", true);
+        Logger() << "\t00 = " << 00 << endl;
+        check("  +00  ", true);
+        Logger() << "\t+00 = " << +00 << endl;
+        check("  01  ", true);
+        Logger() << "\t01 = " << 01 << endl;
+        check("  -01  ", true);
+        Logger() << "\t-01 = " << -01 << endl;
+        check("  00.0  ", true);
+        Logger() << "\t00.0 = " << 00.0 << endl;
+        check("  +00.0  ", true);
+        Logger() << "\t+00.0 = " << +00.0 << endl;
+        check("  00.  ", true);
+        Logger() << "\t00. = " << 00. << endl;
+        check("  -00.  ", true);
+        Logger() << "\t-00. = " << -00. << endl;
+        check("  1.  ", true);
+        Logger() << "\t1. = " << 1. << endl;
+        check("  +1.  ", true);
+        Logger() << "\t+1. = " << +1. << endl;
+        check("  .1  ", true);
+        Logger() << "\t.1 = " << .1 << endl;
+        check("  -.1  ", true);
+        Logger() << "\t-.1 = " << -.1 << endl;
+        check("  .1e010  ", true);
+        Logger() << "\t.1e010 = " << .1e010 << endl;
+        check("  +.1e010  ", true);
+        Logger() << "\t+.1e010 = " << +.1e010 << endl;
+        check("  .1e-010  ", true);
+        Logger() << "\t.1e-010 = " << .1e-010 << endl;
+        check("  -.1e-010  ", true);
+        Logger() << "\t-.1e-010 = " << -.1e-010 << endl;
+        check("  .1e+02  ", true);
+        Logger() << "\t.1e+02 = " << .1e+02 << endl;
+        check("  +.1e+02  ", true);
+        Logger() << "\t+.1e+02 = " << +.1e+02 << endl;
+        check("  .1e-02  ", true);
+        Logger() << "\t.1e-02 = " << .1e-02 << endl;
+        check("  -.1e-02  ", true);
+        Logger() << "\t-.1e-02 = " << -.1e-02 << endl;
+        check("2e0", true);
+        Logger() << "\t2e0 = " << 2e0 << endl;
+        check("2.e01", true);
+        Logger() << "\t2.e01 = " << 2.e01 << endl;
+        check(".", false);
+        check("-.", false);
+        check("0e", false);
+        check("e+02", false);
+        check(".e+02", false);
+        check("+e+02", false);
+        check(".1e.1", false);
+        check(".1e0.1", false);
+        check("0", true);
+        check(" 0.1 ", true);
+        check("abc", false);
+        check("1 a", false);
+        check("2e10", true);
+        check(" -90e3  ", true);
+        check(" 1e", false);
+        check("e3", false);
+        check(" 6e-1", true);
+        check(" 99e2.5", false);
+        check("53.5e93", true);
+        check(" --6 ", false);
+        check("-+3", false);
+        check("95a54e53", false);
+    });
 }
 #endif

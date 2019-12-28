@@ -5409,6 +5409,195 @@ int uniquePathsWithObstacles(const vector<vector<int>> &obstacleGrid) {
     }
     return p[0];
 }
+int uniquePathsWithObstacles2(const vector<vector<int>> &obstacleGrid) {
+    int m = obstacleGrid.size();
+    if (m == 0)
+        return 0;
+    int n = obstacleGrid[0].size();
+    if (n == 0)
+        return 0;
+    vector<vector<long long>> grid(m, vector<long long>(n, 0));
+    grid[m - 1][n - 1] = (obstacleGrid[m - 1][n - 1] == 0) ? 1 : 0;
+    for (int j = n - 2; j >= 0; j--) {
+        grid[m - 1][j] = (obstacleGrid[m - 1][j] == 0) ? grid[m - 1][j + 1] : 0;
+    }
+    for (int i = m - 2; i >= 0; i--) {
+        grid[i][n - 1] = (obstacleGrid[i][n - 1] == 0) ? grid[i + 1][n - 1] : 0;
+        for (int j = n - 2; j >= 0; j--) {
+            grid[i][j] = (obstacleGrid[i][j] == 0)
+                             ? (grid[i + 1][j] + grid[i][j + 1])
+                             : 0;
+        }
+    }
+    return grid[0][0];
+}
+
+// 64. Minimum Path Sum
+// Given a m x n grid filled with non-negative numbers, find a path from top
+// left to bottom right which minimizes the sum of all numbers along its path.
+// Note: You can only move either down or right at any point in time.
+// Example:
+// Input:
+// [
+//   [1,3,1],
+//   [1,5,1],
+//   [4,2,1]
+// ]
+// Output: 7
+// Explanation: Because the path 1->3->1->1->1 minimizes the sum.
+int minPathSum(const vector<vector<int>> &grid) {
+    if (grid.empty() || grid[0].empty())
+        return 0;
+    int m = grid.size();
+    int n = grid[0].size();
+    vector<int> s(1, grid[0][0]);
+    for (int j = 1; j < n; j++)
+        s.push_back(s[j - 1] + grid[0][j]);
+    for (int i = 1; i < m; i++) {
+        s[0] += grid[i][0];
+        for (int j = 1; j < n; j++)
+            s[j] = grid[i][j] + min(s[j - 1], s[j]);
+    }
+    return s[n - 1];
+}
+int minPathSum2(const vector<vector<int>> &grid) {
+    if (grid.size() == 0 || grid[0].size() == 0)
+        return 0;
+    size_t m = grid.size();
+    size_t n = grid[0].size();
+    vector<vector<int>> sum(grid);
+    for (size_t j = 1; j < n; j++) {
+        sum[0][j] += sum[0][j - 1];
+    }
+    for (size_t i = 1; i < m; i++) {
+        sum[i][0] += sum[i - 1][0];
+        for (size_t j = 1; j < n; j++) {
+            sum[i][j] += min(sum[i][j - 1], sum[i - 1][j]);
+        }
+    }
+    return sum[m - 1][n - 1];
+}
+
+// 65. Valid Number
+// Validate if a given string can be interpreted as a decimal number.
+// Some examples:
+// "0" => true
+// " 0.1 " => true
+// "abc" => false
+// "1 a" => false
+// "2e10" => true
+// " -90e3   " => true
+// " 1e" => false
+// "e3" => false
+// " 6e-1" => true
+// " 99e2.5 " => false
+// "53.5e93" => true
+// " --6 " => false
+// "-+3" => false
+// "95a54e53" => false
+bool isNumber(const string &s) {
+    int b = 0;
+    while (b < (int)s.size() && s[b] == ' ')
+        b++;
+    if (b >= (int)s.size())
+        return false;
+    int e = s.size() - 1;
+    while (e >= 0 && s[e] == ' ')
+        e--;
+    if (e < 0)
+        return false;
+    bool foundDigit = false;
+    bool foundSign = false;
+    bool foundE = false;
+    bool foundPoint = false;
+    for (int i = b; i <= e; i++) {
+        if (s[i] == '+' || s[i] == '-') {
+            if (foundSign)
+                return false;
+            if (foundDigit)
+                return false;
+            if (foundPoint)
+                return false;
+            foundSign = true;
+        } else if ('0' <= s[i] && s[i] <= '9') {
+            foundDigit = true;
+        } else if (s[i] == 'e') {
+            if (foundE)
+                return false;
+            if (!foundDigit)
+                return false;
+            foundE = true;
+            foundSign = false;
+            foundPoint = false;
+            foundDigit = false;
+        } else if (s[i] == '.') {
+            if (foundPoint)
+                return false;
+            if (foundE)
+                return false;
+            foundPoint = true;
+        } else {
+            return false;
+        }
+    }
+    return foundDigit;
+}
+bool isNumber(const char *s) {
+    if (s == nullptr || *s == '\0')
+        return false;
+    while (*s == ' ')
+        s++;
+    if (*s == '\0')
+        return false;
+    if (*s != '+' && *s != '-' && *s != '.' && (*s < '0' || *s > '9'))
+        return false;
+    if ((*s == '+' || *s == '-') && *(s + 1) == '.' &&
+        (*(s + 2) == '\0' || *(s + 2) == ' '))
+        return false;
+    bool foundDot = *s == '.';
+    if (foundDot && (*(s + 1) < '0' || *(s + 1) > '9'))
+        return false;
+    bool foundE = false;
+    s++;
+    while (*s != '\0' && *s != ' ') {
+        switch (*s) {
+        case '+':
+        case '-':
+            if (*(s - 1) != 'e' && *(s - 1) != 'E')
+                return false;
+            if (*(s + 1) < '0' || *(s + 1) > '9')
+                return false;
+            break;
+        case '.':
+            if (foundE || foundDot)
+                return false;
+            foundDot = true;
+            if (*(s + 1) != '\0' && *(s + 1) != ' ' && *(s + 1) != 'e' &&
+                *(s + 1) != 'E' && (*(s + 1) < '0' || *(s + 1) > '9'))
+                return false;
+            break;
+        case 'e':
+        case 'E':
+            if (foundE)
+                return false;
+            foundE = true;
+            if (*(s - 1) != '.' && (*(s - 1) < '0' || *(s - 1) > '9'))
+                return false;
+            if (*(s + 1) != '+' && *(s + 1) != '-' &&
+                (*(s + 1) < '0' || *(s + 1) > '9'))
+                return false;
+            break;
+        default:
+            if (*s < '0' || *s > '9')
+                return false;
+            break;
+        }
+        s++;
+    }
+    while (*s == ' ')
+        s++;
+    return *s == '\0';
+}
 
 } // namespace LeetCode
 } // namespace Test
