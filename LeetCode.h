@@ -4968,6 +4968,177 @@ static vector<Interval> InsertMergeInterval(vector<Interval> &intervals,
     return output;
 }
 
+// 58. Length of Last Word
+// Given a string s consists of upper/lower-case alphabets and empty space
+// characters ' ', return the length of last word (last word means the last
+// appearing word if we loop from left to right) in the string. If the last
+// word does not exist, return 0.
+// Note: A word is defined as a maximal substring consisting of non-space
+// characters only.
+// Example:
+// Input: "Hello World"
+// Output: 5
+int lengthOfLastWord(const string &s) {
+    int i = s.size() - 1;
+    while (i >= 0 && s[i] == ' ')
+        i--;
+    int j = 0;
+    while (i >= 0 && s[i] != ' ') {
+        i--;
+        j++;
+    }
+    return j;
+}
+int lengthOfLastWord2(const string &s) {
+    int length = 0;
+    size_t i = 0;
+    while (i < s.size()) {
+        if (s[i] != ' ') {
+            size_t j = 0;
+            while ((i + j) < s.size() && s[i + j] != ' ')
+                j++;
+            length = j;
+            i += j;
+        } else {
+            i++;
+        }
+    }
+    return length;
+}
+int lengthOfLastWord3(const char *s) {
+    if (*s == '\0')
+        return 0;
+    while (*s == ' ')
+        s++;
+    int i = 0;
+    while (*s != '\0') {
+        while (*s != '\0' && *s != ' ') {
+            i++;
+            s++;
+        }
+        while (*s == ' ')
+            s++;
+        if (*s != '\0')
+            i = 0;
+    }
+    return i;
+}
+int lengthOfLastWord4(const string &s) {
+    int length = 0;
+    size_t i = 0;
+    int n = 0; // count every word encountered
+    while (i < s.size()) {
+        if (s[i] == ' ') {
+            if (n > 0) {
+                length = n;
+                n = 0;
+            }
+        } else {
+            n++;
+        }
+        i++;
+    }
+    return n > 0 ? n : length;
+}
+
+// 59. Spiral Matrix II
+// Given a positive integer n, generate a square matrix filled with elements
+// from 1 to n2 in spiral order.
+// Example:
+// Input: 3
+// Output:
+// [
+//  [ 1, 2, 3 ],
+//  [ 8, 9, 4 ],
+//  [ 7, 6, 5 ]
+// ]
+vector<vector<int>> generateMatrix(int n) {
+    vector<vector<int>> m(n, vector<int>(n, 0));
+    int r = n;
+    int c = n;
+    int e = 1;
+    int i = 0;
+    int j = -1;
+    while (r > 0 && c > 0) {
+        for (int k = 1; k <= c; k++)
+            m[i][j + k] = e++;
+        j += c;
+        r--;
+        if (r == 0)
+            break;
+        for (int k = 1; k <= r; k++)
+            m[i + k][j] = e++;
+        i += r;
+        c--;
+        if (c == 0)
+            break;
+        for (int k = 1; k <= c; k++)
+            m[i][j - k] = e++;
+        j -= c;
+        r--;
+        if (r == 0)
+            break;
+        for (int k = 1; k <= r; k++)
+            m[i - k][j] = e++;
+        i -= r;
+        c--;
+        if (c == 0)
+            break;
+    }
+    return m;
+}
+vector<vector<int>> generateMatrix2(int n) {
+    if (n == 0)
+        return vector<vector<int>>();
+    if (n < 0)
+        n = -n;
+    vector<vector<int>> o(n, vector<int>(n, 0));
+    int h = n;
+    int v = n;
+    int i = 0;
+    int j = -1;
+    int t = 1;
+    int d = 0;
+    while (h > 0 && v > 0) {
+        d = d % 4;
+        switch (d) {
+        case 0:
+            for (int k = 1; k <= h; k++) {
+                j++;
+                o[i][j] = t++;
+            }
+            v--;
+            d++;
+            break;
+        case 1:
+            for (int k = 1; k <= v; k++) {
+                i++;
+                o[i][j] = t++;
+            }
+            h--;
+            d++;
+            break;
+        case 2:
+            for (int k = 1; k <= h; k++) {
+                j--;
+                o[i][j] = t++;
+            }
+            v--;
+            d++;
+            break;
+        default:
+            for (int k = 1; k <= v; k++) {
+                i--;
+                o[i][j] = t++;
+            }
+            h--;
+            d++;
+            break;
+        }
+    }
+    return o;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

@@ -1609,6 +1609,23 @@ void LeetCodeTest::Init(void) {
             Logger() << m;
             check(m);
         }
+        auto check2 = [&](int n) {
+            Logger() << "Generating spiral matrix of order " << n << ":"
+                     << endl;
+            vector<vector<int>> m = generateMatrix(n);
+            vector<vector<int>> m2 = generateMatrix2(n);
+            Logger() << m << m2;
+            ASSERT1(0 == Util::Compare(m, m2));
+            vector<int> v = Util::IncreasingVector(n * n, 1);
+            vector<int> o = spiralOrder(m);
+            vector<int> o2 = spiralOrder2(m);
+            vector<int> o3 = spiralOrder3(m);
+            ASSERT1(Util::Compare(v, o) == 0);
+            ASSERT1(Util::Compare(v, o2) == 0);
+            ASSERT1(Util::Compare(v, o3) == 0);
+        };
+        for (int i = 1; i <= 10; i++)
+            check2(i);
     });
 
     Add("55. Jump Game", [&]() {
@@ -1705,6 +1722,45 @@ void LeetCodeTest::Init(void) {
         check({{1, 6}}, {4, 5});
         check({{1, 3}, {6, 9}}, {2, 5});
         check({{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8});
+    });
+
+    Add("58. Length of Last Word", [&]() {
+        auto check = [&](const string &s, int el = -1) {
+            Logger() << "\"" << s << "\"" << endl;
+            int l = lengthOfLastWord(s);
+            int l2 = lengthOfLastWord2(s);
+            int l3 = lengthOfLastWord3(s.c_str());
+            int l4 = lengthOfLastWord4(s);
+            Logger() << "LengthOfLastWord: " << l << ", " << l2 << ", " << l3
+                     << ", " << l4 << endl;
+            if (el == -1) {
+                ASSERT1(l == l2);
+                ASSERT1(l == l3);
+                ASSERT1(l == l4);
+            } else {
+                ASSERT1(l == el);
+                ASSERT1(l2 == el);
+                ASSERT1(l3 == el);
+                ASSERT1(l4 == el);
+            }
+        };
+        check("", 0);
+        check("a", 1);
+        check(" ", 0);
+        check("  ", 0);
+        check("ababa", 5);
+        check("a a", 1);
+        check("a  a", 1);
+        check("a    a", 1);
+        check("a a sv", 2);
+        check("aa asfd", 4);
+        check("   aa", 2);
+        check("  a", 1);
+        check(" aas", 3);
+        for (int i = 0; i < 100; i++) {
+            string s = Random::String(Random::Int(100, 0));
+            check(s);
+        }
     });
 }
 #endif
