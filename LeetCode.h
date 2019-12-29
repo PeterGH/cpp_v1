@@ -5599,6 +5599,619 @@ bool isNumber(const char *s) {
     return *s == '\0';
 }
 
+// 66. Plus One
+// Given a non-empty array of digits representing a non-negative integer,
+// plus one to the integer. The digits are stored such that the most significant
+// digit is at the head of the list, and each element in the array contain
+// a single digit. You may assume the integer does not contain any leading zero,
+// except the number 0 itself.
+// Example 1:
+// Input: [1,2,3]
+// Output: [1,2,4]
+// Explanation: The array represents the integer 123.
+// Example 2:
+// Input: [4,3,2,1]
+// Output: [4,3,2,2]
+// Explanation: The array represents the integer 4321.
+vector<int> plusOne(const vector<int> &digits) {
+    vector<int> v(digits);
+    int c = 1;
+    for (int i = v.size() - 1; i >= 0 && c > 0; i--) {
+        v[i] += c;
+        if (v[i] >= 10) {
+            v[i] -= 10;
+            c = 1;
+        } else {
+            c = 0;
+        }
+    }
+    if (c > 0)
+        v.insert(v.begin(), c);
+    return v;
+}
+vector<int> plusOne2(const vector<int> &digits) {
+    vector<int> result(digits);
+    int c = 1;
+    for (int i = result.size() - 1; i >= 0; i--) {
+        result[i] += c;
+        if (result[i] >= 10) {
+            c = 1;
+            result[i] -= 10;
+        } else {
+            c = 0;
+            break;
+        }
+    }
+    if (c == 1) {
+        result.insert(result.begin(), c);
+    }
+    return result;
+}
+
+// 67. Add Binary
+// Given two binary strings, return their sum (also a binary string).
+// The input strings are both non-empty and contains only characters 1 or 0.
+// Example 1:
+// Input: a = "11", b = "1"
+// Output: "100"
+// Example 2:
+// Input: a = "1010", b = "1011"
+// Output: "10101"
+string addBinary(const string &a, const string &b) {
+    string s;
+    int c = 0;
+    int i = a.size() - 1;
+    int j = b.size() - 1;
+    while (i >= 0 || j >= 0 || c > 0) {
+        int d = c;
+        if (i >= 0)
+            d += (a[i--] - '0');
+        if (j >= 0)
+            d += (b[j--] - '0');
+        if (d >= 2) {
+            d -= 2;
+            c = 1;
+        } else {
+            c = 0;
+        }
+        s.insert(s.begin(), '0' + d);
+    }
+    return s;
+}
+string addBinary2(const string &a, const string &b) {
+    string result;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+    int c = 0;
+    int d = 0;
+    while (i >= 0 || j >= 0) {
+        if (i >= 0 && j >= 0)
+            d = c + (a[i--] - '0') + (b[j--] - '0');
+        else if (i >= 0)
+            d = c + (a[i--] - '0');
+        else
+            d = c + (b[j--] - '0');
+        if (d == 2 || d == 3)
+            c = 1;
+        else
+            c = 0;
+        d %= 2;
+        result.insert(result.begin(), 1, d + '0');
+    }
+    if (c == 1)
+        result.insert(result.begin(), 1, c + '0');
+    return result;
+}
+string addBinary3(const string &a, const string &b) {
+    if (a.length() == 0)
+        return b;
+    if (b.length() == 0)
+        return a;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+    int carry = 0;
+    string c;
+    while (i >= 0 && j >= 0) {
+        if (a[i] == '0' && b[j] == '0') {
+            if (carry == 0) {
+                c.insert(0, 1, '0');
+            } else {
+                c.insert(0, 1, '1');
+                carry = 0;
+            }
+        } else if ((a[i] == '0' && b[j] == '1') ||
+                   (a[i] == '1' && b[j] == '0')) {
+            c.insert(0, 1, carry == 0 ? '1' : '0');
+        } else if (a[i] == '1' && b[j] == '1') {
+            if (carry == 0) {
+                c.insert(0, 1, '0');
+                carry = 1;
+            } else {
+                c.insert(0, 1, '1');
+            }
+        }
+        i--;
+        j--;
+    }
+    while (i >= 0) {
+        if (carry == 0) {
+            c.insert(0, a, 0, i + 1);
+            break;
+        } else {
+            if (a[i] == '0') {
+                c.insert(0, 1, '1');
+                carry = 0;
+            } else {
+                c.insert(0, 1, '0');
+            }
+            i--;
+        }
+    }
+    while (j >= 0) {
+        if (carry == 0) {
+            c.insert(0, b, 0, j + 1);
+            break;
+        } else {
+            if (b[j] == '0') {
+                c.insert(0, 1, '1');
+                carry = 0;
+            } else {
+                c.insert(0, 1, '0');
+            }
+            j--;
+        }
+    }
+    if (carry == 1)
+        c.insert(0, 1, '1');
+    return c;
+}
+
+// 68. Text Justification
+// Given an array of words and a width maxWidth, format the text such that each
+// line has exactly maxWidth characters and is fully (left and right) justified.
+// You should pack your words in a greedy approach; that is, pack as many words
+// as you can in each line. Pad extra spaces ' ' when necessary so that each
+// line has exactly maxWidth characters. Extra spaces between words should be
+// distributed as evenly as possible. If the number of spaces on a line do not
+// divide evenly between words, the empty slots on the left will be assigned
+// more spaces than the slots on the right. For the last line of text, it should
+// be left justified and no extra space is inserted between words. Note: A word
+// is defined as a character sequence consisting of non-space characters only.
+// Each word's length is guaranteed to be greater than 0 and not exceed
+// maxWidth. The input array words contains at least one word. Example 1: Input:
+// words = ["This", "is", "an", "example", "of", "text", "justification."]
+// maxWidth = 16
+// Output:
+// [
+//    "This    is    an",
+//    "example  of text",
+//    "justification.  "
+// ]
+// Example 2:
+// Input:
+// words = ["What","must","be","acknowledgment","shall","be"]
+// maxWidth = 16
+// Output:
+// [
+//   "What   must   be",
+//   "acknowledgment  ",
+//   "shall be        "
+// ]
+// Explanation: Note that the last line is "shall be    " instead of "shall be",
+// because the last line must be left-justified instead of fully-justified.
+// Note that the second line is also left-justified becase it contains only one
+// word. Example 3: Input: words =
+// ["Science","is","what","we","understand","well","enough","to","explain",
+//          "to","a","computer.","Art","is","everything","else","we","do"]
+// maxWidth = 20
+// Output:
+// [
+//   "Science  is  what we",
+//   "understand      well",
+//   "enough to explain to",
+//   "a  computer.  Art is",
+//   "everything  else  we",
+//   "do                  "
+// ]
+vector<string> fullJustify(const vector<string> &words, int maxWidth) {
+    vector<string> result;
+    size_t i = 0;
+    while (i < words.size()) {
+        size_t w = words[i].size();
+        size_t j = i + 1;
+        while (j < words.size() &&
+               w + words[j].size() + 1 <= (size_t)maxWidth) {
+            w += words[j].size() + 1;
+            j++;
+        }
+        string line;
+        if (j == words.size() || i + 1 == j) {
+            for (size_t k = i; k < j; k++) {
+                if (k > i)
+                    line.append(1, ' ');
+                line.append(words[k].begin(), words[k].end());
+            }
+            line.append(maxWidth - w, ' ');
+        } else {
+            size_t extraSpaces = maxWidth - w;
+            size_t spacesInBetween = 1 + (extraSpaces / (j - i - 1));
+            extraSpaces %= (j - i - 1);
+            for (size_t k = i; k < j; k++) {
+                if (k > i && k <= i + extraSpaces)
+                    line.append(spacesInBetween + 1, ' ');
+                else if (k > i + extraSpaces)
+                    line.append(spacesInBetween, ' ');
+                line.append(words[k].begin(), words[k].end());
+            }
+        }
+        result.push_back(line);
+        i = j;
+    }
+    return result;
+}
+vector<string> fullJustify2(const vector<string> &words, int L) {
+    if (words.size() == 0)
+        return vector<string>{};
+    vector<string> output;
+    int i = 0;
+    int j = 0;
+    int count = (int)words.size();
+    int len = 0;
+    while (i < count && j < count) {
+        while (j < count && len + (int)words[j].length() + j - i <= L) {
+            len += words[j].length();
+            j++;
+        }
+        if (j == count) {
+            // last line with words[i..j-1]
+            string line;
+            for (int k = i; k < j; k++) {
+                if (k != i)
+                    line.append(1, ' ');
+                line.append(words[k]);
+            }
+            int extra = L - len - (j - 1 - i);
+            if (extra > 0)
+                line.append(extra, ' ');
+            output.push_back(line);
+            break;
+        } else {
+            // one line with words[i..j-1]
+            string line(words[i]);
+            int totalSpaces = L - len;
+            int intervals = j - 1 - i;
+            if (intervals == 0) {
+                line.append(totalSpaces, ' ');
+            } else {
+                int spaces = totalSpaces / intervals;
+                int extra = totalSpaces % intervals;
+                for (int k = i + 1; k <= i + extra; k++) {
+                    line.append(spaces + 1, ' ');
+                    line.append(words[k]);
+                }
+                for (int k = i + extra + 1; k < j; k++) {
+                    line.append(spaces, ' ');
+                    line.append(words[k]);
+                }
+            }
+            output.push_back(line);
+            i = j;
+            len = 0;
+        }
+    }
+    return output;
+}
+
+// 69. Sqrt(x)
+// Implement int sqrt(int x).
+// Compute and return the square root of x, where x is guaranteed to be a
+// non-negative integer. Since the return type is an integer, the decimal
+// digits are truncated and only the integer part of the result is returned.
+// Example 1:
+// Input: 4, Output: 2
+// Example 2:
+// Input: 8, Output: 2
+// Explanation: The square root of 8 is 2.82842..., and since the decimal part
+// is truncated, 2 is returned.
+int mySqrt(int x) {
+    long long l = 0;
+    long long h = x;
+    long long m = 0;
+    while (l <= h) {
+        m = l + ((h - l) >> 1);
+        long long m2 = m * m; // long long to avoid overflow
+        if (x < m2) {
+            h = m - 1;
+        } else if (m2 < x) {
+            if (x < (m + 1) * (m + 1))
+                break;
+            l = m + 1;
+        } else {
+            break;
+        }
+    }
+    return m;
+}
+int mySqrt2(int x) {
+    long long l = 0;
+    long long r = x;
+    // Use long long to avoid overflow of m * m.
+    long long m;
+    while (l <= r) {
+        m = l + ((r - l) >> 1);
+        long long low = m * m;
+        long long high = (m + 1) * (m + 1);
+        if (low <= x && x < high) {
+            break;
+        } else if (x < low) {
+            r = m - 1;
+        } else {
+            l = m + 1;
+        }
+    }
+    return (int)m;
+}
+int mySqrt3(int x) {
+    if (x < 0)
+        throw invalid_argument("x cannot be negative");
+    if (x < 2)
+        return x;
+    long long l = 1;
+    long long h = (x >> 1) + 1;
+    while (l <= h) {
+        long long m = l + ((h - l) >> 1);
+        long long s = m * m;
+        if (x == s)
+            return (int)m;
+        else if (x < s) {
+            if (l == m)
+                break;
+            h = m;
+        } else {
+            if (l == m) {
+                s = h * h;
+                if (x == s)
+                    return (int)h;
+                return (int)m;
+            } else {
+                l = m;
+            }
+        }
+    }
+    throw runtime_error("sqrt(x) cannot be found");
+}
+
+// 70. Climbing Stairs
+// You are climbing a stair case. It takes n steps to reach to the top.
+// Each time you can either climb 1 or 2 steps. In how many distinct ways
+// can you climb to the top? Note: Given n will be a positive integer.
+// Example 1:
+// Input: 2
+// Output: 2
+// Explanation: There are two ways to climb to the top.
+// 1. 1 step + 1 step
+// 2. 2 steps
+// Example 2:
+// Input: 3
+// Output: 3
+// Explanation: There are three ways to climb to the top.
+// 1. 1 step + 1 step + 1 step
+// 2. 1 step + 2 steps
+// 3. 2 steps + 1 step
+int climbStairs(int n) {
+    if (n == 1)
+        return 1;
+    if (n == 2)
+        return 2;
+    int a = 1;
+    int b = 2;
+    int c;
+    for (int i = n - 2; i > 0; i--) {
+        c = b + a;
+        a = b;
+        b = c;
+    }
+    return c;
+}
+// C[n] = C[n - 1] + C[n - 2]
+// Another option is C[i] = C[i + 1] + C[i + 2], where C[n] = 0, C[n - 1] = 1,
+// C[n - 2] = 2, C[n - 3] = 3, ..., C[1] = ?
+int climbStairs2(int n) {
+    if (n == 1)
+        return 1;
+    if (n == 2)
+        return 2;
+    int a = 1;
+    int b = 2;
+    int c;
+    for (int i = 3; i <= n; i++) {
+        c = b + a;
+        a = b;
+        b = c;
+    }
+    return c;
+}
+
+// 71. Simplify Path
+// Given an absolute path for a file (Unix-style), simplify it.
+// Or in other words, convert it to the canonical path.
+// In a UNIX-style file system, a period . refers to the current directory.
+// Furthermore, a double period .. moves the directory up a level.
+// For more information, see: Absolute path vs relative path in Linux/Unix
+// Note that the returned canonical path must always begin with a slash /,
+// and there must be only a single slash / between two directory names.
+// The last directory name (if it exists) must not end with a trailing /.
+// Also, the canonical path must be the shortest string representing the
+// absolute path. Example 1: Input: "/home/" Output: "/home" Explanation: Note
+// that there is no trailing slash after the last directory name. Example 2:
+// Input: "/../"
+// Output: "/"
+// Explanation: Going one level up from the root directory is a no-op, as the
+// root level is the highest level you can go. Example 3: Input: "/home//foo/"
+// Output: "/home/foo"
+// Explanation: In the canonical path, multiple consecutive slashes are replaced
+// by a single one.
+// Example 4:
+// Input: "/a/./b/../../c/"
+// Output: "/c"
+// Example 5:
+// Input: "/a/../../b/../c//.//"
+// Output: "/c"
+// Example 6:
+// Input: "/a//b////c/d//././/.."
+// Output: "/a/b/c"
+string simplifyPath(string path) {
+    if (path.empty())
+        return path;
+    if (path[0] != '/')
+        path.insert(0, 1, '/');
+    size_t i = 0;
+    size_t j = 1;
+    while (j < path.size()) {
+        while (j < path.size() && path[j] == '/')
+            j++;
+        if (j == path.size())
+            break;
+        if (path[j] == '.') {
+            if (j + 1 == path.size() || path[j + 1] == '/') {
+                j++;
+                continue;
+            }
+            if (j + 1 < path.size() && path[j + 1] == '.') {
+                if (j + 2 == path.size() || path[j + 2] == '/') {
+                    j += 2;
+                    if (i > 0) {
+                        if (path[i] == '/')
+                            i--;
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                    }
+                    continue;
+                }
+            }
+        }
+        if (path[i] != '/')
+            path[++i] = '/';
+        while (j < path.size() && path[j] != '/') {
+            i++;
+            if (i < j)
+                path[i] = path[j];
+            j++;
+        }
+    }
+    if (path[i] == '/' && i > 0)
+        i--;
+    path.resize(i + 1);
+    return path;
+}
+string simplifyPath2(string path) {
+    if (path.empty())
+        return path;
+    if (path[0] != '/')
+        path.insert(0, 1, '/');
+    int len = path.length();
+    int i = -1;
+    int j = 0;
+    while (j < len) {
+        if (path[j] == '/') {
+            while (j < len && path[j] == '/')
+                j++;
+            if (j == len)
+                break; // ////
+            if (path[j] == '.') {
+                if (j + 1 == len) {
+                    break;                       // /.
+                } else if (path[j + 1] == '/') { // /./
+                    j = j + 1;
+                    continue;
+                } else if (path[j + 1] == '.') {
+                    if (j + 2 == len) { // /..
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                        if (i > 0)
+                            i--;
+                        break;
+                    } else if (path[j + 2] == '/') { //  /../
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                        if (i > 0)
+                            i--;
+                        j = j + 2;
+                        continue;
+                    }
+                }
+            }
+            if (i == -1 || path[i] != '/') {
+                i++;
+                path[i] = '/';
+            }
+            if (i + 1 < j) {
+                while (j < len && path[j] != '/') {
+                    i++;
+                    path[i] = path[j++];
+                }
+            } else {
+                while (j < len && path[j] != '/')
+                    j++;
+                i = j - 1;
+            }
+        } else {
+            j++;
+        }
+    }
+    if (i == -1)
+        return string("/");
+    else
+        return path.substr(0, i + 1);
+}
+string simplifyPath3(string path) {
+    if (path.empty())
+        return path;
+    int len = path.length();
+    vector<string> tokens;
+    int i = 0;
+    while (i < len) {
+        while (i < len && path[i] == '/')
+            i++;
+        if (i == len)
+            break;
+        if (path[i] == '.') {
+            if (i + 1 == len)
+                break;
+            if (path[i + 1] == '/') {
+                i += 2;
+                continue;
+            } else if (path[i + 1] == '.') {
+                if (i + 2 == len || path[i + 2] == '/') {
+                    if (!tokens.empty()) {
+                        tokens.pop_back();
+                    }
+                    i += 3;
+                    continue;
+                }
+            }
+        }
+        string token;
+        int j = i;
+        while (j < len && path[j] != '/') {
+            token.append(1, path[j]);
+            j++;
+        }
+        tokens.push_back(token);
+        i = j;
+    }
+    string output;
+    if (tokens.size() == 0) {
+        output.append(1, '/');
+    } else {
+        for_each(tokens.begin(), tokens.end(), [&](string &t) {
+            output.append(1, '/');
+            output.append(t.begin(), t.end());
+        });
+    }
+    return output;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

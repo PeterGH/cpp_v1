@@ -1972,5 +1972,314 @@ void LeetCodeTest::Init(void) {
         check("-+3", false);
         check("95a54e53", false);
     });
+
+    Add("66. Plus One", [&]() {
+        auto number = [&](const vector<int> &digits) -> int {
+            int s = 0;
+            for_each(digits.begin(), digits.end(),
+                     [&](int n) { s = 10 * s + n; });
+            return s;
+        };
+        auto check = [&](const vector<int> &digits) {
+            int a = number(digits);
+            Logger().WriteInformation("%d + 1 = ", a);
+            vector<int> output = plusOne(digits);
+            int b = number(output);
+            vector<int> output2 = plusOne(digits);
+            int b2 = number(output2);
+            Logger().WriteInformation("%d, %d\n", b, b2);
+            ASSERT1(a + 1 == b);
+            ASSERT1(a + 1 == b2);
+        };
+        check(vector<int>{0});
+        check(vector<int>{9});
+        check(vector<int>{1, 0});
+        check(vector<int>{1, 9});
+        check(vector<int>{9, 9});
+        check(vector<int>{1, 0, 0});
+        check(vector<int>{1, 0, 9});
+        check(vector<int>{1, 9, 0});
+        check(vector<int>{1, 9, 9});
+        check(vector<int>{9, 9, 9});
+    });
+
+    Add("67. Add Binary", [&]() {
+        auto check = [&](const string &a, const string &b, const string &e) {
+            int width = 1 + max(a.length(), b.length());
+            Logger().WriteInformation("\n   %s%s\n",
+                                      string(width - a.length(), ' ').c_str(),
+                                      a.c_str());
+            Logger().WriteInformation(" + %s%s\n",
+                                      string(width - b.length(), ' ').c_str(),
+                                      b.c_str());
+            string c = addBinary(a, b);
+            Logger().WriteInformation(" = %s%s\n",
+                                      string(width - c.length(), ' ').c_str(),
+                                      c.c_str());
+            string c2 = addBinary2(a, b);
+            Logger().WriteInformation(" = %s%s\n",
+                                      string(width - c2.length(), ' ').c_str(),
+                                      c2.c_str());
+            string c3 = addBinary3(a, b);
+            Logger().WriteInformation(" = %s%s\n",
+                                      string(width - c3.length(), ' ').c_str(),
+                                      c3.c_str());
+            ASSERT1(c == e);
+            ASSERT1(c2 == e);
+            ASSERT1(c3 == e);
+        };
+        check("0", "0", "0");
+        check("0", "1", "1");
+        check("1", "0", "1");
+        check("1", "1", "10");
+        check("00", "00", "00");
+        check("01", "01", "10");
+        check("01", "10", "11");
+        check("00", "11", "11");
+        check("11", "01", "100");
+        check("11", "10", "101");
+        check("11", "11", "110");
+        check("11", "1", "100");
+        check("1110", "10", "10000");
+        check("101", "11101", "100010");
+    });
+
+    Add("68. Text Justification", [&]() {
+        auto check = [&](const vector<string> words, int l) {
+            vector<string> text = fullJustify(words, l);
+            vector<string> text2 = fullJustify2(words, l);
+            Logger().WriteInformation("Format with width %d:\n", l);
+            for_each(text.begin(), text.end(), [&](const string &w) {
+                Logger().WriteInformation("  \"%s\"\n", w.c_str());
+            });
+            Logger().WriteInformation("\n");
+            for_each(text2.begin(), text2.end(), [&](const string &w) {
+                Logger().WriteInformation("  \"%s\"\n", w.c_str());
+            });
+            Logger().WriteInformation("\n");
+            ASSERT1(0 == Util::Compare(text, text2));
+        };
+        {
+            vector<string> w = {"This"};
+            Logger() << w;
+            check(w, 4);
+            check(w, 5);
+            check(w, 6);
+        }
+        {
+            vector<string> w = {"This", "is"};
+            Logger() << w;
+            for (int i = 4; i < 10; i++) {
+                check(w, i);
+            }
+        }
+        {
+            vector<string> w = {"This", "is", "an"};
+            Logger() << w;
+            for (int i = 4; i < 12; i++) {
+                check(w, i);
+            }
+        }
+        {
+            vector<string> w = {
+                "This", "is", "an", "example", "of", "text", "justification."};
+            Logger() << w;
+            for (int i = 14; i < 60; i++) {
+                check(w, i);
+            }
+        }
+    });
+
+    Add("69. Sqrt(x)", [&]() {
+        auto check = [&](int x) {
+            Logger().WriteInformation("sqrt(%d) = ", x);
+            int a = mySqrt(x);
+            int a2 = mySqrt2(x);
+            int a3 = mySqrt3(x);
+            int b = (int)sqrt(x);
+            Logger().WriteInformation("%d, %d, %d, %d\n", a, a2, a3, b);
+            ASSERT1(a == b);
+            ASSERT1(a2 == b);
+            ASSERT1(a3 == b);
+        };
+        check(0);
+        check(1);
+        check(2);
+        check(3);
+        check(4);
+        check(5);
+        check(6);
+        check(7);
+        check(8);
+        check(9);
+        check(10);
+        check(INT_MAX - 9);
+        check(INT_MAX - 8);
+        check(INT_MAX - 7);
+        check(INT_MAX - 6);
+        check(INT_MAX - 5);
+        check(INT_MAX - 4);
+        check(INT_MAX - 3);
+        check(INT_MAX - 2);
+        check(INT_MAX - 1);
+        check(INT_MAX);
+        for (int i = 0; i < 100; i++) {
+            int v = Random::Int();
+            check(v);
+        }
+    });
+
+    Add("71. Simplify Path", [&]() {
+        auto check = [&](const string &p, const string &e,
+                         bool ignoreE = false) {
+            Logger().WriteInformation("Input:  %s\n", p.c_str());
+            string a = simplifyPath(string(p));
+            string a2 = simplifyPath2(string(p));
+            string a3 = simplifyPath3(string(p));
+            if (ignoreE) {
+                Logger().WriteInformation("Output:\n\t%s\n\t%s\n\t%s\n",
+                                          a.c_str(), a2.c_str(), a3.c_str());
+                ASSERT1(a == a2);
+                ASSERT1(a == a3);
+            } else {
+                Logger().WriteInformation("Output: %s, %s, %s, %s\n", a.c_str(),
+                                          a2.c_str(), a3.c_str(), e.c_str());
+                ASSERT1(a == e);
+                ASSERT1(a2 == e);
+                ASSERT1(a3 == e);
+            }
+        };
+        check("", "");
+        check("/", "/");
+        check(".", "/");
+        check("a", "/a");
+        check("//", "/");
+        check("..", "/");
+        check("ab", "/ab");
+        check("/.", "/");
+        check("./", "/");
+        check("/a", "/a");
+        check("a/", "/a");
+        check(".a", "/.a");
+        check("a.", "/a.");
+        check("///", "/");
+        check("...", "/...");
+        check("abc", "/abc");
+        check("/..", "/");
+        check("../", "/");
+        check("./.", "/");
+        check(".//", "/");
+        check("/./", "/");
+        check("//.", "/");
+        check("/ab", "/ab");
+        check("a/b", "/a/b");
+        check("ab/", "/ab");
+        check("a//", "/a");
+        check("/a/", "/a");
+        check("//a", "/a");
+        check("/a.", "/a.");
+        check("/.a", "/.a");
+        check("./a", "/a");
+        check(".a/", "/.a");
+        check("a/.", "/a");
+        check("a./", "/a.");
+        check(".ab", "/.ab");
+        check("a.b", "/a.b");
+        check("ab.", "/ab.");
+        check("a..", "/a..");
+        check(".a.", "/.a.");
+        check("..a", "/..a");
+        check("////", "/");
+        check("....", "/....");
+        check("abcd", "/abcd");
+        check(".///", "/");
+        check("/.//", "/");
+        check("//./", "/");
+        check("///.", "/");
+        check("..//", "/");
+        check("././", "/");
+        check(".//.", "/");
+        check("/../", "/");
+        check("/./.", "/");
+        check("//..", "/");
+        check("/...", "/...");
+        check("./..", "/");
+        check("../.", "/");
+        check(".../", "/...");
+        check("./a/", "/a");
+        check(".//a", "/a");
+        check(".a//", "/.a");
+        check("/.a/", "/.a");
+        check("/./a", "/a");
+        check("/a./", "/a.");
+        check("/a/.", "/a");
+        check("//.a", "/.a");
+        check("//a.", "/a.");
+        check("a.//", "/a.");
+        check("a/./", "/a");
+        check("a//.", "/a");
+        check("../a", "/a");
+        check("..a/", "/..a");
+        check("./.a", "/.a");
+        check("./a.", "/a.");
+        check(".a/.", "/.a");
+        check(".a./", "/.a.");
+        check("/a..", "/a..");
+        check("/.a.", "/.a.");
+        check("/..a", "/..a");
+        check("a/..", "/");
+        check("a./.", "/a.");
+        check("a../", "/a..");
+        check("//ab", "/ab");
+        check("/a/b", "/a/b");
+        check("/ab/", "/ab");
+        check("./ab", "/ab");
+        check(".a/b", "/.a/b");
+        check(".ab/", "/.ab");
+        check("/.ab", "/.ab");
+        check("/a.b", "/a.b");
+        check("/ab.", "/ab.");
+        check("a./b", "/a./b");
+        check("a.b/", "/a.b");
+        check("a/.b", "/a/.b");
+        check("a/b.", "/a/b.");
+        check("ab./", "/ab.");
+        check("ab/.", "/ab");
+        check("..ab", "/..ab");
+        check(".a.b", "/.a.b");
+        check(".ab.", "/.ab.");
+        check("a..b", "/a..b");
+        check("a.b.", "/a.b.");
+        check("ab..", "/ab..");
+        check(".abc", "/.abc");
+        check("a.bc", "/a.bc");
+        check("ab.c", "/ab.c");
+        check("abc.", "/abc.");
+        check("/abc", "/abc");
+        check("a/bc", "/a/bc");
+        check("ab/c", "/ab/c");
+        check("abc/", "/abc");
+        check("/....", "/....");
+        check("./...", "/...");
+        check("../..", "/");
+        check(".../.", "/...");
+        check("..../", "/....");
+        check("//...", "/...");
+        check("/./..", "/");
+        check("/../.", "/");
+        check("/.../", "/...");
+        check("/a/b/c", "/a/b/c");
+        check("//ab/c", "/ab/c");
+        check("///abc", "/abc");
+        check("/a/./..", "/");
+        check("/a/b/..", "/a");
+        check("/a/../b", "/b");
+        check("/../a/./b", "/a/b");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100);
+            string s = Random::String<char>(n, "ab/.");
+            check(s, "", true);
+        }
+    });
 }
 #endif
