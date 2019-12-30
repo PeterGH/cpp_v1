@@ -6212,6 +6212,450 @@ string simplifyPath3(string path) {
     return output;
 }
 
+// 72. Edit Distance
+// Given two words word1 and word2, find the minimum number of operations
+// required to convert word1 to word2. You have the following 3 operations
+// permitted on a word:
+// Insert a character
+// Delete a character
+// Replace a character
+// Example 1:
+// Input: word1 = "horse", word2 = "ros"
+// Output: 3
+// Explanation:
+// horse -> rorse (replace 'h' with 'r')
+// rorse -> rose (remove 'r')
+// rose -> ros (remove 'e')
+// Example 2:
+// Input: word1 = "intention", word2 = "execution"
+// Output: 5
+// Explanation:
+// intention -> inention (remove 't')
+// inention -> enention (replace 'i' with 'e')
+// enention -> exention (replace 'n' with 'x')
+// exention -> exection (replace 'n' with 'c')
+// exection -> execution (insert 'u')
+int minDistance(const string &word1, const string &word2) {
+    map<pair<size_t, size_t>, int> m;
+    function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int {
+        pair<size_t, size_t> p = make_pair(i, j);
+        if (m.find(p) != m.end())
+            return m[p];
+        while (i < word1.size() && j < word2.size() && word1[i] == word2[j]) {
+            i++;
+            j++;
+        }
+        if (i == word1.size() && j == word2.size()) {
+            m[p] = 0;
+            return m[p];
+        }
+        if (i == word1.size()) {
+            m[p] = word2.size() - j;
+            return m[p];
+        }
+        if (j == word2.size()) {
+            m[p] = word1.size() - i;
+            return m[p];
+        }
+        int di = solve(i, j + 1);     // Insert
+        int dd = solve(i + 1, j);     // Delete
+        int dr = solve(i + 1, j + 1); // Replace
+        int d = min(di, min(dd, dr));
+        m[p] = d + 1;
+        return m[p];
+    };
+    return solve(0, 0);
+}
+int minDistance2(const string &word1, const string &word2) {
+    // Compute distance from w1[i:] to w2[j:]
+    function<int(const string &, int, const string &, int,
+                 map<pair<int, int>, int> &)>
+        distance = [&](const string &w1, int i, const string &w2, int j,
+                       map<pair<int, int>, int> &d) -> int {
+        pair<int, int> p = make_pair(i, j);
+        if (d.find(p) == d.end()) {
+            if (i == (int)w1.length()) {
+                // Need to insert d[p] chars to w1
+                d[p] = (int)w2.length() - j;
+            } else if (j == (int)w2.length()) {
+                // Need to delete d[p] chars from w1
+                d[p] = (int)w1.length() - i;
+            } else if (w1[i] == w2[j]) {
+                d[p] = distance(w1, i + 1, w2, j + 1, d);
+            } else {
+                int ins = distance(w1, i, w2, j + 1, d);
+                int rep = distance(w1, i + 1, w2, j + 1, d);
+                int del = distance(w1, i + 1, w2, j, d);
+                int min = ins;
+                if (rep < min)
+                    min = rep;
+                if (del < min)
+                    min = del;
+                d[p] = 1 + min;
+            }
+        }
+        return d[p];
+    };
+    map<pair<int, int>, int> d;
+    return distance(word1, 0, word2, 0, d);
+}
+// d[i,j] is the distance between w1[i:] and w2[j:]
+//     j 0 1 2 3 ...... n-1
+// i 0
+//   1
+//   2
+//   .
+//   m-1
+//
+// d[m-1][n-1] = 0,                                     if w1[m-1] == w2[n-1]
+//               1,                                     if w1[m-1] != w2[n-1]
+// d[m-1][j]   = n - 1 - j,                               if w1[m-1] == w2[j]
+//               1 + min { n - 1 - j, d[m-1][j+1] },      if w1[m-1] != w2[j]
+// d[i][n-1]   = m - 1 - i,                               if w1[i] == w2[n-1]
+//               1 + min { m - 1 - i, d[i+1][n-1] },      if w1[i] != w2[n-1]
+// d[i][j] = d[i+1][j+1],                                   if w1[i] == w2[j]
+//           1 + min { d[i][j+1], d[i+1][j+1], d[i+1][j] }, if w1[i] != w2[j]
+int minDistance3(const string &word1, const string &word2) {
+    int m = word1.length();
+    int n = word2.length();
+    if (m == 0)
+        return n;
+    if (n == 0)
+        return m;
+    vector<vector<int>> d(m, vector<int>(n, 0));
+    d[m - 1][n - 1] = word1[m - 1] == word2[n - 1] ? 0 : 1;
+    for (int j = n - 2; j >= 0; j--) {
+        if (word1[m - 1] == word2[j]) {
+            d[m - 1][j] = n - 1 - j;
+        } else {
+            d[m - 1][j] = n - 1 - j;
+            if (d[m - 1][j + 1] < d[m - 1][j])
+                d[m - 1][j] = d[m - 1][j + 1];
+            d[m - 1][j] += 1;
+        }
+    }
+    for (int i = m - 2; i >= 0; i--) {
+        if (word1[i] == word2[n - 1]) {
+            d[i][n - 1] = m - 1 - i;
+        } else {
+            d[i][n - 1] = m - 1 - i;
+            if (d[i + 1][n - 1] < d[i][n - 1])
+                d[i][n - 1] = d[i + 1][n - 1];
+            d[i][n - 1] += 1;
+        }
+    }
+    for (int i = m - 2; i >= 0; i--) {
+        for (int j = n - 2; j >= 0; j--) {
+            if (word1[i] == word2[j]) {
+                d[i][j] = d[i + 1][j + 1];
+            } else {
+                d[i][j] = d[i][j + 1];
+                if (d[i + 1][j + 1] < d[i][j])
+                    d[i][j] = d[i + 1][j + 1];
+                if (d[i + 1][j] < d[i][j])
+                    d[i][j] = d[i + 1][j];
+                d[i][j] += 1;
+            }
+        }
+    }
+    return d[0][0];
+}
+
+// 73. Set Matrix Zeroes
+// Given a m x n matrix, if an element is 0, set its entire row and column to 0.
+// Do it in-place.
+// Example 1:
+// Input:
+// [
+//   [1,1,1],
+//   [1,0,1],
+//   [1,1,1]
+// ]
+// Output:
+// [
+//   [1,0,1],
+//   [0,0,0],
+//   [1,0,1]
+// ]
+// Example 2:
+// Input:
+// [
+//   [0,1,2,0],
+//   [3,4,5,2],
+//   [1,3,1,5]
+// ]
+// Output:
+// [
+//   [0,0,0,0],
+//   [0,4,5,0],
+//   [0,3,1,0]
+// ]
+// Follow up:
+// A straight forward solution using O(mn) space is probably a bad idea.
+// A simple improvement uses O(m + n) space, but still not the best solution.
+// Could you devise a constant space solution?
+void setZeroes(vector<vector<int>> &matrix) {
+    if (matrix.empty() || matrix[0].empty())
+        return;
+    bool setFirstRowZero = false;
+    bool setFirstColZero = false;
+    for (size_t j = 0; j < matrix[0].size() && !setFirstRowZero; j++) {
+        if (matrix[0][j] == 0)
+            setFirstRowZero = true;
+    }
+    for (size_t i = 0; i < matrix.size() && !setFirstColZero; i++) {
+        if (matrix[i][0] == 0)
+            setFirstColZero = true;
+    }
+    for (size_t i = 0; i < matrix.size(); i++) {
+        for (size_t j = 0; j < matrix[i].size(); j++) {
+            if (matrix[i][j] == 0) {
+                matrix[0][j] = 0;
+                matrix[i][0] = 0;
+            }
+        }
+    }
+    for (size_t i = 1; i < matrix.size(); i++) {
+        if (matrix[i][0] == 0) {
+            for (size_t j = 1; j < matrix[i].size(); j++)
+                matrix[i][j] = 0;
+        }
+    }
+    for (size_t j = 1; j < matrix[0].size(); j++) {
+        if (matrix[0][j] == 0) {
+            for (size_t i = 1; i < matrix.size(); i++)
+                matrix[i][j] = 0;
+        }
+    }
+    if (setFirstRowZero) {
+        for (size_t j = 0; j < matrix[0].size(); j++)
+            matrix[0][j] = 0;
+    }
+    if (setFirstColZero) {
+        for (size_t i = 0; i < matrix.size(); i++)
+            matrix[i][0] = 0;
+    }
+}
+void setZeroes2(vector<vector<int>> &matrix) {
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return;
+    size_t m = matrix.size();
+    size_t n = matrix[0].size();
+    bool zeroFirstColumn = false;
+    bool zeroFirstRow = false;
+    for (size_t i = 0; i < m; i++) {
+        for (size_t j = 0; j < n; j++) {
+            if (matrix[i][j] == 0) {
+                if (i == 0)
+                    zeroFirstRow = true;
+                if (j == 0)
+                    zeroFirstColumn = true;
+                matrix[i][0] = 0;
+                matrix[0][j] = 0;
+            }
+        }
+    }
+    for (size_t i = 1; i < m; i++) {
+        if (matrix[i][0] == 0) {
+            for (size_t j = 1; j < n; j++)
+                matrix[i][j] = 0;
+        }
+    }
+    for (size_t j = 1; j < n; j++) {
+        if (matrix[0][j] == 0) {
+            for (size_t i = 1; i < m; i++)
+                matrix[i][j] = 0;
+        }
+    }
+    if (zeroFirstColumn) {
+        for (size_t i = 1; i < m; i++)
+            matrix[i][0] = 0;
+    }
+    if (zeroFirstRow) {
+        for (size_t j = 1; j < n; j++)
+            matrix[0][j] = 0;
+    }
+}
+
+// 74. Search a 2D Matrix
+// Write an efficient algorithm that searches for a value in an m x n matrix.
+// This matrix has the following properties:
+// Integers in each row are sorted from left to right.
+// The first integer of each row is greater than the last integer of the
+// previous row. Example 1: Input: matrix = [
+//   [1,   3,  5,  7],
+//   [10, 11, 16, 20],
+//   [23, 30, 34, 50]
+// ]
+// target = 3
+// Output: true
+// Example 2:
+// Input:
+// matrix = [
+//   [1,   3,  5,  7],
+//   [10, 11, 16, 20],
+//   [23, 30, 34, 50]
+// ]
+// target = 13
+// Output: false
+bool searchMatrix(const vector<vector<int>> &matrix, int target) {
+    if (matrix.empty() || matrix[0].empty())
+        return false;
+    int i = 0;
+    int j = matrix[0].size() - 1;
+    while (i < (int)matrix.size() && j >= 0) {
+        if (target < matrix[i][j])
+            j--;
+        else if (target > matrix[i][j])
+            i++;
+        else
+            return true;
+    }
+    return false;
+}
+bool searchMatrix2(const vector<vector<int>> &matrix, int target) {
+    if (matrix.size() == 0 || matrix[0].size() == 0)
+        return false;
+    int l = 0;
+    int h = matrix.size() - 1;
+    int m;
+    while (l <= h) {
+        m = l + ((h - l) >> 1);
+        if (target == matrix[m][0])
+            return true;
+        if (target < matrix[m][0]) {
+            if (l == m)
+                return false;
+            h = m - 1;
+        } else {
+            if (l == m) {
+                if (target >= matrix[h][0])
+                    m = h;
+                break;
+            }
+            l = m;
+        }
+    }
+    l = 0;
+    h = matrix[m].size() - 1;
+    int n;
+    while (l <= h) {
+        n = l + ((h - l) >> 1);
+        if (target == matrix[m][n])
+            return true;
+        if (target < matrix[m][n]) {
+            if (l == n)
+                break;
+            h = n - 1;
+        } else {
+            if (n == h)
+                break;
+            l = n + 1;
+        }
+    }
+    return false;
+}
+
+// 75. Sort Colors
+// Given an array with n objects colored red, white or blue, sort them in-place
+// so that objects of the same color are adjacent, with the colors in the order
+// red, white and blue. Here, we will use the integers 0, 1, and 2 to represent
+// the color red, white, and blue respectively.
+// Note: You are not suppose to use the library's sort function for this
+// problem. Example: Input: [2,0,2,1,1,0] Output: [0,0,1,1,2,2] Follow up: A
+// rather straight forward solution is a two-pass algorithm using counting sort.
+// First, iterate the array counting number of 0's, 1's, and 2's, then overwrite
+// array with total number of 0's, then 1's and followed by 2's.
+// Could you come up with a one-pass algorithm using only constant space?
+void sortColors(vector<int> &nums) {
+    int i = -1;
+    int k = nums.size();
+    int j = 0;
+    while (j < k) {
+        switch (nums[j]) {
+        case 0:
+            swap(nums[++i], nums[j]);
+            if (i == j)
+                j++;
+            break;
+        case 1:
+            j++;
+            break;
+        case 2:
+            swap(nums[j], nums[--k]);
+            break;
+        }
+    }
+}
+void sortColors2(vector<int> &nums) {
+    if (nums.size() == 0)
+        return;
+    int i = -1;
+    int j = 0;
+    int k = nums.size();
+    while (j < k) {
+        if (nums[j] == 0) {
+            if (i < j) {
+                i++;
+                swap(nums[i], nums[j]);
+            } else {
+                j++;
+            }
+        } else if (nums[j] == 2) {
+            if (j < k) {
+                k--;
+                swap(nums[j], nums[k]);
+            } else {
+                j++;
+            }
+        } else {
+            j++;
+        }
+    }
+}
+void sortColors3(vector<int> &nums) {
+    if (nums.empty())
+        return;
+    int i = 0;
+    int j = 0;
+    int k = nums.size() - 1;
+    int t;
+    while (i < k) {
+        while (nums[i] == 0)
+            i++;
+        while (nums[k] == 2)
+            k--;
+        if (i >= k)
+            return;
+        // A[i] in {1,2}
+        // A[k] in {0,1}
+        if (nums[i] > nums[k]) {
+            //    A[i] = 1 && A[k] = 0
+            // || A[i] = 2 && A[k] = {0,1}
+            t = nums[i];
+            nums[i] = nums[k];
+            nums[k] = t;
+        } else {
+            // A[i] == A[k] == 1
+            if (j <= i)
+                j = i + 1;
+            while (nums[j] == 1)
+                j++;
+            if (j >= k)
+                return;
+            if (nums[j] == 0) {
+                t = nums[i];
+                nums[i] = nums[j];
+                nums[j] = t;
+            } else { // A[j] == 2
+                t = nums[k];
+                nums[k] = nums[j];
+                nums[j] = t;
+            }
+        }
+    }
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

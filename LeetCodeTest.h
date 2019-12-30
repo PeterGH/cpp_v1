@@ -2281,5 +2281,306 @@ void LeetCodeTest::Init(void) {
             check(s, "", true);
         }
     });
+
+    Add("72. Edit Distance", [&]() {
+        auto check = [&](const string &w1, const string &w2, int e,
+                         bool ignoreE = false) {
+            Logger().WriteInformation("Source:   %s\n", w1.c_str());
+            Logger().WriteInformation("Target:   %s\n", w2.c_str());
+            int a = minDistance(w1, w2);
+            int b = minDistance2(w1, w2);
+            int c = minDistance3(w1, w2);
+            if (ignoreE) {
+                Logger().WriteInformation("Distance: %d, %d, %d\n", a, b, c);
+                ASSERT1(a == b);
+                ASSERT1(b == c);
+            } else {
+                Logger().WriteInformation("Distance: %d, %d, %d, %d\n", a, b, c,
+                                          e);
+                ASSERT1(a == e);
+                ASSERT1(b == e);
+                ASSERT1(c == e);
+            }
+        };
+        check("", "", 0);
+        check("a", "", 1);
+        check("ab", "", 2);
+        check("", "b", 1);
+        check("", "bc", 2);
+        check("a", "a", 0);
+        check("a", "b", 1);
+        check("aa", "a", 1);
+        check("aa", "b", 2);
+        check("a", "bb", 2);
+        check("b", "bb", 1);
+        check("aa", "bb", 2);
+        check("aa", "ab", 1);
+        check("aa", "ba", 1);
+        check("ab", "bb", 1);
+        check("ba", "bb", 1);
+        check("bb", "bb", 0);
+        check("aaa", "a", 2);
+        check("aaa", "b", 3);
+        check("aaa", "aa", 1);
+        check("aaa", "ab", 2);
+        check("aaa", "ba", 2);
+        check("aaa", "bc", 3);
+        check("aaa", "abc", 2);
+        check("aaa", "bac", 2);
+        check("aaa", "bca", 2);
+        check("aaa", "aab", 1);
+        check("aaa", "aba", 1);
+        check("aaa", "baa", 1);
+        check("aaa", "bcd", 3);
+        check("aaa", "aaa", 0);
+        check("a", "aaa", 2);
+        check("b", "aaa", 3);
+        check("aa", "aaa", 1);
+        check("ab", "aaa", 2);
+        check("ba", "aaa", 2);
+        check("bc", "aaa", 3);
+        check("abc", "aaa", 2);
+        check("bac", "aaa", 2);
+        check("bca", "aaa", 2);
+        check("aab", "aaa", 1);
+        check("aba", "aaa", 1);
+        check("baa", "aaa", 1);
+        check("bcd", "aaa", 3);
+        check("aaa", "aaa", 0);
+        check("e", "dhwjmfxritzebjkoqvtm", 19);
+        for (int i = 0; i < 100; i++) {
+            int len1 = Random::Int(100, 1);
+            string w1 = Random::String(len1);
+            int len2 = Random::Int(100);
+            string w2 = Random::String(len2);
+            check(w1, w2, 0, true);
+        }
+    });
+
+    Add("73. Set Matrix Zeroes", [&]() {
+        auto test = [&](vector<vector<int>> &m) {
+            vector<vector<int>> m2(m);
+            setZeroes(m);
+            setZeroes2(m2);
+            ASSERT1(0 == Util::Compare(m, m2));
+        };
+        vector<vector<int>> m = {{0, 1}};
+        test(m);
+    });
+
+    Add("74. Search a 2D Matrix", [&]() {
+        auto check = [&](const vector<vector<int>> &m, int t, bool e) {
+            bool a = searchMatrix(m, t);
+            bool a2 = searchMatrix2(m, t);
+            Logger().WriteInformation("Search %d, %d, %d\n", t, a, a2);
+            ASSERT1(a == e);
+            ASSERT1(a2 == e);
+        };
+        {
+            vector<vector<int>> m = {
+                {1, 3, 5, 7}, {10, 11, 16, 20}, {23, 30, 34, 50}};
+            Logger() << m;
+            check(m, 1, true);
+            check(m, 2, false);
+            check(m, 3, true);
+            check(m, 4, false);
+            check(m, 5, true);
+            check(m, 6, false);
+            check(m, 7, true);
+            check(m, 8, false);
+            check(m, 10, true);
+            check(m, 11, true);
+            check(m, 12, false);
+            check(m, 16, true);
+            check(m, 18, false);
+            check(m, 20, true);
+            check(m, 21, false);
+            check(m, 23, true);
+            check(m, 25, false);
+            check(m, 30, true);
+            check(m, 32, false);
+            check(m, 34, true);
+            check(m, 40, false);
+            check(m, 50, true);
+            check(m, 60, false);
+        }
+    });
+
+    Add("75. Sort Colors", [&](){
+		auto check = [&](vector<int> &a){
+			Logger().WriteInformation("Input:  ");
+			Logger() << a;
+            vector<int> a2(a);
+            vector<int> a3(a);
+			sortColors(a);
+            sortColors2(a2);
+            sortColors3(a3);
+			Logger().WriteInformation("Output: ");
+			Logger() << a << a2 << a3;
+            ASSERT1(0 == Util::Compare(a, a2));
+            ASSERT1(0 == Util::Compare(a, a3));
+			for (size_t i = 1; i < a.size(); i++) {
+				ASSERT1(a[i] >= a[i-1]);
+                ASSERT1(a2[i] >= a2[i-1]);
+                ASSERT1(a3[i] >= a3[i-1]);
+			}
+		};
+		{
+			vector<int> a = { 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 0, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 0, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 0, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 1, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 1, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 1, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 2, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 2, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 0, 2, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 0, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 0, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 0, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 1, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 1, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 1, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 2, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 2, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 1, 2, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 0, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 0, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 0, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 1, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 1, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 1, 2 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 2, 0 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 2, 1 };
+			check(a);
+		}
+		{
+			vector<int> a = { 2, 2, 2 };
+			check(a);
+		}
+		{
+			for (int i = 0; i < 100; i++) {
+				int len = Random::Int(50, 1);
+                vector<int> v = Random::Vector(len, 2, 0);
+				check(v);
+			}
+		}
+	});
+
 }
 #endif
