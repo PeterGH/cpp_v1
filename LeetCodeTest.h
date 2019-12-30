@@ -2406,181 +2406,180 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("75. Sort Colors", [&](){
-		auto check = [&](vector<int> &a){
-			Logger().WriteInformation("Input:  ");
-			Logger() << a;
+    Add("75. Sort Colors", [&]() {
+        auto check = [&](vector<int> &a) {
+            Logger().WriteInformation("Input:  ");
+            Logger() << a;
             vector<int> a2(a);
             vector<int> a3(a);
-			sortColors(a);
+            sortColors(a);
             sortColors2(a2);
             sortColors3(a3);
-			Logger().WriteInformation("Output: ");
-			Logger() << a << a2 << a3;
+            Logger().WriteInformation("Output: ");
+            Logger() << a << a2 << a3;
             ASSERT1(0 == Util::Compare(a, a2));
             ASSERT1(0 == Util::Compare(a, a3));
-			for (size_t i = 1; i < a.size(); i++) {
-				ASSERT1(a[i] >= a[i-1]);
-                ASSERT1(a2[i] >= a2[i-1]);
-                ASSERT1(a3[i] >= a3[i-1]);
-			}
-		};
-		{
-			vector<int> a = { 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 0, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 0, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 0, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 1, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 1, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 1, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 2, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 2, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 0, 2, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 0, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 0, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 0, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 1, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 1, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 1, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 2, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 2, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 1, 2, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 0, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 0, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 0, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 1, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 1, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 1, 2 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 2, 0 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 2, 1 };
-			check(a);
-		}
-		{
-			vector<int> a = { 2, 2, 2 };
-			check(a);
-		}
-		{
-			for (int i = 0; i < 100; i++) {
-				int len = Random::Int(50, 1);
+            for (size_t i = 1; i < a.size(); i++) {
+                ASSERT1(a[i] >= a[i - 1]);
+                ASSERT1(a2[i] >= a2[i - 1]);
+                ASSERT1(a3[i] >= a3[i - 1]);
+            }
+        };
+        {
+            vector<int> a = {1};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 0, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 0, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 0, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 1, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 1, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 1, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 2, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 2, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {0, 2, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 0, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 0, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 0, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 1, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 1, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 1, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 2, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 2, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {1, 2, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 0, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 0, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 0, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 1, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 1, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 1, 2};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 2, 0};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 2, 1};
+            check(a);
+        }
+        {
+            vector<int> a = {2, 2, 2};
+            check(a);
+        }
+        {
+            for (int i = 0; i < 100; i++) {
+                int len = Random::Int(50, 1);
                 vector<int> v = Random::Vector(len, 2, 0);
-				check(v);
-			}
-		}
-	});
-
+                check(v);
+            }
+        }
+    });
 }
 #endif
