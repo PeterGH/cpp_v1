@@ -6815,6 +6815,191 @@ string minWindow3(const string &s, const string &t) {
         return s.substr(begin, end - begin + 1);
 }
 
+// 77. Combinations
+// Given two integers n and k, return all possible combinations of k numbers
+// out of 1 ... n.
+// Example:
+// Input: n = 4, k = 2
+// Output:
+// [
+//   [2,4],
+//   [3,4],
+//   [2,3],
+//   [1,2],
+//   [1,3],
+//   [1,4],
+// ]
+vector<vector<int>> combine(int n, int k) {
+    vector<vector<int>> result;
+    if (k <= 0 || n <= 0 || k > n)
+        return result;
+    function<void(int, int, vector<int> &)> solve = [&](int i, int c,
+                                                        vector<int> &v) {
+        if (c == 0) {
+            result.push_back(v);
+            return;
+        }
+        for (int j = i; j <= n; j++) {
+            v.push_back(j);
+            solve(j + 1, c - 1, v);
+            v.pop_back();
+        }
+    };
+    vector<int> c;
+    solve(1, k, c);
+    return result;
+}
+vector<vector<int>> combine2(int n, int k) {
+    vector<vector<int>> result = vector<vector<int>>{};
+    if (k <= 0 || n <= 0 || k > n)
+        return result;
+    function<void(int, int, vector<int> &)> select = [&](int i, int l,
+                                                         vector<int> &c) {
+        if (l == 0) {
+            result.push_back(c);
+            return;
+        }
+        for (int j = i; j <= n; j++) {
+            vector<int> c1(c);
+            c1.push_back(j);
+            select(j + 1, l - 1, c1);
+        }
+    };
+    vector<int> c = vector<int>{};
+    select(1, k, c);
+    return result;
+}
+// Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+// then we need s(n, k).
+// s(n, k) = s(n-1, k-1) + s(n-1, k)
+// where s(i-1, j-1) contains solutions each of which contains i, and
+// s(i-1, j) contains solutions each of which does not contain i.
+vector<vector<int>> combine3(int n, int k) {
+    if (n < k)
+        return vector<vector<int>>{{}};
+    function<void(int, int, map<pair<int, int>, vector<vector<int>>> &)>
+        combine =
+            [&](int i, int j, map<pair<int, int>, vector<vector<int>>> &s) {
+                pair<int, int> p = make_pair(i, j);
+                s[p] = vector<vector<int>>{};
+                if (i <= 0 || j <= 0 || i < j) {
+                    s[p].push_back(vector<int>{});
+                    return;
+                }
+                if (i == j) {
+                    vector<int> v;
+                    for (int k = 1; k <= j; k++) {
+                        v.push_back(k);
+                    }
+                    s[p].push_back(v);
+                    return;
+                }
+                pair<int, int> q1 = make_pair(i - 1, j - 1);
+                if (s.find(q1) == s.end())
+                    combine(i - 1, j - 1, s);
+                for_each(s[q1].begin(), s[q1].end(), [&](vector<int> &v) {
+                    vector<int> ex(v.begin(), v.end());
+                    ex.push_back(i);
+                    s[p].push_back(ex);
+                });
+                pair<int, int> q2 = make_pair(i - 1, j);
+                if (s.find(q2) == s.end())
+                    combine(i - 1, j, s);
+                for_each(s[q2].begin(), s[q2].end(),
+                         [&](vector<int> &v) { s[p].push_back(v); });
+            };
+    map<pair<int, int>, vector<vector<int>>> sets;
+    combine(n, k, sets);
+    pair<int, int> p = make_pair(n, k);
+    return sets[p];
+}
+// Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+// then we need s(n, k).
+// s(n, k) = s(n-1, k-1) + s(n-1, k)
+//
+// s(1,1)
+// s(2,1)     s(2,2)
+// s(3,1)     s(3,2)     s(3,3)
+// s(4,1)     s(4,2)     s(4,3)     s(4,4)
+// ......     ......     ......     ......
+// ......     ......     ......     ......  ......
+// ......     ......     ......     ......  ...... ......
+// ......     ......     ......     ......  ...... s(k,k-1)   s(k,k)
+// ......     ......     ......     ......  ...... s(k+1,k-1) s(k+1,k)
+// ......     ......     ......     ......  ...... ......     ......
+// ......     ......     ......     ......  ...... ......     ......
+// s(n-k+1,1) s(n-k+1,2) ......     ......  ...... ......     ......
+//            s(n-k+2,2) ......     ......  ...... ......     ......
+//                       s(n-k+2,3) ......  ...... ......     ......
+//                                  ......  ...... ......     ......
+//                                          ...... ......     ......
+//                                                 s(n-1,k-1) s(n-1,k)
+//                                                            s(n,k)
+//
+// [TODO] Use subset algorithm to solve this problem
+vector<vector<int>> combine4(int n, int k) {
+    if (n <= 0 || k <= 0 || n < k)
+        return vector<vector<int>>{{}};
+    // Represent a column
+    vector<vector<vector<int>>> s(n - k + 1, vector<vector<int>>{{}});
+    for (int j = 1; j <= k; j++) {
+        // s(j,j) = {{1,2,...,j}}
+        s[0][0].push_back(j);
+        for (int i = 1; i <= n - k; i++) {
+            // Extend s(i,j) by adding i+j to each of s(i-1,j-1)
+            for_each(s[i].begin(), s[i].end(),
+                     [&](vector<int> &v) { v.push_back(i + j); });
+            // Extend s(i,j) by adding s(i-1,j)
+            for_each(s[i - 1].begin(), s[i - 1].end(),
+                     [&](vector<int> &v) { s[i].push_back(v); });
+        }
+    }
+    return s[n - k];
+}
+vector<vector<int>> combine5(int n, int k) {
+    vector<vector<int>> sets = {vector<int>{}};
+    vector<vector<int>> output = {};
+    for (int i = 1; i <= n; i++) {
+        int size = sets.size();
+        for (int j = 0; j < size; j++) {
+            if ((int)sets[j].size() < k) {
+                vector<int> ex(sets[j].begin(), sets[j].end());
+                ex.push_back(i);
+                if ((int)ex.size() == k)
+                    output.push_back(ex);
+                else
+                    sets.push_back(ex);
+            }
+        }
+    }
+    return output;
+}
+vector<vector<int>> combine6(int n, int k) {
+    function<void(vector<int>, int, int, vector<vector<int>> &)> solve =
+        [&](vector<int> pre, int i, int k1, vector<vector<int>> &s) {
+            if (k1 == 0) {
+                s.push_back(pre);
+                return;
+            }
+            if (n - i + 1 == k1) {
+                // pre contains i - 1 numbers
+                // There k1 numbers from i to n
+                for (int j = i; j <= n; j++)
+                    pre.push_back(j);
+                s.push_back(pre);
+                return;
+            }
+            for (int j = i; j <= n - k1 + 1; j++) {
+                vector<int> p(pre.begin(), pre.end());
+                p.push_back(j);
+                solve(p, j + 1, k1 - 1, s);
+            }
+        };
+    vector<vector<int>> set = {};
+    solve(vector<int>{}, 1, k, set);
+    return set;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

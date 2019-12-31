@@ -2623,5 +2623,34 @@ void LeetCodeTest::Init(void) {
             check(s1, s2, "", true);
         }
     });
+
+    Add("77. Combinations", [&]() {
+        auto check = [&](int n, int k) {
+            Logger() << "Combine(" << n << ", " << k << ") =" << endl;
+            vector<vector<int>> c = combine(n, k);
+            vector<vector<int>> c2 = combine2(n, k);
+            vector<vector<int>> c3 = combine3(n, k);
+            vector<vector<int>> c4 = combine4(n, k);
+            vector<vector<int>> c5 = combine5(n, k);
+            vector<vector<int>> c6 = combine6(n, k);
+            Util::SortGrid(c);
+            Util::SortGrid(c2);
+            Util::SortGrid(c3);
+            Util::SortGrid(c4);
+            Util::SortGrid(c5);
+            Util::SortGrid(c6);
+            Logger() << c;
+            ASSERT1(0 == Util::Compare(c, c2));
+            ASSERT1(0 == Util::Compare(c, c3));
+            ASSERT1(0 == Util::Compare(c, c4));
+            ASSERT1(0 == Util::Compare(c, c5));
+            ASSERT1(0 == Util::Compare(c, c6));
+        };
+        for (int n = 1; n <= 10; n++) {
+            for (int k = 1; k <= n; k++) {
+                check(n, k);
+            }
+        }
+    });
 }
 #endif
