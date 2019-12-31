@@ -6656,6 +6656,165 @@ void sortColors3(vector<int> &nums) {
     }
 }
 
+// 76. Minimum Window Substring
+// Given a string S and a string T, find the minimum window in S which will
+// contain all the characters in T in complexity O(n).
+// Example:
+// Input: S = "ADOBECODEBANC", T = "ABC"
+// Output: "BANC"
+// Note: If there is no such window in S that covers all characters in T,
+// return the empty string "". If there is such window, you are guaranteed
+// that there will always be only one unique minimum window in S.
+string minWindow(const string &s, const string &t) {
+    if (t.empty() || s.size() < t.size())
+        return "";
+    map<char, int> mt;
+    for (size_t i = 0; i < t.size(); i++) {
+        if (mt.find(t[i]) == mt.end())
+            mt[t[i]] = 1;
+        else
+            mt[t[i]]++;
+    }
+    map<char, int> ms;
+    size_t minIndex = INT_MAX;
+    size_t minLen = INT_MAX;
+    size_t i = 0;
+    size_t j = 0;
+    while (j < s.size()) {
+        if (mt.find(s[j]) == mt.end()) {
+            j++;
+            continue;
+        }
+        if (ms.find(s[j]) == ms.end())
+            ms[s[j]] = 1;
+        else
+            ms[s[j]]++;
+        if (ms.size() < mt.size()) {
+            j++;
+            continue;
+        }
+        bool hasT = true;
+        for (auto it = ms.cbegin(); it != ms.cend(); it++) {
+            if (it->second < mt[it->first]) {
+                hasT = false;
+                break;
+            }
+        }
+        if (!hasT) {
+            j++;
+            continue;
+        }
+        while (ms.find(s[i]) == ms.end() || ms[s[i]] > mt[s[i]]) {
+            if (ms.find(s[i]) != ms.end())
+                ms[s[i]]--;
+            i++;
+        }
+        if (j - i + 1 < minLen) {
+            minIndex = i;
+            minLen = j - i + 1;
+        }
+        j++;
+    }
+    return minIndex == INT_MAX ? "" : s.substr(minIndex, minLen);
+}
+string minWindow2(const string &s, const string &t) {
+    if (s.empty() || t.empty() || s.length() < t.length())
+        return "";
+    map<char, int> countT;
+    for (size_t i = 0; i < t.length(); i++) {
+        if (countT.find(t[i]) == countT.end())
+            countT[t[i]] = 1;
+        else
+            countT[t[i]] += 1;
+    }
+    // c1 count should be no less than c2 count
+    auto compare = [&](map<char, int> &c1, map<char, int> &c2) -> bool {
+        if (c1.size() != c2.size())
+            return false;
+        for (map<char, int>::iterator it = c1.begin(); it != c1.end(); it++) {
+            if (c2.find(it->first) == c2.end())
+                return false;
+            if (c2[it->first] > it->second)
+                return false;
+        }
+        return true;
+    };
+    map<char, int> countS;
+    queue<pair<char, int>> indices;
+    int begin = -1;
+    int end = (int)s.length();
+    for (int i = 0; i < (int)s.length(); i++) {
+        if (countT.find(s[i]) != countT.end()) {
+            if (countS.find(s[i]) == countS.end())
+                countS[s[i]] = 1;
+            else
+                countS[s[i]] += 1;
+            // indices contains a range of characters that are also in T
+            indices.push(make_pair(s[i], i));
+            // Shorten the range
+            while (countS[indices.front().first] >
+                   countT[indices.front().first]) {
+                countS[indices.front().first] -= 1;
+                indices.pop();
+            }
+            if (compare(countS, countT)) {
+                if (i - indices.front().second < end - begin) {
+                    begin = indices.front().second;
+                    end = i;
+                }
+            }
+        }
+    }
+    if (begin == -1)
+        return "";
+    else
+        return s.substr(begin, end - begin + 1);
+}
+string minWindow3(const string &s, const string &t) {
+    if (s.empty() || t.empty() || s.length() < t.length())
+        return "";
+    map<char, int> countT;
+    for (size_t i = 0; i < t.length(); i++) {
+        if (countT.find(t[i]) == countT.end())
+            countT[t[i]] = 1;
+        else
+            countT[t[i]] += 1;
+    }
+    map<char, int> countS;
+    int total = 0;
+    queue<pair<char, int>> indices;
+    int begin = -1;
+    int end = (int)s.length();
+    for (int i = 0; i < (int)s.length(); i++) {
+        if (countT.find(s[i]) != countT.end()) {
+            if (countS.find(s[i]) == countS.end())
+                countS[s[i]] = 1;
+            else
+                countS[s[i]] += 1;
+            // TODO: investigate when and how to decrease total and see
+            // if can avoid using queue indices.
+            if (countS[s[i]] <= countT[s[i]])
+                total++;
+            indices.push(make_pair(s[i], i));
+            while (countS[indices.front().first] >
+                   countT[indices.front().first]) {
+                countS[indices.front().first] -= 1;
+                indices.pop();
+            }
+            if (total == (int)t.length()) {
+                if (i - indices.front().second < end - begin) {
+                    begin = indices.front().second;
+                    end = i;
+                }
+            }
+        }
+    }
+    if (begin == -1)
+        return "";
+    else
+        return s.substr(begin, end - begin + 1);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
