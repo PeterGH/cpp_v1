@@ -2797,5 +2797,284 @@ void LeetCodeTest::Init(void) {
         check({1, 3, 3, 3, 3}, 3);
         check({1, 3, 3, 3, 4}, 4);
     });
+
+    Add("81. Search in Rotated Sorted Array II", [&]() {
+        auto check = [&](const vector<int> &a, int t, int e) {
+            bool b = searchII(a, t);
+            bool b2 = searchII2(a, t);
+            Logger().WriteInformation("  %d is found: %d, %d\n", t, b, b2);
+            if (e == -1) {
+                ASSERT1(!b);
+                ASSERT1(!b2);
+            } else {
+                ASSERT1(b);
+                ASSERT1(b2);
+            }
+        };
+        {
+            vector<int> a = {2, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 2, 1);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {1, 2, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, 1);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {2, 1, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 2);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {2, 2, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, 1);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {1, 1, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 2);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {2, 1, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 0);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {1, 2, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, 1);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {2, 2, 2};
+            Logger() << a;
+            check(a, 1, -1);
+            check(a, 2, 2);
+            check(a, 3, -1);
+        }
+        {
+            vector<int> a = {1, 1, 3, 4};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 3, 2);
+            check(a, 4, 3);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {4, 1, 1, 3};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, -1);
+            check(a, 3, 3);
+            check(a, 4, 0);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {3, 4, 1, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, -1);
+            check(a, 3, 0);
+            check(a, 4, 1);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 3, 4, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 3, 1);
+            check(a, 4, 2);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 1, 1, 4};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 4, 3);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {4, 1, 1, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, -1);
+            check(a, 4, 0);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 4, 1, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 4, 1);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 1, 4, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 4, 2);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 1, 1, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, -1);
+            check(a, 4, -1);
+        }
+        {
+            vector<int> a = {1, 2, 2, 4};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, 1);
+            check(a, 3, -1);
+            check(a, 4, 3);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {4, 1, 2, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 2);
+            check(a, 3, -1);
+            check(a, 4, 0);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {2, 4, 1, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, 1);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {2, 2, 4, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 3);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, 2);
+            check(a, 5, -1);
+        }
+        {
+            vector<int> a = {1, 2, 2, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, 1);
+            check(a, 3, -1);
+            check(a, 4, -1);
+        }
+        {
+            vector<int> a = {2, 1, 2, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, -1);
+        }
+        {
+            vector<int> a = {2, 2, 1, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, -1);
+        }
+        {
+            vector<int> a = {2, 2, 2, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 3);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, -1);
+        }
+        {
+            vector<int> a = {1, 2, 4, 4};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+            check(a, 2, 1);
+            check(a, 3, -1);
+            check(a, 4, 2);
+        }
+        {
+            vector<int> a = {4, 1, 2, 4};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 1);
+            check(a, 2, 2);
+            check(a, 3, -1);
+            check(a, 4, 0);
+        }
+        {
+            vector<int> a = {4, 4, 1, 2};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 2);
+            check(a, 2, 3);
+            check(a, 3, -1);
+            check(a, 4, 0);
+        }
+        {
+            vector<int> a = {2, 4, 4, 1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 3);
+            check(a, 2, 0);
+            check(a, 3, -1);
+            check(a, 4, 1);
+        }
+        {
+            vector<int> a = {1};
+            Logger() << a;
+            check(a, 0, -1);
+            check(a, 1, 0);
+        }
+    });
 }
 #endif
