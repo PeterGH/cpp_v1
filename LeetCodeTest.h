@@ -2652,5 +2652,89 @@ void LeetCodeTest::Init(void) {
             }
         }
     });
+
+    Add("78. Subsets", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            vector<vector<int>> s = subsets(v);
+            vector<vector<int>> s2 = subsets2(v);
+            Util::SortGrid(s);
+            Util::SortGrid(s2);
+            Logger() << s;
+            ASSERT1(0 == Util::Compare(s, s2));
+        };
+        for (int i = 0; i <= 10; i++) {
+            vector<int> v = Util::IncreasingVector(i);
+            check(v);
+        }
+    });
+
+    Add("79. Word Search", [&]() {
+        auto print = [&](const vector<vector<char>> &board) {
+            Logger().WriteInformation("Board:\n");
+            for_each(board.begin(), board.end(), [&](const vector<char> &row) {
+                for_each(row.begin(), row.end(),
+                         [&](char c) { Logger().WriteInformation(" %c", c); });
+                Logger().WriteInformation("\n");
+            });
+        };
+        auto check = [&](const vector<vector<char>> &board, const string &word,
+                         bool expect) {
+            bool a = exist(board, word);
+            bool a2 = exist2(board, word);
+            Logger().WriteInformation("Search %s: %d, %d\n", word.c_str(), a,
+                                      a2);
+            ASSERT1(a == expect);
+            ASSERT1(a2 == expect);
+        };
+        {
+            vector<vector<char>> b = {{'A'}};
+            print(b);
+            check(b, "A", true);
+            check(b, "B", false);
+            check(b, "AA", false);
+            check(b, "AB", false);
+        }
+        {
+            vector<vector<char>> b = {{'A', 'B'}, {'B', 'A'}};
+            print(b);
+            check(b, "A", true);
+            check(b, "B", true);
+            check(b, "AA", false);
+            check(b, "AB", true);
+            check(b, "ABA", true);
+            check(b, "BAB", true);
+            check(b, "ABAB", true);
+            check(b, "ABBA", false);
+            check(b, "BAAB", false);
+            check(b, "BABA", true);
+        }
+        {
+            vector<vector<char>> b = {{'A', 'A'}, {'A', 'A'}};
+            print(b);
+            check(b, "A", true);
+            check(b, "B", false);
+            check(b, "AA", true);
+            check(b, "AAA", true);
+            check(b, "AAAA", true);
+            check(b, "AAAAA", false);
+        }
+        {
+            vector<vector<char>> b = {{'A', 'B', 'C', 'E'},
+                                      {'S', 'F', 'C', 'S'},
+                                      {'A', 'D', 'E', 'E'}};
+            print(b);
+            check(b, "ABCCED", true);
+            check(b, "SEE", true);
+            check(b, "ABCB", false);
+        }
+        {
+            vector<vector<char>> b = {{'A', 'B', 'C', 'E'},
+                                      {'S', 'F', 'E', 'S'},
+                                      {'A', 'D', 'E', 'E'}};
+            print(b);
+            check(b, "ABCEFSADEESE", true);
+        }
+    });
 }
 #endif

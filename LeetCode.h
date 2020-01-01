@@ -7000,6 +7000,150 @@ vector<vector<int>> combine6(int n, int k) {
     return set;
 }
 
+// 78. Subsets
+// Given a set of distinct integers, nums, return all possible subsets (the
+// power set). Note: The solution set must not contain duplicate subsets.
+// Example:
+// Input: nums = [1,2,3]
+// Output:
+// [
+//   [3],
+//   [1],
+//   [2],
+//   [1,2,3],
+//   [1,3],
+//   [2,3],
+//   [1,2],
+//   []
+// ]
+vector<vector<int>> subsets(const vector<int> &nums) {
+    vector<vector<int>> sets = {{}};
+    for (size_t i = 0; i < nums.size(); i++) {
+        size_t n = sets.size();
+        for (size_t j = 0; j < n; j++) {
+            vector<int> v(sets[j]);
+            v.push_back(nums[i]);
+            sets.push_back(v);
+        }
+    }
+    return sets;
+}
+vector<vector<int>> subsets2(const vector<int> &nums) {
+    vector<vector<int>> sets;
+    function<void(size_t, size_t, vector<int> &)> select =
+        [&](size_t i, size_t k, vector<int> &v) {
+            if (k == 0) {
+                sets.push_back(v);
+                return;
+            }
+            for (size_t j = i; j < nums.size(); j++) {
+                v.push_back(nums[j]);
+                select(j + 1, k - 1, v);
+                v.pop_back();
+            }
+        };
+    vector<int> s;
+    for (size_t k = 0; k <= nums.size(); k++)
+        select(0, k, s);
+    return sets;
+}
+
+// 79. Word Search
+// Given a 2D board and a word, find if the word exists in the grid.
+// The word can be constructed from letters of sequentially adjacent
+// cell, where "adjacent" cells are those horizontally or vertically
+// neighboring. The same letter cell may not be used more than once.
+// Example:
+// board =
+// [
+//   ['A','B','C','E'],
+//   ['S','F','C','S'],
+//   ['A','D','E','E']
+// ]
+// Given word = "ABCCED", return true.
+// Given word = "SEE", return true.
+// Given word = "ABCB", return false.
+// [TODO] What if a letter can be reused?
+bool exist(const vector<vector<char>> &board, const string &word) {
+    if (word.empty())
+        return true;
+    if (board.empty() || board[0].empty())
+        return false;
+    function<bool(size_t, size_t, size_t, set<pair<size_t, size_t>> &)> solve =
+        [&](size_t i, size_t j, size_t k,
+            set<pair<size_t, size_t>> &v) -> bool {
+        if (k == word.size())
+            return true;
+        if (board[i][j] != word[k])
+            return false;
+        pair<size_t, size_t> p = make_pair(i, j);
+        if (v.find(p) != v.end())
+            return false;
+        if (k + 1 == word.size())
+            return true;
+        v.insert(p);
+        if (i > 0 && solve(i - 1, j, k + 1, v))
+            return true;
+        if (j + 1 < board[0].size() && solve(i, j + 1, k + 1, v))
+            return true;
+        if (i + 1 < board.size() && solve(i + 1, j, k + 1, v))
+            return true;
+        if (j > 0 && solve(i, j - 1, k + 1, v))
+            return true;
+        v.erase(p);
+        return false;
+    };
+    set<pair<size_t, size_t>> visited;
+    for (size_t i = 0; i < board.size(); i++) {
+        for (size_t j = 0; j < board[i].size(); j++) {
+            if (solve(i, j, 0, visited))
+                return true;
+        }
+    }
+    return false;
+}
+bool exist2(const vector<vector<char>> &board, const string &word) {
+    if (board.size() == 0 || board[0].size() == 0)
+        return false;
+    int m = board.size();
+    int n = board[0].size();
+    int l = word.size();
+    function<bool(pair<int, int> &, int, set<pair<int, int>> &)> search =
+        [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
+        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n ||
+            i < 0 || i >= l || board[p.first][p.second] != word[i] ||
+            v.find(p) != v.end()) {
+            return false;
+        }
+        if (i == l - 1)
+            return true;
+        v.insert(p);
+        pair<int, int> p1 = make_pair(p.first, p.second - 1);
+        if (search(p1, i + 1, v))
+            return true;
+        p1 = make_pair(p.first, p.second + 1);
+        if (search(p1, i + 1, v))
+            return true;
+        p1 = make_pair(p.first - 1, p.second);
+        if (search(p1, i + 1, v))
+            return true;
+        p1 = make_pair(p.first + 1, p.second);
+        if (search(p1, i + 1, v))
+            return true;
+        v.erase(p);
+        return false;
+    };
+    for (int j = 0; j < m; j++) {
+        for (int k = 0; k < n; k++) {
+            pair<int, int> point = make_pair(j, k);
+            set<pair<int, int>> visited = set<pair<int, int>>{};
+            if (search(point, 0, visited))
+                return true;
+        }
+    }
+    return false;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
