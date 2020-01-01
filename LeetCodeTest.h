@@ -2736,5 +2736,66 @@ void LeetCodeTest::Init(void) {
             check(b, "ABCEFSADEESE", true);
         }
     });
+
+    Add("80. Remove Duplicates from Sorted Array II", [&]() {
+        auto check = [&](const vector<int> &v, int e, bool ignoreE = false) {
+            Logger().WriteInformation("Input: ");
+            Logger() << v;
+            map<int, int> mv = Util::Count<int>(v);
+            Logger() << mv;
+            vector<int> w(v);
+            int n = removeDuplicatesII(w);
+            map<int, int> mw = Util::Count<int>(w, 0, n - 1);
+            vector<int> w2(v);
+            int n2 = removeDuplicatesII2(w2);
+            map<int, int> mw2 = Util::Count<int>(w2, 0, n2 - 1);
+            vector<int> w3(v);
+            int n3 = removeDuplicatesII3(w3);
+            map<int, int> mw3 = Util::Count<int>(w3, 0, n3 - 1);
+            Logger().WriteInformation("Output:");
+            Logger() << w;
+            Logger() << mw;
+            if (ignoreE) {
+                ASSERT1(n == n2);
+                ASSERT1(n == n3);
+            } else {
+                ASSERT1(n == e);
+                ASSERT1(n2 == e);
+                ASSERT1(n3 == e);
+            }
+            ASSERT1(Util::Contain<int>(mv, mw));
+            ASSERT1(Util::Contain<int>(mv, mw2));
+            ASSERT1(Util::Contain<int>(mv, mw3));
+            ASSERT1(Util::Equal<int>(mw, mw2));
+            ASSERT1(Util::Equal<int>(mw, mw3));
+            for (auto it = mw.cbegin(); it != mw.cend(); it++) {
+                ASSERT1(it->second <= 2);
+            }
+        };
+        check({1}, 1);
+        check({1, 1}, 2);
+        check({1, 2}, 2);
+        check({1, 1, 2}, 3);
+        check({1, 1, 1}, 2);
+        check({1, 2, 2}, 3);
+        check({1, 2, 3}, 3);
+        check({1, 2, 3, 4}, 4);
+        check({1, 1, 3, 4}, 4);
+        check({1, 1, 1, 4}, 3);
+        check({1, 1, 1, 1}, 2);
+        check({1, 2, 2, 4}, 4);
+        check({1, 2, 2, 2}, 3);
+        check({1, 2, 3, 3}, 4);
+        check({1, 1, 3, 3}, 4);
+        check({1, 2, 3, 4, 5}, 5);
+        check({1, 1, 2, 2, 5}, 5);
+        check({1, 1, 3, 4, 5}, 5);
+        check({1, 1, 1, 4, 4}, 4);
+        check({1, 1, 1, 1, 5}, 3);
+        check({1, 1, 1, 1, 1}, 2);
+        check({1, 1, 3, 3, 3}, 4);
+        check({1, 3, 3, 3, 3}, 3);
+        check({1, 3, 3, 3, 4}, 4);
+    });
 }
 #endif

@@ -7144,6 +7144,100 @@ bool exist2(const vector<vector<char>> &board, const string &word) {
     return false;
 }
 
+// 80. Remove Duplicates from Sorted Array II
+// Given a sorted array nums, remove the duplicates in-place such that
+// duplicates appeared at most twice and return the new length. Do not
+// allocate extra space for another array, you must do this by modifying
+// the input array in-place with O(1) extra memory.
+// Example 1:
+// Given nums = [1,1,1,2,2,3], Your function should return length = 5,
+// with the first five elements of nums being 1, 1, 2, 2 and 3 respectively.
+// It doesn't matter what you leave beyond the returned length.
+// Example 2:
+// Given nums = [0,0,1,1,1,1,2,3,3], Your function should return length = 7,
+// with the first seven elements of nums being modified to 0, 0, 1, 1, 2, 3
+// and 3 respectively.
+// It doesn't matter what values are set beyond the returned length.
+int removeDuplicatesII(vector<int> &nums) {
+    int i = -1;
+    size_t j = 0;
+    while (j < nums.size()) {
+        if (j == 0 || nums[j - 1] != nums[j]) {
+            size_t k = j;
+            while (k <= j + 1 && k < nums.size() && nums[k] == nums[j]) {
+                ++i;
+                if (i < (int)k)
+                    nums[i] = nums[k];
+                k++;
+            }
+            j = k;
+        } else {
+            j++;
+        }
+    }
+    return i + 1;
+}
+int removeDuplicatesII2(vector<int> &nums) {
+    int i = -1;
+    int j = 0;
+    while (j < (int)nums.size()) {
+        // Find the first instance of next number (at j)
+        if (0 <= j - 1 && nums[j] == nums[j - 1]) {
+            j++;
+            continue;
+        }
+        // Move nums[j] ahead
+        i++;
+        if (i < j)
+            nums[i] = nums[j];
+        if (j + 1 < (int)nums.size() && nums[j] == nums[j + 1]) {
+            // Move the second instance of next number (at j + 1) ahead
+            i++;
+            if (i < j + 1)
+                nums[i] = nums[j + 1];
+            j += 2;
+        } else {
+            // next number has only one instance
+            j++;
+        }
+    }
+    return i + 1;
+}
+int removeDuplicatesII3(vector<int> &nums) {
+    int n = nums.size();
+    if (n <= 2)
+        return n;
+    int i = 0;
+    int j = 1;
+    while (j < n) {
+        if (i + 1 < j)
+            nums[i + 1] = nums[j];
+        i++;
+        j++;
+        if (nums[i - 1] == nums[i]) {
+            while (j < n && nums[j] == nums[i])
+                j++;
+        }
+    }
+    return i + 1;
+}
+// This is wrong. For input [1, 1, 1, 2, 2, 3], output is [1, 1, 2, 3]
+int removeDuplicatesII4(vector<int> &nums) {
+    if (nums.size() < 3)
+        return nums.size();
+    int i = 1;
+    for (int j = 2; j < (int)nums.size(); j++) {
+        if (nums[j] == nums[j - 1] && nums[j] == nums[j - 2]) {
+            continue;
+        }
+        i++;
+        if (i < j) {
+            nums[i] = nums[j];
+        }
+    }
+    return i + 1;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

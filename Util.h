@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
@@ -143,6 +144,28 @@ static int Compare(const vector<vector<T>> &lhs, const vector<vector<T>> &rhs) {
         return 0;
 }
 
+template <class T>
+static bool Contain(const map<T, int> &m1, const map<T, int> &m2) {
+    for (auto it = m2.cbegin(); it != m2.cend(); it++) {
+        if (m1.find(it->first) == m1.end())
+            return false;
+        if (m1.at(it->first) < it->second)
+            return false;
+    }
+    return true;
+}
+
+template <class T>
+static bool Equal(const map<T, int> &m1, const map<T, int> &m2) {
+    for (auto it = m2.cbegin(); it != m2.cend(); it++) {
+        if (m1.find(it->first) == m1.end())
+            return false;
+        if (m1.at(it->first) != it->second)
+            return false;
+    }
+    return true;
+}
+
 template <class T> struct VectorLess : std::less<T> {
     bool operator()(const vector<T> &v1, const vector<T> &v2) {
         return Compare(v1, v2) == -1;
@@ -281,6 +304,30 @@ static void SortGrid(vector<vector<string>> &grid) {
              }
              return lhs.size() < rhs.size();
          });
+}
+
+template <class T>
+static map<T, int> Count(const vector<T> &v, size_t begin, size_t end) {
+    if (begin >= v.size())
+        throw invalid_argument("begin");
+    if (end >= v.size())
+        throw invalid_argument("end");
+    if (begin > end)
+        throw invalid_argument("begin > end");
+    map<T, int> m;
+    for (size_t i = begin; i <= end; i++) {
+        if (m.find(v[i]) == m.end())
+            m[v[i]] = 1;
+        else
+            m[v[i]]++;
+    }
+    return m;
+}
+
+template <class T> static map<T, int> Count(const vector<T> &v) {
+    if (v.empty())
+        return map<T, int>();
+    return Count(v, 0, v.size() - 1);
 }
 
 } // namespace Util
