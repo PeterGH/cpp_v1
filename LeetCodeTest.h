@@ -3076,5 +3076,229 @@ void LeetCodeTest::Init(void) {
             check(a, 1, 0);
         }
     });
+
+    Add("82. Remove Duplicates from Sorted List II", [&]() {
+        auto check = [&](const vector<int> &nums) {
+            ListNode *list = ToList(nums);
+            Logger().WriteInformation("List:  ");
+            Print(list);
+            list = deleteDuplicatesII(list);
+            Logger().WriteInformation("Dedup: ");
+            if (list == nullptr)
+                Logger().WriteInformation("\n");
+            else {
+                Print(list);
+                int v = list->val;
+                ListNode *p = list->next;
+                bool foundDup = false;
+                while (p != nullptr) {
+                    if (p->val == v)
+                        foundDup = true;
+                    v = p->val;
+                    p = p->next;
+                }
+                DeleteList(list);
+                ASSERT1(foundDup == false);
+            }
+            ListNode *list2 = ToList(nums);
+            Logger().WriteInformation("List:  ");
+            Print(list2);
+            list2 = deleteDuplicatesII2(list2);
+            Logger().WriteInformation("Dedup: ");
+            if (list2 == nullptr)
+                Logger().WriteInformation("\n");
+            else {
+                Print(list2);
+                int v = list2->val;
+                ListNode *p = list2->next;
+                bool foundDup = false;
+                while (p != nullptr) {
+                    if (p->val == v)
+                        foundDup = true;
+                    v = p->val;
+                    p = p->next;
+                }
+                DeleteList(list2);
+                ASSERT1(foundDup == false);
+            }
+            ListNode *list3 = ToList(nums);
+            Logger().WriteInformation("List:  ");
+            Print(list3);
+            list3 = deleteDuplicatesII3(list3);
+            Logger().WriteInformation("Dedup: ");
+            if (list3 == nullptr)
+                Logger().WriteInformation("\n");
+            else {
+                Print(list3);
+                int v = list3->val;
+                ListNode *p = list3->next;
+                bool foundDup = false;
+                while (p != nullptr) {
+                    if (p->val == v)
+                        foundDup = true;
+                    v = p->val;
+                    p = p->next;
+                }
+                DeleteList(list3);
+                ASSERT1(foundDup == false);
+            }
+        };
+        check(vector<int>{1});
+        check(vector<int>{1, 1});
+        check(vector<int>{1, 2});
+        check(vector<int>{1, 1, 2});
+        check(vector<int>{1, 2, 2});
+        check(vector<int>{1, 1, 1});
+        check(vector<int>{1, 2, 3});
+        check(vector<int>{1, 1, 2, 2});
+        check(vector<int>{1, 1, 1, 2});
+        check(vector<int>{1, 2, 2, 2});
+        check(vector<int>{1, 1, 1, 1});
+        check(vector<int>{1, 2, 2, 3});
+        check(vector<int>{1, 2, 3, 4});
+    });
+
+    Add("83. Remove Duplicates from Sorted List", [&]() {
+        auto check = [&](const vector<int> &nums) {
+            ListNode *list = ToList(nums);
+            Logger().WriteInformation("List:  ");
+            Print(list);
+            list = deleteDuplicates(list);
+            Logger().WriteInformation("Dedup: ");
+            if (list == nullptr)
+                Logger().WriteInformation("\n");
+            else {
+                Print(list);
+                int v = list->val;
+                ListNode *p = list->next;
+                bool foundDup = false;
+                while (p != nullptr) {
+                    if (p->val == v)
+                        foundDup = true;
+                    v = p->val;
+                    p = p->next;
+                }
+                DeleteList(list);
+                ASSERT1(foundDup == false);
+            }
+            ListNode *list2 = ToList(nums);
+            Logger().WriteInformation("List:  ");
+            Print(list2);
+            list2 = deleteDuplicates2(list2);
+            Logger().WriteInformation("Dedup: ");
+            if (list2 == nullptr)
+                Logger().WriteInformation("\n");
+            else {
+                Print(list2);
+                int v = list2->val;
+                ListNode *p = list2->next;
+                bool foundDup = false;
+                while (p != nullptr) {
+                    if (p->val == v)
+                        foundDup = true;
+                    v = p->val;
+                    p = p->next;
+                }
+                DeleteList(list2);
+                ASSERT1(foundDup == false);
+            }
+        };
+        check(vector<int>{1});
+        check(vector<int>{1, 1});
+        check(vector<int>{1, 2});
+        check(vector<int>{1, 1, 2});
+        check(vector<int>{1, 2, 2});
+        check(vector<int>{1, 1, 1});
+        check(vector<int>{1, 2, 3});
+        check(vector<int>{1, 1, 2, 2});
+        check(vector<int>{1, 1, 1, 2});
+        check(vector<int>{1, 2, 2, 2});
+        check(vector<int>{1, 1, 1, 1});
+        check(vector<int>{1, 2, 2, 3});
+        check(vector<int>{1, 2, 3, 4});
+    });
+
+    Add("84. Largest Rectangle in Histogram", [&]() {
+        auto check = [&](const vector<int> &h, int e) {
+            Logger().WriteInformation("Histogram:");
+            Logger() << h;
+            int a = largestRectangleArea(h);
+            int b = largestRectangleArea2(h);
+            int c = largestRectangleArea3(h);
+            Logger().WriteInformation(" max area: %d, %d, %d\n", a, b, c);
+            if (e >= 0) {
+                ASSERT1(a == e);
+                ASSERT1(b == e);
+                ASSERT1(c == e);
+            } else {
+                ASSERT1(a == b);
+                ASSERT1(a == c);
+            }
+        };
+        check(vector<int>{2, 1, 10, 9, 8, 10}, 32);
+        check(vector<int>{1}, 1);
+        check(vector<int>{2}, 2);
+        check(vector<int>{1, 1}, 2);
+        check(vector<int>{1, 2}, 2);
+        check(vector<int>{1, 3}, 3);
+        check(vector<int>{2, 3}, 4);
+        check(vector<int>{0, 1}, 1);
+        check(vector<int>{0, 2}, 2);
+        check(vector<int>{0, 0}, 0);
+        check(vector<int>{1, 0}, 1);
+        check(vector<int>{2, 0}, 2);
+        check(vector<int>{2, 1}, 2);
+        check(vector<int>{3, 1}, 3);
+        check(vector<int>{3, 2}, 4);
+        check(vector<int>{0, 0, 0}, 0);
+        check(vector<int>{1, 0, 0}, 1);
+        check(vector<int>{0, 1, 0}, 1);
+        check(vector<int>{0, 0, 1}, 1);
+        check(vector<int>{1, 1, 0}, 2);
+        check(vector<int>{1, 0, 1}, 1);
+        check(vector<int>{0, 1, 1}, 2);
+        check(vector<int>{1, 1, 1}, 3);
+        check(vector<int>{2, 1, 1}, 3);
+        check(vector<int>{1, 2, 1}, 3);
+        check(vector<int>{1, 1, 2}, 3);
+        check(vector<int>{3, 1, 1}, 3);
+        check(vector<int>{1, 3, 1}, 3);
+        check(vector<int>{1, 1, 3}, 3);
+        check(vector<int>{4, 1, 1}, 4);
+        check(vector<int>{1, 4, 1}, 4);
+        check(vector<int>{1, 1, 4}, 4);
+        check(vector<int>{1, 2, 2}, 4);
+        check(vector<int>{2, 1, 2}, 3);
+        check(vector<int>{2, 2, 1}, 4);
+        check(vector<int>{1, 2, 3}, 4);
+        check(vector<int>{1, 3, 2}, 4);
+        check(vector<int>{2, 1, 3}, 3);
+        check(vector<int>{2, 3, 1}, 4);
+        check(vector<int>{3, 1, 2}, 3);
+        check(vector<int>{3, 2, 1}, 4);
+        check(vector<int>{1, 2, 5}, 5);
+        check(vector<int>{1, 5, 2}, 5);
+        check(vector<int>{5, 2, 1}, 5);
+        check(vector<int>{5, 1, 2}, 5);
+        check(vector<int>{1, 3, 4}, 6);
+        check(vector<int>{3, 1, 4}, 4);
+        check(vector<int>{1, 2, 3, 4}, 6);
+        check(vector<int>{2, 1, 3, 4}, 6);
+        check(vector<int>{2, 3, 1, 4}, 4);
+        check(vector<int>{4, 2, 1, 3}, 4);
+        check(vector<int>{4, 2, 3, 1}, 6);
+        check(vector<int>{1, 2, 3, 4, 5}, 9);
+        check(vector<int>{5, 4, 3, 2, 1}, 9);
+        check(vector<int>{2, 1, 5, 6, 2, 3}, 10);
+        for (int i = 0; i < 100; i++) {
+            int len = 1 + (rand() % 100);
+            vector<int> hist;
+            for (int j = 0; j < len; j++) {
+                int v = (rand() % 100);
+                hist.push_back(v);
+            }
+            check(hist, -1);
+        }
+    });
 }
 #endif

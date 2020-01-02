@@ -7324,6 +7324,263 @@ bool searchII2(const vector<int> &nums, int target) {
     return search(0, nums.size() - 1);
 }
 
+// 82. Remove Duplicates from Sorted List II
+// Given a sorted linked list, delete all nodes that have duplicate numbers,
+// leaving only distinct numbers from the original list.
+// Example 1:
+// Input: 1->2->3->3->4->4->5
+// Output: 1->2->5
+// Example 2:
+// Input: 1->1->1->2->3
+// Output: 2->3
+ListNode *deleteDuplicatesII(ListNode *head) {
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *p = nullptr;
+    while (head != nullptr && head->next != nullptr &&
+           head->val == head->next->val) {
+        int v = head->val;
+        while (head != nullptr && head->val == v) {
+            p = head;
+            head = head->next;
+            delete p;
+        }
+    }
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    p = head;
+    while (p->next != nullptr && p->next->next != nullptr) {
+        if (p->next->val == p->next->next->val) {
+            int v = p->next->val;
+            while (p->next != nullptr && p->next->val == v) {
+                ListNode *q = p->next;
+                p->next = q->next;
+                delete q;
+            }
+        } else {
+            p = p->next;
+        }
+    }
+    return head;
+}
+ListNode *deleteDuplicatesII2(ListNode *head) {
+    ListNode *prev = nullptr;
+    ListNode *p = head;
+    ListNode *next = nullptr;
+    while (p != nullptr) {
+        if (p->next != nullptr && p->val == p->next->val) {
+            int v = p->val;
+            while (p != nullptr && p->val == v) {
+                next = p->next;
+                delete p;
+                p = next;
+            }
+            if (prev == nullptr)
+                head = p;
+            else
+                prev->next = p;
+        } else {
+            if (prev == nullptr)
+                head = p;
+            else
+                prev->next = p;
+            prev = p;
+            p = p->next;
+        }
+    }
+    return head;
+}
+ListNode *deleteDuplicatesII3(ListNode *head) {
+    if (head == nullptr)
+        return nullptr;
+    ListNode *p;
+    while (head->next != nullptr && head->val == head->next->val) {
+        int dup = head->val;
+        while (head != nullptr && head->val == dup) {
+            p = head;
+            head = p->next;
+            delete p;
+        }
+        if (head == nullptr)
+            return nullptr;
+    }
+    if (head->next == nullptr)
+        return head;
+    p = head;
+    ListNode *q = p->next;
+    while (q->next != nullptr) {
+        if (q->val != q->next->val) {
+            p = q;
+            q = p->next;
+        } else {
+            int dup = q->val;
+            while (q != nullptr && q->val == dup) {
+                p->next = q->next;
+                delete q;
+                q = p->next;
+            }
+            if (q == nullptr)
+                return head;
+        }
+    }
+    return head;
+}
+
+// 83. Remove Duplicates from Sorted List
+// Given a sorted linked list, delete all duplicates such that each element
+// appear only once.
+// Example 1:
+// Input: 1->1->2
+// Output: 1->2
+// Example 2:
+// Input: 1->1->2->3->3
+// Output: 1->2->3
+ListNode *deleteDuplicates(ListNode *head) {
+    ListNode *p = head;
+    while (p != nullptr) {
+        while (p->next != nullptr && p->val == p->next->val) {
+            ListNode *q = p->next;
+            p->next = q->next;
+            delete q;
+        }
+        p = p->next;
+    }
+    return head;
+}
+ListNode *deleteDuplicates2(ListNode *head) {
+    ListNode *p = head;
+    while (p != nullptr) {
+        if (p->next != nullptr && p->val == p->next->val) {
+            ListNode *n = p->next;
+            p->next = n->next;
+            delete n;
+        } else {
+            p = p->next;
+        }
+    }
+    return head;
+}
+
+// 84. Largest Rectangle in Histogram
+// Given n non-negative integers representing the histogram's bar height
+// where the width of each bar is 1, find the area of largest rectangle
+// in the histogram..
+// Above is a histogram where width of each bar is 1, given height =
+// [2,1,5,6,2,3]. The largest rectangle is shown in the shaded area (5,6), which
+// has area = 10 unit. Example: Input: [2,1,5,6,2,3] Output: 10
+int largestRectangleArea(const vector<int> &heights) {
+    // Record the starting index and height of each candidate histogram
+    stack<pair<int, int>> s;
+    int m = 0;
+    for (int i = 0; i < (int)heights.size(); i++) {
+        if (s.empty() || s.top().second <= heights[i]) {
+            s.push(make_pair(i, heights[i]));
+            continue;
+        }
+        int j;
+        while (!s.empty() && s.top().second > heights[i]) {
+            m = max(m, (i - s.top().first) * s.top().second);
+            j = s.top().first;
+            s.pop();
+        }
+        s.push(make_pair(j, heights[i]));
+    }
+    while (!s.empty()) {
+        m = max(m, ((int)heights.size() - s.top().first) * s.top().second);
+        s.pop();
+    }
+    return m;
+}
+int largestRectangleArea2(const vector<int> &height) {
+    if (height.size() == 0)
+        return 0;
+    // Track rectangle [i, j] with area a such that rec[i] = <j, a>;
+    map<int, pair<int, int>> rec = {{0, make_pair(0, height[0])}};
+    int maxArea = height[0];
+    for (int i = 1; i < (int)height.size(); i++) {
+        if (height[i] == 0) {
+            rec.clear();
+            continue;
+        }
+        for (map<int, pair<int, int>>::iterator it = rec.begin();
+             it != rec.end(); it++) {
+            if (height[i] < it->second.second) {
+                it->second.second = height[i];
+            }
+            it->second.first++;
+            // TODO: Can this be done only when height[i] = 0?
+            int area = (it->second.first - it->first + 1) * it->second.second;
+            if (area > maxArea)
+                maxArea = area;
+        }
+        if (height[i] > height[i - 1]) {
+            rec[i] = make_pair(i, height[i]);
+            if (height[i] > maxArea)
+                maxArea = height[i];
+        }
+    }
+    return maxArea;
+}
+int largestRectangleArea3(const vector<int> &height) {
+    if (height.size() == 0)
+        return 0;
+    int maxArea = 0;
+    stack<int> rec;
+    for (int i = 0; i < (int)height.size(); i++) {
+        while (!rec.empty() && height[rec.top()] > height[i]) {
+            int t = rec.top();
+            rec.pop();
+            // A candidate rectangle upto i-1 and the min height is at t
+            int area = height[t] * (i - 1 - (rec.empty() ? -1 : rec.top()));
+            if (area > maxArea)
+                maxArea = area;
+        }
+        rec.push(i);
+    }
+    // Now rec contains indices of non-decreasing elements
+    // including the last element of height at the end.
+    while (!rec.empty()) {
+        int t = rec.top();
+        rec.pop();
+        // A candidate rectangle upto n-1 and the min height is at t
+        int area = height[t] *
+                   ((int)height.size() - 1 - (rec.empty() ? -1 : rec.top()));
+        if (area > maxArea)
+            maxArea = area;
+    }
+
+    return maxArea;
+}
+// This is wrong, e.g., for [2 1 2] it returns 2 but answer should be 3
+int largestRectangleArea4(const vector<int> &height) {
+    if (height.empty())
+        return 0;
+    int maxArea = height[0];
+    int i = 0;
+    int j = 1;
+    int n = (int)height.size();
+    while (j < n) {
+        // Find [i, j-1] where elements in between are no less than min of
+        // boundaries
+        while (j < n && height[j - 1] <= height[j])
+            j++;
+        while (j < n && height[j - 1] >= height[j])
+            j++;
+        int p = i;
+        int q = j - 1;
+        while (p <= q) {
+            maxArea =
+                std::max(maxArea, (q - p + 1) * std::min(height[p], height[q]));
+            if (height[p] < height[q])
+                p++;
+            else
+                q--;
+        }
+        i = j - 1;
+    }
+    return maxArea;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
