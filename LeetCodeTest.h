@@ -3300,5 +3300,149 @@ void LeetCodeTest::Init(void) {
             check(hist, -1);
         }
     });
+
+    Add("85. Maximal Rectangle", [&]() {
+        auto check = [&](const vector<vector<char>> &matrix, int expect) {
+            Logger() << matrix;
+            int area = maximalRectangle(matrix);
+            int area2 = maximalRectangle2(matrix);
+            Logger().WriteInformation(" Area: %d, %d\n", area, area2);
+            if (expect < 0) {
+                ASSERT1(area == area2);
+            } else {
+                ASSERT1(area == expect);
+                ASSERT1(area2 == expect);
+            }
+        };
+        {
+            vector<vector<char>> m = {{'0'}};
+            check(m, 0);
+        }
+        {
+            vector<vector<char>> m = {{'1'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '0'}};
+            check(m, 0);
+        }
+        {
+            vector<vector<char>> m = {{'0', '1'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'1', '0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'0'}, {'0'}};
+            check(m, 0);
+        }
+        {
+            vector<vector<char>> m = {{'1'}, {'0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0'}, {'1'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'1'}, {'1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'0', '0'}, {'0', '0'}};
+            check(m, 0);
+        }
+        {
+            vector<vector<char>> m = {{'1', '0'}, {'0', '0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '1'}, {'0', '0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '0'}, {'1', '0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '0'}, {'0', '1'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1'}, {'0', '0'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '0'}, {'1', '0'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '0'}, {'0', '1'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '1'}, {'1', '0'}};
+            check(m, 1);
+        }
+        {
+            vector<vector<char>> m = {{'0', '1'}, {'0', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'0', '0'}, {'1', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1'}, {'1', '0'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1'}, {'0', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '0'}, {'1', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'0', '1'}, {'1', '1'}};
+            check(m, 2);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1'}, {'1', '1'}};
+            check(m, 4);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1', '1'}, {'1', '0', '0'}};
+            check(m, 3);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1', '1'}, {'1', '1', '0'}};
+            check(m, 4);
+        }
+        {
+            vector<vector<char>> m = {{'1', '1', '1'}, {'1', '1', '1'}};
+            check(m, 6);
+        }
+        {
+            vector<vector<char>> m = {
+                {'0', '0', '1', '0'}, {'1', '1', '1', '1'}, {'1', '1', '1', '1'}, {'1', '1', '1', '0'},
+                {'1', '1', '0', '0'}, {'1', '1', '1', '1'}, {'1', '1', '1', '0'},
+            };
+            check(m, 12);
+        }
+        for (int i = 0; i < 100; i++) {
+            int m = Random::Int(100, 1);
+            int n = Random::Int(100, 1);
+            vector<vector<char>> g = Random::Grid(m, n, '1', '0');
+            check(g, -1);
+        }
+    });
 }
 #endif

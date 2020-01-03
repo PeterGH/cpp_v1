@@ -44,6 +44,15 @@ static vector<vector<int>> Grid(size_t m, size_t n, int max = RAND_MAX,
     return result;
 }
 
+static vector<vector<char>> Grid(size_t m, size_t n, char max, char min) {
+    vector<vector<char>> result(m, vector<char>(n));
+    for (size_t i = 0; i < m; i++) {
+        std::generate(result[i].begin(), result[i].end(),
+                      [&]() { return char(Int(max, min)); });
+    }
+    return result;
+}
+
 template <class T>
 static basic_string<T> String(size_t length, const basic_string<T> &alphabet) {
     basic_string<T> output;

@@ -7581,6 +7581,98 @@ int largestRectangleArea4(const vector<int> &height) {
     return maxArea;
 }
 
+// 85. Maximal Rectangle
+// Given a 2D binary matrix filled with 0's and 1's, find the largest
+// rectangle containing only 1's and return its area.
+// Example:
+// Input:
+// [
+//   ["1","0","1","0","0"],
+//   ["1","0","1","1","1"],
+//   ["1","1","1","1","1"],
+//   ["1","0","0","1","0"]
+// ]
+// Output: 6
+int maximalRectangle(const vector<vector<char>> &matrix) {
+    if (matrix.empty() || matrix[0].empty())
+        return 0;
+    function<int(const vector<int> &)> solve =
+        [&](const vector<int> &v) -> int {
+        stack<pair<int, int>> s;
+        int m = 0;
+        for (int i = 0; i < (int)v.size(); i++) {
+            if (s.empty() || s.top().second <= v[i]) {
+                s.push(make_pair(i, v[i]));
+                continue;
+            }
+            int j = i;
+            while (!s.empty() && s.top().second > v[i]) {
+                m = max(m, (i - s.top().first) * s.top().second);
+                j = s.top().first;
+                s.pop();
+            }
+            s.push(make_pair(j, v[i]));
+        }
+        while (!s.empty()) {
+            m = max(m, ((int)v.size() - s.top().first) * s.top().second);
+            s.pop();
+        }
+        return m;
+    };
+    int area = 0;
+    vector<int> r(matrix[0].size(), 0);
+    for (size_t i = 0; i < matrix.size(); i++) {
+        for (size_t j = 0; j < matrix[i].size(); j++) {
+            if (matrix[i][j] == '1')
+                r[j] += 1;
+            else
+                r[j] = 0;
+        }
+        area = max(area, solve(r));
+    }
+    return area;
+}
+int maximalRectangle2(const vector<vector<char>> &matrix) {
+    if (matrix.empty() || matrix[0].empty())
+        return 0;
+    function<int(int, int)> solve = [&](int pi, int pj) {
+        if (pi < 0 || pi >= (int)matrix.size() || pj < 0 ||
+            pj >= (int)matrix[0].size())
+            return 0;
+        if (matrix[pi][pj] != '1')
+            return 0;
+        int i = pi;
+        int j = pj;
+        while (j + 1 < (int)matrix[0].size() && matrix[i][j + 1] == '1')
+            j++;
+        int maxj = j;
+        int maxArea = j - pj + 1;
+        while (i + 1 < (int)matrix.size() && matrix[i + 1][pj] == '1') {
+            i++;
+            j = pj;
+            while (j + 1 <= maxj && matrix[i][j + 1] == '1' &&
+                   matrix[i - 1][j + 1] == '1')
+                j++;
+            int area = (i - pi + 1) * (j - pj + 1);
+            if (area > maxArea)
+                maxArea = area;
+            maxj = j;
+        }
+        return maxArea;
+    };
+    int maxArea = 0;
+    for (int i = 0; i < (int)matrix.size(); i++) {
+        for (int j = 0; j < (int)matrix[i].size(); j++) {
+            if (matrix[i][j] == '1') {
+                int area = solve(i, j);
+                if (area > maxArea)
+                    maxArea = area;
+            }
+        }
+    }
+    return maxArea;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
