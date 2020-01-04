@@ -7673,6 +7673,119 @@ int maximalRectangle2(const vector<vector<char>> &matrix) {
     return maxArea;
 }
 
+// 86. Partition List
+// Given a linked list and a value x, partition it such that all nodes less
+// than x come before nodes greater than or equal to x. You should preserve
+// the original relative order of the nodes in each of the two partitions.
+// Example:
+// Input: head = 1->4->3->2->5->2, x = 3
+// Output: 1->2->2->4->3->5
+ListNode *partition(ListNode *head, int x) {
+    if (head == nullptr)
+        return head;
+    ListNode *p = nullptr;
+    if (head->val < x)
+        p = head;
+    while (p != nullptr && p->next != nullptr && p->next->val < x)
+        p = p->next;
+    ListNode *q = p == nullptr ? head : p->next;
+    while (q != nullptr) {
+        if (q->next == nullptr)
+            break;
+        if (q->next->val >= x) {
+            q = q->next;
+            continue;
+        }
+        ListNode *t = q->next;
+        q->next = t->next;
+        if (p == nullptr) {
+            t->next = head;
+            head = t;
+            p = t;
+        } else {
+            t->next = p->next;
+            p->next = t;
+            p = t;
+        }
+    }
+    return head;
+}
+ListNode *partition2(ListNode *head, int x) {
+    if (head == nullptr)
+        return head;
+    ListNode *prev = nullptr;
+    if (head->val < x) {
+        prev = head;
+    }
+    ListNode *p = head;
+    while (p->next != nullptr) {
+        if (p->next->val < x) {
+            if (prev == p) {
+                prev = p->next;
+                p = p->next;
+            } else {
+                ListNode *next = p->next;
+                p->next = next->next;
+                if (prev == nullptr) {
+                    next->next = head;
+                    head = next;
+                    prev = next;
+                } else {
+                    next->next = prev->next;
+                    prev->next = next;
+                    prev = next;
+                }
+            }
+        } else {
+            p = p->next;
+        }
+    }
+    return head;
+}
+ListNode *partition3(ListNode *head, int x) {
+    if (head == nullptr)
+        return nullptr;
+    // p is the last node less than x
+    ListNode *p = head;
+    // q is the last node no less than x
+    ListNode *q = head;
+    if (head->val >= x) {
+        while (q->next != nullptr && q->next->val >= x)
+            q = q->next;
+        if (q->next == nullptr) {
+            // every node is equal to or greater than x
+            return head;
+        }
+        // q->next is less than x
+        ListNode *t = q->next;
+        q->next = t->next;
+        t->next = head;
+        head = t;
+        p = head;
+    } else {
+        while (p->next != nullptr && p->next->val < x)
+            p = p->next;
+        if (p->next == nullptr) {
+            // every node is less than x
+            return head;
+        }
+        q = p->next;
+    }
+    // Now check if q->next should be moved to be after p
+    while (q->next != nullptr) {
+        if (q->next->val < x) {
+            ListNode *t = q->next;
+            q->next = t->next;
+            t->next = p->next;
+            p->next = t;
+            p = t;
+        } else {
+            q = q->next;
+        }
+    }
+    return head;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

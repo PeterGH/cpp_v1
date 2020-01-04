@@ -3432,8 +3432,10 @@ void LeetCodeTest::Init(void) {
         }
         {
             vector<vector<char>> m = {
-                {'0', '0', '1', '0'}, {'1', '1', '1', '1'}, {'1', '1', '1', '1'}, {'1', '1', '1', '0'},
-                {'1', '1', '0', '0'}, {'1', '1', '1', '1'}, {'1', '1', '1', '0'},
+                {'0', '0', '1', '0'}, {'1', '1', '1', '1'},
+                {'1', '1', '1', '1'}, {'1', '1', '1', '0'},
+                {'1', '1', '0', '0'}, {'1', '1', '1', '1'},
+                {'1', '1', '1', '0'},
             };
             check(m, 12);
         }
@@ -3442,6 +3444,54 @@ void LeetCodeTest::Init(void) {
             int n = Random::Int(100, 1);
             vector<vector<char>> g = Random::Grid(m, n, '1', '0');
             check(g, -1);
+        }
+    });
+
+    Add("86. Partition List", [&]() {
+        auto check = [&](const vector<int> &nums, int x) {
+            Logger().WriteInformation("Partition by %d:\n", x);
+            ListNode *l = ToList(nums);
+            Print(l);
+            l = partition(l, x);
+            Print(l);
+            vector<int> v = ToVector(l);
+            DeleteList(l);
+            ListNode *l2 = ToList(nums);
+            l2 = partition2(l2, x);
+            Print(l2);
+            vector<int> v2 = ToVector(l2);
+            DeleteList(l2);
+            ListNode *l3 = ToList(nums);
+            l3 = partition3(l3, x);
+            Print(l3);
+            vector<int> v3 = ToVector(l3);
+            DeleteList(l3);
+            ASSERT1(0 == Util::Compare(v, v2));
+            ASSERT1(0 == Util::Compare(v, v3));
+            bool lessThanX = true;
+            for (size_t i = 0; i < v.size(); i++) {
+                if (v[i] < x) {
+                    ASSERT1(lessThanX);
+                } else {
+                    if (lessThanX)
+                        lessThanX = false;
+                    ASSERT1(!lessThanX);
+                }
+                ASSERT1(v2[i] == v[i]);
+                ASSERT1(v3[i] == v[i]);
+            }
+        };
+        check({1}, 3);
+        check({5}, 3);
+        check({2, 1}, 3);
+        check({5, 3}, 3);
+        check({2, 4}, 3);
+        check({5, 1}, 3);
+        check({1, 4, 3, 2, 5, 2}, 3);
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v, Random::Int(150, -50));
         }
     });
 }
