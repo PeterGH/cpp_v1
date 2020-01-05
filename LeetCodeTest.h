@@ -3667,5 +3667,27 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("91. Decode Ways", [&]() {
+        auto check = [&](const string &s) {
+            int c = numDecodings(s);
+            int c2 = numDecodings2(s);
+            int c3 = numDecodings3(s);
+            Logger().WriteInformation("Ways to decode %s: %d, %d, %d\n",
+                                      s.c_str(), c, c2, c3);
+            ASSERT1(c == c2);
+            ASSERT1(c == c3);
+        };
+        check("0");
+        check("1");
+        check("12");
+        check("123");
+        check("1234");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20);
+            string s = Random::String<char>(n, "01112223456789");
+            check(s);
+        }
+    });
 }
 #endif

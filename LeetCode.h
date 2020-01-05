@@ -8241,6 +8241,119 @@ vector<vector<int>> subsetsWithDup2(vector<int> &nums) {
     return result;
 }
 
+// 91. Decode Ways
+// A message containing letters from A-Z is being encoded to numbers using
+// the following mapping:
+// 'A' -> 1
+// 'B' -> 2
+// ...
+// 'Z' -> 26
+// Given a non-empty string containing only digits, determine the total number
+// of ways to decode it.
+// Example 1:
+// Input: "12"
+// Output: 2
+// Explanation: It could be decoded as "AB" (1 2) or "L" (12).
+// Example 2:
+// Input: "226"
+// Output: 3
+// Explanation: It could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2
+// 6).
+int numDecodings(const string &s) {
+    if (s.empty())
+        return 0;
+    int i = (int)s.size() - 1;
+    int c = s[i] == '0' ? 0 : 1;
+    if (s.size() == 1)
+        return c;
+    i--;
+    int b = s[i] == '0' ? 0 : c;
+    if (s[i] == '1' || (s[i] == '2' && '0' <= s[i + 1] && s[i + 1] <= '6'))
+        b += 1;
+    i--;
+    while (i >= 0) {
+        int a = s[i] == '0' ? 0 : b;
+        if (s[i] == '1' || (s[i] == '2' && '0' <= s[i + 1] && s[i + 1] <= '6'))
+            a += c;
+        c = b;
+        b = a;
+        i--;
+    }
+    return b;
+}
+int numDecodings2(const string &s) {
+    if (s.empty())
+        return 0;
+    int len = (int)s.size();
+    function<int(int)> solve = [&](int i) -> int {
+        if (i == len)
+            return 0;
+        if (i == len - 1)
+            return s[i] == '0' ? 0 : 1;
+        switch (s[i]) {
+        case '0':
+            return 0;
+        case '1':
+            if (s[i + 1] == '0') {
+                if (i + 2 == len)
+                    return 1;
+                else if (s[i + 2] == '0')
+                    return 0;
+                else
+                    return solve(i + 2);
+            } else {
+                if (i + 2 == len)
+                    return 2;
+                else if (s[i + 2] == '0')
+                    return solve(i + 1);
+                else
+                    return solve(i + 1) + solve(i + 2);
+            }
+        case '2':
+            if (s[i + 1] == '0') {
+                if (i + 2 == len)
+                    return 1;
+                else if (s[i + 2] == '0')
+                    return 0;
+                else
+                    return solve(i + 2);
+            } else if ('1' <= s[i + 1] && s[i + 1] <= '6') {
+                if (i + 2 == len)
+                    return 2;
+                else
+                    return solve(i + 1) + solve(i + 2);
+            } else {
+                return solve(i + 1);
+            }
+        default:
+            return solve(i + 1);
+        }
+    };
+    return solve(0);
+}
+int numDecodings3(const string &s) {
+    if (s.size() == 0)
+        return 0;
+    if (s[0] < '1' || s[0] > '9')
+        return 0;
+    int c0 = 1;
+    int c1 = 1;
+    int c2;
+    for (size_t i = 1; i < s.size(); i++) {
+        if (s[i] < '0' && '9' < s[i])
+            return 0;
+        c2 = 0;
+        if ('1' <= s[i] && s[i] <= '9')
+            c2 = c1;
+        if ((s[i - 1] == '1' && s[i] >= '0' && s[i] <= '9') ||
+            (s[i - 1] == '2' && s[i] >= '0' && s[i] <= '6'))
+            c2 += c0;
+        c0 = c1;
+        c1 = c2;
+    }
+    return c2;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
