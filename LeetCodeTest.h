@@ -2658,10 +2658,18 @@ void LeetCodeTest::Init(void) {
             Logger() << v;
             vector<vector<int>> s = subsets(v);
             vector<vector<int>> s2 = subsets2(v);
+            vector<int> v2(v);
+            vector<vector<int>> s3 = subsetsWithDup(v2);
+            vector<int> v3(v);
+            vector<vector<int>> s4 = subsetsWithDup2(v3);
             Util::SortGrid(s);
             Util::SortGrid(s2);
+            Util::SortGrid(s3);
+            Util::SortGrid(s4);
             Logger() << s;
             ASSERT1(0 == Util::Compare(s, s2));
+            ASSERT1(0 == Util::Compare(s, s3));
+            ASSERT1(0 == Util::Compare(s, s4));
         };
         for (int i = 0; i <= 10; i++) {
             vector<int> v = Util::IncreasingVector(i);
@@ -3601,6 +3609,62 @@ void LeetCodeTest::Init(void) {
             sort(w.begin(), w.end());
             v.resize(m + n, 0);
             check(v, m, w, n);
+        }
+    });
+
+    Add("89. Gray Code", [&]() {
+        auto check = [&](int n) {
+            vector<int> codes = grayCode(n);
+            vector<int> codes2 = grayCode2(n);
+            Logger().WriteInformation("%d-bit gray codes:\n", n);
+            ASSERT1(codes.size() == codes2.size());
+            for (size_t i = 0; i < codes.size(); i++) {
+                Logger().WriteInformation("  ");
+                for (int j = n - 1; j >= 0; j--) {
+                    Logger().WriteInformation("%d", (codes[i] >> j) & 0x1);
+                }
+                Logger().WriteInformation(
+                    " %s %d\n", codes[i] == codes2[i] ? "==" : "!=", codes2[i]);
+                ASSERT1(codes[i] == codes2[i]);
+            }
+        };
+        check(1);
+        check(2);
+        check(3);
+        check(4);
+        check(5);
+        check(6);
+    });
+
+    Add("90. Subsets II", [&]() {
+        auto check = [&](const vector<int> &nums) {
+            Logger() << nums;
+            vector<vector<int>> v = subsets(vector<int>(nums));
+            set<vector<int>> s;
+            for_each(v.begin(), v.end(), [&](vector<int> &i) {
+                sort(i.begin(), i.end());
+                s.insert(i);
+            });
+            Logger() << s;
+            vector<int> n(nums);
+            vector<vector<int>> w = subsetsWithDup(n);
+            vector<int> n2(nums);
+            vector<vector<int>> w2 = subsetsWithDup2(n2);
+            ASSERT1(s.size() == w.size());
+            ASSERT1(s.size() == w2.size());
+            for (size_t i = 0; i < w.size(); i++) {
+                ASSERT1(s.find(w[i]) != s.end());
+                ASSERT1(s.find(w2[i]) != s.end());
+            }
+        };
+        check({1, 2, 2});
+        check({1, 1});
+        check({2, 2, 2});
+        check({1, 1, 2, 2, 3, 3});
+        for (int i = 0; i < 20; i++) {
+            int n = Random::Int(10, 1);
+            vector<int> v = Random::Vector(n, 5);
+            check(v);
         }
     });
 }

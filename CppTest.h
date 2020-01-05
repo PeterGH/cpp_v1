@@ -2,8 +2,10 @@
 #define _CPPTEST_H_
 
 #include "Test.h"
+#include "Util.h"
 #include <set>
 #include <string.h>
+#include <utility>
 
 using namespace std;
 using namespace Test;
@@ -190,6 +192,38 @@ void CppTest::Init(void) {
         v.push_back(unique_ptr<BaseObject>(new DerivedObject2()));
         for_each(v.begin(), v.end(),
                  [&](unique_ptr<BaseObject> &it) { it->VirtualMethod(); });
+    });
+
+    Add("set insert vector", [&]() {
+        set<vector<int>> s;
+        pair<set<vector<int>>::iterator, bool> p;
+        p = s.insert(vector<int>{});
+        Logger() << s;
+        ASSERT1(p.second == true);
+        p = s.insert(vector<int>{});
+        Logger() << s;
+        ASSERT1(p.second == false);
+        p = s.insert(vector<int>{1});
+        Logger() << s;
+        ASSERT1(p.second == true);
+        p = s.insert(vector<int>{1});
+        Logger() << s;
+        ASSERT1(p.second == false);
+        p = s.insert(vector<int>{2});
+        Logger() << s;
+        ASSERT1(p.second == true);
+        p = s.insert(vector<int>{2});
+        Logger() << s;
+        ASSERT1(p.second == false);
+        p = s.insert(vector<int>{1, 2});
+        Logger() << s;
+        ASSERT1(p.second == true);
+        p = s.insert(vector<int>{1, 2});
+        Logger() << s;
+        ASSERT1(p.second == false);
+        p = s.insert(vector<int>{2, 1});
+        Logger() << s;
+        ASSERT1(p.second == true);
     });
 
 #if NULL

@@ -8123,6 +8123,124 @@ void merge4(vector<int> &nums1, int m, vector<int> &nums2, int n) {
     }
 }
 
+// 89. Gray Code
+// The gray code is a binary numeral system where two successive values differ
+// in only one bit. Given a non-negative integer n representing the total number
+// of bits in the code, print the sequence of gray code. A gray code sequence
+// must begin with 0.
+// Example 1:
+// Input: 2
+// Output: [0,1,3,2]
+// Explanation:
+// 00 - 0
+// 01 - 1
+// 11 - 3
+// 10 - 2
+// For a given n, a gray code sequence may not be uniquely defined.
+// For example, [0,2,3,1] is also a valid gray code sequence.
+// 00 - 0
+// 10 - 2
+// 11 - 3
+// 01 - 1
+// Example 2:
+// Input: 0
+// Output: [0]
+// Explanation: We define the gray code sequence to begin with 0.
+// A gray code sequence of n has size = 2n, which for n = 0 the size is 20 = 1.
+// Therefore, for n = 0 the gray code sequence is [0].
+vector<int> grayCode(int n) {
+    vector<int> g;
+    if (n < 0)
+        return g;
+    g.push_back(0);
+    int b = 1;
+    for (int i = 0; i < n; i++) {
+        int l = g.size();
+        for (int j = l - 1; j >= 0; j--)
+            g.push_back(g[j] | b);
+        b = b << 1;
+    }
+    return g;
+}
+vector<int> grayCode2(int n) {
+    vector<int> codes = {};
+    if (n <= 0 || n > 8 * (int)sizeof(int))
+        return codes;
+    function<void(int &, int)> toggle = [&](int &code, int position) {
+        code = code ^ (0x1 << position);
+        codes.push_back(code);
+        if (position > 0) {
+            for (int i = 0; i < position; i++)
+                toggle(code, i);
+        }
+    };
+    int code = 0;
+    codes.push_back(code);
+    for (int i = 0; i < n; i++)
+        toggle(code, i);
+    return codes;
+}
+
+// 90. Subsets II
+// Given a collection of integers that might contain duplicates, nums, return
+// all possible subsets (the power set).
+// Note: The solution set must not contain duplicate subsets.
+// Example:
+// Input: [1,2,2]
+// Output:
+// [
+//   [2],
+//   [1],
+//   [1,2,2],
+//   [2,2],
+//   [1,2],
+//   []
+// ]
+vector<vector<int>> subsetsWithDup(vector<int> &nums) {
+    vector<vector<int>> result = {{}};
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    while (i < nums.size()) {
+        size_t j = i;
+        while (j + 1 < nums.size() && nums[j + 1] == nums[i])
+            j++;
+        size_t m = result.size();
+        for (size_t k = 0; k < m; k++) {
+            vector<int> r(result[k]);
+            for (size_t t = i; t <= j; t++) {
+                r.push_back(nums[t]);
+                result.push_back(r);
+            }
+        }
+        i = j + 1;
+    }
+    return result;
+}
+vector<vector<int>> subsetsWithDup2(vector<int> &nums) {
+    vector<vector<int>> result = vector<vector<int>>{vector<int>{}};
+    if (nums.size() == 0)
+        return result;
+    sort(nums.begin(), nums.end());
+    size_t i = 0;
+    while (i < nums.size()) {
+        size_t j = i;
+        while (j + 1 < nums.size() && nums[j] == nums[j + 1])
+            j++;
+        vector<int> c;
+        size_t n = result.size();
+        for (size_t k = i; k <= j; k++) {
+            c.push_back(nums[k]);
+            for (size_t l = 0; l < n; l++) {
+                vector<int> e(result[l]);
+                e.insert(e.end(), c.begin(), c.end());
+                result.push_back(e);
+            }
+        }
+        i = j + 1;
+    }
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

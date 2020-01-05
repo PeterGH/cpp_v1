@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <set>
 #include <stdarg.h>
 #include <string>
 #include <vector>
@@ -152,6 +153,14 @@ class Log {
         for (size_t i = 0; i < m.size(); i++) {
             *this << " " << m[i];
         }
+        _os << "}" << endl;
+        return *this;
+    }
+
+    template <class T> Log &operator<<(const set<vector<T>> &m) {
+        _os << "{" << endl;
+        for_each(m.cbegin(), m.cend(),
+                 [&](const vector<int> &v) { *this << " " << v; });
         _os << "}" << endl;
         return *this;
     }
