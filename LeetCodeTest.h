@@ -3494,5 +3494,114 @@ void LeetCodeTest::Init(void) {
             check(v, Random::Int(150, -50));
         }
     });
+
+    Add("87. Scramble String", [&]() {
+        auto check = [&](const string &s1, const string &s2) {
+            bool r = isScramble(s1, s2);
+            bool r2 = isScramble2(s1, s2);
+            bool r3 = isScramble3(s1, s2);
+            Logger().WriteInformation("IsScramble(%s, %s) = %d, %d, %d\n",
+                                      s1.c_str(), s2.c_str(), r, r2, r3);
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+        };
+        check("", "");
+        check("a", "b");
+        check("a", "a");
+        check("ab", "ab");
+        check("ab", "ba");
+        check("ab", "ac");
+        check("ab", "ca");
+        check("aaa", "aaa");
+        check("abcd", "acbd");
+        check("abcd", "adbc");
+        check("abcd", "badc");
+        check("abcd", "bdac");
+        check("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              "aaaaaaaaaaaaaaa",
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              "aaaaaaaaaaaaaaa");
+
+        for (int i = 0; i < 100; i++) {
+            int len = Random::Int(10, 1);
+            string s1 = Random::String<char>(len, "abcdefg");
+            for (int j = 0; j < 10; j++) {
+                string s2(s1);
+                random_shuffle(s2.begin(), s2.end());
+                check(s1, s2);
+            }
+        }
+    });
+
+    Add("88. Merge Sorted Array", [&]() {
+        auto check = [&](vector<int> &v, int m, vector<int> &w, int n) {
+            Logger().WriteInformation("Merge:\n");
+            Logger() << v << w;
+            vector<int> v2(v), v3(v), v4(v), w2(w), w3(w), w4(w);
+            merge(v, m, w, n);
+            merge2(v2, m, w2, n);
+            merge3(v3, m, w3, n);
+            merge4(v4, m, w4, n);
+            Logger().WriteInformation("  to:\n");
+            Logger() << v2 << v3 << v4;
+            ASSERT1(is_sorted(v.begin(), v.end()));
+            ASSERT1(is_sorted(v2.begin(), v2.end()));
+            ASSERT1(is_sorted(v3.begin(), v3.end()));
+            ASSERT1(is_sorted(v4.begin(), v4.end()));
+            ASSERT1(0 == Util::Compare(v, v2));
+            ASSERT1(0 == Util::Compare(v, v3));
+            ASSERT1(0 == Util::Compare(v, v4));
+        };
+        {
+            vector<int> v(1, 0);
+            vector<int> w = {1};
+            check(v, 0, w, 1);
+        }
+        {
+            vector<int> v = {1};
+            vector<int> w = {};
+            check(v, 1, w, 0);
+        }
+        {
+            vector<int> v = {1, 0};
+            vector<int> w = {2};
+            check(v, 1, w, 1);
+        }
+        {
+            vector<int> v = {1, 0};
+            vector<int> w = {0};
+            check(v, 1, w, 1);
+        }
+        {
+            vector<int> v = {1, 1, 0};
+            vector<int> w = {2};
+            check(v, 2, w, 1);
+        }
+        {
+            vector<int> v = {1, 2, 0};
+            vector<int> w = {2};
+            check(v, 2, w, 1);
+        }
+        {
+            vector<int> v = {1, 3, 0};
+            vector<int> w = {2};
+            check(v, 2, w, 1);
+        }
+        {
+            vector<int> v = {1, 1, 0};
+            vector<int> w = {0};
+            check(v, 2, w, 1);
+        }
+        for (int i = 0; i < 100; i++) {
+            int m = Random::Int(100);
+            vector<int> v = Random::Vector(m, 100);
+            sort(v.begin(), v.end());
+            int n = Random::Int(100);
+            vector<int> w = Random::Vector(n, 100);
+            sort(w.begin(), w.end());
+            v.resize(m + n, 0);
+            check(v, m, w, n);
+        }
+    });
 }
 #endif
