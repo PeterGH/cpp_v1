@@ -3689,5 +3689,75 @@ void LeetCodeTest::Init(void) {
             check(s);
         }
     });
+
+    Add("92. Reverse Linked List II", [&](){
+        auto check = [&](const vector<int> &v, int m, int n){
+            ListNode *l = ToList(v);
+            Logger() << "Input:" << endl;
+            Print(l);
+            Logger() << "Reverse between " << m << " and " << n << endl;
+            l = reverseBetween(l, m, n);
+            Print(l);
+            vector<int> w = ToVector(l);
+            DeleteList(l);
+            ListNode *l2 = ToList(v);
+            l2 = reverseBetween(l2, m, n);
+            Print(l2);
+            vector<int> w2 = ToVector(l2);
+            DeleteList(l2);
+            ListNode *l3 = ToList(v);
+            l3 = reverseBetween(l3, m, n);
+            Print(l3);
+            vector<int> w3 = ToVector(l3);
+            DeleteList(l3);
+            ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(0 == Util::Compare(w, w3));
+        };
+        check({1}, 1, 1);
+        check({1, 2}, 1, 1);
+        check({1, 2}, 2, 2);
+        check({1, 2}, 1, 2);
+        check({1, 2, 3}, 1, 1);
+        check({1, 2, 3}, 2, 2);
+        check({1, 2, 3}, 3, 3);
+        check({1, 2, 3}, 1, 2);
+        check({1, 2, 3}, 2, 3);
+        check({1, 2, 3}, 1, 3);
+        for (int i = 3; i < 10; i++) {
+            vector<int> v = Util::IncreasingVector(i + 1);
+            for (int m = 1; m <= (int)v.size(); m++) {
+                for (int n = m; n <= (int)v.size(); n++)
+                    check(v, m, n);
+            }
+        }
+    });
+
+    Add("93. Restore IP Addresses", [&](){
+		auto check = [&](const string & s){
+			Logger().WriteInformation("%s\n", s.c_str());
+			vector<string> ips = restoreIpAddresses(s);
+            vector<string> ips2 = restoreIpAddresses2(s);
+            vector<string> ips3 = restoreIpAddresses3(s);
+            Util::Sort(ips);
+            Util::Sort(ips2);
+            Util::Sort(ips3);
+			for_each (ips.begin(), ips.end(), [&](string & i){
+				Logger().WriteInformation("\t%s\n", i.c_str());
+			});
+            ASSERT1(0 == Util::Compare(ips, ips2));
+            ASSERT1(0 == Util::Compare(ips, ips3));
+		};
+		check("25525511135");
+		check("0000");
+		check("1234");
+		check("255255255255");
+		check("010010");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(12, 4);
+            string s = Random::String<char>(n, "0123456789");
+            check(s);
+        }
+	});
+
 }
 #endif

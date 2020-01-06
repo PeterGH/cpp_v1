@@ -8354,6 +8354,242 @@ int numDecodings3(const string &s) {
     return c2;
 }
 
+// 92. Reverse Linked List II
+// Reverse a linked list from position m to n. Do it in one-pass.
+// Note: 1 ≤ m ≤ n ≤ length of list.
+// Example:
+// Input: 1->2->3->4->5->NULL, m = 2, n = 4
+// Output: 1->4->3->2->5->NULL
+ListNode *reverseBetween(ListNode *head, int m, int n) {
+    ListNode *p = nullptr;
+    int i = 1;
+    ListNode *q = head;
+    while (i < n && q != nullptr) {
+        if (i == m - 1)
+            p = q;
+        q = q->next;
+        i++;
+    }
+    if (q == nullptr)
+        return head;
+    ListNode *t;
+    if (p == nullptr) {
+        while (head != q) {
+            t = head;
+            head = t->next;
+            t->next = q->next;
+            q->next = t;
+        }
+    } else {
+        while (p->next != q) {
+            t = p->next;
+            p->next = t->next;
+            t->next = q->next;
+            q->next = t;
+        }
+    }
+    return head;
+}
+ListNode *reverseBetween2(ListNode *head, int m, int n) {
+    if (head == nullptr)
+        return nullptr;
+    ListNode *pm_prev = nullptr;
+    ListNode *pm = nullptr;
+    int i;
+    if (m == 1) {
+        pm = head;
+    } else {
+        pm_prev = head;
+        i = 1;
+        while (i < m - 1 && pm_prev->next != nullptr) {
+            pm_prev = pm_prev->next;
+            i++;
+        }
+        if (i < m - 1)
+            return head;
+        pm = pm_prev->next;
+    }
+    ListNode *pn = pm;
+    i = m;
+    while (i < n && pn->next != nullptr) {
+        pn = pn->next;
+        i++;
+    }
+    ListNode *pn_next = pn->next;
+    ListNode *prev = pn_next;
+    ListNode *curr = pm;
+    ListNode *next = pm->next;
+    while (curr != pn) {
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+        next = curr->next;
+    }
+    curr->next = prev;
+    if (pm_prev == nullptr)
+        head = pn;
+    else
+        pm_prev->next = pn;
+    return head;
+}
+ListNode *reverseBetween3(ListNode *head, int m, int n) {
+    if (head == nullptr || m <= 0 || n <= 0 || m >= n)
+        return head;
+    ListNode *ph = nullptr;
+    ListNode *pm = head;
+    int i = 1;
+    while (i < m && pm->next != nullptr) {
+        ph = pm;
+        pm = pm->next;
+        i++;
+    }
+    if (i < m)
+        return head;
+    ListNode *r = ph;
+    ListNode *s = pm;
+    ListNode *t = pm->next;
+    while (i <= n && t != nullptr) {
+        s->next = r;
+        r = s;
+        s = t;
+        t = t->next;
+        i++;
+    }
+    if (i <= n && t == nullptr) {
+        s->next = r;
+        r = s;
+        s = t;
+    }
+    pm->next = s;
+    if (ph != nullptr)
+        ph->next = r;
+    else
+        head = r;
+
+    return head;
+}
+
+// 93. Restore IP Addresses
+// Given a string containing only digits, restore it by returning all possible
+// valid IP address combinations.
+// Example:
+// Input: "25525511135"
+// Output: ["255.255.11.135", "255.255.111.35"]
+vector<string> restoreIpAddresses(const string &s) {
+    vector<string> ips;
+    if (s.size() < 4)
+        return ips;
+    function<bool(int, int)> isValid = [&](int i, int j) -> bool {
+        if (i > j || i + 3 <= j)
+            return false;
+        if (s[i] == '0' && i < j)
+            return false;
+        if (s[i] == '2' && i + 2 == j &&
+            (s[i + 1] > '5' || (s[i + 1] == '5' && s[j] > '5')))
+            return false;
+        if (s[i] > '2' && i + 1 < j)
+            return false;
+        return true;
+    };
+    int n = s.size();
+    for (int i0 = 0; i0 < min(3, n); i0++) {
+        if (!isValid(0, i0))
+            break;
+        for (int i1 = i0 + 1; i1 < min(i0 + 4, n); i1++) {
+            if (!isValid(i0 + 1, i1))
+                break;
+            for (int i2 = i1 + 1; i2 < min(i1 + 4, n); i2++) {
+                if (!isValid(i1 + 1, i2))
+                    break;
+                if (!isValid(i2 + 1, n - 1))
+                    continue;
+                string a;
+                a.append(s, 0, i0 + 1);
+                a.append(1, '.');
+                a.append(s, i0 + 1, i1 - i0);
+                a.append(1, '.');
+                a.append(s, i1 + 1, i2 - i1);
+                a.append(1, '.');
+                a.append(s, i2 + 1);
+                ips.push_back(a);
+            }
+        }
+    }
+    return ips;
+}
+vector<string> restoreIpAddresses2(const string &s) {
+    vector<string> result;
+    function<void(int, int, string &)> solve = [&](int i, int j, string &p) {
+        if (i > 4) {
+            if (j == (int)s.length()) {
+                p.pop_back();
+                result.push_back(p);
+            }
+            return;
+        }
+        if (j == (int)s.length())
+            return;
+        string p1(p);
+        solve(i + 1, j + 1, p1.append(1, s[j]).append(1, '.'));
+        if (j + 1 == (int)s.length() || s[j] == '0')
+            return;
+        string p2(p);
+        solve(i + 1, j + 2, p2.append(s.substr(j, 2)).append(1, '.'));
+        if (j + 2 == (int)s.length())
+            return;
+        int c = s[j] - '0';
+        c = 10 * c + s[j + 1] - '0';
+        c = 10 * c + s[j + 2] - '0';
+        if (c <= 255) {
+            string p3(p);
+            solve(i + 1, j + 3, p3.append(s.substr(j, 3)).append(1, '.'));
+        }
+    };
+    string prefix;
+    solve(1, 0, prefix);
+    return result;
+}
+vector<string> restoreIpAddresses3(const string &s) {
+    vector<string> ips;
+    int len = s.length();
+    if (len < 4 || len > 12)
+        return ips;
+    auto check = [&](const string &octet) -> bool {
+        int l = octet.length();
+        for (int i = 0; i < min(3, l); i++) {
+            if (octet[i] < '0' || octet[i] > '9')
+                return false;
+        }
+        int m = 0;
+        for (int i = 0; i < min(3, l); i++) {
+            m = 10 * m + octet[i] - '0';
+        }
+        return 0 <= m && m <= 255;
+    };
+    for (int i = 1; i <= (s[0] == '0' ? 1 : min(3, len - 3)); i++) {
+        for (int j = i + 1; j <= (s[i] == '0' ? i + 1 : min(i + 3, len - 2));
+             j++) {
+            for (int k = j + 1;
+                 k <= (s[j] == '0' ? j + 1 : min(j + 3, len - 1)); k++) {
+                if ((len - k > 3) || (len - k > 1 && s[k] == '0'))
+                    continue;
+                if (check(s.substr(0, i)) && check(s.substr(i, j - i)) &&
+                    check(s.substr(j, k - j)) && check(s.substr(k, len - k))) {
+                    string ip(s.substr(0, i));
+                    ip.append(1, '.');
+                    ip.append(s.substr(i, j - i));
+                    ip.append(1, '.');
+                    ip.append(s.substr(j, k - j));
+                    ip.append(1, '.');
+                    ip.append(s.substr(k, len - k));
+                    ips.push_back(ip);
+                }
+            }
+        }
+    }
+    return ips;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
