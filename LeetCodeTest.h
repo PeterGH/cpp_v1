@@ -3690,8 +3690,8 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("92. Reverse Linked List II", [&](){
-        auto check = [&](const vector<int> &v, int m, int n){
+    Add("92. Reverse Linked List II", [&]() {
+        auto check = [&](const vector<int> &v, int m, int n) {
             ListNode *l = ToList(v);
             Logger() << "Input:" << endl;
             Print(l);
@@ -3732,32 +3732,59 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("93. Restore IP Addresses", [&](){
-		auto check = [&](const string & s){
-			Logger().WriteInformation("%s\n", s.c_str());
-			vector<string> ips = restoreIpAddresses(s);
+    Add("93. Restore IP Addresses", [&]() {
+        auto check = [&](const string &s) {
+            Logger().WriteInformation("%s\n", s.c_str());
+            vector<string> ips = restoreIpAddresses(s);
             vector<string> ips2 = restoreIpAddresses2(s);
             vector<string> ips3 = restoreIpAddresses3(s);
             Util::Sort(ips);
             Util::Sort(ips2);
             Util::Sort(ips3);
-			for_each (ips.begin(), ips.end(), [&](string & i){
-				Logger().WriteInformation("\t%s\n", i.c_str());
-			});
+            for_each(ips.begin(), ips.end(), [&](string &i) {
+                Logger().WriteInformation("\t%s\n", i.c_str());
+            });
             ASSERT1(0 == Util::Compare(ips, ips2));
             ASSERT1(0 == Util::Compare(ips, ips3));
-		};
-		check("25525511135");
-		check("0000");
-		check("1234");
-		check("255255255255");
-		check("010010");
+        };
+        check("25525511135");
+        check("0000");
+        check("1234");
+        check("255255255255");
+        check("010010");
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(12, 4);
             string s = Random::String<char>(n, "0123456789");
             check(s);
         }
-	});
+    });
 
+    Add("94. Binary Tree Inorder Traversal", [&]() {
+        auto check = [&](const vector<int> &v) {
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            vector<int> w = inorderTraversal(t);
+            vector<int> w2 = inorderTraversal2(t);
+            vector<int> w3 = inorderTraversal3(t);
+            DeleteTree(t);
+            Logger() << w;
+            ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(0 == Util::Compare(w, w3));
+            ASSERT1(v.size() == w.size());
+            vector<int> v1(v);
+            sort(v1.begin(), v1.end());
+            sort(w.begin(), w.end());
+            ASSERT1(0 == Util::Compare(v1, w));
+        };
+        check({});
+        check({1});
+        check({1, 2});
+        check({1, 2, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
 }
 #endif

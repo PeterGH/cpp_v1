@@ -8590,6 +8590,195 @@ vector<string> restoreIpAddresses3(const string &s) {
     return ips;
 }
 
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+void Print(TreeNode *node) {
+    function<void(stringstream *, int, char)> printChar = [&](stringstream *s,
+                                                              int n, char c) {
+        if (n > 0) {
+            string chars(n, c);
+            *s << chars;
+        }
+    };
+    function<void(TreeNode *, unsigned int, int &, int &,
+                  vector<stringstream *> &)>
+        toString =
+            [&](TreeNode *n,    // current node to print
+                unsigned int y, // current node level
+                int &x, // x-axis position of root of last printed sub tree
+                int &r, // x-axis position of right-most boundary of last
+                        // printed sub tree
+                vector<stringstream *> &ss // output streams, one per level
+            ) {
+                if (n == nullptr)
+                    return;
+                if (ss.size() <= y)
+                    ss.push_back(new stringstream());
+                // print left tree, update x and r accordingly
+                toString(n->left, y + 1, x, r, ss);
+                stringstream *s = ss[y];
+                int l = (int)(s->str().length());
+                if (l < x)
+                    printChar(s, x - l, ' ');
+                if (n->left != nullptr && r > x) {
+                    *s << '/';
+                    printChar(s, r - x - 1, '-');
+                }
+                string nc = to_string(n->val);
+                *s << nc;
+                x = (r + (nc.length() >> 1));
+                r = r + nc.length();
+                int rx = r;
+                int rr = r;
+                toString(n->right, y + 1, rx, rr, ss);
+                if (n->right != nullptr && rx >= r) {
+                    printChar(s, rx - r - 1, '-');
+                    *s << '\\';
+                }
+                // Update the right most boundary
+                r = rr;
+            };
+    vector<stringstream *> streams;
+    int x = 0;
+    int r = 0;
+    toString(node, 0, x, r, streams);
+    for_each(streams.begin(), streams.end(), [&](stringstream *s) {
+        cout << s->str() << endl;
+        delete s;
+    });
+}
+
+void DeleteTree(TreeNode *root) {
+    if (root == nullptr)
+        return;
+    if (root->left != nullptr) {
+        DeleteTree(root->left);
+        root->left = nullptr;
+    }
+    if (root->right != nullptr) {
+        DeleteTree(root->right);
+        root->right = nullptr;
+    }
+    delete root;
+}
+
+TreeNode *Clone(TreeNode *root) {
+    if (root == nullptr)
+        return nullptr;
+    TreeNode *clone = new TreeNode(root->val);
+    clone->left = Clone(root->left);
+    clone->right = Clone(root->right);
+    return clone;
+}
+
+TreeNode *RandomTree(const vector<int> &values) {
+    if (values.empty())
+        return nullptr;
+    function<TreeNode *(const vector<int> &, int, int)> create =
+        [&](const vector<int> &v, int i, int j) -> TreeNode * {
+        if (i > j)
+            return nullptr;
+        TreeNode *n = nullptr;
+        int k = rand() % 3;
+        switch (k) {
+        case 0: // preorder
+            n = new TreeNode(v[i]);
+            k = i + 1 + (rand() % (j - i + 1));
+            n->left = create(v, i + 1, k - 1);
+            n->right = create(v, k, j);
+            break;
+        case 1: // inorder
+            k = i + (rand() % (j - i + 1));
+            n = new TreeNode(v[k]);
+            n->left = create(v, i, k - 1);
+            n->right = create(v, k + 1, j);
+            break;
+        case 2: // postorder
+            n = new TreeNode(v[j]);
+            k = i - 1 + (rand() % (j - i + 1));
+            n->left = create(v, i, k);
+            n->right = create(v, k + 1, j - 1);
+            break;
+        }
+        return n;
+    };
+    return create(values, 0, values.size() - 1);
+}
+
+// 94. Binary Tree Inorder Traversal
+// Given a binary tree, return the inorder traversal of its nodes' values.
+// Example:
+// Input: [1,null,2,3]
+//    1
+//     \
+//      2
+//     /
+//    3
+// Output: [1,3,2]
+// Follow up: Recursive solution is trivial, could you do it iteratively?
+vector<int> inorderTraversal(TreeNode *root) {
+    vector<int> v;
+    stack<TreeNode *> s;
+    TreeNode *n = root;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            s.push(n);
+            n = n->left;
+        } else {
+            n = s.top();
+            s.pop();
+            v.push_back(n->val);
+            n = n->right;
+        }
+    }
+    return v;
+}
+vector<int> inorderTraversal2(TreeNode *root) {
+    if (root == nullptr)
+        return vector<int>{};
+    stack<TreeNode *> path;
+    TreeNode *lastVisited = nullptr;
+    path.push(root);
+    TreeNode *node;
+    vector<int> result;
+    while (!path.empty()) {
+        node = path.top();
+        if (node->right != nullptr && node->right == lastVisited) {
+            path.pop();
+            lastVisited = node;
+        } else if (node->left != nullptr && node->left != lastVisited) {
+            path.push(node->left);
+            lastVisited = node;
+        } else {
+            // left is null or left is just visited
+            result.push_back(node->val);
+            lastVisited = node;
+            if (node->right != nullptr)
+                path.push(node->right);
+            else
+                path.pop();
+        }
+    }
+    return result;
+}
+vector<int> inorderTraversal3(TreeNode *root) {
+    vector<int> v;
+    function<void(TreeNode *)> trav = [&](TreeNode *n) {
+        if (n == nullptr)
+            return;
+        trav(n->left);
+        v.push_back(n->val);
+        trav(n->right);
+    };
+    trav(root);
+    return v;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
