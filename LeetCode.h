@@ -8779,6 +8779,145 @@ vector<int> inorderTraversal3(TreeNode *root) {
     return v;
 }
 
+// 95. Unique Binary Search Trees II
+// Given an integer n, generate all structurally unique BST's (binary
+// search trees) that store values 1 ... n.
+// Example:
+// Input: 3
+// Output:
+// [
+//   [1,null,3,2],
+//   [3,2,null,1],
+//   [3,1,null,null,2],
+//   [2,1,3],
+//   [1,null,2,null,3]
+// ]
+// Explanation:
+// The above output corresponds to the 5 unique BST's shown below:
+//    1         3     3      2      1
+//     \       /     /      / \      \
+//      3     2     1      1   3      2
+//     /     /       \                 \
+//    2     1         2                 3
+vector<TreeNode *> generateTrees(int n) {
+    function<TreeNode *(TreeNode *)> clone = [&](TreeNode *m) -> TreeNode * {
+        if (m == nullptr)
+            return nullptr;
+        TreeNode *c = new TreeNode(m->val);
+        c->left = clone(m->left);
+        c->right = clone(m->right);
+        return c;
+    };
+    function<void(TreeNode *)> deleteTree = [&](TreeNode *m) {
+        if (m == nullptr)
+            return;
+        deleteTree(m->left);
+        m->left = nullptr;
+        deleteTree(m->right);
+        m->right = nullptr;
+        delete m;
+    };
+    function<vector<TreeNode *>(int, int)> bst =
+        [&](int i, int j) -> vector<TreeNode *> {
+        vector<TreeNode *> v;
+        if (i > j)
+            return v;
+        for (int k = i; k <= j; k++) {
+            TreeNode *m = new TreeNode(k);
+            vector<TreeNode *> vl = bst(i, k - 1);
+            vector<TreeNode *> vr = bst(k + 1, j);
+            if (vl.empty() && vr.empty()) {
+                v.push_back(m);
+            } else if (vl.empty()) {
+                for (size_t r = 0; r < vr.size(); r++) {
+                    TreeNode *c = clone(m);
+                    c->right = clone(vr[r]);
+                    v.push_back(c);
+                }
+                for (size_t r = 0; r < vr.size(); r++)
+                    deleteTree(vr[r]);
+                delete m;
+            } else if (vr.empty()) {
+                for (size_t l = 0; l < vl.size(); l++) {
+                    TreeNode *c = clone(m);
+                    c->left = clone(vl[l]);
+                    v.push_back(c);
+                }
+                for (size_t l = 0; l < vl.size(); l++)
+                    deleteTree(vl[l]);
+                delete m;
+            } else {
+                for (size_t l = 0; l < vl.size(); l++) {
+                    for (size_t r = 0; r < vr.size(); r++) {
+                        TreeNode *c = clone(m);
+                        c->left = clone(vl[l]);
+                        c->right = clone(vr[r]);
+                        v.push_back(c);
+                    }
+                }
+                for (size_t l = 0; l < vl.size(); l++)
+                    deleteTree(vl[l]);
+                for (size_t r = 0; r < vr.size(); r++)
+                    deleteTree(vr[r]);
+                delete m;
+            }
+        }
+        return v;
+    };
+    return bst(1, n);
+}
+vector<TreeNode *> generateTrees2(int n) {
+    if (n <= 0)
+        return vector<TreeNode *>{};
+    function<vector<vector<int>>(int, int)> generateSerializations =
+        [&](int i, int j) -> vector<vector<int>> {
+        vector<vector<int>> serializations;
+        if (i > j) {
+            serializations.push_back(vector<int>{0});
+        } else {
+            for (int k = i; k <= j; k++) {
+                vector<vector<int>> leftSerializations =
+                    generateSerializations(i, k - 1);
+                vector<vector<int>> rightSerializations =
+                    generateSerializations(k + 1, j);
+                for (size_t l = 0; l < leftSerializations.size(); l++) {
+                    for (size_t r = 0; r < rightSerializations.size(); r++) {
+                        vector<int> serialization = {k};
+                        serialization.insert(serialization.end(),
+                                             leftSerializations[l].begin(),
+                                             leftSerializations[l].end());
+                        serialization.insert(serialization.end(),
+                                             rightSerializations[r].begin(),
+                                             rightSerializations[r].end());
+                        serializations.push_back(serialization);
+                    }
+                }
+            }
+        }
+        return serializations;
+    };
+    function<TreeNode *(size_t &, vector<int> &)> generateTree =
+        [&](size_t &i, vector<int> &serialization) -> TreeNode * {
+        if (i >= serialization.size())
+            return nullptr;
+        if (serialization[i] == 0) {
+            i++;
+            return nullptr;
+        }
+        TreeNode *node = new TreeNode(serialization[i++]);
+        node->left = generateTree(i, serialization);
+        node->right = generateTree(i, serialization);
+        return node;
+    };
+    vector<vector<int>> serializations = generateSerializations(1, n);
+    vector<TreeNode *> trees;
+    for (size_t i = 0; i < serializations.size(); i++) {
+        size_t j = 0;
+        trees.push_back(generateTree(j, serializations[i]));
+    }
+    return trees;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

@@ -3786,5 +3786,29 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("95. Unique Binary Search Trees II", [&]() {
+        auto check = [&](int n) {
+            vector<TreeNode *> trees = generateTrees(n);
+            vector<TreeNode *> trees2 = generateTrees2(n);
+            vector<vector<int>> m;
+            for (size_t i = 0; i < trees.size(); i++) {
+                Logger() << "Tree " << i << "\n";
+                Print(trees[i]);
+                m.push_back(inorderTraversal(trees[i]));
+                DeleteTree(trees[i]);
+            }
+            vector<vector<int>> m2;
+            for (size_t i = 0; i < trees2.size(); i++) {
+                m2.push_back(inorderTraversal(trees2[i]));
+                DeleteTree(trees2[i]);
+            }
+            Util::Sort(m);
+            Util::Sort(m2);
+            ASSERT1(0 == Util::Compare(m, m2));
+        };
+        for (int i = 0; i < 10; i++)
+            check(i + 1);
+    });
 }
 #endif
