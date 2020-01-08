@@ -8710,6 +8710,22 @@ TreeNode *RandomTree(const vector<int> &values) {
     return create(values, 0, values.size() - 1);
 }
 
+TreeNode *RandomTreeFromInOrder(const vector<int> &values) {
+    if (values.empty())
+        return nullptr;
+    function<TreeNode *(const vector<int> &, int, int)> create =
+        [&](const vector<int> &v, int i, int j) -> TreeNode * {
+        if (i > j)
+            return nullptr;
+        int k = i + (rand() % (j - i + 1));
+        TreeNode *n = new TreeNode(v[k]);
+        n->left = create(v, i, k - 1);
+        n->right = create(v, k + 1, j);
+        return n;
+    };
+    return create(values, 0, values.size() - 1);
+}
+
 // 94. Binary Tree Inorder Traversal
 // Given a binary tree, return the inorder traversal of its nodes' values.
 // Example:
@@ -8916,6 +8932,279 @@ vector<TreeNode *> generateTrees2(int n) {
         trees.push_back(generateTree(j, serializations[i]));
     }
     return trees;
+}
+
+// 96. Unique Binary Search Trees
+// Given n, how many structurally unique BST's (binary search trees)
+// that store values 1 ... n?
+// Example:
+// Input: 3
+// Output: 5
+// Explanation:
+// Given n = 3, there are a total of 5 unique BST's:
+//    1         3     3      2      1
+//     \       /     /      / \      \
+//      3     2     1      1   3      2
+//     /     /       \                 \
+//    2     1         2                 3
+// Let S_n be the number of trees given n, then
+// S_n = S_0 * S_(n-1) + S_1 * S_(n-2) + ... + S_(n-2) * S_1 + S_(n-1) * S_0
+// where
+// S_0 * S_(n-1) is the number of trees where value 1 is the root and
+// values [2..n] are in the right subtree,
+// S_(n-1) * S_0 is the number of trees where value n is the root and
+// values [1..(n-1)] are in the left subtree,
+// S_i * S_(n-1-i) is the number of trees where value (i+1) is the root and
+// values [1..i] are in the left subtree and values [(i+2)..n] are in
+// the right subtree.
+int numTrees(int n) {
+    vector<int> c(n + 1, 0);
+    c[0] = 1;
+    c[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        int j = 0;
+        int k = i - 1;
+        while (j < k) {
+            c[i] += ((c[j] * c[k]) << 1);
+            j++;
+            k--;
+        }
+        if (j == k)
+            c[i] += c[j] * c[k];
+    }
+    return c[n];
+}
+int numTrees2(int n) {
+    if (n <= 0)
+        return 0;
+    map<pair<int, int>, int> solved;
+    function<int(int, int)> count = [&](int i, int j) -> int {
+        if (i >= j)
+            return 1;
+        pair<int, int> p = make_pair(i, j);
+        if (solved.find(p) != solved.end())
+            return solved[p];
+        int c = 0;
+        for (int k = i; k <= j; k++)
+            c += (count(i, k - 1) * count(k + 1, j));
+        solved[p] = c;
+        return c;
+    };
+    return count(1, n);
+}
+// c[n] = c[0]*c[n-1] + c[1]*c[n-2] + ... + c[n-2]*c[1] + c[n-1]*c[0]
+int numTrees3(int n) {
+    if (n <= 0)
+        return 0;
+    vector<int> count(n + 1, 0);
+    count[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 0; j < i; j++)
+            count[i] += count[j] * count[i - j - 1];
+    }
+    return count[n];
+}
+
+// 97. Interleaving String
+// Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and s2.
+// Example 1:
+// Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+// Output: true
+// Example 2:
+// Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+// Output: false
+bool isInterleave(const string &s1, const string &s2, const string &s3) {
+    function<bool(int, int, int)> solve = [&](int i, int j, int k) -> bool {
+        if (i + j != k - 1)
+            return false;
+        if (i == -1)
+            return s2.substr(0, j + 1).compare(s3.substr(0, k + 1)) == 0;
+        if (j == -1)
+            return s1.substr(0, i + 1).compare(s3.substr(0, k + 1)) == 0;
+        if (s1[i] == s3[k] && solve(i - 1, j, k - 1))
+            return true;
+        if (s2[j] == s3[k] && solve(i, j - 1, k - 1))
+            return true;
+        return false;
+    };
+    return solve((int)s1.size() - 1, (int)s2.size() - 1, (int)s3.size() - 1);
+}
+//   j 0 1 2
+// i 0
+//   1
+//   2
+// Let M[i][j] indicates whether s3[0..i+j-1] is interleave of s1[0..i-1] and
+// s2[0..j-1], then
+// M[i][j] =   s1[i-1] == s3[i+j-1] && M[i-1][j]
+//          || s2[j-1] == s3[i+j-1] && M[i][j-1]
+bool isInterleave2(const string &s1, const string &s2, const string &s3) {
+    if (s3.length() != s1.length() + s2.length())
+        return false;
+    if (s3.length() == 0)
+        return true;
+    vector<bool> match(1 + s2.size(), true);
+    for (size_t j = 1; j <= s2.size(); j++)
+        match[j] = match[j - 1] && s2[j - 1] == s3[j - 1];
+    for (size_t i = 1; i <= s1.size(); i++) {
+        match[0] = match[0] && s1[i - 1] == s3[i - 1];
+        for (size_t j = 1; j <= s2.size(); j++) {
+            match[j] = (match[j] && s1[i - 1] == s3[i + j - 1]) ||
+                       (match[j - 1] && s2[j - 1] == s3[i + j - 1]);
+        }
+    }
+    return match[s2.size()];
+}
+
+// 98. Validate Binary Search Tree
+// Given a binary tree, determine if it is a valid binary search tree (BST).
+// Assume a BST is defined as follows: The left subtree of a node contains
+// only nodes with keys less than the node's key. The right subtree of a node
+// contains only nodes with keys greater than the node's key. Both the left
+// and right subtrees must also be binary search trees.
+// Example 1:
+//     2
+//    / \
+//   1   3
+// Input: [2,1,3]
+// Output: true
+// Example 2:
+//     5
+//    / \
+//   1   4
+//      / \
+//     3   6
+// Input: [5,1,4,null,null,3,6]
+// Output: false
+// Explanation: The root node's value is 5 but its right child's value is 4.
+bool isValidBST(TreeNode *root) {
+    TreeNode *prev = nullptr;
+    stack<TreeNode *> s;
+    TreeNode *n = root;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            s.push(n);
+            n = n->left;
+        } else {
+            n = s.top();
+            s.pop();
+            if (prev == nullptr)
+                prev = n;
+            else if (prev->val >= n->val)
+                return false;
+            else
+                prev = n;
+            n = n->right;
+        }
+    }
+    return true;
+}
+// In-order traverse and check whether values are increasing.
+bool isValidBST2(TreeNode *root) {
+    stack<TreeNode *> path;
+    TreeNode *node = root;
+    TreeNode *prev = nullptr;
+    while (!path.empty() || node != nullptr) {
+        if (node != nullptr) {
+            // Move left as much as possible
+            path.push(node);
+            node = node->left;
+        } else {
+            // == case 1 ========
+            // node is null and is the left child of the top of stack
+            //   top
+            //   / \
+            // null ...
+            // == case 2 ========
+            // node is null and is the right child of the last visited node
+            //     top
+            //     /
+            //    o
+            //   / \
+            // null ...
+            //       \
+            //        o <-- last visited (prev)
+            //       / \
+            //    null null
+            // In both cases, left subtree is done, the top is the one to visit
+            node = path.top();
+            // Pop the top because no need to visit it again
+            path.pop();
+            // Visit current node
+            if (prev != nullptr && prev->val >= node->val)
+                return false;
+            prev = node;
+            // Move right
+            node = node->right;
+        }
+    }
+    return true;
+}
+bool isValidBST3(TreeNode *root) {
+    if (root == nullptr)
+        return true;
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *node = root;
+    TreeNode *prev = nullptr;
+    TreeNode *lastVisited = nullptr;
+    while (!path.empty()) {
+        node = path.top();
+        if (node->right != nullptr && node->right == lastVisited) {
+            lastVisited = node;
+            path.pop();
+        } else if (node->left != nullptr && node->left != lastVisited) {
+            lastVisited = node;
+            path.push(node->left);
+        } else {
+            if (prev != nullptr && prev->val >= node->val)
+                return false;
+            prev = node;
+            lastVisited = node;
+            if (node->right != nullptr)
+                path.push(node->right);
+            else
+                path.pop();
+        }
+    }
+    return true;
+}
+bool isValidBST4(TreeNode *root) {
+    function<bool(TreeNode *, int &, int &)> verify =
+        [&](TreeNode *node, int &min, int &max) -> bool {
+        if (node == nullptr)
+            return true;
+        if (node->left == nullptr && node->right == nullptr) {
+            min = node->val;
+            max = node->val;
+            return true;
+        }
+        if (node->left == nullptr) {
+            min = node->val;
+        } else {
+            int leftMin;
+            int leftMax;
+            if (!verify(node->left, leftMin, leftMax))
+                return false;
+            if (leftMax >= node->val)
+                return false;
+            min = leftMin;
+        }
+        if (node->right == nullptr) {
+            max = node->val;
+        } else {
+            int rightMin;
+            int rightMax;
+            if (!verify(node->right, rightMin, rightMax))
+                return false;
+            if (rightMin <= node->val)
+                return false;
+            max = rightMax;
+        }
+        return true;
+    };
+    int min;
+    int max;
+    return verify(root, min, max);
 }
 
 } // namespace LeetCode

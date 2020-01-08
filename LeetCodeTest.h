@@ -3806,9 +3806,76 @@ void LeetCodeTest::Init(void) {
             Util::Sort(m);
             Util::Sort(m2);
             ASSERT1(0 == Util::Compare(m, m2));
+            int c = numTrees(n);
+            int c2 = numTrees2(n);
+            int c3 = numTrees3(n);
+            ASSERT1((int)m.size() == c);
+            ASSERT1((int)m.size() == c2);
+            ASSERT1((int)m.size() == c3);
         };
         for (int i = 0; i < 10; i++)
             check(i + 1);
+    });
+
+    Add("97. Interleaving String", [&]() {
+        auto check = [&](const string &s1, const string &s2, const string &s3,
+                         bool expect) {
+            Logger().WriteInformation("s1: %s\n", s1.c_str());
+            Logger().WriteInformation("s2: %s\n", s2.c_str());
+            Logger().WriteInformation("s3: %s\n", s3.c_str());
+            bool r = isInterleave(s1, s2, s3);
+            bool r2 = isInterleave2(s1, s2, s3);
+            Logger().WriteInformation("is interleave: %d, %d\n", r, r2);
+            ASSERT1(r == expect);
+            ASSERT1(r2 == expect);
+        };
+        check("", "", "", true);
+        check("a", "", "a", true);
+        check("a", "", "b", false);
+        check("", "a", "a", true);
+        check("", "a", "b", false);
+        check("a", "a", "aa", true);
+        check("a", "a", "ab", false);
+        check("a", "a", "ba", false);
+        check("a", "b", "ab", true);
+        check("a", "b", "ba", true);
+        check("ab", "ac", "abac", true);
+        check("ab", "ac", "acab", true);
+        check("ab", "ac", "aabc", true);
+        check("ab", "ac", "aacb", true);
+        check("ab", "ac", "acba", false);
+        check("ab", "ac", "caab", false);
+        check("ab", "ac", "bcaa", false);
+        check("aabcc", "dbbca", "aadbbcbcac", true);
+        check("aabcc", "dbbca", "aadbbbaccc", false);
+    });
+
+    Add("98. Validate Binary Search Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            TreeNode *t = RandomTreeFromInOrder(v);
+            Print(t);
+            bool r = isValidBST(t);
+            bool r2 = isValidBST2(t);
+            bool r3 = isValidBST3(t);
+            bool r4 = isValidBST4(t);
+            DeleteTree(t);
+            Logger() << "is valid BST: " << r << ", " << r2 << ", " << r3
+                     << ", " << r4 << endl;
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+            ASSERT1(r == r4);
+        };
+        check({});
+        check({1});
+        check({1, 2});
+        check({1, 2, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(50);
+            vector<int> v = Random::Vector(n);
+            check(v);
+            sort(v.begin(), v.end());
+            check(v);
+        }
     });
 }
 #endif
