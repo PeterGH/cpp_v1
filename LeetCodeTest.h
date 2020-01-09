@@ -3877,5 +3877,58 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("99. Recover Binary Search Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            TreeNode *t = RandomTreeFromInOrder(v);
+            Print(t);
+            TreeNode *t2 = Clone(t);
+            bool r = isValidBST(t);
+            bool r2 = isValidBST(t2);
+            recoverTree(t);
+            recoverTree2(t2);
+            bool s = isValidBST(t);
+            bool s2 = isValidBST(t2);
+            Print(t);
+            DeleteTree(t);
+            DeleteTree(t2);
+            ASSERT1(r == false);
+            ASSERT1(r2 == false);
+            ASSERT1(s == true);
+            ASSERT1(s2 == true);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(40, 2);
+            vector<int> v = Util::IncreasingVector(n);
+            int a = Random::Int(n - 1);
+            int b = Random::Int(n - 1);
+            if (b == a)
+                b = a < n - 1 ? a + 1 : a - 1;
+            Logger() << v;
+            Logger() << "Swap " << v[a] << " and " << v[b] << endl;
+            swap(v[a], v[b]);
+            check(v);
+        }
+    });
+
+    Add("100. Same Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            TreeNode *t = RandomTree(v);
+            TreeNode *t2 = RandomTree(v);
+            Print(t);
+            Print(t2);
+            bool r = isSameTree(t, t2);
+            Logger() << "isSameTree " << r << endl;
+            DeleteTree(t);
+            DeleteTree(t2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(40, 1);
+            vector<int> v = Random::Vector(n);
+            check(v);
+        }
+    });
 }
 #endif

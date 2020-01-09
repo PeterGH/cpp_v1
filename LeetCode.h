@@ -9207,6 +9207,146 @@ bool isValidBST4(TreeNode *root) {
     return verify(root, min, max);
 }
 
+// 99. Recover Binary Search Tree
+// Two elements of a binary search tree (BST) are swapped by mistake.
+// Recover the tree without changing its structure.
+// Example 1:
+// Input: [1,3,null,null,2]
+//    1
+//   /
+//  3
+//   \
+//    2
+// Output: [3,1,null,null,2]
+//    3
+//   /
+//  1
+//   \
+//    2
+// Example 2:
+// Input: [3,1,4,null,null,2]
+//   3
+//  / \
+// 1   4
+//    /
+//   2
+// Output: [2,1,4,null,null,3]
+//   2
+//  / \
+// 1   4
+//    /
+//   3
+// Follow up:
+// A solution using O(n) space is pretty straight forward.
+// Could you devise a constant space solution? (Morris Traversal,
+// https://www.cnblogs.com/AnnieKim/archive/2013/06/15/morristraversal.html)
+void recoverTree(TreeNode *root) {
+    TreeNode *a = nullptr;
+    TreeNode *b = nullptr;
+    stack<TreeNode *> s;
+    TreeNode *p = nullptr;
+    TreeNode *n = root;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            s.push(n);
+            n = n->left;
+        } else {
+            n = s.top();
+            s.pop();
+            if (p != nullptr && p->val > n->val) {
+                if (a == nullptr) {
+                    a = p;
+                    b = n;
+                } else {
+                    b = n;
+                    break;
+                }
+            }
+            p = n;
+            n = n->right;
+        }
+    }
+    if (a != nullptr && b != nullptr) {
+        int t = a->val;
+        a->val = b->val;
+        b->val = t;
+    }
+}
+void recoverTree2(TreeNode *root) {
+    if (root == nullptr || (root->left == nullptr && root->right == nullptr))
+        return;
+    function<void(TreeNode *, TreeNode *&, TreeNode *&, TreeNode *&,
+                  TreeNode *&, TreeNode *&)>
+        search = [&](TreeNode *current, TreeNode *&prev, TreeNode *&n1,
+                     TreeNode *&n2, TreeNode *&n3, TreeNode *&n4) {
+            if (current == nullptr)
+                return;
+            search(current->left, prev, n1, n2, n3, n4);
+            if (prev != nullptr && prev->val > current->val) {
+                if (n1 == nullptr && n2 == nullptr) {
+                    n1 = prev;
+                    n2 = current;
+                } else {
+                    n3 = prev;
+                    n4 = current;
+                    return;
+                }
+            }
+            prev = current;
+            search(current->right, prev, n1, n2, n3, n4);
+        };
+    TreeNode *prev = nullptr;
+    TreeNode *n1 = nullptr;
+    TreeNode *n2 = nullptr;
+    TreeNode *n3 = nullptr;
+    TreeNode *n4 = nullptr;
+    search(root, prev, n1, n2, n3, n4);
+    if (n3 == nullptr && n4 == nullptr && n1 != nullptr && n2 != nullptr) {
+        int t = n1->val;
+        n1->val = n2->val;
+        n2->val = t;
+    } else if (n3 != nullptr && n4 != nullptr && n1 != nullptr &&
+               n2 != nullptr) {
+        int t = n1->val;
+        n1->val = n4->val;
+        n4->val = t;
+    }
+}
+
+// 100. Same Tree
+// Given two binary trees, write a function to check if they are the same or
+// not. Two binary trees are considered the same if they are structurally
+// identical and the nodes have the same value. Example 1: Input:     1 1
+//           / \       / \
+//          2   3     2   3
+//         [1,2,3],   [1,2,3]
+// Output: true
+// Example 2:
+// Input:     1         1
+//           /           \
+//          2             2
+//         [1,2],     [1,null,2]
+// Output: false
+// Example 3:
+// Input:     1         1
+//           / \       / \
+//          2   1     1   2
+//         [1,2,1],   [1,1,2]
+// Output: false
+bool isSameTree(TreeNode *p, TreeNode *q) {
+    function<bool(TreeNode *, TreeNode *)> same = [&](TreeNode *a,
+                                                      TreeNode *b) -> bool {
+        if (a == nullptr && b == nullptr)
+            return true;
+        if (a == nullptr || b == nullptr)
+            return false;
+        if (a->val != b->val)
+            return false;
+        return same(a->left, b->left) && same(a->right, b->right);
+    };
+    return same(p, q);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
