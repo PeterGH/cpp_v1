@@ -3926,7 +3926,49 @@ void LeetCodeTest::Init(void) {
         };
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(40, 1);
-            vector<int> v = Random::Vector(n);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
+
+    Add("101. Symmetric Tree", [&]() {
+        auto check = [&](const vector<int> &v,
+                         bool createSymmetricTree = false) {
+            Logger() << v;
+            TreeNode *t;
+            if (createSymmetricTree)
+                t = RandomSymmetricTree(v);
+            else
+                t = RandomTree(v);
+            Print(t);
+            bool r = isSymmetric(t);
+            bool r2 = isSymmetric2(t);
+            Logger() << "isSymmetric: " << r << ", " << r2 << endl;
+            DeleteTree(t);
+            ASSERT1(r == r2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+            check(v, true);
+        }
+    });
+
+    Add("102. Binary Tree Level Order Traversal", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            vector<vector<int>> r = levelOrder(t);
+            vector<vector<int>> r2 = levelOrder2(t);
+            Logger() << "levelOrder: " << r << endl;
+            DeleteTree(t);
+            ASSERT1(0 == Util::Compare(r, r2));
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
             check(v);
         }
     });

@@ -8676,6 +8676,15 @@ TreeNode *Clone(TreeNode *root) {
     return clone;
 }
 
+TreeNode *CloneReverse(TreeNode *root) {
+    if (root == nullptr)
+        return nullptr;
+    TreeNode *clone = new TreeNode(root->val);
+    clone->left = CloneReverse(root->right);
+    clone->right = CloneReverse(root->left);
+    return clone;
+}
+
 TreeNode *RandomTree(const vector<int> &values) {
     if (values.empty())
         return nullptr;
@@ -8724,6 +8733,17 @@ TreeNode *RandomTreeFromInOrder(const vector<int> &values) {
         return n;
     };
     return create(values, 0, values.size() - 1);
+}
+
+TreeNode *RandomSymmetricTree(const vector<int> &values) {
+    int i = rand() % values.size();
+    int v = values[i];
+    vector<int> w(values);
+    w.erase(w.begin() + i);
+    TreeNode *n = new TreeNode(v);
+    n->left = RandomTree(w);
+    n->right = CloneReverse(n->left);
+    return n;
 }
 
 // 94. Binary Tree Inorder Traversal
@@ -9345,6 +9365,123 @@ bool isSameTree(TreeNode *p, TreeNode *q) {
         return same(a->left, b->left) && same(a->right, b->right);
     };
     return same(p, q);
+}
+
+// 101. Symmetric Tree
+// Given a binary tree, check whether it is a mirror of itself
+// (ie, symmetric around its center). For example, this binary
+// tree [1,2,2,3,4,4,3] is symmetric:
+//     1
+//    / \
+//   2   2
+//  / \ / \
+// 3  4 4  3
+// But the following [1,2,2,null,3,null,3] is not:
+//     1
+//    / \
+//   2   2
+//    \   \
+//    3    3
+// Note:
+// Bonus points if you could solve it both recursively and iteratively.
+bool isSymmetric(TreeNode *root) {
+    function<bool(TreeNode *, TreeNode *)> same = [&](TreeNode *p,
+                                                      TreeNode *q) -> bool {
+        if (p == nullptr && q == nullptr)
+            return true;
+        if (p == nullptr || q == nullptr)
+            return false;
+        if (p->val != q->val)
+            return false;
+        return same(p->left, q->right) && same(p->right, q->left);
+    };
+    return same(root, root);
+}
+bool isSymmetric2(TreeNode *root) {
+    deque<TreeNode *> deq;
+    deq.push_front(root);
+    deq.push_back(root);
+    TreeNode *node1;
+    TreeNode *node2;
+    while (!deq.empty()) {
+        node1 = deq.front();
+        deq.pop_front();
+        node2 = deq.back();
+        deq.pop_back();
+        if (node1 == nullptr && node2 == nullptr)
+            continue;
+        if (node1 == nullptr || node2 == nullptr)
+            return false;
+        if (node1->val != node2->val)
+            return false;
+        deq.push_front(node1->right);
+        deq.push_front(node1->left);
+        deq.push_back(node2->left);
+        deq.push_back(node2->right);
+    }
+    return true;
+}
+
+// 102. Binary Tree Level Order Traversal
+// Given a binary tree, return the level order traversal of its nodes' values.
+// (ie, from left to right, level by level).
+// For example: Given binary tree [3,9,20,null,null,15,7],
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// return its level order traversal as:
+// [
+//   [3],
+//   [9,20],
+//   [15,7]
+// ]
+vector<vector<int>> levelOrder(TreeNode *root) {
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int l = 0;
+    while (!q[0].empty() || !q[1].empty()) {
+        l = l % 2;
+        int n = (l + 1) % 2;
+        vector<int> v;
+        while (!q[l].empty()) {
+            v.push_back(q[l].front()->val);
+            if (q[l].front()->left != nullptr)
+                q[n].push(q[l].front()->left);
+            if (q[l].front()->right != nullptr)
+                q[n].push(q[l].front()->right);
+            q[l].pop();
+        }
+        result.push_back(v);
+        l++;
+    }
+    return result;
+}
+vector<vector<int>> levelOrder2(TreeNode *root) {
+    vector<vector<int>> result;
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    int l = 0;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            if ((int)result.size() <= l)
+                result.push_back({});
+            result[l].push_back(n->val);
+            s.push(make_pair(n, l));
+            n = n->left;
+            l++;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            s.pop();
+            n = p.first->right;
+            l = p.second + 1;
+        }
+    }
+    return result;
 }
 
 } // namespace LeetCode
