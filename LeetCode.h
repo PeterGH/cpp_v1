@@ -9484,6 +9484,201 @@ vector<vector<int>> levelOrder2(TreeNode *root) {
     return result;
 }
 
+// 103. Binary Tree Zigzag Level Order Traversal
+// Given a binary tree, return the zigzag level order traversal of
+// its nodes' values. (ie, from left to right, then right to left for
+// the next level and alternate between).
+// For example:
+// Given binary tree [3,9,20,null,null,15,7],
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// return its zigzag level order traversal as:
+// [
+//   [3],
+//   [20,9],
+//   [15,7]
+// ]
+vector<vector<int>> zigzagLevelOrder(TreeNode *root) {
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    stack<TreeNode *> s[2];
+    int l = 0;
+    s[0].push(root);
+    while (!s[0].empty() || !s[1].empty()) {
+        l = l % 2;
+        int n = (l + 1) % 2;
+        vector<int> v;
+        while (!s[l].empty()) {
+            v.push_back(s[l].top()->val);
+            if (l == 0) {
+                if (s[l].top()->left != nullptr)
+                    s[n].push(s[l].top()->left);
+                if (s[l].top()->right != nullptr)
+                    s[n].push(s[l].top()->right);
+            } else {
+                if (s[l].top()->right != nullptr)
+                    s[n].push(s[l].top()->right);
+                if (s[l].top()->left != nullptr)
+                    s[n].push(s[l].top()->left);
+            }
+            s[l].pop();
+        }
+        result.push_back(v);
+        l++;
+    }
+    return result;
+}
+vector<vector<int>> zigzagLevelOrder2(TreeNode *root) {
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    deque<TreeNode *> q[2];
+    int level = 0;
+    bool leftToRight = true;
+    q[0].push_back(root);
+    while (!q[0].empty() || !q[1].empty()) {
+        int currentLevel = level % 2;
+        int nextLevel = (level + 1) % 2;
+        vector<int> v;
+        TreeNode *node;
+        if (leftToRight) {
+            while (!q[currentLevel].empty()) {
+                node = q[currentLevel].front();
+                q[currentLevel].pop_front();
+                v.push_back(node->val);
+                if (node->left != nullptr)
+                    q[nextLevel].push_back(node->left);
+                if (node->right != nullptr)
+                    q[nextLevel].push_back(node->right);
+            }
+        } else {
+            while (!q[currentLevel].empty()) {
+                node = q[currentLevel].back();
+                q[currentLevel].pop_back();
+                v.push_back(node->val);
+                if (node->right != nullptr)
+                    q[nextLevel].push_front(node->right);
+                if (node->left != nullptr)
+                    q[nextLevel].push_front(node->left);
+            }
+        }
+        result.push_back(v);
+        level++;
+        leftToRight = !leftToRight;
+    }
+    return result;
+}
+
+// 104. Maximum Depth of Binary Tree
+// Given a binary tree, find its maximum depth. The maximum depth is the
+// number of nodes along the longest path from the root node down to the
+// farthest leaf node. Note: A leaf is a node with no children.
+// Example:
+// Given binary tree [3,9,20,null,null,15,7],
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// return its depth = 3.
+int maxDepth(TreeNode *root) {
+    stack<pair<TreeNode *, int>> s;
+    int m = 0;
+    TreeNode *n = root;
+    int d = 0;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            d++;
+            m = max(m, d);
+            s.push(make_pair(n, d));
+            n = n->left;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            s.pop();
+            n = p.first->right;
+            d = p.second;
+        }
+    }
+    return m;
+}
+int maxDepth2(TreeNode *root) {
+    function<int(TreeNode *)> depth = [&](TreeNode *node) -> int {
+        if (node == nullptr)
+            return 0;
+        if (node->left == nullptr && node->right == nullptr)
+            return 1;
+        return 1 + max(depth(node->left), depth(node->right));
+    };
+    return depth(root);
+}
+// This is wrong
+int maxDepth3(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *node;
+    int depth = 1;
+    int maxDepth = 0;
+    while (!path.empty()) {
+        if (depth > maxDepth) {
+            maxDepth = depth;
+        }
+        node = path.top();
+        path.pop();
+        if (node->right == nullptr && node->left == nullptr) {
+            depth--;
+        } else {
+            depth++;
+            if (node->right != nullptr)
+                path.push(node->right);
+            if (node->left != nullptr)
+                path.push(node->left);
+        }
+    }
+    return maxDepth;
+}
+
+// 105. Construct Binary Tree from Preorder and Inorder Traversal
+// Given preorder and inorder traversal of a tree, construct the binary tree.
+// Note: You may assume that duplicates do not exist in the tree.
+// For example, given
+// preorder = [3,9,20,15,7]
+// inorder = [9,3,15,20,7]
+// Return the following binary tree:
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+TreeNode *buildTree(const vector<int> &preorder, const vector<int> &inorder) {
+    function<TreeNode *(int, int, int, int)> build = [&](int p1, int p2, int i1,
+                                                         int i2) -> TreeNode * {
+        if (p2 - p1 != i2 - i1)
+            return nullptr;
+        if (p1 > p2 || i1 > i2)
+            return nullptr;
+        int i = 0;
+        for (int j = i1; j <= i2; j++) {
+            if (inorder[j] == preorder[p1]) {
+                i = j;
+                break;
+            }
+        }
+        if (i < i1)
+            return nullptr;
+        TreeNode *n = new TreeNode(preorder[p1]);
+        n->left = build(p1 + 1, p1 + i - i1, i1, i - 1);
+        n->right = build(p1 + i - i1 + 1, p2, i + 1, i2);
+        return n;
+    };
+    return build(0, preorder.size() - 1, 0, inorder.size() - 1);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

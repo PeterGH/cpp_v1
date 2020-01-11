@@ -3972,5 +3972,50 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("103. Binary Tree Zigzag Level Order Traversal", [&]() {
+        auto checkTree = [&](TreeNode *t) {
+            Print(t);
+            vector<vector<int>> r = zigzagLevelOrder(t);
+            vector<vector<int>> r2 = zigzagLevelOrder2(t);
+            Logger() << r;
+            DeleteTree(t);
+            ASSERT1(0 == Util::Compare(r, r2));
+        };
+        auto checkVector = [&](const vector<int> &v) {
+            TreeNode *t = RandomTree(v);
+            checkTree(t);
+        };
+        {
+            TreeNode *t = new TreeNode(3);
+            t->left = new TreeNode(9);
+            t->right = new TreeNode(20);
+            t->right->left = new TreeNode(15);
+            t->right->right = new TreeNode(7);
+            checkTree(t);
+        }
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            checkVector(v);
+        }
+    });
+
+    Add("104. Maximum Depth of Binary Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            int d = maxDepth(t);
+            int d2 = maxDepth2(t);
+            Logger() << "maxDepth: " << d << ", " << d2 << endl;
+            DeleteTree(t);
+            ASSERT1(d == d2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
 }
 #endif
