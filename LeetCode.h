@@ -8746,6 +8746,42 @@ TreeNode *RandomSymmetricTree(const vector<int> &values) {
     return n;
 }
 
+vector<int> preorderTraversal(TreeNode *root) {
+    vector<int> v;
+    stack<TreeNode *> s;
+    TreeNode *n = root;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            v.push_back(n->val);
+            s.push(n);
+            n = n->left;
+        } else {
+            n = s.top();
+            s.pop();
+            n = n->right;
+        }
+    }
+    return v;
+}
+vector<int> preorderTraversal2(TreeNode *root) {
+    vector<int> v;
+    if (root == nullptr)
+        return v;
+    stack<TreeNode *> s;
+    s.push(root);
+    TreeNode *n;
+    while (!s.empty()) {
+        n = s.top();
+        s.pop();
+        v.push_back(n->val);
+        if (n->right != nullptr)
+            s.push(n->right);
+        if (n->left != nullptr)
+            s.push(n->left);
+    }
+    return v;
+}
+
 // 94. Binary Tree Inorder Traversal
 // Given a binary tree, return the inorder traversal of its nodes' values.
 // Example:
