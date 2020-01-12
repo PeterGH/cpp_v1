@@ -9692,19 +9692,16 @@ int maxDepth3(TreeNode *root) {
 //     /  \
 //    15   7
 TreeNode *buildTree(const vector<int> &preorder, const vector<int> &inorder) {
+    map<int, int> m;
+    for (int i = 0; i < (int)inorder.size(); i++)
+        m[inorder[i]] = i;
     function<TreeNode *(int, int, int, int)> build = [&](int p1, int p2, int i1,
                                                          int i2) -> TreeNode * {
         if (p2 - p1 != i2 - i1)
             return nullptr;
         if (p1 > p2 || i1 > i2)
             return nullptr;
-        int i = 0;
-        for (int j = i1; j <= i2; j++) {
-            if (inorder[j] == preorder[p1]) {
-                i = j;
-                break;
-            }
-        }
+        int i = m[preorder[p1]];
         if (i < i1)
             return nullptr;
         TreeNode *n = new TreeNode(preorder[p1]);
@@ -9714,7 +9711,58 @@ TreeNode *buildTree(const vector<int> &preorder, const vector<int> &inorder) {
     };
     return build(0, preorder.size() - 1, 0, inorder.size() - 1);
 }
-
+TreeNode *buildTree2(const vector<int> &preorder, const vector<int> &inorder) {
+    if (preorder.size() != inorder.size() || preorder.empty())
+        return nullptr;
+    stack<TreeNode *> path;
+    int i = 0; // index current element in preOrder
+    int j = 0; // index current element in inOrder
+    int f = 0; // flag to insert to left or right
+    // Root
+    TreeNode *node = new TreeNode(preorder[i]);
+    path.push(node);
+    // Current insertion point
+    TreeNode *t = node;
+    i++;
+    while (i < (int)preorder.size()) {
+        if (!path.empty() && path.top()->val == inorder[j]) {
+            // Done with a left substree, start to insert the right subtree
+            t = path.top();
+            path.pop();
+            f = 1;
+            j++;
+        } else {
+            if (f == 0) {
+                t->left = new TreeNode(preorder[i]);
+                t = t->left;
+            } else {
+                f = 0;
+                t->right = new TreeNode(preorder[i]);
+                t = t->right;
+            }
+            path.push(t);
+            i++;
+        }
+    }
+    return node;
+}
+TreeNode *buildTree3(const vector<int> &preorder, const vector<int> &inorder) {
+    if (preorder.size() != inorder.size() || preorder.empty())
+        return nullptr;
+    int p = 0;
+    int i = 0;
+    function<TreeNode *(int)> build = [&](int val) -> TreeNode * {
+        if (i >= (int)inorder.size() || inorder[i] == val)
+            return nullptr;
+        TreeNode *n = new TreeNode(preorder[p]);
+        p++;
+        n->left = build(n->val);
+        i++;
+        n->right = build(val);
+        return n;
+    };
+    return build(INT_MIN);
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

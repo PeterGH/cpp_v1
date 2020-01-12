@@ -4044,5 +4044,39 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("105. Construct Binary Tree from Preorder and Inorder Traversal",
+        [&]() {
+            auto check = [&](const vector<int> &v) {
+                TreeNode *t = RandomTree(v);
+                Print(t);
+                vector<int> pre = preorderTraversal(t);
+                Logger() << "PreOrder: " << pre;
+                vector<int> in = inorderTraversal(t);
+                Logger() << "InOrder:  " << in;
+                TreeNode *t2 = buildTree(pre, in);
+                Print(t2);
+                bool r = isSameTree(t, t2);
+                TreeNode *t3 = buildTree2(pre, in);
+                Print(t3);
+                bool r2 = isSameTree(t, t3);
+                TreeNode *t4 = buildTree3(pre, in);
+                Print(t4);
+                bool r3 = isSameTree(t, t4);
+                Logger() << "isSame: " << r << ", " << r2 << ", " << r3 << endl;
+                DeleteTree(t);
+                DeleteTree(t2);
+                DeleteTree(t3);
+                DeleteTree(t4);
+                ASSERT1(r == true);
+                ASSERT1(r2 == true);
+                ASSERT1(r3 == true);
+            };
+            for (int i = 0; i < 100; i++) {
+                int n = Random::Int(100, 1);
+                vector<int> v = Util::IncreasingVector(n);
+                check(v);
+            }
+        });
 }
 #endif
