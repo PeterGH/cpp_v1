@@ -4157,5 +4157,25 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("108. Convert Sorted Array to Binary Search Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << "Convert to balanced BST:" << v;
+            TreeNode *t = sortedArrayToBST(v);
+            Print(t);
+            TreeNode *t2 = sortedArrayToBST2(v);
+            Print(t2);
+            bool r = isSameTree(t, t2);
+            Logger() << "isSameTree: " << r << endl;
+            DeleteTree(t);
+            DeleteTree(t2);
+            ASSERT1(r == true);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
 }
 #endif

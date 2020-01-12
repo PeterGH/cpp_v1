@@ -9950,6 +9950,80 @@ vector<vector<int>> levelOrderBottom2(TreeNode *root) {
     }
     return result;
 }
+
+// 108. Convert Sorted Array to Binary Search Tree
+// Given an array where elements are sorted in ascending order, convert it
+// to a height balanced BST. For this problem, a height-balanced binary tree
+// is defined as a binary tree in which the depth of the two subtrees of every
+// node never differ by more than 1.
+// Example:
+// Given the sorted array: [-10,-3,0,5,9],
+// One possible answer is: [0,-3,9,-10,null,5], which represents the following
+// height balanced BST:
+//       0
+//      / \
+//    -3   9
+//    /   /
+//  -10  5
+TreeNode *sortedArrayToBST(const vector<int> &nums) {
+    function<TreeNode *(int, int)> bst = [&](int i, int j) -> TreeNode * {
+        if (i > j || i < 0 || j >= (int)nums.size())
+            return nullptr;
+        int k = i + ((j - i) >> 1);
+        TreeNode *n = new TreeNode(nums[k]);
+        n->left = bst(i, k - 1);
+        n->right = bst(k + 1, j);
+        return n;
+    };
+    return bst(0, (int)nums.size() - 1);
+}
+TreeNode *sortedArrayToBST2(const vector<int> &nums) {
+    if (nums.empty())
+        return nullptr;
+    function<int(int, int)> middle = [&](int i, int j) -> int {
+        return i + ((j - i) >> 1);
+    };
+    int i = 0;
+    int j = (int)nums.size() - 1;
+    int k = middle(i, j);
+    stack<pair<TreeNode *, pair<int, int>>> s;
+    TreeNode *root = nullptr;
+    int last = -1;
+    int f = 0;
+    while (!s.empty() || i <= j) {
+        if (i <= j) {
+            TreeNode *n = new TreeNode(nums[k]);
+            if (root == nullptr)
+                root = n;
+            if (!s.empty()) {
+                if (f == 0)
+                    s.top().first->left = n;
+                else {
+                    s.top().first->right = n;
+                    f = 0;
+                }
+            }
+            s.push(make_pair(n, make_pair(k, j)));
+            j = k - 1;
+            k = middle(j, i);
+        } else {
+            pair<TreeNode *, pair<int, int>> p = s.top();
+            int ti = p.second.first + 1;
+            int tj = p.second.second;
+            int tk = middle(ti, tj);
+            if (ti <= tj && last != tk) {
+                f = 1;
+                i = ti;
+                j = tj;
+                k = tk;
+            } else {
+                last = ti - 1;
+                s.pop();
+            }
+        }
+    }
+    return root;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
