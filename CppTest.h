@@ -644,6 +644,28 @@ void CppTest::Init(void) {
         check({2, 1, 2});
         check({3, 3, 3});
     });
+
+    Add("Vector size after insert at begin", [&](){
+        vector<int> v;
+        ASSERT1(v.size() == 0);
+        v.insert(v.begin(), 3);
+        ASSERT1(v.size() == 1);
+        vector<vector<int>> g;
+        ASSERT1(g.size() == 0);
+        // {} will be treated as an initializer list,
+        // which effectly insert nothing at the begin,
+        // so the size is still zero.
+        g.insert(g.begin(), {});
+        Logger() << g;
+        Logger() << "g.size() = " << g.size() << endl;
+        ASSERT1(g.size() == 0);
+        // Explicitly insert an empty vector at begin,
+        // and increase size by 1.
+        g.insert(g.begin(), vector<int>());
+        Logger() << g;
+        Logger() << "g.size() = " << g.size() << endl;
+        ASSERT1(g.size() == 1);
+    });
 }
 
 #endif

@@ -9924,19 +9924,6 @@ vector<vector<int>> levelOrderBottom(TreeNode *root) {
     return result;
 }
 vector<vector<int>> levelOrderBottom2(TreeNode *root) {
-    auto print = [&](const vector<vector<int>> &v) {
-        cout << "{" << endl;
-        for (size_t i = 0; i < v.size(); i++) {
-            cout << "{";
-            for (size_t j = 0; j < v[i].size(); j++) {
-                if (j > 0)
-                    cout << ", ";
-                cout << v[i][j];
-            }
-            cout << "}";
-        }
-        cout << "}" << endl;
-    };
     vector<vector<int>> result;
     stack<pair<TreeNode *, int>> s;
     int l = 0;
@@ -9944,13 +9931,13 @@ vector<vector<int>> levelOrderBottom2(TreeNode *root) {
     while (!s.empty() || n != nullptr) {
         if (n != nullptr) {
             if ((int)result.size() <= l) {
-                cout << "insert {} at result.begin()" << endl;
-                result.insert(result.begin(), {});
+                // Cannot use {} because it is seen as an empty
+                // initializer list, so insert() will not insert
+                // anything.
+                // result.insert(result.begin(), {});
+                result.insert(result.begin(), vector<int>());
             }
-            cout << "result.size() = " << result.size() << ", l = " << l
-                 << endl;
             result[(int)result.size() - l - 1].push_back(n->val);
-            print(result);
             s.push(make_pair(n, l));
             n = n->left;
             l++;
