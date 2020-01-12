@@ -8851,6 +8851,41 @@ vector<int> inorderTraversal3(TreeNode *root) {
     return v;
 }
 
+vector<int> postorderTraversal(TreeNode *root) {
+    vector<int> v;
+    stack<TreeNode *> s;
+    TreeNode *n = root;
+    TreeNode *last = nullptr;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            s.push(n);
+            n = n->left;
+        } else {
+            TreeNode *t = s.top();
+            if (t->right != nullptr && t->right != last) {
+                n = t->right;
+            } else {
+                v.push_back(t->val);
+                last = t;
+                s.pop();
+            }
+        }
+    }
+    return v;
+}
+vector<int> postorderTraversal2(TreeNode *root) {
+    vector<int> v;
+    function<void(TreeNode *)> trav = [&](TreeNode *n) {
+        if (n == nullptr)
+            return;
+        trav(n->left);
+        trav(n->right);
+        v.push_back(n->val);
+    };
+    trav(root);
+    return v;
+}
+
 // 95. Unique Binary Search Trees II
 // Given an integer n, generate all structurally unique BST's (binary
 // search trees) that store values 1 ... n.
@@ -9762,6 +9797,171 @@ TreeNode *buildTree3(const vector<int> &preorder, const vector<int> &inorder) {
         return n;
     };
     return build(INT_MIN);
+}
+
+// 106. Construct Binary Tree from Inorder and Postorder Traversal
+// Given inorder and postorder traversal of a tree, construct the binary tree.
+// Note: You may assume that duplicates do not exist in the tree.
+// For example, given
+// inorder = [9,3,15,20,7]
+// postorder = [9,15,7,20,3]
+// Return the following binary tree:
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+TreeNode *buildTreeInOrderPostOrder(const vector<int> &inorder,
+                                    const vector<int> &postorder) {
+    map<int, int> m;
+    for (int i = 0; i < (int)inorder.size(); i++)
+        m[inorder[i]] = i;
+    function<TreeNode *(int, int, int, int)> build = [&](int i1, int i2, int p1,
+                                                         int p2) -> TreeNode * {
+        if (i2 - i1 != p2 - p1 || i1 > i2 || p1 > p2)
+            return nullptr;
+        TreeNode *n = new TreeNode(postorder[p2]);
+        int i = m[postorder[p2]];
+        n->left = build(i1, i - 1, p1, p1 + i - 1 - i1);
+        n->right = build(i + 1, i2, p1 + i - i1, p2 - 1);
+        return n;
+    };
+    return build(0, (int)inorder.size() - 1, 0, (int)postorder.size() - 1);
+}
+TreeNode *buildTreeInOrderPostOrder2(const vector<int> &inorder,
+                                     const vector<int> &postorder) {
+    if (inorder.size() != postorder.size() || inorder.empty())
+        return nullptr;
+    stack<TreeNode *> path;
+    int i = (int)postorder.size() - 1; // index current element in postOrder
+    int j = (int)inorder.size() - 1;   // index current element in inOrder
+    int f = 0;                         // flag to insert to left or right
+    // Root
+    TreeNode *node = new TreeNode(postorder[i]);
+    path.push(node);
+    // Current insertion point
+    TreeNode *t = node;
+    i--;
+    while (i >= 0) {
+        if (!path.empty() && path.top()->val == inorder[j]) {
+            // Done with a right subtree, start to insert the left subtree
+            t = path.top();
+            path.pop();
+            f = 1;
+            j--;
+        } else {
+            if (f == 0) {
+                t->right = new TreeNode(postorder[i]);
+                t = t->right;
+            } else {
+                f = 0;
+                t->left = new TreeNode(postorder[i]);
+                t = t->left;
+            }
+            path.push(t);
+            i--;
+        }
+    }
+    return node;
+}
+TreeNode *buildTreeInOrderPostOrder3(const vector<int> &inorder,
+                                     const vector<int> &postorder) {
+    if (inorder.size() != postorder.size() || inorder.empty())
+        return nullptr;
+    int p = (int)postorder.size() - 1;
+    int i = (int)inorder.size() - 1;
+    function<TreeNode *(int)> build = [&](int val) -> TreeNode * {
+        if (i == -1 || inorder[i] == val)
+            return nullptr;
+        TreeNode *n = new TreeNode(postorder[p]);
+        p--;
+        n->right = build(n->val);
+        i--;
+        n->left = build(val);
+        return n;
+    };
+    return build(INT_MIN);
+}
+
+// 107. Binary Tree Level Order Traversal II
+// Given a binary tree, return the bottom-up level order traversal of its
+// nodes' values. (ie, from left to right, level by level from leaf to root).
+// For example:
+// Given binary tree [3,9,20,null,null,15,7],
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// return its bottom-up level order traversal as:
+// [
+//   [15,7],
+//   [9,20],
+//   [3]
+// ]
+vector<vector<int>> levelOrderBottom(TreeNode *root) {
+    vector<vector<int>> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int l = 0;
+    while (!q[0].empty() || !q[1].empty()) {
+        l = l % 2;
+        int n = (l + 1) % 2;
+        vector<int> v;
+        while (!q[l].empty()) {
+            v.push_back(q[l].front()->val);
+            if (q[l].front()->left != nullptr)
+                q[n].push(q[l].front()->left);
+            if (q[l].front()->right != nullptr)
+                q[n].push(q[l].front()->right);
+            q[l].pop();
+        }
+        result.insert(result.begin(), v);
+        l++;
+    }
+    return result;
+}
+vector<vector<int>> levelOrderBottom2(TreeNode *root) {
+    auto print = [&](const vector<vector<int>> &v) {
+        cout << "{" << endl;
+        for (size_t i = 0; i < v.size(); i++) {
+            cout << "{";
+            for (size_t j = 0; j < v[i].size(); j++) {
+                if (j > 0)
+                    cout << ", ";
+                cout << v[i][j];
+            }
+            cout << "}";
+        }
+        cout << "}" << endl;
+    };
+    vector<vector<int>> result;
+    stack<pair<TreeNode *, int>> s;
+    int l = 0;
+    TreeNode *n = root;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            if ((int)result.size() <= l) {
+                cout << "insert {} at result.begin()" << endl;
+                result.insert(result.begin(), {});
+            }
+            cout << "result.size() = " << result.size() << ", l = " << l
+                 << endl;
+            result[(int)result.size() - l - 1].push_back(n->val);
+            print(result);
+            s.push(make_pair(n, l));
+            n = n->left;
+            l++;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            s.pop();
+            n = p.first->right;
+            l = p.second + 1;
+        }
+    }
+    return result;
 }
 } // namespace LeetCode
 } // namespace Test

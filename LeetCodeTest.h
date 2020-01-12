@@ -3814,6 +3814,33 @@ void LeetCodeTest::Init(void) {
         }
     });
 
+    Add("PostOrderTraversal", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << "Input: " << v;
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            vector<int> w = postorderTraversal(t);
+            vector<int> w2 = postorderTraversal2(t);
+            DeleteTree(t);
+            Logger() << w << w2;
+            ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(v.size() == w.size());
+            vector<int> v1(v);
+            sort(v1.begin(), v1.end());
+            sort(w.begin(), w.end());
+            ASSERT1(0 == Util::Compare(v1, w));
+        };
+        check({});
+        check({1});
+        check({1, 2});
+        check({1, 2, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
+
     Add("95. Unique Binary Search Trees II", [&]() {
         auto check = [&](int n) {
             vector<TreeNode *> trees = generateTrees(n);
@@ -4078,5 +4105,57 @@ void LeetCodeTest::Init(void) {
                 check(v);
             }
         });
+
+    Add("106. Construct Binary Tree from Inorder and Postorder Traversal",
+        [&]() {
+            auto check = [&](const vector<int> &v) {
+                TreeNode *t = RandomTree(v);
+                Print(t);
+                vector<int> in = inorderTraversal(t);
+                Logger() << "InOrder:   " << in;
+                vector<int> post = postorderTraversal(t);
+                Logger() << "PostOrder: " << post;
+                TreeNode *t2 = buildTreeInOrderPostOrder(in, post);
+                Print(t2);
+                bool r = isSameTree(t, t2);
+                TreeNode *t3 = buildTreeInOrderPostOrder2(in, post);
+                Print(t3);
+                bool r2 = isSameTree(t, t3);
+                TreeNode *t4 = buildTreeInOrderPostOrder3(in, post);
+                Print(t4);
+                bool r3 = isSameTree(t, t4);
+                Logger() << "isSame: " << r << ", " << r2 << ", " << r3 << endl;
+                DeleteTree(t);
+                DeleteTree(t2);
+                DeleteTree(t3);
+                DeleteTree(t4);
+                ASSERT1(r == true);
+                ASSERT1(r2 == true);
+                ASSERT1(r3 == true);
+            };
+            for (int i = 0; i < 100; i++) {
+                int n = Random::Int(100, 1);
+                vector<int> v = Util::IncreasingVector(n);
+                check(v);
+            }
+        });
+
+    Add("107. Binary Tree Level Order Traversal II", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            vector<vector<int>> r = levelOrderBottom(t);
+            vector<vector<int>> r2 = levelOrderBottom2(t);
+            Logger() << "levelOrderBottom: " << r << endl;
+            DeleteTree(t);
+            ASSERT1(0 == Util::Compare(r, r2));
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
 }
 #endif
