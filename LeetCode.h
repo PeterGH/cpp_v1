@@ -10024,6 +10024,283 @@ TreeNode *sortedArrayToBST2(const vector<int> &nums) {
     }
     return root;
 }
+
+// 109. Convert Sorted List to Binary Search Tree
+// Given a singly linked list where elements are sorted in ascending order,
+// convert it to a height balanced BST. For this problem, a height-balanced
+// binary tree is defined as a binary tree in which the depth of the two
+// subtrees of every node never differ by more than 1.
+// Example:
+// Given the sorted linked list: [-10,-3,0,5,9],
+// One possible answer is: [0,-3,9,-10,null,5], which represents the following
+// height balanced BST:
+//       0
+//      / \
+//    -3   9
+//    /   /
+//  -10  5
+TreeNode *sortedListToBST(ListNode *head) {
+    function<TreeNode *(ListNode *, ListNode *)> bst =
+        [&](ListNode *b, ListNode *e) -> TreeNode * {
+        if (b == e)
+            return nullptr;
+        ListNode *p = b; // 1st
+        ListNode *q = b; // 1st
+        while (q->next != e && q->next->next != e) {
+            p = p->next;       // (1 + k)-th
+            q = q->next->next; // (1 + 2k)-th
+        }
+        // p is the median for odd length
+        // or the lower median for even length
+        TreeNode *n = new TreeNode(p->val);
+        n->left = bst(b, p);
+        n->right = bst(p->next, e);
+        return n;
+    };
+    return bst(head, nullptr);
+}
+TreeNode *sortedListToBST2(ListNode *head) {
+    if (head == nullptr)
+        return nullptr;
+    if (head->next == nullptr)
+        return new TreeNode(head->val);
+    function<TreeNode *(ListNode *, ListNode *)> build =
+        [&](ListNode *b, ListNode *e) -> TreeNode * {
+        if (b == nullptr || e == nullptr)
+            return nullptr;
+        TreeNode *node;
+        if (b == e) {
+            node = new TreeNode(b->val);
+        } else if (b->next == e) {
+            node = new TreeNode(b->val);
+            node->right = new TreeNode(e->val);
+        } else {
+            ListNode *p = b;             // 1st
+            ListNode *q = p->next->next; // 3rd
+            while (q != e && q->next != e) {
+                p = p->next; // (1 + k)-th
+                q = q->next;
+                q = q->next; // (3 + 2k)-th
+            }
+            // now p->next is the median for odd length
+            // or the lower-median for even length
+            node = new TreeNode(p->next->val);
+            node->left = build(b, p);
+            node->right = build(p->next->next, e);
+        }
+        return node;
+    };
+    ListNode *p = head;    // 1st
+    ListNode *q = p->next; // 2nd
+    while (q->next != nullptr && q->next->next != nullptr) {
+        p = p->next; // (1 + k)-th
+        q = q->next;
+        q = q->next; // (2 + 2k)-th
+    }
+    // p->next is median for odd length
+    // or p is the lower median for even length
+    TreeNode *node = new TreeNode(p->next->val);
+    node->left = build(head, p);
+    node->right = build(p->next->next, q->next == nullptr ? q : q->next);
+    return node;
+}
+TreeNode *sortedListToBST3(ListNode *head) {
+    ListNode *p = head;
+    int c = 0;
+    while (p != nullptr) {
+        c++;
+        p = p->next;
+    }
+    function<TreeNode *(ListNode *&, int, int)> bst = [&](ListNode *&h, int b,
+                                                          int e) -> TreeNode * {
+        if (b > e)
+            return nullptr;
+        int m = b + ((e - b) >> 1);
+        TreeNode *left = bst(h, b, m - 1);
+        TreeNode *n = new TreeNode(h->val);
+        n->left = left;
+        h = h->next;
+        n->right = bst(h, m + 1, e);
+        return n;
+    };
+    ListNode *h = head;
+    return bst(h, 0, c - 1);
+}
+
+// 110. Balanced Binary Tree
+// Given a binary tree, determine if it is height-balanced.
+// For this problem, a height-balanced binary tree is defined as:
+// a binary tree in which the left and right subtrees of every node differ
+// in height by no more than 1.
+// Example 1:
+// Given the following tree [3,9,20,null,null,15,7]:
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// Return true.
+// Example 2:
+// Given the following tree [1,2,2,3,3,null,null,4,4]:
+//        1
+//       / \
+//      2   2
+//     / \
+//    3   3
+//   / \
+//  4   4
+// Return false.
+bool isBalanced(TreeNode *root) {
+    function<bool(TreeNode *, int &)> balanced = [&](TreeNode *n,
+                                                     int &h) -> bool {
+        if (n == nullptr) {
+            h = 0;
+            return true;
+        }
+        int hl = 0;
+        if (!balanced(n->left, hl))
+            return false;
+        int hr = 0;
+        if (!balanced(n->right, hr))
+            return false;
+        h = 1 + max(hl, hr);
+        return abs(hl - hr) <= 1;
+    };
+    int h = 0;
+    return balanced(root, h);
+}
+
+// 111. Minimum Depth of Binary Tree
+// Given a binary tree, find its minimum depth.
+// The minimum depth is the number of nodes along the shortest path
+// from the root node down to the nearest leaf node.
+// Note: A leaf is a node with no children.
+// Example:
+// Given binary tree [3,9,20,null,null,15,7],
+//     3
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// return its minimum depth = 2.
+int minDepth(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    int m = INT_MAX;
+    function<void(TreeNode *, int)> depth = [&](TreeNode *n, int d) {
+        if (n == nullptr)
+            return;
+        d++;
+        if (n->left == nullptr && n->right == nullptr)
+            m = min(m, d);
+        if (n->left != nullptr)
+            depth(n->left, d);
+        if (n->right != nullptr)
+            depth(n->right, d);
+    };
+    depth(root, 0);
+    return m;
+}
+int minDepth2(TreeNode *root) {
+    if (root == nullptr)
+        return 0;
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    int m = INT_MAX;
+    int d = 1;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            if (n->left == nullptr && n->right == nullptr)
+                m = min(m, d);
+            s.push(make_pair(n, d));
+            n = n->left;
+            d++;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            s.pop();
+            n = p.first->right;
+            d = p.second + 1;
+        }
+    }
+    return m;
+}
+int minDepth3(TreeNode *root) {
+    function<int(TreeNode *, int)> solve = [&](TreeNode *node,
+                                               int depth) -> int {
+        if (node == nullptr)
+            return depth;
+        depth++;
+        if (node->left == nullptr)
+            return solve(node->right, depth);
+        else if (node->right == nullptr)
+            return solve(node->left, depth);
+        else
+            return min(solve(node->left, depth), solve(node->right, depth));
+    };
+    return solve(root, 0);
+}
+
+// 112. Path Sum
+// Given a binary tree and a sum, determine if the tree has a root-to-leaf
+// path such that adding up all the values along the path equals the given sum.
+// Note: A leaf is a node with no children. Example:
+// Given the below binary tree and sum = 22,
+//       5
+//      / \
+//     4   8
+//    /   / \
+//   11  13  4
+//  /  \      \
+// 7    2      1
+// return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+bool hasPathSum(TreeNode *root, int sum) {
+    function<bool(TreeNode *, int)> solve = [&](TreeNode *n, int s) -> bool {
+        if (n == nullptr)
+            return false;
+        s = s + n->val;
+        if (s == sum && n->left == nullptr && n->right == nullptr)
+            return true;
+        return solve(n->left, s) || solve(n->right, s);
+    };
+    return solve(root, 0);
+}
+bool hasPathSum2(TreeNode *root, int sum) {
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    int t = 0;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            t = t + n->val;
+            if (n->left == nullptr && n->right == nullptr && t == sum)
+                return true;
+            s.push(make_pair(n, t));
+            n = n->left;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            s.pop();
+            n = p.first->right;
+            t = p.second;
+        }
+    }
+    return false;
+}
+int pickPathSum(TreeNode *root) {
+    int sum = 0;
+    function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+        if (n == nullptr)
+            return;
+        s += n->val;
+        if (n->left == nullptr && n->right == nullptr) {
+            sum = s;
+            if (rand() < (RAND_MAX >> 1))
+                return;
+        }
+        solve(n->left, s);
+        solve(n->right, s);
+    };
+    solve(root, 0);
+    return sum;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

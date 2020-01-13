@@ -4177,5 +4177,83 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("109. Convert Sorted List to Binary Search Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            ListNode *l = ToList(v);
+            Logger() << "Convert to balanced BST:";
+            Print(l);
+            TreeNode *t = sortedListToBST(l);
+            Print(t);
+            TreeNode *t2 = sortedListToBST2(l);
+            Print(t2);
+            TreeNode *t3 = sortedListToBST3(l);
+            Print(t3);
+            bool b = isBalanced(t);
+            bool b2 = isBalanced(t2);
+            bool b3 = isBalanced(t3);
+            Logger() << "isBalanced: " << b << ", " << b2 << ", " << b3 << endl;
+            bool r = isSameTree(t, t2);
+            bool r2 = isSameTree(t, t3);
+            Logger() << "isSameTree: " << r << ", " << r2 << endl;
+            DeleteTree(t);
+            DeleteTree(t2);
+            DeleteTree(t3);
+            DeleteList(l);
+            ASSERT1(b == true);
+            ASSERT1(b2 == true);
+            ASSERT1(b3 == true);
+            // ASSERT1(r == true); sortedListToBST2 is a bit different
+            ASSERT1(r2 == true);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
+
+    Add("111. Minimum Depth of Binary Tree", [&]() {
+        auto check = [&](const vector<int> &v) {
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            int d = minDepth(t);
+            int d2 = minDepth2(t);
+            int d3 = minDepth3(t);
+            DeleteTree(t);
+            Logger() << "minDepth: " << d << ", " << d2 << ", " << d3 << endl;
+            ASSERT1(d == d2);
+            ASSERT1(d == d3);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
+
+    Add("112. Path Sum", [&]() {
+        auto check = [&](const vector<int> &v, int sum) {
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            int r = hasPathSum(t, sum);
+            int r2 = hasPathSum2(t, sum);
+            int s = pickPathSum(t);
+            int b = hasPathSum(t, s);
+            int b2 = hasPathSum2(t, s);
+            DeleteTree(t);
+            Logger() << "hasPathSum(" << sum << "): " << r << ", " << r2
+                     << endl;
+            Logger() << "hasPathSum(" << s << "): " << b << ", " << b2 << endl;
+            ASSERT1(r == r2);
+            ASSERT1(b == true);
+            ASSERT1(b2 == true);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v, Random::Int(200));
+        }
+    });
 }
 #endif
