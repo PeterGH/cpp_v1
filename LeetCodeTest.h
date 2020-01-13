@@ -4286,17 +4286,25 @@ void LeetCodeTest::Init(void) {
     });
 
     Add("114. Flatten Binary Tree to Linked List", [&]() {
-        auto test = [&](LeetCode::TreeNode * node) {
-            LeetCode::Helper::Print(node);
-            LeetCode::BinaryTree::flatten(node);
-            LeetCode::Helper::Print(node);
-            LeetCode::Helper::DeleteTree(node);
+        auto check = [&](int n) {
+            TreeNode *t = RandomTree(n);
+            Print(t);
+            TreeNode *t2 = Clone(t);
+            flatten(t);
+            Print(t);
+            flatten(t2);
+            Print(t2);
+            vector<int> v = preorderTraversal(t);
+            vector<int> v2 = preorderTraversal(t2);
+            DeleteTree(t);
+            DeleteTree(t2);
+            ASSERT1(Util::IsIncreasing(v));
+            ASSERT1(Util::IsIncreasing(v2));
+            ASSERT1(0 == Util::Compare(v, v2));
         };
-        {
-            LeetCode::TreeNode * node = new LeetCode::TreeNode(1);
-            node->left = new LeetCode::TreeNode(2);
-            node->left->right = new LeetCode::TreeNode(3);
-            test(node);
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            check(n);
         }
     });
 

@@ -187,6 +187,14 @@ static vector<int> IncreasingVector(size_t n, int init = 0) {
     return result;
 }
 
+static bool IsIncreasing(const vector<int> &v) {
+    for (size_t i = 1; i < v.size(); i++) {
+        if (v[i - 1] > v[i])
+            return false;
+    }
+    return true;
+}
+
 template <class T> static void RotateLeft(vector<T> &input, size_t distance) {
     if (input.empty())
         return;

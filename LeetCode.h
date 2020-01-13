@@ -8719,6 +8719,39 @@ TreeNode *RandomTree(const vector<int> &values) {
     return create(values, 0, values.size() - 1);
 }
 
+TreeNode *RandomTree(int num) {
+    if (num <= 0)
+        return nullptr;
+    int t = 0;
+    function<TreeNode *(int, int)> create = [&](int i, int j) -> TreeNode * {
+        if (i > j || t >= num)
+            return nullptr;
+        TreeNode *n = new TreeNode(t++);
+        if (t >= num)
+            return n;
+        int k = rand() % 3;
+        switch (k) {
+        case 0: // preorder
+            k = i + 1 + (rand() % (j - i + 1));
+            n->left = create(i + 1, k - 1);
+            n->right = create(k, j);
+            break;
+        case 1: // inorder
+            k = i + (rand() % (j - i + 1));
+            n->left = create(i, k - 1);
+            n->right = create(k + 1, j);
+            break;
+        case 2: // postorder
+            k = i - 1 + (rand() % (j - i + 1));
+            n->left = create(i, k);
+            n->right = create(k + 1, j - 1);
+            break;
+        }
+        return n;
+    };
+    return create(0, num - 1);
+}
+
 TreeNode *RandomTreeFromInOrder(const vector<int> &values) {
     if (values.empty())
         return nullptr;
