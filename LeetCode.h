@@ -10301,6 +10301,159 @@ int pickPathSum(TreeNode *root) {
     solve(root, 0);
     return sum;
 }
+
+// 113. Path Sum II
+// Given a binary tree and a sum, find all root-to-leaf paths where each
+// path's sum equals the given sum. Note: A leaf is a node with no children.
+// Example: Given the below binary tree and sum = 22,
+//       5
+//      / \
+//     4   8
+//    /   / \
+//   11  13  4
+//  /  \    / \
+// 7    2  5   1
+// Return:
+// [
+//    [5,4,11,2],
+//    [5,8,4,5]
+// ]
+vector<vector<int>> pathSum(TreeNode *root, int sum) {
+    vector<vector<int>> result;
+    function<void(TreeNode *, int, vector<int> &)> solve =
+        [&](TreeNode *n, int s, vector<int> &v) {
+            if (n == nullptr)
+                return;
+            s += n->val;
+            v.push_back(n->val);
+            if (s == sum && n->left == nullptr && n->right == nullptr)
+                result.push_back(v);
+            else {
+                if (n->left != nullptr)
+                    solve(n->left, s, v);
+                if (n->right != nullptr)
+                    solve(n->right, s, v);
+            }
+            v.pop_back();
+        };
+    vector<int> w;
+    solve(root, 0, w);
+    return result;
+}
+vector<vector<int>> pathSum2(TreeNode *root, int sum) {
+    vector<vector<int>> result;
+    vector<int> v;
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    int t = 0;
+    TreeNode *last = nullptr;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            t += n->val;
+            v.push_back(n->val);
+            if (n->left == nullptr && n->right == nullptr && t == sum)
+                result.push_back(v);
+            s.push(make_pair(n, t));
+            n = n->left;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            if (p.first->right != nullptr && last != p.first->right) {
+                n = p.first->right;
+                t = p.second;
+            } else {
+                last = p.first;
+                s.pop();
+                v.pop_back();
+            }
+        }
+    }
+    return result;
+}
+void setPathSum(TreeNode *root, int sum) {
+    function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+        if (n == nullptr)
+            return;
+        if (n->left == nullptr && n->right == nullptr) {
+            if (rand() < (RAND_MAX >> 1)) {
+                n->val = sum - s;
+                return;
+            }
+        }
+        s += n->val;
+        solve(n->left, s);
+        solve(n->right, s);
+    };
+    solve(root, 0);
+}
+
+// 114. Flatten Binary Tree to Linked List
+// Given a binary tree, flatten it to a linked list in-place.
+// For example, given the following tree:
+//     1
+//    / \
+//   2   5
+//  / \   \
+// 3   4   6
+// The flattened tree should look like:
+// 1
+//  \
+//   2
+//    \
+//     3
+//      \
+//       4
+//        \
+//         5
+//          \
+//           6
+void flatten(TreeNode *root) {
+    function<void(TreeNode *, TreeNode *&, TreeNode *&)> flat =
+        [&](TreeNode *n, TreeNode *&l, TreeNode *&r) {
+            if (n == nullptr) {
+                l = nullptr;
+                r = nullptr;
+                return;
+            }
+            TreeNode *ll = nullptr;
+            TreeNode *lr = nullptr;
+            flat(n->left, ll, lr);
+            TreeNode *rl = nullptr;
+            TreeNode *rr = nullptr;
+            flat(n->right, rl, rr);
+            if (ll == nullptr) {
+                l = n;
+                r = rl == nullptr ? n : rr;
+                return;
+            }
+            lr->right = rl;
+            n->right = ll;
+            n->left = nullptr;
+            l = n;
+            r = rl == nullptr ? lr : rr;
+        };
+    TreeNode *l = nullptr;
+    TreeNode *r = nullptr;
+    flat(root, l, r);
+}
+void flatten2(TreeNode *root) {
+    function<TreeNode *(TreeNode *)> solve = [&](TreeNode *node) -> TreeNode * {
+        if (node == nullptr)
+            return nullptr;
+        if (node->left == nullptr && node->right == nullptr) {
+            return node;
+        }
+        TreeNode *leftTail = solve(node->left);
+        TreeNode *rightTail = solve(node->right);
+        if (leftTail != nullptr) {
+            leftTail->right = node->right;
+            node->right = node->left;
+            node->left = nullptr;
+        }
+        return rightTail == nullptr ? leftTail : rightTail;
+    };
+    solve(root);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

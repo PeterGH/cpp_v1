@@ -4255,5 +4255,50 @@ void LeetCodeTest::Init(void) {
             check(v, Random::Int(200));
         }
     });
+
+    Add("113. Path Sum II", [&]() {
+        auto check = [&](const vector<int> &v, int sum) {
+            TreeNode *t = RandomTree(v);
+            Print(t);
+            vector<vector<int>> r = pathSum(t, sum);
+            vector<vector<int>> r2 = pathSum2(t, sum);
+            Logger() << "pathSum(" << sum << "):" << endl;
+            Util::Sort(r);
+            Util::Sort(r2);
+            Logger() << r;
+            setPathSum(t, sum);
+            Print(t);
+            vector<vector<int>> b = pathSum(t, sum);
+            vector<vector<int>> b2 = pathSum2(t, sum);
+            DeleteTree(t);
+            Util::Sort(b);
+            Util::Sort(b2);
+            Logger() << "pathSum(" << sum << "):" << endl;
+            Logger() << b;
+            ASSERT1(0 == Util::Compare(r, r2));
+            ASSERT1(0 == Util::Compare(b, b2));
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v, Random::Int(200));
+        }
+    });
+
+    Add("114. Flatten Binary Tree to Linked List", [&]() {
+        auto test = [&](LeetCode::TreeNode * node) {
+            LeetCode::Helper::Print(node);
+            LeetCode::BinaryTree::flatten(node);
+            LeetCode::Helper::Print(node);
+            LeetCode::Helper::DeleteTree(node);
+        };
+        {
+            LeetCode::TreeNode * node = new LeetCode::TreeNode(1);
+            node->left = new LeetCode::TreeNode(2);
+            node->left->right = new LeetCode::TreeNode(3);
+            test(node);
+        }
+    });
+
 }
 #endif
