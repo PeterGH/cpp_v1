@@ -10487,6 +10487,90 @@ void flatten2(TreeNode *root) {
     solve(root);
 }
 
+// 115. Distinct Subsequences
+// Given a string S and a string T, count the number of distinct subsequences
+// of S which equals T. A subsequence of a string is a new string which is
+// formed from the original string by deleting some (can be none) of the
+// characters without disturbing the relative positions of the remaining
+// characters. (ie, "ACE" is a subsequence of "ABCDE" while "AEC" is not).
+// Example 1:
+// Input: S = "rabbbit", T = "rabbit"
+// Output: 3
+// Explanation: As shown below, there are 3 ways you can generate "rabbit" from
+// S. (The caret symbol ^ means the chosen letters) rabbbit
+// ^^^^ ^^
+// rabbbit
+// ^^ ^^^^
+// rabbbit
+// ^^^ ^^^
+// Example 2:
+// Input: S = "babgbag", T = "bag"
+// Output: 5
+// Explanation: As shown below, there are 5 ways you can generate "bag" from S.
+// (The caret symbol ^ means the chosen letters)
+// babgbag
+// ^^ ^
+// babgbag
+// ^^    ^
+// babgbag
+// ^    ^^
+// babgbag
+//   ^  ^^
+// babgbag
+//     ^^^
+int numDistinct(const string &s, const string &t) {
+    map<pair<size_t, size_t>, int> m;
+    function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int {
+        pair<size_t, size_t> p = make_pair(i, j);
+        if (m.find(p) != m.end())
+            return m[p];
+        if (j == t.size()) {
+            m[p] = 1;
+            return m[p];
+        }
+        while (i < s.size() && s[i] != t[j])
+            i++;
+        if (i == s.size())
+            m[p] = 0;
+        else
+            m[p] = solve(i + 1, j + 1) + solve(i + 1, j);
+        return m[p];
+    };
+    return solve(0, 0);
+}
+// c(i, j) is the count for s[0..i] and t[0..j]
+// c(i, j) = 0                              if i < j
+//         = c(i - 1, j)                    if j == 0 && s[i] != t[j]
+//         = c(i - 1, j) + 1                if j == 0 && s[i] == t[j]
+//         = c(i - 1, j)                    if s[i] != t[j]
+//         = c(i - 1, j - 1) + c(i - 1, j)  if s[i] == t[j]
+//   t     0        1    ......     n-2        n-1
+// s 0 c(0,0)   c(0,1)   ...... c(0,n-2)   c(0,n-1)
+//   1 c(1,0)   c(1,1)   ...... c(1,n-2)   c(1,n-1)
+//   2 c(2,0)   c(2,1)   ...... c(2,n-2)   c(2,n-1)
+//     ......
+// n-2 c(n-2,0) c(n-2,1) ...... c(n-2,n-2) c(n-2,n-1)
+// n-1 c(n-1,0) c(n-1,1) ...... c(n-1,n-2) c(n-1,n-1)
+//     ......
+// m-n c(m-n,0) c(m-n,1) ...... c(m-n,n-2) c(m-n,n-1)
+//     ......
+// m-2 c(m-2,0) c(m-2,1) ...... c(m-2,n-2) c(m-2,n-1)
+// m-1 c(m-1,0) c(m-1,1) ...... c(m-1,n-2) c(m-1,n-1)
+int numDistinct2(const string &s, const string &t) {
+    if (s.size() < t.size())
+        return 0;
+    vector<unsigned long long> c(t.size(), 0);
+    c[0] = s[0] == t[0] ? 1 : 0;
+    for (int i = 1; i < (int)s.size(); i++) {
+        for (int j = t.size() - 1; j > 0; j--) {
+            if (s[i] == t[j])
+                c[j] += c[j - 1];
+        }
+        if (s[i] == t[0])
+            c[0]++;
+    }
+    return c[t.size() - 1];
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

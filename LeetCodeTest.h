@@ -4308,5 +4308,23 @@ void LeetCodeTest::Init(void) {
         }
     });
 
+    Add("115. Distinct Subsequences", [&]() {
+        auto check = [&](const string &s, const string &t) {
+            int c = numDistinct(s, t);
+            int c2 = numDistinct2(s, t);
+            Logger() << "numDistinct(" << endl;
+            Logger() << "s: " << s << endl;
+            Logger() << "t: " << t << endl;
+            Logger() << ") = " << c << ", " << c2 << endl;
+            ASSERT1(c == c2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 2);
+            int m = Random::Int(10, 1);
+            string s = Random::String<char>(n, "abcdefg");
+            string t = Random::String<char>(m, "abcd");
+            check(s, t);
+        }
+    });
 }
 #endif
