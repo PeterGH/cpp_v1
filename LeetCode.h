@@ -10571,6 +10571,259 @@ int numDistinct2(const string &s, const string &t) {
     }
     return c[t.size() - 1];
 }
+
+struct Node {
+    int val;
+    Node *left;
+    Node *right;
+    Node *next;
+};
+
+// 116. Populating Next Right Pointers in Each Node
+// You are given a perfect binary tree where all leaves are on the same level,
+// and every parent has two children. The binary tree has the following
+// definition: struct Node {
+//   int val;
+//   Node *left;
+//   Node *right;
+//   Node *next;
+// }
+// Populate each next pointer to point to its next right node. If there is no
+// next right node, the next pointer should be set to NULL. Initially, all next
+// pointers are set to NULL. Follow up: You may only use constant extra space.
+// Recursive approach is fine, you may assume implicit stack space does not
+// count as extra space for this problem. Example 1: Input: root =
+// [1,2,3,4,5,6,7] Output: [1,#,2,3,#,4,5,6,7,#] Explanation: Given the above
+// perfect binary tree (Figure A), your function should populate each next
+// pointer to point to its next right node, just like in Figure B. The
+// serialized output is in level order as connected by the next pointers, with
+// '#' signifying the end of each level. Constraints: The number of nodes in the
+// given tree is less than 4096. -1000 <= node.val <= 1000
+Node *connect(Node *root) {
+    Node *left = root;
+    while (left != nullptr && left->left != nullptr) {
+        Node *n = left;
+        while (n != nullptr) {
+            n->left->next = n->right;
+            if (n->next != nullptr)
+                n->right->next = n->next->left;
+            n = n->next;
+        }
+        left = left->left;
+    }
+    return root;
+}
+Node *connect2(Node *root) {
+    Node *leftMost = root;
+    while (leftMost != nullptr && leftMost->left != nullptr) {
+        Node *node = leftMost;
+        leftMost = leftMost->left;
+        Node *left = nullptr;
+        while (node != nullptr) {
+            if (left != nullptr)
+                left->next = node->left;
+            node->left->next = node->right;
+            left = node->right;
+            node = node->next;
+        }
+    }
+    return root;
+}
+
+// 117. Populating Next Right Pointers in Each Node II
+// Given a binary tree
+// struct Node {
+//   int val;
+//   Node *left;
+//   Node *right;
+//   Node *next;
+// }
+// Populate each next pointer to point to its next right node. If there is no
+// next right node, the next pointer should be set to NULL. Initially, all next
+// pointers are set to NULL. Follow up: You may only use constant extra space.
+// Recursive approach is fine, you may assume implicit stack space does not
+// count as extra space for this problem. Example 1: Input: root =
+// [1,2,3,4,5,null,7] Output: [1,#,2,3,#,4,5,7,#] Explanation: Given the above
+// binary tree (Figure A), your function should populate each next pointer to
+// point to its next right node, just like in Figure B. The serialized output is
+// in level order as connected by the next pointers, with '#' signifying the end
+// of each level. Constraints: The number of nodes in the given tree is less
+// than 6000. -100 <= node.val <= 100
+Node *connectII(Node *root) {
+    Node *node = root;
+    while (node != nullptr) {
+        Node *left = nullptr;
+        Node *prev = nullptr;
+        while (node != nullptr) {
+            if (node->left != nullptr) {
+                if (left == nullptr)
+                    left = node->left;
+                if (prev != nullptr)
+                    prev->next = node->left;
+                prev = node->left;
+            }
+            if (node->right != nullptr) {
+                if (left == nullptr)
+                    left = node->right;
+                if (prev != nullptr)
+                    prev->next = node->right;
+                prev = node->right;
+            }
+            node = node->next;
+        }
+        node = left;
+    }
+    return root;
+}
+
+// 118. Pascal's Triangle
+// Given a non-negative integer numRows, generate the first numRows of Pascal's
+// triangle. In Pascal's triangle, each number is the sum of the two numbers
+// directly above it. Example: Input: 5 Output:
+// [
+//      [1],
+//     [1,1],
+//    [1,2,1],
+//   [1,3,3,1],
+//  [1,4,6,4,1]
+// ]
+vector<vector<int>> generate(int numRows) {
+    vector<vector<int>> result;
+    vector<int> v;
+    for (int i = 1; i <= numRows; i++) {
+        v.push_back(1);
+        for (int j = v.size() - 2; j > 0; j--)
+            v[j] += v[j - 1];
+        result.push_back(v);
+    }
+    return result;
+}
+
+// 119. Pascal's Triangle II
+// Given a non-negative index k where k ≤ 33, return the kth index row of
+// the Pascal's triangle. Note that the row index starts from 0.
+// In Pascal's triangle, each number is the sum of the two numbers directly
+// above it. Example: Input: 3 Output: [1,3,3,1] Follow up: Could you optimize
+// your algorithm to use only O(k) extra space?
+vector<int> getRow(int rowIndex) {
+    vector<int> v = {1};
+    for (int i = 1; i <= rowIndex; i++) {
+        v.push_back(1);
+        for (int j = v.size() - 2; j > 0; j--)
+            v[j] += v[j - 1];
+    }
+    return v;
+}
+vector<int> getRow2(int rowIndex) {
+    vector<int> row;
+    for (int k = 0; k <= rowIndex; k++) {
+        row.push_back(1);
+        for (int i = row.size() - 2; i > 0; i--) {
+            row[i] += row[i - 1];
+        }
+    }
+    return row;
+}
+
+// 120. Triangle
+// Given a triangle, find the minimum path sum from top to bottom. Each step you
+// may move to adjacent numbers on the row below.
+// For example, given the following triangle
+// [
+//      [2],
+//     [3,4],
+//    [6,5,7],
+//   [4,1,8,3]
+// ]
+// The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
+// Note: Bonus point if you are able to do this using only O(n) extra space,
+// where n is the total number of rows in the triangle.
+int minimumTotal(const vector<vector<int>> &triangle) {
+    vector<int> v(triangle.size(), 0);
+    for (size_t i = 0; i < triangle.size(); i++) {
+        v[i] = triangle[i][i];
+        if (i > 0)
+            v[i] += v[i - 1];
+        for (int j = i - 1; j > 0; j--)
+            v[j] = triangle[i][j] + min(v[j - 1], v[j]);
+        if (i > 0)
+            v[0] += triangle[i][0];
+    }
+    int m = INT_MAX;
+    for (size_t i = 0; i < v.size(); i++)
+        m = min(m, v[i]);
+    return m;
+}
+int minimumTotal2(const vector<vector<int>> &triangle) {
+    vector<int> row(triangle[0]);
+    for (size_t i = 1; i < triangle.size(); i++) {
+        size_t n = triangle[i].size();
+        row.push_back(row[n - 2] + triangle[i][n - 1]);
+        for (int j = n - 2; j > 0; j--)
+            row[j] = triangle[i][j] + min(row[j - 1], row[j]);
+        row[0] += triangle[i][0];
+    }
+    int min = row[0];
+    for (size_t i = 1; i < row.size(); i++) {
+        if (row[i] < min)
+            min = row[i];
+    }
+    return min;
+}
+
+// 121. Best Time to Buy and Sell Stock
+// Say you have an array for which the ith element is the price of a given stock
+// on day i. If you were only permitted to complete at most one transaction
+// (i.e., buy one and sell one share of the stock), design an algorithm to find
+// the maximum profit. Note that you cannot sell a stock before you buy one.
+// Example 1:
+// Input: [7,1,5,3,6,4]
+// Output: 5
+// Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6),
+// profit = 6-1 = 5. Not 7-1 = 6, as selling price needs to be larger than
+// buying price. Example 2: Input: [7,6,4,3,1] Output: 0 Explanation: In this
+// case, no transaction is done, i.e. max profit = 0.
+int maxProfit(const vector<int> &prices) {
+    size_t low = 0;
+    int profit = 0;
+    for (size_t i = 1; i < prices.size(); i++) {
+        if (prices[i] < prices[low])
+            low = i;
+        else
+            profit = max(profit, prices[i] - prices[low]);
+    }
+    return profit;
+}
+
+// 122. Best Time to Buy and Sell Stock II
+// Say you have an array for which the ith element is the price of a given
+// stock on day i. Design an algorithm to find the maximum profit. You may
+// complete as many transactions as you like (i.e., buy one and sell one share
+// of the stock multiple times). Note: You may not engage in multiple
+// transactions at the same time (i.e., you must sell the stock before you buy
+// again).
+// Example 1:
+// Input: [7,1,5,3,6,4]
+// Output: 7
+// Explanation: Buy on day 2 (price = 1) and sell on day 3 (price = 5),
+// profit = 5-1 = 4. Then buy on day 4 (price = 3) and sell on day 5
+// (price = 6), profit = 6-3 = 3.
+// Example 2:
+// Input: [1,2,3,4,5]
+// Output: 4
+// Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5),
+// profit = 5-1 = 4.
+// Note that you cannot buy on day 1, buy on day 2 and sell them later, as you
+// are engaging multiple transactions at the same time. You must sell before
+// buying again. Example 3: Input: [7,6,4,3,1] Output: 0 Explanation: In this
+// case, no transaction is done, i.e. max profit = 0.
+int maxProfitII(const vector<int> &prices) {
+    int p = 0;
+    for (size_t i = 1; i < prices.size(); i++)
+        p += (prices[i] > prices[i - 1] ? prices[i] - prices[i - 1] : 0);
+    return p;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
