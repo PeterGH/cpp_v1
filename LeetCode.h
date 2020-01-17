@@ -10847,21 +10847,86 @@ int maxProfitII(const vector<int> &prices) {
 //               ......
 //               p[k - 1, 2(k - 1) - 1] + p[j] - p[2(k - 1)])
 //   j 0
-// k 0 p[0,0] p[0,1] p[0,2] ...... p[0,(n-2)] p[0,(n-1)]
-//   1        p[1,1] p[1,2] ...... p[1,(n-2)] p[1,(n-1)]
-//   2                      p[2,3] p[2,4] ...... p[2,(n-2)] p[2,(n-1)]
+// k 0 p[0,0] p[0,1] p[0,2] p[0,3] p[2,4] ...... p[0,(n-3)] p[0,(n-2)]
+// p[0,(n-1)]
+//   1        p[1,1] p[1,2] p[1,3] p[1,4] ...... p[1,(n-3)] p[1,(n-2)]
+//   p[1,(n-1)] 2                      p[2,3] p[2,4] ...... p[2,(n-3)]
+//   p[2,(n-2)] p[2,(n-1)]
 // For k = 2
 // p[2, j] = max(p[2, j - 1],
-//               p[1, j - 2] + p[j] - p[j - 1],
-//               p[1, j - 3] + p[j] - p[j - 2],
+//               p[j] - p[j - 1] + p[1, j - 2],
+//               p[j] - p[j - 2] + p[1, j - 3],
 //               ......
-//               p[1, 1] + p[j] - p[2])
+//               p[j] - p[2] + p[1, 1])
+// p[2, j - 1] = max(p[2, j - 2],
+//                   p[j - 1] - p[j - 2] + p[1, j - 3],
+//                   p[j - 1] - p[j - 3] + p[1, j - 4],
+//                   ......
+//                   p[j - 1] - p[2] + p[1, 1])
 // p[1, j] = max(p[1, j - 1],
-//               p[0, j - 2] + p[j] - p[j - 1],
-//               p[0, j - 3] + p[j] - p[j - 2],
+//               p[j] - p[j - 1] + p[0, j - 2],
+//               p[j] - p[j - 2] + p[0, j - 3],
 //               ......
-//               p[0, -1] + p[j] - p[0])
-int maxProfitIII(const vector<int> &prices) {}
+//               p[j] - p[1] + p[0, 0])
+//               p[j] - p[0] + p[0, -1])
+// p[1, j - 1] = max(p[1, j - 2],
+//                   p[j - 1] - p[j - 2] + p[0, j - 3],
+//                   p[j - 1] - p[j - 3] + p[0, j - 4],
+//                   ......
+//                   p[j - 1] - p[1] + p[0, 0])
+//                   p[j - 1] - p[0] + p[0, -1])
+int maxProfitIII(const vector<int> &prices) {
+    if (prices.size() < 2)
+        return 0;
+    int m1 = INT_MIN;
+    int m2 = INT_MIN;
+    int p1 = INT_MIN;
+    int p2 = INT_MIN;
+    for (size_t j = 1; j < prices.size(); j++) {
+        if (j == 1) {
+            m1 = -prices[0];
+            p1 = prices[1] + m1;
+        } else if (j == 2) {
+            m1 = max(m1, -prices[1]);
+            p1 = max(p1, prices[2] + m1);
+        } else {
+            m1 = max(m1, -prices[j - 1]);
+            p1 = max(p1, prices[j] + m1);
+            int m = -prices[0];
+            for (size_t i = 1; i < j; i++)
+                m = max(m, p[0][i - 1] - prices[i]);
+            p[1][j] = max(p[1][j - 1], prices[j] + m);
+            m = INT_MIN;
+            for (size_t i = 2; i < j; i++)
+                m = max(m, p[1][i - 1] - prices[i]);
+            p[2][j] = max(p[2][j - 1], prices[j] + m);
+        }
+    }
+    return max(p[1][prices.size() - 1], p[2][prices.size() - 1]);
+}
+int maxProfitIII2(const vector<int> &prices) {
+    if (prices.empty())
+        return 0;
+    vector<vector<int>> p(3, vector<int>(prices.size(), 0));
+    for (size_t j = 1; j < prices.size(); j++) {
+        if (j == 1) {
+            p[1][1] = prices[1] - prices[0];
+        } else if (j == 2) {
+            p[1][2] =
+                max(p[1][1], max(prices[2] - prices[1], prices[2] - prices[0]));
+        } else {
+            int m = -prices[0];
+            for (size_t i = 1; i < j; i++)
+                m = max(m, p[0][i - 1] - prices[i]);
+            p[1][j] = max(p[1][j - 1], prices[j] + m);
+            m = INT_MIN;
+            for (size_t i = 2; i < j; i++)
+                m = max(m, p[1][i - 1] - prices[i]);
+            p[2][j] = max(p[2][j - 1], prices[j] + m);
+        }
+    }
+    return max(p[1][prices.size() - 1], p[2][prices.size() - 1]);
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
