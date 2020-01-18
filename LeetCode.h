@@ -10846,12 +10846,6 @@ int maxProfitII(const vector<int> &prices) {
 //               p[k - 1, j - 3] + p[j] - p[j - 2],
 //               ......
 //               p[k - 1, 2(k - 1) - 1] + p[j] - p[2(k - 1)])
-//   j 0
-// k 0 p[0,0] p[0,1] p[0,2] p[0,3] p[2,4] ...... p[0,(n-3)] p[0,(n-2)]
-// p[0,(n-1)]
-//   1        p[1,1] p[1,2] p[1,3] p[1,4] ...... p[1,(n-3)] p[1,(n-2)]
-//   p[1,(n-1)] 2                      p[2,3] p[2,4] ...... p[2,(n-3)]
-//   p[2,(n-2)] p[2,(n-1)]
 // For k = 2
 // p[2, j] = max(p[2, j - 1],
 //               p[j] - p[j - 1] + p[1, j - 2],
@@ -10875,6 +10869,15 @@ int maxProfitII(const vector<int> &prices) {
 //                   ......
 //                   p[j - 1] - p[1] + p[0, 0])
 //                   p[j - 1] - p[0] + p[0, -1])
+//   j 0
+//       p[0]   p[1]   p[2]         p[3]         p[4]      ......   p[j-2]
+//       p[j-1]          p[j]
+// max{ -p[0]  -p[1]  -p[2]        -p[3]        -p[4]      ......  -p[j-2]
+// -p[j-1]         -p[j] } k 1        p[1,1] p[1,2]       p[1,3]       p[1,4]
+// ...... p[1,(j-2)]        p[1,(j-1)]        p[1,j] max{ p[1,1]-p[2]
+// p[1,2]-p[3]  p[1,3]-p[4] ...... p[1,(j-3)]-p[j-2] p[1,(j-2)]-p[j-1] }
+//   2                            p[2,3]       p[2,4]      ...... p[2,(j-2)]
+//   p[2,(j-1)]        p[2,j]
 int maxProfitIII(const vector<int> &prices) {
     if (prices.size() < 2)
         return 0;
@@ -10882,27 +10885,30 @@ int maxProfitIII(const vector<int> &prices) {
     int m2 = INT_MIN;
     int p1 = INT_MIN;
     int p2 = INT_MIN;
-    for (size_t j = 1; j < prices.size(); j++) {
-        if (j == 1) {
+    for (size_t j = 0; j < prices.size(); j++) {
+        if (j == 0) {
             m1 = -prices[0];
-            p1 = prices[1] + m1;
-        } else if (j == 2) {
+        } else if (j == 1) {
+            p1 = prices[1] - prices[0];
             m1 = max(m1, -prices[1]);
+        } else if (j == 2) {
+            m2 = p1 - prices[2];
             p1 = max(p1, prices[2] + m1);
+            m1 = max(m1, -prices[2]);
+        } else if (j == 3) {
+            p2 = prices[3] + m2;
+            m2 = max(m2, p1 - prices[3]);
+            p1 = max(p1, prices[3] + m1);
+            m1 = max(m1, -prices[3]);
         } else {
-            m1 = max(m1, -prices[j - 1]);
+            p2 = max(p2, prices[j] + m2);
+            m2 = max(m2, p1 - prices[j]);
             p1 = max(p1, prices[j] + m1);
-            int m = -prices[0];
-            for (size_t i = 1; i < j; i++)
-                m = max(m, p[0][i - 1] - prices[i]);
-            p[1][j] = max(p[1][j - 1], prices[j] + m);
-            m = INT_MIN;
-            for (size_t i = 2; i < j; i++)
-                m = max(m, p[1][i - 1] - prices[i]);
-            p[2][j] = max(p[2][j - 1], prices[j] + m);
+            m1 = max(m1, -prices[j]);
         }
     }
-    return max(p[1][prices.size() - 1], p[2][prices.size() - 1]);
+    int m = max(p1, p2);
+    return m < 0 ? 0 : m;
 }
 int maxProfitIII2(const vector<int> &prices) {
     if (prices.empty())
@@ -10927,6 +10933,166 @@ int maxProfitIII2(const vector<int> &prices) {
     }
     return max(p[1][prices.size() - 1], p[2][prices.size() - 1]);
 }
+int maxProfitIII3(const vector<int> &prices) {
+    if (prices.size() < 2)
+        return 0;
+    // Record the maximum two transactions
+    int buy1 = 0;
+    int sell1 = 0;
+    int buy2 = 0;
+    int sell2 = 0;
+    // Record the maximum transactions
+    int buym = 0;
+    int sellm = 0;
+    // Record the latest potential sell-buy candidate
+    int i = 0;
+    int j = 0;
+    int length = prices.size();
+    while (j < length) {
+        while (j + 1 < length && prices[j] >= prices[j + 1]) {
+            // Find the next local minimum
+            j++;
+        }
+        if (i < sell2 || prices[i] >= prices[j]) {
+            // i is the minimal in the range [sell2, j]
+            // [sell2, j] may contain multiple increasing ranges, because
+            // [i, j] may not overlap with previous [buy2, sell2]
+            i = j;
+        }
+        while (j + 1 < length && prices[j] < prices[j + 1]) {
+            // Find the next local maximum
+            j++;
+        }
+        if (i == j) {
+            j++; // Why this can happen?
+            continue;
+        }
+        // now input[i..j] is next potential sell-buy candidate.
+        // input[i..j] may contain more than one increasing ranges.
+        if (buy1 == sell1) {
+            // Get the first two increasing ranges
+            buy1 = buy2;
+            sell1 = sell2;
+            buy2 = i;
+            sell2 = j;
+        } else {
+            // Given [buy1, sell1], [buy2, sell2] and [i, j]
+            // Compute new [buy1, sell1] and [buy2, sell2]
+            // Need to compare following cases:
+            // 1. [buy1, sell1], [buy2, sell2]
+            // 2. [buy1, sell1], [buy2, j]
+            // 3. [buy1, sell1], [i, j]
+            // 4. [buy2, sell2], [i, j]
+            // 5. [buy1, sell2], [i, j]
+            // Start with case 1
+            int b1 = buy1;
+            int s1 = sell1;
+            int b2 = buy2;
+            int s2 = sell2;
+            if (prices[j] > prices[s2]) {
+                // Covered case 2
+                s2 = j;
+            }
+            if (prices[j] - prices[i] + prices[sellm] - prices[buym] >
+                prices[s2] - prices[b2] + prices[s1] - prices[b1]) {
+                // Covered case 3, 4 and 5
+                b1 = buym;
+                s1 = sellm;
+                b2 = i;
+                s2 = j;
+            }
+            buy1 = b1;
+            sell1 = s1;
+            buy2 = b2;
+            sell2 = s2;
+        }
+        if (prices[sell1] - prices[buy1] > prices[sellm] - prices[buym]) {
+            buym = buy1;
+            sellm = sell1;
+        }
+        if (prices[sell2] - prices[buy2] > prices[sellm] - prices[buym]) {
+            buym = buy2;
+            sellm = sell2;
+        }
+        if (prices[sell2] - prices[buy1] > prices[sellm] - prices[buym]) {
+            buym = buy1;
+            sellm = sell2;
+        }
+        j++;
+    }
+    if (prices[sellm] - prices[buym] >=
+        prices[sell2] - prices[buy2] + prices[sell1] - prices[buy1]) {
+        return prices[sellm] - prices[buym];
+    } else {
+        return prices[sell1] - prices[buy1] + prices[sell2] - prices[buy2];
+    }
+}
+int maxProfitIII4(const vector<int> &prices) {
+    if (prices.size() < 2)
+        return 0;
+    // Find one transaction during input[begin..end]
+    auto maxProfit = [&](int begin, int end, int &buy, int &sell, int &profit) {
+        int min = begin;
+        buy = begin;
+        sell = begin;
+        profit = 0;
+        if (end == begin)
+            return;
+        for (int i = begin + 1; i <= end; i++) {
+            if (prices[i] < prices[min]) {
+                min = i;
+            } else {
+                if (prices[i] - prices[min] > profit) {
+                    buy = min;
+                    sell = i;
+                    profit = prices[i] - prices[min];
+                }
+            }
+        }
+    };
+    int profit1 = 0;
+    int profit2 = 0;
+    int b1 = 0;
+    int s1 = 0;
+    int p1 = 0;
+    int b2 = 0;
+    int s2 = 0;
+    int p2 = 0;
+    int i = 0;
+    int length = prices.size();
+    while (i < length - 1) {
+        // Increase i so that [0..i] contains one more increasing subarray
+        while (i < length - 1 && prices[i + 1] <= prices[i])
+            i++;
+        if (i == length - 1)
+            break;
+        while (i < length - 1 && prices[i + 1] > prices[i])
+            i++;
+        // Find the max transaction before i
+        maxProfit(b1, i, b1, s1, p1);
+        // Find the max transaction after i
+        if (i > b2) {
+            // If i <= b2, then no need to reevaluate because b2/s2 is already
+            // maximum after i
+            maxProfit(i, length - 1, b2, s2, p2);
+        }
+        if (p1 + p2 > profit1 + profit2) {
+            profit1 = p1;
+            profit2 = p2;
+        }
+        i++;
+    }
+    int b3;
+    int s3;
+    int p3;
+    maxProfit(0, length - 1, b3, s3, p3);
+    if (p3 > profit1 + profit2) {
+        return p3;
+    } else {
+        return profit1 + profit2;
+    }
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

@@ -4326,5 +4326,36 @@ void LeetCodeTest::Init(void) {
             check(s, t);
         }
     });
+
+    Add("123. Best Time to Buy and Sell Stock III", [&]() {
+        auto check = [&](const vector<int> &p) {
+            Logger() << p;
+            int m = maxProfitIII(p);
+            int m2 = maxProfitIII2(p);
+            int m3 = maxProfitIII3(p);
+            int m4 = maxProfitIII4(p);
+            Logger() << "maxProfitIII: " << m << ", " << m2 << ", " << m3
+                     << ", " << m4 << endl;
+            ASSERT1(m == m2);
+            ASSERT1(m == m3);
+            ASSERT1(m == m4);
+        };
+        check({1});
+        check({1, 2});
+        check({2, 2});
+        check({1, 2, 3});
+        check({1, 2, 2});
+        check({2, 2, 2});
+        check({1, 2, 3, 4});
+        check({2, 7, 1, 6});
+        check({3, 7, 1, 6});
+        check({9, 7, 10, 9, 5, 8, 3, 7, 2, 1, 5, 3});
+        check({6, 1, 3, 2, 4, 7});
+        for (int i = 0; i < 100; i++) {
+            int len = Random::Int(100, 1);
+            vector<int> v = Random::Vector(len, 100);
+            check(v);
+        }
+    });
 }
 #endif
