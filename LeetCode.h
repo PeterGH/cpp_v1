@@ -11093,6 +11093,309 @@ int maxProfitIII4(const vector<int> &prices) {
     }
 }
 
+// 124. Binary Tree Maximum Path Sum
+// Given a non-empty binary tree, find the maximum path sum. For this problem,
+// a path is defined as any sequence of nodes from some starting node to any
+// node in the tree along the parent-child connections. The path must contain
+// at least one node and does not need to go through the root.
+// Example 1:
+// Input: [1,2,3]
+//        1
+//       / \
+//      2   3
+// Output: 6
+// Example 2:
+// Input: [-10,9,20,null,null,15,7]
+//    -10
+//    / \
+//   9  20
+//     /  \
+//    15   7
+// Output: 42
+int maxPathSum(TreeNode *root) {
+    function<void(TreeNode *, int &, int &)> solve =
+        [&](TreeNode *n, int &pathSum, int &maxSum) {
+            if (n == nullptr)
+                return;
+            if (n->left == nullptr && n->right == nullptr) {
+                pathSum = n->val;
+                maxSum = n->val;
+                return;
+            }
+            int leftPathSum;
+            int leftMaxSum;
+            if (n->left != nullptr)
+                solve(n->left, leftPathSum, leftMaxSum);
+            if (leftPathSum < 0)
+                leftPathSum = 0; // Ignore left path
+            int rightPathSum;
+            int rightMaxSum;
+            if (n->right != nullptr)
+                solve(n->right, rightPathSum, rightMaxSum);
+            if (rightPathSum < 0)
+                rightPathSum = 0; // Ignore right path
+            if (n->left == nullptr) {
+                pathSum = n->val + rightPathSum;
+                maxSum = max(pathSum, rightMaxSum);
+            } else if (n->right == nullptr) {
+                pathSum = n->val + leftPathSum;
+                maxSum = max(pathSum, leftMaxSum);
+            } else {
+                pathSum = n->val + max(leftPathSum, rightPathSum);
+                maxSum = max(leftPathSum + n->val + rightPathSum,
+                             max(leftMaxSum, rightMaxSum));
+            }
+        };
+    int p;
+    int m;
+    solve(root, p, m);
+    return m;
+}
+
+// 125. Valid Palindrome
+// Given a string, determine if it is a palindrome, considering only
+// alphanumeric characters and ignoring cases. Note: For the purpose of this
+// problem, we define empty string as valid palindrome. Example 1: Input: "A
+// man, a plan, a canal: Panama" Output: true Example 2: Input: "race a car"
+// Output: false
+bool isPalindrome(const string &s) {
+    function<bool(char)> isAlphaNumeric = [&](char c) -> bool {
+        return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') ||
+               ('0' <= c && c <= '9');
+    };
+    int i = 0;
+    int j = (int)s.size() - 1;
+    while (i < j) {
+        if (!isAlphaNumeric(s[i])) {
+            i++;
+        } else if (!isAlphaNumeric(s[j])) {
+            j--;
+        } else {
+            if ('a' <= s[i] && s[i] <= 'z') {
+                if ((s[i] - 'a' != s[j] - 'a') && (s[i] - 'a' != s[j] - 'A'))
+                    return false;
+            } else if ('A' <= s[i] && s[i] <= 'Z') {
+                if ((s[i] - 'A' != s[j] - 'a') && (s[i] - 'A' != s[j] - 'A'))
+                    return false;
+            } else if ('0' <= s[i] && s[i] <= '9') {
+                if (s[i] - '0' != s[j] - '0')
+                    return false;
+            }
+            i++;
+            j--;
+        }
+    }
+    return true;
+}
+bool isPalindrome2(const string &s) {
+    function<bool(char)> isDigit = [&](char c) -> bool {
+        return '0' <= c && c <= '9';
+    };
+    function<bool(char)> isLower = [&](char c) -> bool {
+        return 'a' <= c && c <= 'z';
+    };
+    function<bool(char)> isUpper = [&](char c) -> bool {
+        return 'A' <= c && c <= 'Z';
+    };
+    int i = 0;
+    int j = s.size() - 1;
+    while (i < j) {
+        char a = s[i];
+        if (!isDigit(a) && !isLower(a) && !isUpper(a)) {
+            i++;
+            continue;
+        }
+        char b = s[j];
+        if (!isDigit(b) && !isLower(b) && !isUpper(b)) {
+            j--;
+            continue;
+        }
+        if (isDigit(a) != isDigit(b))
+            return false;
+        if (isDigit(a) && a != b)
+            return false;
+        if (isLower(a) && a - 'a' != b - 'a' && a - 'a' != b - 'A')
+            return false;
+        if (isUpper(a) && a - 'A' != b - 'a' && a - 'A' != b - 'A')
+            return false;
+        i++;
+        j--;
+    }
+    return true;
+}
+bool isPalindrome3(const string &s) {
+    if (s.empty())
+        return true;
+    auto isAlphaNumeric = [&](char c) -> bool {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+               (c >= '0' && c <= '9');
+    };
+    auto equal = [&](char a, char b) -> bool {
+        if (a >= 'a' && a <= 'z' &&
+            ((b - 'a' == a - 'a') || (b - 'A' == a - 'a')))
+            return true;
+        else if (a >= 'A' && a <= 'Z' &&
+                 ((b - 'a' == a - 'A') || (b - 'A' == a - 'A')))
+            return true;
+        else if (a >= '0' && a <= '9' && b == a)
+            return true;
+        return false;
+    };
+    int i = 0;
+    int j = s.size() - 1;
+    while (i <= j) {
+        while (i <= j && !isAlphaNumeric(s[i]))
+            i++;
+        while (i <= j && !isAlphaNumeric(s[j]))
+            j--;
+        if (i > j)
+            return true;
+        if (!equal(s[i], s[j]))
+            return false;
+        i++;
+        j--;
+    }
+    return true;
+}
+
+// 126. Word Ladder II
+// Given two words (beginWord and endWord), and a dictionary's word list, find
+// all shortest transformation sequence(s) from beginWord to endWord, such that:
+// Only one letter can be changed at a time and each transformed word must exist
+// in the word list. Note that beginWord is not a transformed word. Note: Return
+// an empty list if there is no such transformation sequence. All words have the
+// same length. All words contain only lowercase alphabetic characters. You may
+// assume no duplicates in the word list. You may assume beginWord and endWord
+// are non-empty and are not the same.
+// Example 1:
+// Input:
+// beginWord = "hit",
+// endWord = "cog",
+// wordList = ["hot","dot","dog","lot","log","cog"]
+// Output:
+// [
+//   ["hit","hot","dot","dog","cog"],
+//   ["hit","hot","lot","log","cog"]
+// ]
+// Example 2:
+// Input:
+// beginWord = "hit"
+// endWord = "cog"
+// wordList = ["hot","dot","dog","lot","log"]
+// Output: []
+// Explanation: The endWord "cog" is not in wordList, therefore no possible
+// transformation.
+vector<vector<string>> findLadders(const string &beginWord,
+                                   const string &endWord,
+                                   const vector<string> &wordList) {
+    vector<vector<string>> results;
+    map<string, bool> visited;
+    for_each(wordList.cbegin(), wordList.cend(),
+             [&](const string &s) { visited[s] = false; });
+    if (visited.find(endWord) == visited.end())
+        return results;
+    size_t minLen = wordList.size() + 1;
+    function<void(string &, vector<string> &)> solve = [&](string &w,
+                                                           vector<string> &v) {
+        if (v.size() >= minLen)
+            return;
+        for (size_t i = 0; i < w.size(); i++) {
+            string s = w;
+            char c = s[i];
+            for (char k = 'a'; k <= 'z'; k++) {
+                s[i] = k;
+                if (k == c || visited.find(s) == visited.end() || visited[s])
+                    continue;
+                visited[s] = true;
+                v.push_back(s);
+                if (s.compare(endWord) == 0) {
+                    if (v.size() <= minLen) {
+                        results.push_back(v);
+                        minLen = v.size();
+                    }
+                } else if (v.size() < minLen) {
+                    solve(s, v);
+                }
+                v.pop_back();
+                visited[s] = false;
+            }
+        }
+    };
+    vector<string> p(1, beginWord);
+    string word = beginWord;
+    solve(word, p);
+    auto it = results.begin();
+    while (it != results.end()) {
+        if (it->size() > minLen)
+            it = results.erase(it);
+        else
+            it++;
+    }
+    return results;
+}
+vector<vector<string>> findLadders2(const string &beginWord,
+                                    const string &endWord,
+                                    const vector<string> &wordList) {
+    vector<vector<string>> ladders = {};
+    if (beginWord.empty() || endWord.empty() || wordList.empty())
+        return ladders;
+    if (find(wordList.cbegin(), wordList.cend(), endWord) == wordList.cend())
+        return ladders;
+    unordered_map<string, vector<vector<string>>>
+        path; // Record paths ending at a word
+    unordered_map<string, int> level;
+    queue<string> q[2];
+    int step = 0;
+    bool stop = false;
+    q[0].push(beginWord);
+    level[beginWord] = step;
+    path[beginWord] = vector<vector<string>>{};
+    path[beginWord].push_back(vector<string>{beginWord});
+    while (!q[0].empty() || !q[1].empty()) {
+        queue<string> &current = q[step & 0x1];
+        queue<string> &next = q[(step + 1) & 0x1];
+        while (!current.empty()) {
+            string word = current.front();
+            current.pop();
+            string temp;
+            for (size_t i = 0; i < word.size(); i++) {
+                temp = word;
+                for (char j = 'a'; j <= 'z'; j++) {
+                    temp[i] = j;
+                    if (temp.compare(endWord) == 0) {
+                        for_each(path[word].begin(), path[word].end(),
+                                 [&](vector<string> &p) {
+                                     vector<string> r(p);
+                                     r.push_back(temp);
+                                     ladders.push_back(r);
+                                 });
+                        stop = true;
+                    } else if (find(wordList.cbegin(), wordList.cend(), temp) !=
+                               wordList.cend()) {
+                        if (level.find(temp) == level.end()) {
+                            level[temp] = step + 1;
+                            next.push(temp);
+                            path[temp] = vector<vector<string>>{};
+                        }
+                        if (level[temp] > step) {
+                            for_each(path[word].begin(), path[word].end(),
+                                     [&](vector<string> &p) {
+                                         vector<string> r(p);
+                                         r.push_back(temp);
+                                         path[temp].push_back(r);
+                                     });
+                        }
+                    }
+                }
+            }
+        }
+        if (stop)
+            break; // Found the shortest paths. If need to find all, then do not
+                   // stop.
+        step++;
+    }
+    return ladders;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

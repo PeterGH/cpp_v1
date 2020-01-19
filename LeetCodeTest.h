@@ -4357,5 +4357,282 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("124. Binary Tree Maximum Path Sum", [&]() {
+        auto check = [&](TreeNode *node, long long expect) {
+            Print(node);
+            long long sum = maxPathSum(node);
+            Logger().WriteInformation("Sum %lld %s %lld\n", sum,
+                                      sum == expect ? "==" : "!=", expect);
+            ASSERT1(sum == expect);
+        };
+        {
+            TreeNode n1(1);
+            check(&n1, 1);
+        }
+        {
+            TreeNode n1(-1);
+            check(&n1, -1);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            n1.left = &n2;
+            check(&n1, 3);
+        }
+        {
+            TreeNode n1(-1);
+            TreeNode n2(2);
+            n1.left = &n2;
+            check(&n1, 2);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-2);
+            n1.left = &n2;
+            check(&n1, 1);
+        }
+        {
+            TreeNode n1(-1);
+            TreeNode n2(-2);
+            n1.left = &n2;
+            check(&n1, -1);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            n1.right = &n2;
+            check(&n1, 3);
+        }
+        {
+            TreeNode n1(-1);
+            TreeNode n2(2);
+            n1.right = &n2;
+            check(&n1, 2);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-2);
+            n1.right = &n2;
+            check(&n1, 1);
+        }
+        {
+            TreeNode n1(-1);
+            TreeNode n2(-2);
+            n1.right = &n2;
+            check(&n1, -1);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 6);
+        }
+        {
+            TreeNode n1(-1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 4);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-2);
+            TreeNode n3(3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 4);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(-3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 3);
+        }
+        {
+            TreeNode n1(-2);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 3);
+        }
+        {
+            TreeNode n1(-2);
+            TreeNode n2(3);
+            TreeNode n3(2);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 3);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-2);
+            TreeNode n3(-3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, 1);
+        }
+        {
+            TreeNode n1(-4);
+            TreeNode n2(-2);
+            TreeNode n3(-3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, -2);
+        }
+        {
+            TreeNode n1(-4);
+            TreeNode n2(-4);
+            TreeNode n3(-3);
+            n1.left = &n2;
+            n1.right = &n3;
+            check(&n1, -3);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            check(&n1, 10);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            check(&n1, 6);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(-4);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            check(&n1, 4);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(-4);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            check(&n1, 6);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            TreeNode n5(3);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            n2.right = &n5;
+            check(&n1, 10);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            TreeNode n5(5);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            n2.right = &n5;
+            check(&n1, 11);
+        }
+        {
+            TreeNode n1(1);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            TreeNode n5(5);
+            TreeNode n6(6);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            n2.right = &n5;
+            n3.left = &n6;
+            check(&n1, 17);
+        }
+        {
+            TreeNode n1(-10);
+            TreeNode n2(2);
+            TreeNode n3(3);
+            TreeNode n4(4);
+            TreeNode n5(5);
+            TreeNode n6(6);
+            n1.left = &n2;
+            n1.right = &n3;
+            n2.left = &n4;
+            n2.right = &n5;
+            n3.left = &n6;
+            check(&n1, 11);
+        }
+    });
+
+    Add("125. Valid Palindrome", [&]() {
+        auto check = [&](const string &s, bool e) {
+            bool r = isPalindrome(s);
+            bool r2 = isPalindrome2(s);
+            bool r3 = isPalindrome3(s);
+            Logger().WriteInformation("\"%s\" is palindrome: %d, %d, %d\n",
+                                      s.c_str(), r, r2, r3);
+            ASSERT1(r == e);
+            ASSERT1(r2 == e);
+            ASSERT1(r3 == e);
+        };
+        check("", true);
+        check("1", true);
+        check("a", true);
+        check(",", true);
+        check("22", true);
+        check("23", false);
+        check("ab", false);
+        check("a1", false);
+        check(":3", true);
+        check("a;", true);
+        check("?b", true);
+        check("# #4**", true);
+        check("# c**", true);
+        check("a, b&*() A;", true);
+        check("A man, a plan, a canal: Panama", true);
+        check("race a car", false);
+        check("^%(&*%$%(", true);
+        check("A^%(&*%$%(a", true);
+        check("^%9(&*%$9%(", true);
+    });
+
+    Add("126. Word Ladder II", [&]() {
+        auto check = [&](const string &begin, const string &end,
+                         const vector<string> &dic) {
+            Logger() << dic;
+            Logger() << "Search path: " << begin << " -> " << end << endl;
+            vector<vector<string>> results = findLadders(begin, end, dic);
+            vector<vector<string>> results2 = findLadders2(begin, end, dic);
+            Util::Sort(results);
+            Util::Sort(results2);
+            Logger() << "Results = " << results;
+            ASSERT1(0 == Util::Compare(results, results2));
+        };
+        check("hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"});
+    });
 }
 #endif
