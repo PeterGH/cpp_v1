@@ -4634,5 +4634,38 @@ void LeetCodeTest::Init(void) {
         };
         check("hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"});
     });
+
+    Add("127. Word Ladder", [&]() {
+        auto check = [&](const string &start, const string &end,
+                         const vector<string> &dict, int expect) {
+            Logger() << "Dictionary:" << dict;
+            Logger().WriteInformation("    Start:   %s\n", start.c_str());
+            Logger().WriteInformation("    End:     %s\n", end.c_str());
+            int length = ladderLength(start, end, dict);
+            int length2 = ladderLength2(start, end, dict);
+            int length3 = ladderLength3(start, end, dict);
+            int length4 = ladderLength4(start, end, dict);
+            int length5 = ladderLength5(start, end, dict);
+            Logger().WriteInformation("    Length:  %d, %d, %d, %d, %d, %d\n",
+                                      length, length2, length3, length4,
+                                      length5, expect);
+            ASSERT1(length == expect);
+            ASSERT1(length2 == expect);
+            ASSERT1(length3 == expect);
+            ASSERT1(length4 == expect);
+            ASSERT1(length5 == expect);
+        };
+        check("hit", "cog", {"hot"}, 0);
+        check("hit", "cog", {"hot", "dot", "dog", "lot", "log"}, 0);
+        check("hit", "cog", {"hot", "dot", "dog", "cog", "lot", "log"}, 5);
+        check("red", "tax",
+              {"ted", "tex", "reb", "tax", "tad", "den", "rex", "pee"}, 4);
+        check("d", "c", vector<string>{"a", "b", "c"}, 2);
+        check("qa", "sq",
+              vector<string>{"si", "go", "se", "cm", "so", "ph", "mt", "db",
+                             "mb", "sb", "kr", "ln", "tm", "le", "av", "sm",
+                             "ar"},
+              0);
+    });
 }
 #endif

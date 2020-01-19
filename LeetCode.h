@@ -11396,6 +11396,235 @@ vector<vector<string>> findLadders2(const string &beginWord,
     }
     return ladders;
 }
+
+// 127. Word Ladder
+// Given two words (beginWord and endWord), and a dictionary's word list,
+// find the length of shortest transformation sequence from beginWord to
+// endWord, such that: Only one letter can be changed at a time. Each
+// transformed word must exist in the word list. Note that beginWord is
+// not a transformed word. Note: Return 0 if there is no such transformation
+// sequence. All words have the same length. All words contain only lowercase
+// alphabetic characters. You may assume no duplicates in the word list. You
+// may assume beginWord and endWord are non-empty and are not the same.
+// Example 1:
+// Input:
+// beginWord = "hit",
+// endWord = "cog",
+// wordList = ["hot","dot","dog","lot","log","cog"]
+// Output: 5
+// Explanation: As one shortest transformation is "hit" -> "hot" -> "dot" ->
+// "dog" -> "cog", return its length 5. Example 2: Input: beginWord = "hit"
+// endWord = "cog"
+// wordList = ["hot","dot","dog","lot","log"]
+// Output: 0
+// Explanation: The endWord "cog" is not in wordList, therefore no possible
+// transformation.
+int ladderLength(const string &beginWord, const string &endWord,
+                 const vector<string> &wordList) {
+    map<string, bool> visited;
+    for_each(wordList.cbegin(), wordList.cend(),
+             [&](const string &s) { visited[s] = false; });
+    queue<vector<string>> paths;
+    paths.push(vector<string>(1, beginWord));
+    while (!paths.empty()) {
+        vector<string> path = paths.front();
+        paths.pop();
+        for (size_t i = 0; i < path.back().size(); i++) {
+            string s = path.back();
+            char c = s[i];
+            for (char k = 'a'; k <= 'z'; k++) {
+                s[i] = k;
+                if (k == c || visited.find(s) == visited.end() || visited[s])
+                    continue;
+                if (s.compare(endWord) == 0)
+                    return path.size() + 1;
+                visited[s] = true;
+                vector<string> path1(path.cbegin(), path.cend());
+                path1.push_back(s);
+                paths.push(path1);
+            }
+        }
+    }
+    return 0;
+}
+int ladderLength2(const string &beginWord, const string &endWord,
+                  const vector<string> &wordList) {
+    function<int(bool, const string &, const vector<string> &)> search =
+        [&](bool transformed, const string &word,
+            const vector<string> &list) -> int {
+        vector<string> list2(list);
+        auto it = find(list2.begin(), list2.end(), word);
+        if (it == list2.end()) {
+            if (transformed)
+                return 0;
+        } else {
+            list2.erase(it);
+        }
+        if (word == endWord)
+            return 1;
+        int min = INT_MAX;
+        for (size_t i = 0; i < word.length(); i++) {
+            string word2(word);
+            for (char j = 0; j < 26; j++) {
+                if (word[i] != 'a' + j) {
+                    word2[i] = 'a' + j;
+                    int m = search(true, word2, list2);
+                    if (m > 0 && m < min)
+                        min = m;
+                }
+            }
+        }
+        if (min != INT_MAX)
+            return min + 1;
+        else
+            return 0;
+    };
+    return search(false, beginWord, wordList);
+}
+int ladderLength3(const string &beginWord, const string &endWord,
+                  const vector<string> &wordList) {
+    if (beginWord.empty() || endWord.empty() || wordList.empty())
+        return 0;
+    if (find(wordList.cbegin(), wordList.cend(), endWord) == wordList.cend())
+        return 0;
+    unordered_set<string> dict;
+    dict.insert(wordList.begin(), wordList.end());
+    if (dict.find(beginWord) == dict.end())
+        dict.insert(beginWord);
+    if (dict.find(endWord) == dict.end())
+        dict.insert(endWord);
+    map<string, vector<string>> graph;
+    for_each(dict.begin(), dict.end(),
+             [&](string word) { graph[word] = vector<string>{}; });
+    for_each(dict.begin(), dict.end(), [&](string word) {
+        int wordLen = word.length();
+        for (map<string, vector<string>>::iterator it = graph.begin();
+             it != graph.end(); it++) {
+            if (wordLen == (int)it->first.length()) {
+                int diff = 0;
+                for (int i = 0; i < wordLen; i++) {
+                    if (word[i] != it->first[i])
+                        diff++;
+                    if (diff > 1)
+                        break;
+                }
+                if (diff == 1)
+                    it->second.push_back(word);
+            }
+        }
+    });
+    bool found = false;
+    unordered_set<string> visited;
+    queue<string> q[2];
+    int step = 0;
+    q[0].push(beginWord);
+    visited.insert(beginWord);
+    while (!q[0].empty() || !q[1].empty()) {
+        queue<string> &current = q[step & 0x1];
+        queue<string> &next = q[(step + 1) & 0x1];
+        while (!current.empty()) {
+            string word = current.front();
+            current.pop();
+            for (size_t i = 0; i < graph[word].size(); i++) {
+                if (graph[word][i].compare(endWord) == 0) {
+                    found = true;
+                    break;
+                }
+                if (visited.find(graph[word][i]) == visited.end()) {
+                    visited.insert(graph[word][i]);
+                    next.push(graph[word][i]);
+                }
+            }
+            if (found)
+                return step + 2;
+        }
+        step++;
+    }
+    return 0;
+}
+int ladderLength4(const string &beginWord, const string &endWord,
+                  const vector<string> &wordList) {
+    if (beginWord.empty() || endWord.empty() || wordList.empty())
+        return 0;
+    if (find(wordList.cbegin(), wordList.cend(), endWord) == wordList.cend())
+        return 0;
+    unordered_set<string> dict;
+    dict.insert(wordList.begin(), wordList.end());
+    auto diff1 = [&](const string &first, const string &second) -> bool {
+        if (first.size() != second.size())
+            return false;
+        int diff = 0;
+        for (size_t i = 0; i < first.length(); i++) {
+            if (first[i] != second[i])
+                diff++;
+            if (diff > 1)
+                return false;
+        }
+        return diff == 1;
+    };
+    vector<string> q[2];
+    int step = 0;
+    q[0].push_back(beginWord);
+    while (!q[0].empty() || !q[1].empty()) {
+        vector<string> &current = q[step & 0x1];
+        vector<string> &next = q[(step + 1) & 0x1];
+        while (!current.empty()) {
+            string word = current.front();
+            current.erase(current.begin());
+            for (unordered_set<string>::iterator it = dict.begin();
+                 it != dict.end(); it++) {
+                if (diff1(word, *it)) {
+                    if ((*it).compare(endWord) == 0)
+                        return step + 2;
+                    else
+                        next.push_back(*it);
+                }
+            }
+        }
+        for_each(next.begin(), next.end(), [&](string &s) { dict.erase(s); });
+        step++;
+    }
+    return 0;
+}
+int ladderLength5(const string &beginWord, const string &endWord,
+                  const vector<string> &wordList) {
+    if (beginWord.empty() || endWord.empty() || wordList.empty())
+        return 0;
+    if (find(wordList.cbegin(), wordList.cend(), endWord) == wordList.cend())
+        return 0;
+    unordered_set<string> visited;
+    queue<string> q[2];
+    int step = 0;
+    q[0].push(beginWord);
+    visited.insert(beginWord);
+    while (!q[0].empty() || !q[1].empty()) {
+        queue<string> &current = q[step & 0x1];
+        queue<string> &next = q[(step + 1) & 0x1];
+        while (!current.empty()) {
+            string word = current.front();
+            current.pop();
+            int wordLen = word.size();
+            string temp;
+            for (int i = 0; i < wordLen; i++) {
+                temp = word;
+                for (char j = 'a'; j <= 'z'; j++) {
+                    temp[i] = j;
+                    if (temp.compare(endWord) == 0)
+                        return step + 2;
+                    if (find(wordList.cbegin(), wordList.cend(), temp) !=
+                            wordList.cend() &&
+                        visited.find(temp) == visited.end()) {
+                        visited.insert(temp);
+                        next.push(temp);
+                    }
+                }
+            }
+        }
+        step++;
+    }
+    return 0;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
