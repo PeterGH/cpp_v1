@@ -11625,6 +11625,46 @@ int ladderLength5(const string &beginWord, const string &endWord,
     return 0;
 }
 
+// 128. Longest Consecutive Sequence
+// Given an unsorted array of integers, find the length of the longest
+// consecutive elements sequence. Your algorithm should run in O(n) complexity.
+// Example:
+// Input: [100, 4, 200, 1, 3, 2]
+// Output: 4
+// Explanation: The longest consecutive elements sequence is [1, 2, 3, 4].
+// Therefore its length is 4.
+int longestConsecutive(const vector<int> &nums) {
+    map<int, int> endWith;
+    map<int, int> beginWith;
+    int m = 0;
+    for (size_t i = 0; i < nums.size(); i++) {
+        auto eit = endWith.find(nums[i]);
+        auto bit = beginWith.find(nums[i]);
+        if (eit == endWith.end() && bit == beginWith.end()) {
+            m = max(m, 1);
+            endWith[nums[i] + 1] = nums[i] - 1;
+            beginWith[nums[i] - 1] = nums[i] + 1;
+        } else if (eit != endWith.end() && bit == beginWith.end()) {
+            m = max(m, nums[i] - eit->second);
+            beginWith[eit->second] = nums[i] + 1;
+            endWith[nums[i] + 1] = eit->second;
+            endWith.erase(eit);
+        } else if (eit == endWith.end() && bit != beginWith.end()) {
+            m = max(m, bit->second - nums[i]);
+            endWith[bit->second] = nums[i] - 1;
+            beginWith[nums[i] - 1] = bit->second;
+            beginWith.erase(bit);
+        } else {
+            m = max(m, bit->second - eit->second - 1);
+            endWith[bit->second] = eit->second;
+            beginWith[eit->second] = bit->second;
+            endWith.erase(eit);
+            beginWith.erase(bit);
+        }
+    }
+    return m;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
