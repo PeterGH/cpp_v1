@@ -4667,5 +4667,53 @@ void LeetCodeTest::Init(void) {
                              "ar"},
               0);
     });
+
+    Add("128. Longest Consecutive Sequence", [&]() {
+        auto check = [&](const vector<int> &input, int expectLength,
+                         bool ignoreE = false) {
+            Logger() << input;
+            int length = longestConsecutive(input);
+            int length2 = longestConsecutive2(input);
+            int length3 = longestConsecutive3(input);
+            if (ignoreE) {
+                Logger().WriteInformation("  Length: %d, %d, %d\n", length,
+                                          length2, length3);
+                ASSERT1(length == length2);
+                ASSERT1(length == length3);
+            } else {
+                Logger().WriteInformation("  Length: %d, %d, %d, %d\n", length,
+                                          length2, length3, expectLength);
+                ASSERT1(length == expectLength);
+                ASSERT1(length2 == expectLength);
+                ASSERT1(length3 == expectLength);
+            }
+        };
+        check({0}, 1);
+        check({0, 0}, 1);
+        check({0, 1}, 2);
+        check({1, 0}, 2);
+        check({0, 2}, 1);
+        check({0, 1, 2}, 3);
+        check({0, 1, 3}, 2);
+        check({-1, 1, 2}, 2);
+        check({0, -1, 2}, 2);
+        check({3, 1, 2}, 3);
+        check({0, 1, 1}, 2);
+        check({1, 0, 1, 1}, 2);
+        check({1, 0, 1, 0}, 2);
+        check({1, 0, -1}, 3);
+        check({0, 1, 2, 1}, 3);
+        check({-7, -1, 3, -9, -4, 7, -3, 2, 4, 9, 4, -9, 8, -7, 5, -1, -7}, 4);
+        check({-6, 8, -5, 7, -9, -1, -7, -6, -9, -7, 5, 7, -1, -8, -8, -2, 0},
+              5);
+        check({1, 2, 3, 4, 5, 3, 2, 1}, 5);
+        check({2, 1, 3, -1, 0, -2, 1}, 6);
+        check({6, 5, 3, 4, 2, 5, 3, 4, 6}, 5);
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(200);
+            vector<int> input = Random::Vector(n, 50, -50);
+            check(input, 0, true);
+        }
+    });
 }
 #endif

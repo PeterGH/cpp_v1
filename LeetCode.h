@@ -11740,7 +11740,22 @@ int longestConsecutive2(const vector<int> &nums) {
     }
     return m;
 }
-
+int longestConsecutive3(const vector<int> &nums) {
+    vector<int> n(nums);
+    sort(n.begin(), n.end());
+    int c = 0;
+    int m = 0;
+    for (size_t i = 0; i < n.size(); i++) {
+        if (i == 0 || n[i - 1] + 1 < n[i]) {
+            m = max(m, c);
+            c = 1;
+        } else if (n[i - 1] + 1 == n[i]) {
+            c++;
+        }
+    }
+    m = max(m, c);
+    return m;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
