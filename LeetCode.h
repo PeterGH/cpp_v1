@@ -11633,6 +11633,29 @@ int ladderLength5(const string &beginWord, const string &endWord,
 // Output: 4
 // Explanation: The longest consecutive elements sequence is [1, 2, 3, 4].
 // Therefore its length is 4.
+// Keep a list of open ranges in two maps:
+// (b0, e0), (b1, e1), ......, (bi, ei)
+// endWith = {
+//   e0: b0,
+//   e1: b1,
+//   ......
+//   ei: bi
+// }
+// beginWith = {
+//   b0: e0,
+//   b1: e1,
+//   ......
+//   bi: ei
+// }
+// Make sure no overlapping beginning points and ending points, i.e.,
+// {b0, b1, ......, bi} should be distinct, and so should be
+// {e0, e1, ......, ei}. For each new number j, check whether j can:
+// 1. merge two existing ranges (b, j) and (j, e)
+// 2. extend one exsting range (b, j) or (j, e)
+// 3. insert a new range (j-1, j+1)
+// For #2 and #3, it may happen that the existing range and the new range is
+// already within a larger range, and in this case the larger range should be
+// preserved.
 int longestConsecutive(const vector<int> &nums) {
     map<int, int> endWith;
     map<int, int> beginWith;
@@ -11640,27 +11663,80 @@ int longestConsecutive(const vector<int> &nums) {
     for (size_t i = 0; i < nums.size(); i++) {
         auto eit = endWith.find(nums[i]);
         auto bit = beginWith.find(nums[i]);
-        if (eit == endWith.end() && bit == beginWith.end()) {
-            m = max(m, 1);
-            endWith[nums[i] + 1] = nums[i] - 1;
-            beginWith[nums[i] - 1] = nums[i] + 1;
-        } else if (eit != endWith.end() && bit == beginWith.end()) {
-            m = max(m, nums[i] - eit->second);
-            beginWith[eit->second] = nums[i] + 1;
-            endWith[nums[i] + 1] = eit->second;
-            endWith.erase(eit);
-        } else if (eit == endWith.end() && bit != beginWith.end()) {
-            m = max(m, bit->second - nums[i]);
-            endWith[bit->second] = nums[i] - 1;
-            beginWith[nums[i] - 1] = bit->second;
-            beginWith.erase(bit);
-        } else {
+        if (eit != endWith.end() && bit != beginWith.end()) {
+            // Merge (eit->second, nums[i]) and (nums[i], bit->second)
             m = max(m, bit->second - eit->second - 1);
             endWith[bit->second] = eit->second;
             beginWith[eit->second] = bit->second;
             endWith.erase(eit);
             beginWith.erase(bit);
+        } else if (eit != endWith.end()) {
+            // Extend (eit->second, nums[i])
+            m = max(m, nums[i] - eit->second);
+            if (endWith.find(nums[i] + 1) == endWith.end() ||
+                endWith[nums[i] + 1] > eit->second) {
+                beginWith[eit->second] = nums[i] + 1;
+                endWith[nums[i] + 1] = eit->second;
+                endWith.erase(eit);
+            }
+        } else if (bit != beginWith.end()) {
+            // Extend (nums[i], bit->second)
+            m = max(m, bit->second - nums[i]);
+            if (beginWith.find(nums[i] - 1) == beginWith.end() ||
+                beginWith[nums[i] - 1] < bit->second) {
+                endWith[bit->second] = nums[i] - 1;
+                beginWith[nums[i] - 1] = bit->second;
+                beginWith.erase(bit);
+            }
+        } else {
+            // Insert (nums[i] - 1, nums[i] + 1)
+            m = max(m, 1);
+            if (endWith.find(nums[i] + 1) == endWith.end() &&
+                beginWith.find(nums[i] - 1) == beginWith.end()) {
+                endWith[nums[i] + 1] = nums[i] - 1;
+                beginWith[nums[i] - 1] = nums[i] + 1;
+            }
         }
+    }
+    return m;
+}
+int longestConsecutive2(const vector<int> &nums) {
+    map<int, int> endWith;
+    map<int, int> beginWith;
+    int m = 0;
+    for (size_t i = 0; i < nums.size(); i++) {
+        auto eit = endWith.find(nums[i]);
+        auto bit = beginWith.find(nums[i]);
+        int begin;
+        int end;
+        if (eit != endWith.end() && bit != beginWith.end()) {
+            begin = eit->second;
+            end = bit->second;
+            endWith.erase(bit->second);
+            beginWith.erase(eit->second);
+            endWith.erase(eit);
+            beginWith.erase(bit);
+        } else if (eit != endWith.end()) {
+            begin = eit->second;
+            end = nums[i] + 1;
+            beginWith.erase(eit->second);
+            endWith.erase(eit);
+        } else if (bit != beginWith.end()) {
+            begin = nums[i] - 1;
+            end = bit->second;
+            endWith.erase(bit->second);
+            beginWith.erase(bit);
+        } else {
+            begin = nums[i] - 1;
+            end = nums[i] + 1;
+        }
+        if ((endWith.find(end) != endWith.end() && endWith[end] <= begin) ||
+            (beginWith.find(begin) != beginWith.end() &&
+             beginWith[begin] >= end))
+            continue;
+        m = max(m, end - begin - 1);
+        endWith[end] = begin;
+        beginWith[begin] = end;
     }
     return m;
 }
