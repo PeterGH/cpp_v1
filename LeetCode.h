@@ -11756,6 +11756,338 @@ int longestConsecutive3(const vector<int> &nums) {
     m = max(m, c);
     return m;
 }
+
+// 129. Sum Root to Leaf Numbers
+// Given a binary tree containing digits from 0-9 only, each root-to-leaf path
+// could represent a number. An example is the root-to-leaf path 1->2->3 which
+// represents the number 123. Find the total sum of all root-to-leaf numbers.
+// Note: A leaf is a node with no children.
+// Example:
+// Input: [1,2,3]
+//     1
+//    / \
+//   2   3
+// Output: 25
+// Explanation:
+// The root-to-leaf path 1->2 represents the number 12.
+// The root-to-leaf path 1->3 represents the number 13.
+// Therefore, sum = 12 + 13 = 25.
+// Example 2:
+// Input: [4,9,0,5,1]
+//     4
+//    / \
+//   9   0
+//  / \
+// 5   1
+// Output: 1026
+// Explanation:
+// The root-to-leaf path 4->9->5 represents the number 495.
+// The root-to-leaf path 4->9->1 represents the number 491.
+// The root-to-leaf path 4->0 represents the number 40.
+// Therefore, sum = 495 + 491 + 40 = 1026.
+int sumNumbers(TreeNode *root) {
+    stack<pair<TreeNode *, int>> p;
+    TreeNode *n = root;
+    int t = 0;
+    int s = 0;
+    while (!p.empty() || n != nullptr) {
+        if (n != nullptr) {
+            s = s * 10 + n->val;
+            if (n->left == nullptr && n->right == nullptr)
+                t += s;
+            p.push(make_pair(n, s));
+            n = n->left;
+        } else {
+            pair<TreeNode *, int> v = p.top();
+            p.pop();
+            n = v.first->right;
+            s = v.second;
+        }
+    }
+    return t;
+}
+int sumNumbers2(TreeNode *root) {
+    int t = 0;
+    function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+        if (n == nullptr)
+            return;
+        s = s * 10 + n->val;
+        if (n->left == nullptr && n->right == nullptr)
+            t += s;
+        solve(n->left, s);
+        solve(n->right, s);
+    };
+    int s = 0;
+    solve(root, s);
+    return t;
+}
+
+// 130. Surrounded Regions
+// Given a 2D board containing 'X' and 'O' (the letter O), capture all regions
+// surrounded by 'X'. A region is captured by flipping all 'O's into 'X's in
+// that surrounded region.
+// Example:
+// X X X X
+// X O O X
+// X X O X
+// X O X X
+// After running your function, the board should be:
+// X X X X
+// X X X X
+// X X X X
+// X O X X
+// Explanation:
+// Surrounded regions shouldn’t be on the border, which means that any 'O' on
+// the border of the board are not flipped to 'X'. Any 'O' that is not on the
+// border and it is not connected to an 'O' on the border will be flipped to
+// 'X'. Two cells are connected if they are adjacent cells connected
+// horizontally or vertically.
+void solve(vector<vector<char>> &board) {
+    if (board.empty() || board[0].empty())
+        return;
+    int rows = board.size();
+    int cols = board[0].size();
+    function<void(int, int)> mark = [&](int i, int j) {
+        if (i < 0 || i >= rows || j < 0 || j >= cols || board[i][j] != 'O')
+            return;
+        board[i][j] = 'Y';
+        mark(i - 1, j);
+        mark(i + 1, j);
+        mark(i, j - 1);
+        mark(i, j + 1);
+    };
+    for (int i = 0; i < rows; i++) {
+        if (board[i][0] == 'O')
+            mark(i, 0);
+        if (board[i][cols - 1] == 'O')
+            mark(i, cols - 1);
+    }
+    for (int i = 0; i < cols; i++) {
+        if (board[0][i] == 'O')
+            mark(0, i);
+        if (board[rows - 1][i] == 'O')
+            mark(rows - 1, i);
+    }
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (board[i][j] == 'O')
+                board[i][j] = 'X';
+            else if (board[i][j] == 'Y')
+                board[i][j] = 'O';
+        }
+    }
+}
+void solve2(vector<vector<char>> &board) {
+    int height = board.size();
+    if (height == 0)
+        return;
+    int width = board[0].size();
+    set<pair<int, int>> nocapture;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (board[i][j] == 'O') {
+                pair<int, int> p = make_pair(i, j);
+                if (nocapture.find(p) != nocapture.end())
+                    continue;
+                bool boundary =
+                    i == 0 || i == height - 1 || j == 0 || j == width - 1;
+                set<pair<int, int>> region;
+                queue<pair<int, int>> q;
+                region.insert(p);
+                q.push(p);
+                while (!q.empty()) {
+                    p = q.front();
+                    q.pop();
+                    pair<int, int> n;
+                    if (p.first > 0 && board[p.first - 1][p.second] == 'O') {
+                        if (p.first - 1 == 0)
+                            boundary = true;
+                        n = make_pair(p.first - 1, p.second);
+                        if (region.find(n) == region.end()) {
+                            region.insert(n);
+                            q.push(n);
+                        }
+                    }
+                    if (p.second > 0 && board[p.first][p.second - 1] == 'O') {
+                        if (p.second - 1 == 0)
+                            boundary = true;
+                        n = make_pair(p.first, p.second - 1);
+                        if (region.find(n) == region.end()) {
+                            region.insert(n);
+                            q.push(n);
+                        }
+                    }
+                    if (p.second < width - 1 &&
+                        board[p.first][p.second + 1] == 'O') {
+                        if (p.second + 1 == width - 1)
+                            boundary = true;
+                        n = make_pair(p.first, p.second + 1);
+                        if (region.find(n) == region.end()) {
+                            region.insert(n);
+                            q.push(n);
+                        }
+                    }
+                    if (p.first < height - 1 &&
+                        board[p.first + 1][p.second] == 'O') {
+                        if (p.first + 1 == height - 1)
+                            boundary = true;
+                        n = make_pair(p.first + 1, p.second);
+                        if (region.find(n) == region.end()) {
+                            region.insert(n);
+                            q.push(n);
+                        }
+                    }
+                }
+                if (boundary) {
+                    nocapture.insert(region.begin(), region.end());
+                } else {
+                    for_each(region.begin(), region.end(),
+                             [&](pair<int, int> p) {
+                                 board[p.first][p.second] = 'X';
+                             });
+                }
+            }
+        }
+    }
+}
+void solve3(vector<vector<char>> &board) {
+    int height = board.size();
+    if (height == 0)
+        return;
+    int width = board[0].size();
+    auto search = [&](int i, int j) {
+        if (board[i][j] == 'O') {
+            board[i][j] = 'C';
+            pair<int, int> p = make_pair(i, j);
+            queue<pair<int, int>> q;
+            q.push(p);
+            while (!q.empty()) {
+                p = q.front();
+                q.pop();
+                pair<int, int> n;
+                if (p.first > 0 && board[p.first - 1][p.second] == 'O') {
+                    board[p.first - 1][p.second] = 'C';
+                    n = make_pair(p.first - 1, p.second);
+                    q.push(n);
+                }
+                if (p.second > 0 && board[p.first][p.second - 1] == 'O') {
+                    board[p.first][p.second - 1] = 'C';
+                    n = make_pair(p.first, p.second - 1);
+                    q.push(n);
+                }
+                if (p.second < width - 1 &&
+                    board[p.first][p.second + 1] == 'O') {
+                    board[p.first][p.second + 1] = 'C';
+                    n = make_pair(p.first, p.second + 1);
+                    q.push(n);
+                }
+                if (p.first < height - 1 &&
+                    board[p.first + 1][p.second] == 'O') {
+                    board[p.first + 1][p.second] = 'C';
+                    n = make_pair(p.first + 1, p.second);
+                    q.push(n);
+                }
+            }
+        }
+    };
+    for (int i = 0; i < height; i++) {
+        search(i, 0);
+        search(i, width - 1);
+    }
+    for (int i = 0; i < width; i++) {
+        search(0, i);
+        search(height - 1, i);
+    }
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (board[i][j] == 'O')
+                board[i][j] = 'X';
+            else if (board[i][j] == 'C')
+                board[i][j] = 'O';
+        }
+    }
+}
+
+// 131. Palindrome Partitioning
+// Given a string s, partition s such that every substring of the partition
+// is a palindrome. Return all possible palindrome partitioning of s.
+// Example:
+// Input: "aab"
+// Output:
+// [
+//   ["aa","b"],
+//   ["a","a","b"]
+// ]
+vector<vector<string>> partition(const string &s) {
+    map<int, vector<vector<string>>> m;
+    function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+        while (i < j) {
+            if (s[i] != s[j])
+                return false;
+            i++;
+            j--;
+        }
+        return true;
+    };
+    function<void(int)> solve = [&](int i) {
+        if (i < 0 || i >= (int)s.size() || m.find(i) != m.end())
+            return;
+        m[i] = {};
+        if (i == (int)s.size() - 1) {
+            m[i].push_back({s.substr(i, 1)});
+        } else {
+            for (int j = i; j < (int)s.size(); j++) {
+                if (isPalindrome(i, j)) {
+                    if (j == (int)s.size() - 1)
+                        m[i].push_back({s.substr(i, j - i + 1)});
+                    else {
+                        if (m.find(j + 1) == m.end())
+                            solve(j + 1);
+                        for (size_t k = 0; k < m[j + 1].size(); k++) {
+                            vector<string> v(1, s.substr(i, j - i + 1));
+                            v.insert(v.end(), m[j + 1][k].begin(),
+                                     m[j + 1][k].end());
+                            m[i].push_back(v);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    solve(0);
+    return m[0];
+}
+vector<vector<string>> partition2(const string &s) {
+    vector<vector<string>> result;
+    if (s.empty())
+        return result;
+    function<bool(size_t, size_t)> isPalindrome = [&](size_t i,
+                                                      size_t j) -> bool {
+        while (i < j) {
+            if (s[i++] != s[j--])
+                return false;
+        }
+        return true;
+    };
+    function<void(size_t, vector<string> &)> solve = [&](size_t i,
+                                                         vector<string> &p) {
+        if (i == s.length()) {
+            result.push_back(p);
+            return;
+        }
+        for (size_t j = i; j < s.length(); j++) {
+            if (isPalindrome(i, j)) {
+                vector<string> p2(p);
+                p2.push_back(s.substr(i, j - i + 1));
+                solve(j + 1, p2);
+            }
+        }
+    };
+    vector<string> r;
+    solve(0, r);
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

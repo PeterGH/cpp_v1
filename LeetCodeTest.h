@@ -4715,5 +4715,250 @@ void LeetCodeTest::Init(void) {
             check(input, 0, true);
         }
     });
+
+    Add("129. Sum Root to Leaf Numbers", [&]() {
+        auto check = [&](const vector<int> &v) {
+            TreeNode *n = RandomTree(v);
+            Print(n);
+            int s = sumNumbers(n);
+            int s2 = sumNumbers2(n);
+            Logger() << "sumNumbers: " << s << ", " << s2 << endl;
+            DeleteTree(n);
+            ASSERT1(s == s2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100);
+            vector<int> input = Random::Vector(n, 9);
+            check(input);
+        }
+    });
+
+    Add("130. Surrounded Regions", [&]() {
+        auto verify = [&](const vector<vector<char>> &board) {
+            int height = board.size();
+            int width = board[0].size();
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (board[i][j] == 'O') {
+                        bool boundary = i == 0 || i == height - 1 || j == 0 ||
+                                        j == width - 1;
+                        pair<int, int> p = make_pair(i, j);
+                        set<pair<int, int>> region;
+                        queue<pair<int, int>> q;
+                        region.insert(p);
+                        q.push(p);
+                        while (!q.empty()) {
+                            p = q.front();
+                            q.pop();
+                            pair<int, int> n;
+                            if (p.first > 0 &&
+                                board[p.first - 1][p.second] == 'O') {
+                                if (p.first - 1 == 0)
+                                    boundary = true;
+                                n = make_pair(p.first - 1, p.second);
+                                if (region.find(n) == region.end()) {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.second > 0 &&
+                                board[p.first][p.second - 1] == 'O') {
+                                if (p.second - 1 == 0)
+                                    boundary = true;
+                                n = make_pair(p.first, p.second - 1);
+                                if (region.find(n) == region.end()) {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.second < width - 1 &&
+                                board[p.first][p.second + 1] == 'O') {
+                                if (p.second + 1 == width - 1)
+                                    boundary = true;
+                                n = make_pair(p.first, p.second + 1);
+                                if (region.find(n) == region.end()) {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                            if (p.first < height - 1 &&
+                                board[p.first + 1][p.second] == 'O') {
+                                if (p.first + 1 == height - 1)
+                                    boundary = true;
+                                n = make_pair(p.first + 1, p.second);
+                                if (region.find(n) == region.end()) {
+                                    region.insert(n);
+                                    q.push(n);
+                                }
+                            }
+                        }
+                        ASSERT1(boundary);
+                    }
+                }
+            }
+        };
+        auto check = [&](vector<vector<char>> &board) {
+            Logger().WriteInformation("Input:\n");
+            Logger().Print(board, "%c");
+            vector<vector<char>> board2(board);
+            vector<vector<char>> board3(board);
+            solve(board);
+            solve2(board2);
+            solve3(board3);
+            Logger().WriteInformation("Output1:\n");
+            Logger() << board;
+            Logger() << board2;
+            Logger() << board3;
+            verify(board);
+            verify(board2);
+            verify(board3);
+            ASSERT1(0 == Util::Compare(board, board2));
+            ASSERT1(0 == Util::Compare(board, board3));
+        };
+        {
+            vector<vector<char>> board = {{'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X'}, {'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X'}, {'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O'}, {'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O'}, {'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'O', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'X', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'O'}, {'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'X'}, {'O', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'O', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'X', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'O', 'X'}, {'X', 'O'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {{'X', 'O'}, {'O', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {
+                {'X', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {
+                {'O', 'X', 'X'}, {'X', 'X', 'X'}, {'X', 'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {
+                {'O', 'X', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            check(board);
+        }
+        {
+            vector<vector<char>> board = {
+                {'X', 'O', 'X'}, {'X', 'O', 'X'}, {'X', 'X', 'X'}};
+            check(board);
+        }
+        {
+            for (int i = 0; i < 100; i++) {
+                int height = 1 + rand() % 100;
+                int width = 1 + rand() % 100;
+                Logger().WriteInformation("Run %d, %d X %d\n", i, height,
+                                          width);
+                vector<vector<char>> board;
+                for (int j = 0; j < height; j++) {
+                    vector<char> row;
+                    for (int k = 0; k < width; k++) {
+                        int v = rand();
+                        if ((v & 0x1) == 1)
+                            row.push_back('X');
+                        else
+                            row.push_back('O');
+                    }
+                    board.push_back(row);
+                }
+                check(board);
+            }
+        }
+    });
+
+    Add("131. Palindrome Partitioning", [&]() {
+        auto check = [&](const string &s) {
+            Logger() << "Palindrom partition(\"" << s << "\") = " << endl;
+            vector<vector<string>> r = partition(s);
+            vector<vector<string>> r2 = partition2(s);
+            Logger() << r;
+            Logger() << r2;
+            Util::SortGrid(r);
+            Util::SortGrid(r2);
+            ASSERT1(0 == Util::Compare(r, r2));
+        };
+        check("aab");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            string s = Random::String<char>(n, "abcde");
+            check(s);
+        }
+    });
 }
 #endif
