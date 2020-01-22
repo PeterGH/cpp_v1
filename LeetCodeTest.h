@@ -4947,11 +4947,23 @@ void LeetCodeTest::Init(void) {
             Logger() << "Palindrom partition(\"" << s << "\") = " << endl;
             vector<vector<string>> r = partition(s);
             vector<vector<string>> r2 = partition2(s);
+            vector<vector<string>> r3 = partition3(s);
             Logger() << r;
-            Logger() << r2;
             Util::SortGrid(r);
             Util::SortGrid(r2);
+            Util::SortGrid(r3);
             ASSERT1(0 == Util::Compare(r, r2));
+            ASSERT1(0 == Util::Compare(r, r3));
+            int c = minCut(s);
+            int c2 = minCut2(s);
+            Logger() << "minCut: " << c << ", " << c2 << endl;
+            int m = INT_MAX;
+            for_each(r.cbegin(), r.cend(), [&](const vector<string> &v) {
+                m = min(m, (int)v.size());
+            });
+            m--;
+            ASSERT1(c == m);
+            ASSERT1(c2 == m);
         };
         check("aab");
         for (int i = 0; i < 100; i++) {

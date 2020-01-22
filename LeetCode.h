@@ -12018,7 +12018,44 @@ void solve3(vector<vector<char>> &board) {
 //   ["aa","b"],
 //   ["a","a","b"]
 // ]
+// Let p[i] be the solution for s[i..(n-1)], then
+// p[i] = {{s[i], p[i+1]},
+//         {s[i..(i+1)], p[i+2]},    if s[i..(i+1)] is a palindrome
+//         {s[i..(i+2)], p[i+3]},    if s[i..(i+2)] is a palindrome
+//         ......
+//         {s[i..(n-3)], p[n-2]},    if s[i..(n-3)] is a palindrome
+//         {s[i..(n-2)], p[n-1]},    if s[i..(n-2)] is a palindrome
+//         {s[i..(n-1)]}       if s[i..(n-1)] is a palindrome
+//        }
 vector<vector<string>> partition(const string &s) {
+    function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+        while (i < j) {
+            if (s[i++] != s[j--])
+                return false;
+        }
+        return true;
+    };
+    map<int, vector<vector<string>>> m;
+    int n = s.size();
+    for (int i = n - 1; i >= 0; i--) {
+        m[i] = {};
+        for (int j = i; j < n - 1; j++) {
+            if (isPalindrome(i, j)) {
+                string p = s.substr(i, j - i + 1);
+                for_each(m[j + 1].begin(), m[j + 1].end(),
+                         [&](const vector<string> &v) {
+                             vector<string> v1 = {p};
+                             v1.insert(v1.end(), v.cbegin(), v.cend());
+                             m[i].push_back(v1);
+                         });
+            }
+        }
+        if (isPalindrome(i, n - 1))
+            m[i].push_back({s.substr(i, n - i)});
+    }
+    return m[0];
+}
+vector<vector<string>> partition2(const string &s) {
     map<int, vector<vector<string>>> m;
     function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
         while (i < j) {
@@ -12057,7 +12094,7 @@ vector<vector<string>> partition(const string &s) {
     solve(0);
     return m[0];
 }
-vector<vector<string>> partition2(const string &s) {
+vector<vector<string>> partition3(const string &s) {
     vector<vector<string>> result;
     if (s.empty())
         return result;
@@ -12088,6 +12125,86 @@ vector<vector<string>> partition2(const string &s) {
     return result;
 }
 
+// 132. Palindrome Partitioning II
+// Given a string s, partition s such that every substring of the partition is
+// a palindrome. Return the minimum cuts needed for a palindrome partitioning of
+// s. Example: Input: "aab" Output: 1 Explanation: The palindrome partitioning
+// ["aa","b"] could be produced using 1 cut. Let p[i] be the solution for
+// s[0..i], then p[i] = min{p[i-1] + 1, since s[i..i] is a palindrome
+//            p[i-2] + 1, if s[(i-1)..i] is a palindrome
+//            p[i-3] + 1, if s[(i-2)..i] is a palindrome
+//            ......
+//            p[2] + 1, if s[3..i] is a palindrome
+//            p[1] + 1, if s[2..i] is a palindrome
+//            p[0] + 1, if s[1..i] is a palindrome
+//            0         if s[0..i] is a palindrome
+//           }
+int minCut(const string &s) {
+    if (s.empty())
+        return 0;
+    function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+        while (i < j) {
+            if (s[i++] != s[j--])
+                return false;
+        }
+        return true;
+    };
+    vector<int> p(s.size(), 0);
+    for (int i = 0; i < (int)s.size(); i++) {
+        if (!isPalindrome(0, i)) {
+            p[i] = INT_MAX;
+            for (int j = 0; j < i; j++) {
+                if (isPalindrome(j + 1, i))
+                    p[i] = min(p[i], p[j]);
+            }
+            p[i]++;
+        }
+    }
+    return p[(int)s.size() - 1];
+}
+int minCut2(const string &s) {
+    if (s.empty())
+        return 0;
+    map<pair<int, int>, bool> m;
+    function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+        pair<int, int> p = make_pair(i, j);
+        if (m.find(p) == m.end()) {
+            if (i >= j)
+                m[p] = true;
+            else if (s[i] != s[j])
+                m[p] = false;
+            else {
+                // pair<int, int> p1 = make_pair(i + 1, j - 1);
+                // if (m.find(p1) == m.end())
+                //    m[p1] = isPalindrome(i + 1, j - 1);
+                // m[p] = m[p1];
+                m[p] = isPalindrome(i + 1, j - 1);
+            }
+        }
+        // cout << "m[(" << i << "," << j << ")] = " << m[p] << endl;
+        return m[p];
+    };
+    vector<int> p(s.size(), 0);
+    for (int i = 0; i < (int)s.size(); i++) {
+        if (!isPalindrome(0, i)) {
+            p[i] = INT_MAX;
+            for (int j = 0; j < i; j++) {
+                if (isPalindrome(j + 1, i))
+                    p[i] = min(p[i], p[j]);
+            }
+            p[i]++;
+        }
+        // cout << "i = " << i << endl;
+        // cout << "{";
+        // for (size_t k = 0; k < p.size(); k++) {
+        //     if (k > 0)
+        //         cout << ", ";
+        //     cout << p[k];
+        // }
+        // cout << "}" << endl;
+    }
+    return p[(int)s.size() - 1];
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
