@@ -15,6 +15,27 @@ class CppTest : public TestClass {
     CppTest(Log &log) : TestClass(log) {}
     ~CppTest(void) {}
     void Init(void);
+
+    class Node {
+      public:
+        int data;
+        Node *next;
+
+        Node(int d) {
+            data = d;
+            next = nullptr;
+        }
+
+        // This will be called recursively.
+        ~Node(void) {
+            if (next != nullptr) {
+                delete next;
+                next = nullptr;
+            }
+
+            cout << "Deleting " << data << endl;
+        }
+    };
 };
 
 class BaseObject {
@@ -101,27 +122,6 @@ template <class T> T Test_VarArg(int count, T arg1, ...) {
 
     return next;
 }
-
-class Node {
-  public:
-    int data;
-    Node *next;
-
-    Node(int d) {
-        data = d;
-        next = nullptr;
-    }
-
-    // This will be called recursively.
-    ~Node(void) {
-        if (next != nullptr) {
-            delete next;
-            next = nullptr;
-        }
-
-        cout << "Deleting " << data << endl;
-    }
-};
 
 void CppTest::Init(void) {
     Add("Raw Pointer", [&]() {
@@ -645,7 +645,7 @@ void CppTest::Init(void) {
         check({3, 3, 3});
     });
 
-    Add("Vector size after insert at begin", [&](){
+    Add("Vector size after insert at begin", [&]() {
         vector<int> v;
         ASSERT1(v.size() == 0);
         v.insert(v.begin(), 3);

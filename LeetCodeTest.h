@@ -4972,5 +4972,29 @@ void LeetCodeTest::Init(void) {
             check(s);
         }
     });
+
+    Add("133. Clone Graph", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            Node *g = RandomGraph(v);
+            Node *c = cloneGraph(g);
+            Node *c2 = cloneGraph2(g);
+            map<int, vector<int>> m = ToMap(c);
+            map<int, vector<int>> m2 = ToMap(c2);
+            DeleteGraph(g);
+            DeleteGraph(c);
+            DeleteGraph(c2);
+            Util::Sort(m);
+            Util::Sort(m2);
+            Logger() << m;
+            Logger() << m2;
+            ASSERT1(Util::Equal(m, m2));
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
 }
 #endif

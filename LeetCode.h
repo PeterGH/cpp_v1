@@ -10572,11 +10572,11 @@ int numDistinct2(const string &s, const string &t) {
     return c[t.size() - 1];
 }
 
-struct Node {
+struct NodeWithNextLink {
     int val;
-    Node *left;
-    Node *right;
-    Node *next;
+    NodeWithNextLink *left;
+    NodeWithNextLink *right;
+    NodeWithNextLink *next;
 };
 
 // 116. Populating Next Right Pointers in Each Node
@@ -10599,10 +10599,10 @@ struct Node {
 // serialized output is in level order as connected by the next pointers, with
 // '#' signifying the end of each level. Constraints: The number of nodes in the
 // given tree is less than 4096. -1000 <= node.val <= 1000
-Node *connect(Node *root) {
-    Node *left = root;
+NodeWithNextLink *connect(NodeWithNextLink *root) {
+    NodeWithNextLink *left = root;
     while (left != nullptr && left->left != nullptr) {
-        Node *n = left;
+        NodeWithNextLink *n = left;
         while (n != nullptr) {
             n->left->next = n->right;
             if (n->next != nullptr)
@@ -10613,12 +10613,12 @@ Node *connect(Node *root) {
     }
     return root;
 }
-Node *connect2(Node *root) {
-    Node *leftMost = root;
+NodeWithNextLink *connect2(NodeWithNextLink *root) {
+    NodeWithNextLink *leftMost = root;
     while (leftMost != nullptr && leftMost->left != nullptr) {
-        Node *node = leftMost;
+        NodeWithNextLink *node = leftMost;
         leftMost = leftMost->left;
-        Node *left = nullptr;
+        NodeWithNextLink *left = nullptr;
         while (node != nullptr) {
             if (left != nullptr)
                 left->next = node->left;
@@ -10649,11 +10649,11 @@ Node *connect2(Node *root) {
 // in level order as connected by the next pointers, with '#' signifying the end
 // of each level. Constraints: The number of nodes in the given tree is less
 // than 6000. -100 <= node.val <= 100
-Node *connectII(Node *root) {
-    Node *node = root;
+NodeWithNextLink *connectII(NodeWithNextLink *root) {
+    NodeWithNextLink *node = root;
     while (node != nullptr) {
-        Node *left = nullptr;
-        Node *prev = nullptr;
+        NodeWithNextLink *left = nullptr;
+        NodeWithNextLink *prev = nullptr;
         while (node != nullptr) {
             if (node->left != nullptr) {
                 if (left == nullptr)
@@ -12189,9 +12189,12 @@ int minCut2(const string &s) {
             } else {
                 // pair<int, int> p1 = make_pair(i + 1, j - 1);
                 // if (m.find(p1) == m.end()) {
-                //     cout << "Call m[" << i + 1 << ", " << j - 1 << "]" << endl;
-                //     // m[p1] actually will create the p1 entry before calling into
-                //     // isPalindrome, which returns immediately because it will find
+                //     cout << "Call m[" << i + 1 << ", " << j - 1 << "]" <<
+                //     endl;
+                //     // m[p1] actually will create the p1 entry before calling
+                //     into
+                //     // isPalindrome, which returns immediately because it
+                //     will find
                 //     // the p1 entry already exists.
                 //     m[p1] = isPalindrome(i + 1, j - 1);
                 // }
@@ -12222,6 +12225,187 @@ int minCut2(const string &s) {
         // cout << "}" << endl;
     }
     return p[(int)s.size() - 1];
+}
+
+// Definition for a Node.
+class Node {
+  public:
+    int val;
+    vector<Node *> neighbors;
+
+    Node() {
+        val = 0;
+        neighbors = vector<Node *>();
+    }
+
+    Node(int _val) {
+        val = _val;
+        neighbors = vector<Node *>();
+    }
+
+    Node(int _val, vector<Node *> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+};
+
+Node *RandomGraph(const vector<int> &v) {
+    if (v.empty())
+        return nullptr;
+    int l = v.size();
+    vector<Node *> n(l, nullptr);
+    transform(v.begin(), v.end(), n.begin(),
+              [&](int i) { return new Node(i); });
+    for (int i = 0; i < l; i++) {
+        int c = 1 + (rand() % l);
+        for (; c > 0; c--) {
+            int j = rand() % l;
+            if (j == 0)
+                j++;
+            j = (i + j) % l;
+            if (find(n[i]->neighbors.begin(), n[i]->neighbors.end(), n[j]) ==
+                n[i]->neighbors.end())
+                n[i]->neighbors.push_back(n[j]);
+        }
+    }
+    // cout << "{" << endl;
+    // for (size_t i = 0; i < n.size(); i++) {
+    //     cout << "  " << n[i]->val << " : {";
+    //     for (size_t j = 0; j < n[i]->neighbors.size(); j++) {
+    //         if (j > 0)
+    //             cout << ", ";
+    //         cout << n[i]->neighbors[j]->val;
+    //     }
+    //     cout << "}" << endl;
+    // }
+    // cout << "}" << endl;
+    return *n.begin();
+}
+
+void DeleteGraph(Node *node) {
+    if (node == nullptr)
+        return;
+    set<Node *> m;
+    m.insert(node);
+    queue<Node *> q;
+    q.push(node);
+    while (!q.empty()) {
+        Node *f = q.front();
+        q.pop();
+        for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
+            if (m.find(n) == m.end()) {
+                m.insert(n);
+                q.push(n);
+            }
+        });
+        f->neighbors.clear();
+    }
+    for_each(m.begin(), m.end(), [&](Node *n) {
+        // cout << "delete " << n->val << endl;
+        delete n;
+    });
+    m.clear();
+}
+
+// Assume every node has a unique value
+map<int, vector<int>> ToMap(Node *node) {
+    map<int, vector<int>> m;
+    if (node == nullptr)
+        return m;
+    m[node->val] = {};
+    queue<Node *> q;
+    q.push(node);
+    while (!q.empty()) {
+        Node *f = q.front();
+        q.pop();
+        for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
+            if (m.find(n->val) == m.end()) {
+                m[n->val] = {};
+                q.push(n);
+            }
+            m[f->val].push_back(n->val);
+        });
+    }
+    return m;
+}
+
+// 133. Clone Graph
+// Given a reference of a node in a connected undirected graph. Return a deep
+// copy (clone) of the graph. Each node in the graph contains a val (int) and
+// a list (List[Node]) of its neighbors.
+// class Node {
+//     public int val;
+//     public List<Node> neighbors;
+// }
+// Test case format:
+// For simplicity sake, each node's value is the same as the node's index
+// (1-indexed). For example, the first node with val = 1, the second node with
+// val = 2, and so on. The graph is represented in the test case using an
+// adjacency list. Adjacency list is a collection of unordered lists used to
+// represent a finite graph. Each list describes the set of neighbors of a node
+// in the graph. The given node will always be the first node with val = 1. You
+// must return the copy of the given node as a reference to the cloned graph.
+// Example 1:
+// Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+// Output: [[2,4],[1,3],[2,4],[1,3]]
+// Explanation: There are 4 nodes in the graph.
+// 1st node (val = 1)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+// 2nd node (val = 2)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+// 3rd node (val = 3)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+// 4th node (val = 4)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+// Example 2:
+// Input: adjList = [[]]
+// Output: [[]]
+// Explanation: Note that the input contains one empty list. The graph consists
+// of only one node with val = 1 and it does not have any neighbors.
+// Example 3:
+// Input: adjList = []
+// Output: []
+// Explanation: This an empty graph, it does not have any nodes.
+// Example 4:
+// Input: adjList = [[2],[1]]
+// Output: [[2],[1]]
+// Constraints:
+// 1 <= Node.val <= 100
+// Node.val is unique for each node.
+// Number of Nodes will not exceed 100.
+// There is no repeated edges and no self-loops in the graph.
+// The Graph is connected and all nodes can be visited starting from the given
+// node.
+Node *cloneGraph(Node *node) {
+    map<Node *, Node *> cloned;
+    function<Node *(Node *)> clone = [&](Node *node) -> Node * {
+        if (node == nullptr)
+            return nullptr;
+        if (cloned.find(node) != cloned.end())
+            return cloned[node];
+        Node *copy = new Node(node->val);
+        cloned[node] = copy;
+        for_each(node->neighbors.begin(), node->neighbors.end(),
+                 [&](Node *n) { copy->neighbors.push_back(clone(n)); });
+        return copy;
+    };
+    return clone(node);
+}
+Node *cloneGraph2(Node *node) {
+    if (node == nullptr)
+        return nullptr;
+    map<Node *, Node *> m;
+    m[node] = new Node(node->val);
+    queue<Node *> q;
+    q.push(node);
+    while (!q.empty()) {
+        Node *f = q.front();
+        q.pop();
+        for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
+            if (m.find(n) == m.end()) {
+                m[n] = new Node(n->val);
+                q.push(n);
+            }
+            m[f]->neighbors.push_back(m[n]);
+        });
+    }
+    return m[node];
 }
 } // namespace LeetCode
 } // namespace Test

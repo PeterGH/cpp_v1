@@ -175,6 +175,19 @@ static bool Equal(const map<T, int> &m1, const map<T, int> &m2) {
     return true;
 }
 
+static bool Equal(const map<int, vector<int>> &m1,
+                  const map<int, vector<int>> &m2) {
+    if (m1.size() != m2.size())
+        return false;
+    for (auto it = m2.cbegin(); it != m2.cend(); it++) {
+        if (m1.find(it->first) == m1.end())
+            return false;
+        if (0 != Compare(m1.at(it->first), it->second))
+            return false;
+    }
+    return true;
+}
+
 template <class T> struct VectorLess : std::less<T> {
     bool operator()(const vector<T> &v1, const vector<T> &v2) {
         return Compare(v1, v2) == -1;
@@ -321,6 +334,12 @@ static void SortGrid(vector<vector<string>> &grid) {
              }
              return lhs.size() < rhs.size();
          });
+}
+
+static void Sort(map<int, vector<int>> &m) {
+    for (auto it = m.begin(); it != m.end(); it++) {
+        sort(it->second.begin(), it->second.end());
+    }
 }
 
 template <class T>
