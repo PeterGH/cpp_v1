@@ -12166,22 +12166,40 @@ int minCut2(const string &s) {
     if (s.empty())
         return 0;
     map<pair<int, int>, bool> m;
+    // function<void(void)> printm = [&]() {
+    //     cout << "m = {" << endl;
+    //     for_each(m.cbegin(), m.cend(),
+    //              [&](const pair<pair<int, int>, bool> &p) {
+    //                  cout << "  (" << p.first.first << ", " << p.first.second
+    //                       << ") : " << p.second << endl;
+    //              });
+    //     cout << "}" << endl;
+    // };
     function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+        // cout << "Enter m[(" << i << "," << j << ")]" << endl;
+        // printm();
         pair<int, int> p = make_pair(i, j);
         if (m.find(p) == m.end()) {
-            if (i >= j)
+            if (i >= j) {
+                // cout << i << " >= " << j << endl;
                 m[p] = true;
-            else if (s[i] != s[j])
+            } else if (s[i] != s[j]) {
+                // cout << "s[" << i << "] != s[" << j << "]" << endl;
                 m[p] = false;
-            else {
+            } else {
                 // pair<int, int> p1 = make_pair(i + 1, j - 1);
-                // if (m.find(p1) == m.end())
-                //    m[p1] = isPalindrome(i + 1, j - 1);
+                // if (m.find(p1) == m.end()) {
+                //     cout << "Call m[" << i + 1 << ", " << j - 1 << "]" << endl;
+                //     // m[p1] actually will create the p1 entry before calling into
+                //     // isPalindrome, which returns immediately because it will find
+                //     // the p1 entry already exists.
+                //     m[p1] = isPalindrome(i + 1, j - 1);
+                // }
                 // m[p] = m[p1];
                 m[p] = isPalindrome(i + 1, j - 1);
             }
         }
-        // cout << "m[(" << i << "," << j << ")] = " << m[p] << endl;
+        // cout << "Exit  m[(" << i << "," << j << ")] = " << m[p] << endl;
         return m[p];
     };
     vector<int> p(s.size(), 0);
