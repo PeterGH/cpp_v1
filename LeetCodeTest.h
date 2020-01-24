@@ -4996,5 +4996,22 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("134. Gas Station", [&]() {
+        auto check = [&](const vector<int> &g, const vector<int> &c) {
+            Logger() << g;
+            Logger() << c;
+            int r = canCompleteCircuit(g, c);
+            int r2 = canCompleteCircuit2(g, c);
+            Logger() << "canCompleteCircuit = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(50, 1);
+            vector<int> g = Random::Vector(n, 10);
+            vector<int> c = Random::Vector(n, 10);
+            check(g, c);
+        }
+    });
 }
 #endif

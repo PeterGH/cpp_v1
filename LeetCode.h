@@ -12407,6 +12407,97 @@ Node *cloneGraph2(Node *node) {
     }
     return m[node];
 }
+
+// 134. Gas Station
+// There are N gas stations along a circular route, where the amount of gas at
+// station i is gas[i]. You have a car with an unlimited gas tank and it costs
+// cost[i] of gas to travel from station i to its next station (i+1). You begin
+// the journey with an empty tank at one of the gas stations. Return the
+// starting gas station's index if you can travel around the circuit once in the
+// clockwise direction, otherwise return -1. Note: If there exists a solution,
+// it is guaranteed to be unique. Both input arrays are non-empty and have the
+// same length. Each element in the input arrays is a non-negative integer.
+// Example 1:
+// Input:
+// gas  = [1,2,3,4,5]
+// cost = [3,4,5,1,2]
+// Output: 3
+// Explanation:
+// Start at station 3 (index 3) and fill up with 4 unit of gas. Your tank = 0 +
+// 4 = 4 Travel to station 4. Your tank = 4 - 1 + 5 = 8 Travel to station 0.
+// Your tank = 8 - 2 + 1 = 7 Travel to station 1. Your tank = 7 - 3 + 2 = 6
+// Travel to station 2. Your tank = 6 - 4 + 3 = 5
+// Travel to station 3. The cost is 5. Your gas is just enough to travel back to
+// station 3. Therefore, return 3 as the starting index. Example 2: Input: gas
+// = [2,3,4] cost = [3,4,3] Output: -1 Explanation: You can't start at station 0
+// or 1, as there is not enough gas to travel to the next station. Let's start
+// at station 2 and fill up with 4 unit of gas. Your tank = 0 + 4 = 4 Travel to
+// station 0. Your tank = 4 - 3 + 2 = 3 Travel to station 1. Your tank = 3 - 3 +
+// 3 = 3 You cannot travel back to station 2, as it requires 4 unit of gas but
+// you only have 3. Therefore, you can't travel around the circuit once no
+// matter where you start.
+int canCompleteCircuit(const vector<int> &gas, const vector<int> &cost) {
+    size_t i = 0;
+    while (i < gas.size()) {
+        int t = 0;
+        size_t j = 0;
+        while (j < gas.size()) {
+            int k = (i + j) % gas.size();
+            t = t + gas[k] - cost[k];
+            if (t < 0)
+                break;
+            j++;
+        }
+        if (j == gas.size())
+            return i;
+        i = i + j + 1;
+    }
+    return -1;
+}
+int canCompleteCircuit2(const vector<int> &gas, const vector<int> &cost) {
+    size_t s = 0;
+    while (s < gas.size()) {
+        size_t i = s;
+        int t = 0;
+        size_t j;
+        while (t >= 0 && (i - s) < gas.size()) {
+            j = (i++) % gas.size();
+            t += (gas[j] - cost[j]);
+        }
+        if (t >= 0)
+            return s;
+        s = i;
+    }
+    return -1;
+}
+
+// 135. Candy
+// There are N children standing in a line. Each child is assigned a rating
+// value. You are giving candies to these children subjected to the following
+// requirements: Each child must have at least one candy. Children with a higher
+// rating get more candies than their neighbors. What is the minimum candies you
+// must give? Example 1: Input: [1,0,2] Output: 5 Explanation: You can allocate
+// to the first, second and third child with 2, 1, 2 candies respectively.
+// Example 2:
+// Input: [1,2,2]
+// Output: 4
+// Explanation: You can allocate to the first, second and third child with 1, 2,
+// 1 candies respectively. The third child gets 1 candy because it satisfies the
+// above two conditions.
+int candy(const vector<int> &ratings) {
+    vector<int> c(ratings.size(), 1);
+    for (int i = 1; i < c.size(); i++) {
+        if (ratings[i - 1] < ratings[i])
+            c[i] = c[i - 1] + 1;
+    }
+    int t = c[c.size() - 1];
+    for (int i = c.size() - 2; i >= 0; i--) {
+        if (ratings[i] > ratings[i + 1] && c[i] <= c[i + 1])
+            c[i] = c[i + 1] + 1;
+        t += c[i];
+    }
+    return t;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
