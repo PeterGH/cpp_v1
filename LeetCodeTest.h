@@ -5013,5 +5013,40 @@ void LeetCodeTest::Init(void) {
             check(g, c);
         }
     });
+
+    Add("137. Single Number II", [&]() {
+        auto check = [&](const vector<int> &input, int expect,
+                         bool ignoreE = false) {
+            Logger() << input;
+            int r = singleNumberII(input);
+            int r2 = singleNumberII2(input);
+            int r3 = singleNumberII3(input);
+            Logger().WriteInformation("Single number: %d, %d, %d\n", r, r2, r3);
+            if (ignoreE) {
+                ASSERT1(r == r2);
+                ASSERT1(r == r3);
+            } else {
+                ASSERT1(r == expect);
+                ASSERT1(r2 == expect);
+                ASSERT1(r3 == expect);
+            }
+        };
+        check({0, 1, 0, 0}, 1);
+        check({(int)0xFFFFFFFF, 3, (int)0xFFFFFFFF, (int)0xFFFFFFFF}, 3);
+        check({1, 2, 3, 1, 2, 3, 4, 1, 2, 3}, 4);
+        check({0, 1, 0, 1, 0, 1, 99}, 99);
+        for (int j = 0; j < 100; j++) {
+            vector<int> n;
+            int c;
+            for (int i = 0; i < 10; i++) {
+                c = 1 + rand() % INT_MAX;
+                n.insert(n.end(), 3, c);
+            }
+            c = 1 + rand() % INT_MAX;
+            n.insert(n.end(), 1, c);
+            random_shuffle(n.begin(), n.end());
+            check(n, 0, true);
+        }
+    });
 }
 #endif

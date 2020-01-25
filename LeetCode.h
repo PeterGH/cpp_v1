@@ -12486,7 +12486,7 @@ int canCompleteCircuit2(const vector<int> &gas, const vector<int> &cost) {
 // above two conditions.
 int candy(const vector<int> &ratings) {
     vector<int> c(ratings.size(), 1);
-    for (int i = 1; i < c.size(); i++) {
+    for (int i = 1; i < (int)c.size(); i++) {
         if (ratings[i - 1] < ratings[i])
             c[i] = c[i - 1] + 1;
     }
@@ -12498,6 +12498,89 @@ int candy(const vector<int> &ratings) {
     }
     return t;
 }
+
+// 136. Single Number
+// Given a non-empty array of integers, every element appears twice except for
+// one. Find that single one. Note: Your algorithm should have a linear runtime
+// complexity. Could you implement it without using extra memory?
+// Example 1:
+// Input: [2,2,1]
+// Output: 1
+// Example 2:
+// Input: [4,1,2,1,2]
+// Output: 4
+int singleNumber(const vector<int> &nums) {
+    int r = 0;
+    for_each(nums.begin(), nums.end(), [&](int n) { r ^= n; });
+    return r;
+}
+
+// 137. Single Number II
+// Given a non-empty array of integers, every element appears three times except
+// for one, which appears exactly once. Find that single one. Note: Your
+// algorithm should have a linear runtime complexity. Could you implement it
+// without using extra memory? Example 1: Input: [2,2,3,2] Output: 3 Example 2:
+// Input: [0,1,0,1,0,1,99]
+// Output: 99
+int singleNumberII(const vector<int> &nums) {
+    int length = nums.size();
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int n = 0;
+    int bits = 8 * sizeof(int);
+    for (int i = 0; i < bits; i++) {
+        int count = 0;
+        for (int j = 0; j < length; j++)
+            count += ((nums[j] >> i) & 0x1);
+        n |= ((count % 3) << i);
+    }
+    return n;
+}
+int singleNumberII2(const vector<int> &nums) {
+    int length = nums.size();
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int o0 = ~0; // positions that bit 1 occurred 0 or 3 times
+    int o1 = 0;  // positions that bit 1 occurred 1 time
+    int o2 = 0;  // positions that bit 1 occurred 2 times
+    int t = 0;
+    for (int i = 0; i < length; i++) {
+        t = o2; // keep o2 temporarily to calculate o0 later
+        o2 = (o1 & nums[i]) |
+             (o2 & ~nums[i]); // Update the positions that bit 1 occurred the
+                              // second time due to input[i], and keep the
+                              // positions that bit 1 already occurred two times
+                              // and not affected by input[i]
+        o1 = (o0 & nums[i]) |
+             (o1 & ~nums[i]); // Update the positions that bit 1 occurred the
+                              // first time due to input[i], and keep the
+                              // positions that bit 1 already occurred one time
+                              // and not affected by input[i]
+        o0 = (t & nums[i]) |
+             (o0 & ~nums[i]); // Update the positions that bit 1 occurred the
+                              // third time due to input[i], and keep the
+                              // positions that bit 1 already occurred zero or
+                              // three times and not affected by input[i]
+    }
+    return o1;
+}
+int singleNumberII3(const vector<int> &nums) {
+    int length = nums.size();
+    if (length % 3 != 1)
+        throw invalid_argument("The count of numbers is not 3n+1");
+    int o1 = 0; // positions that bit 1 occurred 0 or 3 times
+    int o2 = 0; // positions that bit 1 occurred 1 time
+    int o3 = 0; // positions that bit 1 occurred 2 times
+    for (int i = 0; i < length; i++) {
+        o2 |= o1 & nums[i];
+        o1 ^= nums[i];
+        o3 = o1 & o2;
+        o1 &= ~o3;
+        o2 &= ~o3;
+    }
+    return o1;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
