@@ -12748,6 +12748,76 @@ bool wordBreak3(const string &s, const vector<string> &wordDict) {
     return solve(0);
 }
 
+// 140. Word Break II
+// Given a non-empty string s and a dictionary wordDict containing a list of
+// non-empty words, add spaces in s to construct a sentence where each word is
+// a valid dictionary word. Return all such possible sentences. Note: The same
+// word in the dictionary may be reused multiple times in the segmentation. You
+// may assume the dictionary does not contain duplicate words.
+// Example 1:
+// Input:
+// s = "catsanddog"
+// wordDict = ["cat", "cats", "and", "sand", "dog"]
+// Output:
+// [
+//   "cats and dog",
+//   "cat sand dog"
+// ]
+// Example 2:
+// Input:
+// s = "pineapplepenapple"
+// wordDict = ["apple", "pen", "applepen", "pine", "pineapple"]
+// Output:
+// [
+//   "pine apple pen apple",
+//   "pineapple pen apple",
+//   "pine applepen apple"
+// ]
+// Explanation: Note that you are allowed to reuse a dictionary word.
+// Example 3:
+// Input:
+// s = "catsandog"
+// wordDict = ["cats", "dog", "sand", "and", "cat"]
+// Output:
+// []
+vector<string> wordBreakII(const string &s, const vector<string> &wordDict) {
+    function<bool(size_t, const string &)> same = [&](size_t i,
+                                                      const string &w) -> bool {
+        if (i + w.size() > s.size())
+            return false;
+        for (size_t j = 0; j < w.size(); j++) {
+            if (s[i + j] != w[j])
+                return false;
+        }
+        return true;
+    };
+    map<size_t, vector<string>> m;
+    function<void(size_t)> solve = [&](size_t i) {
+        if (i > s.size() || m.find(i) != m.end())
+            return;
+        m[i] = {};
+        if (i == s.size())
+            return;
+        for (size_t j = 0; j < wordDict.size(); j++) {
+            if (same(i, wordDict[j])) {
+                size_t k = i + wordDict[j].size();
+                if (k == s.size()) {
+                    m[i].push_back(wordDict[j]);
+                } else {
+                    solve(k);
+                    for_each(m[k].begin(), m[k].end(), [&](string &r) {
+                        string r1 = wordDict[j];
+                        r1.append(1, ' ');
+                        r1.append(r);
+                        m[i].push_back(r1);
+                    });
+                }
+            }
+        }
+    };
+    solve(0);
+    return m[0];
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
