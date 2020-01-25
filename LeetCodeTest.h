@@ -5048,5 +5048,22 @@ void LeetCodeTest::Init(void) {
             check(n, 0, true);
         }
     });
+
+    Add("139. Word Break", [&]() {
+        auto check = [&](const string &s, const vector<string> &dict, bool e) {
+            Logger() << dict;
+            bool a = wordBreak(s, dict);
+            bool a2 = wordBreak2(s, dict);
+            bool a3 = wordBreak3(s, dict);
+            Logger() << "Break(\"" << s << "\") = " << a << ", " << a2 << ", "
+                     << a3 << endl;
+            ASSERT1(a == e);
+            ASSERT1(a2 == e);
+            ASSERT1(a3 == e);
+        };
+        check("leetcode", {"leet", "code"}, true);
+        check("applepenapple", {"apple", "pen"}, true);
+        check("catsandog", {"cats", "dog", "sand", "and", "cat"}, false);
+    });
 }
 #endif

@@ -12581,6 +12581,173 @@ int singleNumberII3(const vector<int> &nums) {
     return o1;
 }
 
+class NodeWithRandomLink {
+  public:
+    int val;
+    NodeWithRandomLink *next;
+    NodeWithRandomLink *random;
+
+    NodeWithRandomLink(int _val) {
+        val = _val;
+        next = nullptr;
+        random = nullptr;
+    }
+};
+// 138. Copy List with Random Pointer
+// A linked list is given such that each node contains an additional random
+// pointer which could point to any node in the list or null. Return a deep
+// copy of the list. The Linked List is represented in the input/output as a
+// list of n nodes. Each node is represented as a pair of [val, random_index]
+// where: val: an integer representing Node.val, and random_index: the index
+// of the node (range from 0 to n-1) where random pointer points to, or null
+// if it does not point to any node.
+// Example 1:
+// Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+// Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+// Example 2:
+// Input: head = [[1,1],[2,1]]
+// Output: [[1,1],[2,1]]
+// Example 3:
+// Input: head = [[3,null],[3,0],[3,null]]
+// Output: [[3,null],[3,0],[3,null]]
+// Example 4:
+// Input: head = []
+// Output: []
+// Explanation: Given linked list is empty (null pointer), so return null.
+// Constraints: -10000 <= Node.val <= 10000. Node.random is null or pointing
+// to a node in the linked list. Number of Nodes will not exceed 1000.
+NodeWithRandomLink *copyRandomList(NodeWithRandomLink *head) {
+    map<NodeWithRandomLink *, NodeWithRandomLink *> m;
+    function<NodeWithRandomLink *(NodeWithRandomLink *)> copy =
+        [&](NodeWithRandomLink *n) -> NodeWithRandomLink * {
+        if (n == nullptr)
+            return nullptr;
+        if (m.find(n) == m.end()) {
+            m[n] = new NodeWithRandomLink(n->val);
+            m[n]->next = copy(n->next);
+            m[n]->random = copy(n->random);
+        }
+        return m[n];
+    };
+    return copy(head);
+}
+
+// 139. Word Break
+// Given a non-empty string s and a dictionary wordDict containing a list of
+// non-empty words, determine if s can be segmented into a space-separated
+// sequence of one or more dictionary words. Note: The same word in the
+// dictionary may be reused multiple times in the segmentation. You may assume
+// the dictionary does not contain duplicate words.
+// Example 1:
+// Input: s = "leetcode", wordDict = ["leet", "code"]
+// Output: true
+// Explanation: Return true because "leetcode" can be segmented as "leet code".
+// Example 2:
+// Input: s = "applepenapple", wordDict = ["apple", "pen"]
+// Output: true
+// Explanation: Return true because "applepenapple" can be segmented as "apple
+// pen apple". Note that you are allowed to reuse a dictionary word. Example 3:
+// Input: s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]
+// Output: false
+bool wordBreak(const string &s, const vector<string> &wordDict) {
+    function<bool(size_t, const string &)> same = [&](size_t i,
+                                                      const string &w) -> bool {
+        if (i + w.size() > s.size())
+            return false;
+        for (size_t j = 0; j < w.size(); j++) {
+            if (s[i + j] != w[j])
+                return false;
+        }
+        return true;
+    };
+    map<size_t, bool> m;
+    function<bool(size_t)> solve = [&](size_t i) -> bool {
+        if (m.find(i) != m.end())
+            return m[i];
+        if (i == s.size())
+            m[i] = true;
+        else if (i > s.size())
+            m[i] = false;
+        else {
+            bool match = false;
+            for (size_t j = 0; j < wordDict.size(); j++) {
+                if (same(i, wordDict[j]) && solve(i + wordDict[j].size())) {
+                    match = true;
+                    break;
+                }
+            }
+            m[i] = match;
+        }
+        return m[i];
+    };
+    return solve(0);
+}
+bool wordBreak2(const string &s, const vector<string> &wordDict) {
+    function<bool(size_t, const string &)> same = [&](size_t i,
+                                                      const string &w) -> bool {
+        if (i + w.size() > s.size())
+            return false;
+        for (size_t j = 0; j < w.size(); j++) {
+            if (s[i + j] != w[j])
+                return false;
+        }
+        return true;
+    };
+    set<size_t> m;
+    queue<size_t> q;
+    q.push(0);
+    while (!q.empty()) {
+        size_t i = q.front();
+        q.pop();
+        for (size_t j = 0; j < wordDict.size(); j++) {
+            if (same(i, wordDict[j])) {
+                if (i + wordDict[j].size() == s.size())
+                    return true;
+                if (m.find(i + wordDict[j].size()) == m.end())
+                    q.push(i + wordDict[j].size());
+            }
+        }
+        m.insert(i);
+    }
+    return false;
+}
+bool wordBreak3(const string &s, const vector<string> &wordDict) {
+    if (wordDict.empty())
+        return false;
+    size_t minLength = wordDict[0].size();
+    size_t maxLength = wordDict[0].size();
+    for (size_t i = 1; i < wordDict.size(); i++) {
+        if (wordDict[i].size() < minLength)
+            minLength = wordDict[i].size();
+        if (wordDict[i].size() > maxLength)
+            maxLength = wordDict[i].size();
+    }
+    map<size_t, bool> breakable;
+    function<bool(size_t)> solve = [&](size_t i) -> bool {
+        if (breakable.find(i) != breakable.end())
+            return breakable[i];
+        breakable[i] = false;
+        if (i == s.size()) {
+            breakable[i] = true;
+        } else {
+            for (size_t j = minLength; j <= min(maxLength, s.size() - i); j++) {
+                auto it =
+                    find(wordDict.begin(), wordDict.end(), s.substr(i, j));
+                if (it != wordDict.end()) {
+                    if (breakable.find(i + j) == breakable.end())
+                        solve(i + j);
+                    if (breakable[i + j]) {
+                        breakable[i] = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return breakable[i];
+    };
+    return solve(0);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
