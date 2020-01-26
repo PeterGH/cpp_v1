@@ -12818,6 +12818,145 @@ vector<string> wordBreakII(const string &s, const vector<string> &wordDict) {
     solve(0);
     return m[0];
 }
+vector<string> wordBreakII2(const string &s, const vector<string> &wordDict) {
+    function<bool(size_t, const string &)> same = [&](size_t i,
+                                                      const string &w) -> bool {
+        if (i + w.size() > s.size())
+            return false;
+        for (size_t j = 0; j < w.size(); j++) {
+            if (s[i + j] != w[j])
+                return false;
+        }
+        return true;
+    };
+    vector<string> results;
+    queue<pair<size_t, string>> q;
+    q.push(make_pair(0, string()));
+    while (!q.empty()) {
+        pair<size_t, string> p = q.front();
+        q.pop();
+        for (size_t i = 0; i < wordDict.size(); i++) {
+            if (same(p.first, wordDict[i])) {
+                size_t k = p.first + wordDict[i].size();
+                string r = p.second;
+                if (!r.empty())
+                    r.append(1, ' ');
+                r.append(wordDict[i]);
+                if (k == s.size())
+                    results.push_back(r);
+                else
+                    q.push(make_pair(k, r));
+            }
+        }
+    }
+    return results;
+}
+
+// 141. Linked List Cycle
+// Given a linked list, determine if it has a cycle in it. To represent a cycle
+// in the given linked list, we use an integer pos which represents the position
+// (0-indexed) in the linked list where tail connects to. If pos is -1, then
+// there is no cycle in the linked list. Example 1: Input: head = [3,2,0,-4],
+// pos = 1 Output: true Explanation: There is a cycle in the linked list, where
+// tail connects to the second node. Example 2: Input: head = [1,2], pos = 0
+// Output: true
+// Explanation: There is a cycle in the linked list, where tail connects to the
+// first node. Example 3: Input: head = [1], pos = -1 Output: false Explanation:
+// There is no cycle in the linked list. Follow up: Can you solve it using O(1)
+// (i.e. constant) memory?
+bool hasCycle(ListNode *head) {
+    if (head == nullptr)
+        return false;
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q->next != nullptr && q->next->next != nullptr) {
+        p = p->next;
+        q = q->next->next;
+        if (p == q)
+            return true;
+    }
+    return false;
+}
+
+// 142. Linked List Cycle II
+// Given a linked list, return the node where the cycle begins. If there is no
+// cycle, return null. To represent a cycle in the given linked list, we use an
+// integer pos which represents the position (0-indexed) in the linked list
+// where tail connects to. If pos is -1, then there is no cycle in the linked
+// list. Note: Do not modify the linked list. Example 1: Input: head =
+// [3,2,0,-4], pos = 1 Output: tail connects to node index 1 Explanation: There
+// is a cycle in the linked list, where tail connects to the second node.
+// Example 2:
+// Input: head = [1,2], pos = 0
+// Output: tail connects to node index 0
+// Explanation: There is a cycle in the linked list, where tail connects to the
+// first node. Example 3: Input: head = [1], pos = -1 Output: no cycle
+// Explanation: There is no cycle in the linked list.
+// Follow-up: Can you solve it without using extra space?
+ListNode *detectCycle(ListNode *head) {
+    if (head == nullptr)
+        return nullptr;
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q->next != nullptr && q->next->next != nullptr) {
+        p = p->next;
+        q = q->next->next;
+        if (p == q)
+            break;
+    }
+    if (q->next == nullptr || q->next->next == nullptr)
+        return nullptr;
+    q = head;
+    while (q != p) {
+        p = p->next;
+        q = q->next;
+    }
+    return q;
+}
+
+// 143. Reorder List
+// Given a singly linked list L: L0->L1->......->Ln-1->Ln,
+// reorder it to: L0->Ln->L1->Ln-1->L2->Ln-2->......
+// You may not modify the values in the list's nodes, only nodes itself may be
+// changed. Example 1: Given 1->2->3->4, reorder it to 1->4->2->3. Example 2:
+// Given 1->2->3->4->5, reorder it to 1->5->2->4->3.
+void reorderList(ListNode *head) {
+    if (head == nullptr)
+        return;
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q->next != nullptr && q->next->next != nullptr) {
+        p = p->next;
+        q = q->next->next;
+    }
+    if (p == q)
+        return; // List has only one or two nodes
+    // Now p is the (1 + k)-th node
+    // q is the (1 + 2k)-th node
+    // The list has (1 + 2k) nodes or (2 + 2k) nodes
+    // Break after p
+    q = p->next;
+    p->next = nullptr;
+    // Reverse list at q
+    p = q;
+    q = p->next;
+    p->next = nullptr;
+    while (q != nullptr) {
+        ListNode *t = q->next;
+        q->next = p;
+        p = q;
+        q = t;
+    }
+    // Merge the list at head and the list at p
+    q = head;
+    while (p != nullptr) {
+        ListNode *t = p->next;
+        p->next = q->next;
+        q->next = p;
+        q = p->next;
+        p = t;
+    }
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

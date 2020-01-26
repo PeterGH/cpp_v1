@@ -5050,20 +5050,57 @@ void LeetCodeTest::Init(void) {
     });
 
     Add("139. Word Break", [&]() {
-        auto check = [&](const string &s, const vector<string> &dict, bool e) {
-            Logger() << dict;
+        auto check = [&](const string &s, const vector<string> &dict, bool e,
+                         bool ignoreE = false) {
+            Logger() << "Dictionary: " << dict;
             bool a = wordBreak(s, dict);
             bool a2 = wordBreak2(s, dict);
             bool a3 = wordBreak3(s, dict);
+            vector<string> v = wordBreakII(s, dict);
+            vector<string> v2 = wordBreakII2(s, dict);
+            sort(v.begin(), v.end());
+            sort(v2.begin(), v2.end());
             Logger() << "Break(\"" << s << "\") = " << a << ", " << a2 << ", "
                      << a3 << endl;
-            ASSERT1(a == e);
-            ASSERT1(a2 == e);
-            ASSERT1(a3 == e);
+            Logger() << v << v2;
+            if (ignoreE) {
+                ASSERT1(a == a2);
+                ASSERT1(a == a3);
+            } else {
+                ASSERT1(a == e);
+                ASSERT1(a2 == e);
+                ASSERT1(a3 == e);
+            }
+            ASSERT1(0 == Util::Compare(v, v2));
         };
         check("leetcode", {"leet", "code"}, true);
         check("applepenapple", {"apple", "pen"}, true);
         check("catsandog", {"cats", "dog", "sand", "and", "cat"}, false);
+        check("catsanddog", {"cats", "dog", "sand", "and", "cat"}, true);
+        const string alphabet = "abcdefg";
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            vector<string> dict = {};
+            for (int j = 0; j < n; j++) {
+                int m = Random::Int(10, 1);
+                string s = Random::String<char>(m, alphabet);
+                if (find(dict.begin(), dict.end(), s) == dict.end())
+                    dict.push_back(s);
+            }
+            n = dict.size();
+            string s1;
+            string s2;
+            for (int j = 0; j < 20; j++) {
+                int k = rand() % n;
+                s1.append(dict[k]);
+                if (j % 2 == 0)
+                    s2.append(dict[k]);
+                else
+                    s2.append(Random::String<char>(10, alphabet));
+            }
+            check(s1, dict, true);
+            check(s2, dict, false, true);
+        }
     });
 }
 #endif
