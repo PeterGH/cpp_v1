@@ -5102,5 +5102,16 @@ void LeetCodeTest::Init(void) {
             check(s2, dict, false, true);
         }
     });
+
+    Add("149. Max Points on a Line", [&]() {
+        auto check = [&](const vector<vector<int>> &points, int e) {
+            Logger() << points;
+            int c = maxPoints(points);
+            Logger() << "maxPoints: " << c << endl;
+            ASSERT1(c == e);
+        };
+        check({{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}}, 4);
+        check({{1, 1}, {2, 2}, {3, 3}}, 3);
+    });
 }
 #endif

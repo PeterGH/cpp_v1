@@ -8779,6 +8779,17 @@ TreeNode *RandomSymmetricTree(const vector<int> &values) {
     return n;
 }
 
+// 144. Binary Tree Preorder Traversal
+// Given a binary tree, return the preorder traversal of its nodes' values.
+// Example:
+// Input: [1,null,2,3]
+//    1
+//     \
+//      2
+//     /
+//    3
+// Output: [1,2,3]
+// Follow up: Recursive solution is trivial, could you do it iteratively?
 vector<int> preorderTraversal(TreeNode *root) {
     vector<int> v;
     stack<TreeNode *> s;
@@ -8884,6 +8895,17 @@ vector<int> inorderTraversal3(TreeNode *root) {
     return v;
 }
 
+// 145. Binary Tree Postorder Traversal
+// Given a binary tree, return the postorder traversal of its nodes' values.
+// Example:
+// Input: [1,null,2,3]
+//    1
+//     \
+//      2
+//     /
+//    3
+// Output: [3,2,1]
+// Follow up: Recursive solution is trivial, could you do it iteratively?
 vector<int> postorderTraversal(TreeNode *root) {
     vector<int> v;
     stack<TreeNode *> s;
@@ -12956,6 +12978,321 @@ void reorderList(ListNode *head) {
         q = p->next;
         p = t;
     }
+}
+
+// 146. LRU Cache
+// Design and implement a data structure for Least Recently Used (LRU) cache.
+// It should support the following operations: get and put.
+// get(key) - Get the value (will always be positive) of the key if the key
+// exists in the cache, otherwise return -1.
+// put(key, value) - Set or insert the value if the key is not already present.
+// When the cache reached its capacity, it should invalidate the least recently
+// used item before inserting a new item.
+// The cache is initialized with a positive capacity.
+// Follow up: Could you do both operations in O(1) time complexity?
+// Example:
+// LRUCache cache = new LRUCache( 2 /* capacity */ );
+// cache.put(1, 1);
+// cache.put(2, 2);
+// cache.get(1);       // returns 1
+// cache.put(3, 3);    // evicts key 2
+// cache.get(2);       // returns -1 (not found)
+// cache.put(4, 4);    // evicts key 1
+// cache.get(1);       // returns -1 (not found)
+// cache.get(3);       // returns 3
+// cache.get(4);       // returns 4
+class LRUCache {
+  private:
+    int _capacity;
+    struct Item {
+        int key;
+        int value;
+        struct Item *prev;
+        struct Item *next;
+        Item(int k, int v) : key(k), value(v), prev(nullptr), next(nullptr) {}
+    } * head, *tail;
+    map<int, struct Item *> keys;
+    void MoveFront(struct Item *p) {
+        if (p == this->head)
+            return;
+        if (p == this->tail) {
+            this->tail = p->prev;
+            this->tail->next = nullptr;
+        } else {
+            p->prev->next = p->next;
+            p->next->prev = p->prev;
+        }
+        p->next = this->head;
+        this->head->prev = p;
+        p->prev = nullptr;
+        this->head = p;
+    }
+
+  public:
+    LRUCache(int capacity)
+        : _capacity(capacity), head(nullptr), tail(nullptr) {}
+    ~LRUCache(void) {
+        while (this->head != nullptr) {
+            struct Item *p = this->head;
+            this->head = this->head->next;
+            delete p;
+        }
+    }
+    int Get(int key) {
+        if (this->keys.find(key) == this->keys.end()) {
+            return -1;
+        } else {
+            struct Item *p = this->keys[key];
+            MoveFront(p);
+            return p->value;
+        }
+    }
+    void Set(int key, int value) {
+        struct Item *p;
+        if (this->keys.find(key) == this->keys.end()) {
+            if ((int)this->keys.size() == this->_capacity) {
+                int k = this->tail->key;
+                if (this->head == this->tail) {
+                    delete this->head;
+                    this->head = nullptr;
+                    this->tail = nullptr;
+                } else {
+                    p = this->tail;
+                    this->tail = p->prev;
+                    this->tail->next = nullptr;
+                    delete p;
+                }
+                this->keys.erase(k);
+            }
+            p = new struct Item(key, value);
+            if (this->head == nullptr) {
+                this->head = p;
+                this->tail = p;
+            } else {
+                p->next = this->head;
+                this->head->prev = p;
+                this->head = p;
+            }
+            this->keys[key] = p;
+        } else {
+            // Whether or not to change the value,
+            // it counts as an access.
+            p = this->keys[key];
+            p->value = value;
+            MoveFront(p);
+        }
+    }
+};
+
+// 147. Insertion Sort List
+// Sort a linked list using insertion sort. A graphical example of insertion
+// sort. The partial sorted list (black) initially contains only the first
+// element in the list. With each iteration one element (red) is removed from
+// the input data and inserted in-place into the sorted list. Algorithm of
+// Insertion Sort: Insertion sort iterates, consuming one input element each
+// repetition, and growing a sorted output list. At each iteration, insertion
+// sort removes one element from the input data, finds the location it belongs
+// within the sorted list, and inserts it there. It repeats until no input
+// elements remain. Example 1: Input: 4->2->1->3 Output: 1->2->3->4 Example 2:
+// Input: -1->5->3->4->0
+// Output: -1->0->3->4->5
+ListNode *insertionSortList(ListNode *head) {
+    if (head == nullptr)
+        return nullptr;
+    ListNode *t = head;
+    ListNode *p = head->next;
+    while (p != nullptr) {
+        ListNode *q = p;
+        p = q->next;
+        if (q->val < head->val) {
+            t->next = p;
+            q->next = head;
+            head = q;
+            continue;
+        }
+        ListNode *s = head;
+        while (s != t && s->next->val <= q->val) {
+            s = s->next;
+        }
+        if (s == t) {
+            t = q;
+        } else {
+            t->next = p;
+            q->next = s->next;
+            s->next = q;
+        }
+    }
+    return head;
+}
+ListNode *insertionSortList2(ListNode *head) {
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *p = head;
+    while (p->next != nullptr) {
+        if (p->val <= p->next->val) {
+            p = p->next;
+        } else {
+            ListNode *q = p->next;
+            p->next = q->next;
+            q->next = nullptr;
+            if (q->val < head->val) {
+                q->next = head;
+                head = q;
+            } else {
+                ListNode *s = head;
+                while (s != p && s->next != nullptr && s->next->val <= q->val) {
+                    s = s->next;
+                }
+                q->next = s->next;
+                s->next = q;
+            }
+        }
+    }
+    return head;
+}
+
+// 148. Sort List
+// Sort a linked list in O(n log n) time using constant space complexity.
+// Example 1:
+// Input: 4->2->1->3
+// Output: 1->2->3->4
+// Example 2:
+// Input: -1->5->3->4->0
+// Output: -1->0->3->4->5
+ListNode *sortList(ListNode *head) {
+    function<ListNode *(ListNode *, ListNode *)> merge =
+        [&](ListNode *p, ListNode *q) -> ListNode * {
+        if (p == nullptr)
+            return q;
+        if (q == nullptr)
+            return p;
+        ListNode *h = nullptr;
+        ListNode *t = nullptr;
+        while (p != nullptr && q != nullptr) {
+            if (p->val <= q->val) {
+                if (h == nullptr)
+                    h = p;
+                else
+                    t->next = p;
+                t = p;
+                p = p->next;
+            } else {
+                if (h == nullptr)
+                    h = q;
+                else
+                    t->next = q;
+                t = q;
+                q = q->next;
+            }
+        }
+        if (p == nullptr)
+            t->next = q;
+        else
+            t->next = p;
+        return h;
+    };
+    function<ListNode *(ListNode *)> sort = [&](ListNode *h) -> ListNode * {
+        if (h == nullptr || h->next == nullptr)
+            return h;
+        ListNode *p = h;
+        ListNode *q = h;
+        while (q->next != nullptr && q->next->next != nullptr) {
+            p = p->next;
+            q = q->next->next;
+        }
+        q = p->next;
+        p->next = nullptr;
+        h = sort(h);
+        q = sort(q);
+        return merge(h, q);
+    };
+    return sort(head);
+}
+
+// 149. Max Points on a Line
+// Given n points on a 2D plane, find the maximum number of points that lie on
+// the same straight line.
+// Example 1:
+// Input: [[1,1],[2,2],[3,3]]
+// Output: 3
+// Explanation:
+// ^
+// |
+// |        o
+// |     o
+// |  o
+// +------------->
+// 0  1  2  3  4
+// Example 2:
+// Input: [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+// Output: 4
+// Explanation:
+// ^
+// |
+// |  o
+// |     o        o
+// |        o
+// |  o        o
+// +------------------->
+// 0  1  2  3  4  5  6
+// NOTE: input types have been changed on April 15, 2019. Please reset to
+// default code definition to get new method signature.
+int maxPoints(const vector<vector<int>> &points) {
+    if (points.size() < 2)
+        return (int)points.size();
+    function<int(int, int)> gcd = [&](int a, int b) -> int {
+        if (a < b)
+            swap(a, b);
+        while (b != 0) {
+            int c = a % b;
+            a = b;
+            b = c;
+        }
+        return a;
+    };
+    function<pair<int, int>(const vector<int> &, const vector<int> &)> slope =
+        [&](const vector<int> &p, const vector<int> &q) -> pair<int, int> {
+        if (p[0] == q[0])
+            return make_pair(0, 1);
+        if (p[1] == q[1])
+            return make_pair(1, 0);
+        int g = gcd(abs(q[0] - p[0]), abs(q[1] - p[1]));
+        int x = (q[0] - p[0]) / g;
+        int y = (q[1] - p[1]) / g;
+        if (y < 0) {
+            x = -x;
+            y = -y;
+        }
+        // cout << "slope((" << p[0] << ", " << p[1] << "), (" << q[0] << ", "
+        //      << q[1] << ")) = "
+        //      << "(" << x << ", " << y << ")" << endl;
+        // cout << "gcd = " << g << endl;
+        return make_pair(x, y);
+    };
+    int c = 0;
+    for (size_t i = 0; i < points.size(); i++) {
+        // cout << "Start (" << points[i][0] << ", " << points[i][1] << ")"
+        //      << endl;
+        map<pair<int, int>, int> m;
+        for (size_t j = 0; j < points.size(); j++) {
+            if (j == i)
+                continue;
+            pair<int, int> k = slope(points[i], points[j]);
+            if (m.find(k) == m.end())
+                m[k] = 2;
+            else
+                m[k]++;
+            c = max(c, m[k]);
+        }
+        // cout << "m = {" << endl;
+        // for_each(m.cbegin(), m.cend(), [&](const pair<pair<int, int>, int>
+        // &p) {
+        //     cout << "(" << p.first.first << ", " << p.first.second
+        //          << ") : " << p.second << endl;
+        // });
+        // cout << "}" << endl;
+    }
+    return c;
 }
 } // namespace LeetCode
 } // namespace Test
