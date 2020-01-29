@@ -13269,21 +13269,28 @@ int maxPoints(const vector<vector<int>> &points) {
         // cout << "gcd = " << g << endl;
         return make_pair(x, y);
     };
-    int c = 0;
+    int mc = 0;
     for (size_t i = 0; i < points.size(); i++) {
         // cout << "Start (" << points[i][0] << ", " << points[i][1] << ")"
         //      << endl;
         map<pair<int, int>, int> m;
+        int n = 1; // count duplicates of points[i]
+        int c = 0; // count other points on the same line as points[i]
         for (size_t j = 0; j < points.size(); j++) {
             if (j == i)
                 continue;
-            pair<int, int> k = slope(points[i], points[j]);
-            if (m.find(k) == m.end())
-                m[k] = 2;
-            else
-                m[k]++;
-            c = max(c, m[k]);
+            if (points[j][0] == points[i][0] && points[j][1] == points[i][1])
+                n++;
+            else {
+                pair<int, int> k = slope(points[i], points[j]);
+                if (m.find(k) == m.end())
+                    m[k] = 1;
+                else
+                    m[k]++;
+                c = max(c, m[k]);
+            }
         }
+        mc = max(mc, c + n);
         // cout << "m = {" << endl;
         // for_each(m.cbegin(), m.cend(), [&](const pair<pair<int, int>, int>
         // &p) {
@@ -13292,7 +13299,123 @@ int maxPoints(const vector<vector<int>> &points) {
         // });
         // cout << "}" << endl;
     }
-    return c;
+    return mc;
+}
+int maxPoints2(vector<vector<int>> &points) {
+    if (points.size() <= 1)
+        return points.size();
+    function<int(int, int)> gcd = [&](int a, int b) -> int {
+        if (a < b)
+            swap(a, b);
+        while (b != 0) {
+            int c = a % b;
+            a = b;
+            b = c;
+        }
+        return a;
+    };
+    function<pair<int, int>(const vector<int> &, const vector<int> &)>
+        get_slope =
+            [&](const vector<int> &p, const vector<int> &q) -> pair<int, int> {
+        if (p[0] == q[0])
+            return make_pair(0, 1);
+        if (p[1] == q[1])
+            return make_pair(1, 0);
+        int g = gcd(abs(q[0] - p[0]), abs(q[1] - p[1]));
+        int x = (q[0] - p[0]) / g;
+        int y = (q[1] - p[1]) / g;
+        if (y < 0) {
+            x = -x;
+            y = -y;
+        }
+        // cout << "slope((" << p[0] << ", " << p[1] << "), (" << q[0] << ", "
+        //      << q[1] << ")) = "
+        //      << "(" << x << ", " << y << ")" << endl;
+        // cout << "gcd = " << g << endl;
+        return make_pair(x, y);
+    };
+    // Group pairs of points by slopes. The points with the same slope
+    // are potentially on the same lines.
+    // Use comparer of IntPoint
+    sort(points.begin(), points.end(), [&](const vector<int> &l, const vector<int> &r){
+        if (l[0] == r[0])
+            return l[1] < r[1];
+        return l[0] < r[0];
+    });
+    map<vector<int>, int> dup;
+    map<pair<int, int>, vector<pair<vector<int>, vector<int>>>> slopes;
+    for (size_t i = 0; i < points.size(); i++) {
+        if (dup.find(points[i]) == dup.end())
+            dup[points[i]] = 1;
+        else
+            dup[points[i]]++;
+        for (size_t j = i + 1; j < points.size(); j++) {
+            if (points[i] == points[j]) {
+                // Ignore duplication
+                continue;
+            }
+            pair<int, int> slope = get_slope(points[i], points[j]);
+            if (slopes.find(slope) == slopes.end())
+                slopes[slope] = vector<pair<vector<int>, vector<int>>>{};
+            slopes[slope].push_back(make_pair(points[i], points[j]));
+        }
+    }
+    int max = 0;
+    for (map<pair<int, int>, vector<pair<vector<int>, vector<int>>>>::iterator
+             slope = slopes.begin();
+         slope != slopes.end(); slope++) {
+        // lines of the same slope
+        vector<set<vector<int>>> lines;
+        for_each(slope->second.begin(), slope->second.end(),
+                 [&](pair<vector<int>, vector<int>> &s) {
+                     // s is a line segament ending with two points.
+                     // Check and assign the points into the set of points on
+                     // the same line.
+                     // first is the line containing the first point of segament
+                     // s
+                     vector<set<vector<int>>>::iterator first = lines.end();
+                     // second is the line containing the second point of
+                     // segament s
+                     vector<set<vector<int>>>::iterator second = lines.end();
+                     for (vector<set<vector<int>>>::iterator it = lines.begin();
+                          it != lines.end(); it++) {
+                         // it refers to the set of points on the same line
+                         if (it->find(s.first) != it->end())
+                             first = it;
+                         if (it->find(s.second) != it->end())
+                             second = it;
+                     }
+                     if (first == lines.end() && second == lines.end()) {
+                         // Segament s is a new line
+                         set<vector<int>> line;
+                         line.insert(s.first);
+                         line.insert(s.second);
+                         lines.push_back(line);
+                     } else if (first == lines.end()) {
+                         second->insert(s.first);
+                     } else if (second == lines.end()) {
+                         first->insert(s.second);
+                     } else if (first == second) {
+                         ;
+                     } else {
+                         set<vector<int>> line;
+                         line.insert(first->begin(), first->end());
+                         line.insert(second->begin(), second->end());
+                         lines.erase(first);
+                         lines.erase(second);
+                         lines.push_back(line);
+                     }
+                 });
+        for_each(lines.begin(), lines.end(), [&](set<vector<int>> &l) {
+            int m = 0;
+            for_each(l.cbegin(), l.cend(), [&](const vector<int> &v){
+                m += dup[v];
+            });
+            if (m > max)
+                max = m;
+        });
+    }
+    return max;
 }
 } // namespace LeetCode
 } // namespace Test

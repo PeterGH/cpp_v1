@@ -5107,11 +5107,15 @@ void LeetCodeTest::Init(void) {
         auto check = [&](const vector<vector<int>> &points, int e) {
             Logger() << points;
             int c = maxPoints(points);
-            Logger() << "maxPoints: " << c << endl;
+            vector<vector<int>> points2(points);
+            int c2 = maxPoints2(points2);
+            Logger() << "maxPoints: " << c << ", " << c2 << endl;
             ASSERT1(c == e);
+            ASSERT1(c2 == e);
         };
         check({{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}}, 4);
         check({{1, 1}, {2, 2}, {3, 3}}, 3);
+        check({{1, 1}, {2, 2}, {1, 1}, {2, 2}}, 4);
     });
 }
 #endif

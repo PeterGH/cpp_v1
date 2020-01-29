@@ -666,6 +666,19 @@ void CppTest::Init(void) {
         Logger() << "g.size() = " << g.size() << endl;
         ASSERT1(g.size() == 1);
     });
+
+    Add("SetOfVectors", [&](){
+        set<vector<int>> s;
+        s.insert({1, 1, 1});
+        s.insert({2, 2, 2});
+        s.insert({1, 1, 1});
+        s.insert({1, 2, 1});
+        s.insert({2, 2, 2});
+        s.insert({1, 1});
+        s.insert({2, 1});
+        s.insert({2, 2});
+        Logger() << s;
+    });
 }
 
 #endif
