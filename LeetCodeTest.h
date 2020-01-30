@@ -5117,5 +5117,82 @@ void LeetCodeTest::Init(void) {
         check({{1, 1}, {2, 2}, {3, 3}}, 3);
         check({{1, 1}, {2, 2}, {1, 1}, {2, 2}}, 4);
     });
+
+    Add("150. Evaluate Reverse Polish Notation", [&]() {
+        auto check = [&](const vector<string> &tokens, int expect) {
+            Logger().WriteInformation("Expression:");
+            Logger() << tokens;
+            int r = evalRPN(tokens);
+            int r2 = evalRPN2(tokens);
+            Logger().WriteInformation("Result:     %d, %d\n", r, r2);
+            ASSERT1(r == expect);
+            ASSERT1(r2 == expect);
+        };
+        vector<string> t = {"2", "1", "+", "3", "*"};
+        check(t, 9);
+        t = {"4", "13", "5", "/", "+"};
+        check(t, 6);
+        t = {"-1", "-22", "+"};
+        check(t, -23);
+        t = {"1", "-22", "-"};
+        check(t, 23);
+        t = {"-2", "-3", "*"};
+        check(t, 6);
+        t = {"-22", "-2", "/"};
+        check(t, 11);
+    });
+
+    Add("151. Reverse Words in a String", [&]() {
+        auto check = [&](const string &s, const string &expect) {
+            Logger().WriteInformation("\nInput:  \"%s\"\n", s.c_str());
+            string r = reverseWords(s);
+            string r2(s);
+            reverseWords2(r2);
+            Logger().WriteInformation("Output: \"%s\"\n", r.c_str());
+            Logger().WriteInformation("Output: \"%s\"\n", r2.c_str());
+            ASSERT1(r == expect);
+            ASSERT1(r2 == expect);
+        };
+        check("a", "a");
+        check("", "");
+        check(" ", "");
+        check("  ", "");
+        check("ab", "ab");
+        check("a b", "b a");
+        check("a  b", "b a");
+        check(" a b ", "b a");
+        check("  a  b  ", "b a");
+        check("  ab  cd  ", "cd ab");
+        check("   This is a test!   ", "test! a is This");
+    });
+
+    Add("152. Maximum Product Subarray", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int r = maxProduct(v);
+            int r2 = maxProduct2(v);
+            int r3 = maxProduct3(v);
+            Logger() << "maxProduct: " << r << ", " << r2 << ", " << r3 << endl;
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+        };
+        check({2});
+        check({-2});
+        check({1, 2});
+        check({-1, 2});
+        check({1, -2});
+        check({1, 0, 2});
+        check({2, 0, 1});
+        check({-1, 0, 2});
+        check({1, 0, -2});
+        // check({4,  8, -3,  7,  -3, -2, 2, 4,  10, -7, -10, 3,  -2, -6, -8,
+        //        10, 3, -10, 10, 3,  -2, 9, -7, -7, -6, -7,  1,  -7, -5, 5,
+        //        9,  8, 0,   -5, 2,  5,  4, -9, -2, 1,  -5,  -3, -7, 1,  1});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            vector<int> v = Random::Vector(n, 10, -10);
+            check(v);
+        }
+    });
 }
 #endif

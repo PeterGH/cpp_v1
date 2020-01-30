@@ -13337,11 +13337,12 @@ int maxPoints2(vector<vector<int>> &points) {
     // Group pairs of points by slopes. The points with the same slope
     // are potentially on the same lines.
     // Use comparer of IntPoint
-    sort(points.begin(), points.end(), [&](const vector<int> &l, const vector<int> &r){
-        if (l[0] == r[0])
-            return l[1] < r[1];
-        return l[0] < r[0];
-    });
+    sort(points.begin(), points.end(),
+         [&](const vector<int> &l, const vector<int> &r) {
+             if (l[0] == r[0])
+                 return l[1] < r[1];
+             return l[0] < r[0];
+         });
     map<vector<int>, int> dup;
     map<pair<int, int>, vector<pair<vector<int>, vector<int>>>> slopes;
     for (size_t i = 0; i < points.size(); i++) {
@@ -13408,15 +13409,277 @@ int maxPoints2(vector<vector<int>> &points) {
                  });
         for_each(lines.begin(), lines.end(), [&](set<vector<int>> &l) {
             int m = 0;
-            for_each(l.cbegin(), l.cend(), [&](const vector<int> &v){
-                m += dup[v];
-            });
+            for_each(l.cbegin(), l.cend(),
+                     [&](const vector<int> &v) { m += dup[v]; });
             if (m > max)
                 max = m;
         });
     }
     return max;
 }
+
+// 150. Evaluate Reverse Polish Notation
+// Evaluate the value of an arithmetic expression in Reverse Polish Notation.
+// Valid operators are +, -, *, /. Each operand may be an integer or another
+// expression. Note: Division between two integers should truncate toward zero.
+// The given RPN expression is always valid. That means the expression would
+// always evaluate to a result and there won't be any divide by zero operation.
+// Example 1:
+// Input: ["2", "1", "+", "3", "*"]
+// Output: 9
+// Explanation: ((2 + 1) * 3) = 9
+// Example 2:
+// Input: ["4", "13", "5", "/", "+"]
+// Output: 6
+// Explanation: (4 + (13 / 5)) = 6
+// Example 3:
+// Input: ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]
+// Output: 22
+// Explanation:
+//   ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+// = ((10 * (6 / (12 * -11))) + 17) + 5
+// = ((10 * (6 / -132)) + 17) + 5
+// = ((10 * 0) + 17) + 5
+// = (0 + 17) + 5
+// = 17 + 5
+// = 22
+int evalRPN(const vector<string> &tokens) {
+    stack<int> q;
+    for_each(tokens.cbegin(), tokens.cend(), [&](const string &t) {
+        if (t == "+") {
+            int a = q.top();
+            q.pop();
+            int b = q.top();
+            q.pop();
+            q.push(b + a);
+        } else if (t == "-") {
+            int a = q.top();
+            q.pop();
+            int b = q.top();
+            q.pop();
+            q.push(b - a);
+        } else if (t == "*") {
+            int a = q.top();
+            q.pop();
+            int b = q.top();
+            q.pop();
+            q.push(b * a);
+        } else if (t == "/") {
+            int a = q.top();
+            q.pop();
+            int b = q.top();
+            q.pop();
+            q.push(b / a);
+        } else {
+            q.push(stoi(t));
+        }
+    });
+    return q.top();
+}
+int evalRPN2(const vector<string> &tokens) {
+    int n1;
+    int n2;
+    stack<int> nums;
+    function<void(int &, int &)> pop = [&](int &m1, int &m2) {
+        m2 = nums.top();
+        nums.pop();
+        m1 = nums.top();
+        nums.pop();
+    };
+    for (size_t i = 0; i < tokens.size(); i++) {
+        if (tokens[i].compare("+") == 0) {
+            pop(n1, n2);
+            nums.push(n1 + n2);
+        } else if (tokens[i].compare("-") == 0) {
+            pop(n1, n2);
+            nums.push(n1 - n2);
+        } else if (tokens[i].compare("*") == 0) {
+            pop(n1, n2);
+            nums.push(n1 * n2);
+        } else if (tokens[i].compare("/") == 0) {
+            pop(n1, n2);
+            nums.push(n1 / n2);
+        } else {
+            nums.push(atoi(tokens[i].c_str()));
+        }
+    }
+    return nums.top();
+}
+
+// 151. Reverse Words in a String
+// Given an input string, reverse the string word by word.
+// Example 1:
+// Input: "the sky is blue"
+// Output: "blue is sky the"
+// Example 2:
+// Input: "  hello world!  "
+// Output: "world! hello"
+// Explanation: Your reversed string should not contain leading or trailing
+// spaces. Example 3: Input: "a good   example" Output: "example good a"
+// Explanation: You need to reduce multiple spaces between two words to a single
+// space in the reversed string. Note: A word is defined as a sequence of
+// non-space characters. Input string may contain leading or trailing spaces.
+// However, your reversed string should not contain leading or trailing spaces.
+// You need to reduce multiple spaces between two words to a single space in the
+// reversed string. Follow up: For C programmers, try to solve it in-place in
+// O(1) extra space.
+string reverseWords(const string &s) {
+    string r(s);
+    int i = -1;
+    int j;
+    for (j = 0; j < (int)r.size(); j++) {
+        if (r[j] == ' ' && (i < 0 || r[i] == ' '))
+            continue;
+        i++;
+        if (i != j)
+            r[i] = r[j];
+    }
+    if (i >= 0 && r[i] == ' ')
+        i--;
+    r.resize(i + 1);
+    i = 0;
+    while (i < (int)r.size()) {
+        if (r[i] != ' ') {
+            j = i;
+            while (j < (int)r.size() && r[j] != ' ')
+                j++;
+            int k = j;
+            j--;
+            while (i < j) {
+                swap(r[i], r[j]);
+                i++;
+                j--;
+            }
+            i = k;
+        }
+        i++;
+    }
+    i = 0;
+    j = (int)r.size() - 1;
+    while (i < j) {
+        swap(r[i], r[j]);
+        i++;
+        j--;
+    }
+    return r;
+}
+void reverseWords2(string &s) {
+    if (s.empty())
+        return;
+    // step 1: remove extra spaces
+    int i = -1;
+    size_t j = 0;
+    while (j < s.length() && s[j] == ' ')
+        j++;
+    if (j == s.length()) {
+        s.resize(0);
+        return;
+    }
+    while (j < s.length()) {
+        if (s[j] != ' ' || s[j - 1] != ' ') {
+            i++;
+            if (i < (int)j)
+                s[i] = s[j];
+        }
+        j++;
+    }
+    if (0 <= i && s[i] == ' ')
+        i--;
+    s.resize(i + 1);
+    // step 2: reverse words
+    function<void(int, int)> reverse = [&](int b, int e) {
+        while (b < e) {
+            swap(s[b++], s[e--]);
+        }
+    };
+    reverse(0, s.length() - 1);
+    i = 0;
+    j = 0;
+    while (j <= s.length()) {
+        if (j == s.length() || s[j] == ' ') {
+            reverse(i, j - 1);
+            i = j + 1;
+        }
+        j++;
+    }
+}
+
+// 152. Maximum Product Subarray
+// Given an integer array nums, find the contiguous subarray within an array
+// (containing at least one number) which has the largest product.
+// Example 1:
+// Input: [2,3,-2,4]
+// Output: 6
+// Explanation: [2,3] has the largest product 6.
+// Example 2:
+// Input: [-2,0,-1]
+// Output: 0
+// Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
+int maxProduct(const vector<int> &nums) {
+    long long maxProd = LLONG_MIN;
+    long long maxNeg = LLONG_MIN;
+    long long p = 1;
+    for (size_t i = 0; i < nums.size(); i++) {
+        p *= nums[i];
+        if (p < 0) {
+            if (maxNeg == LLONG_MIN) {
+                maxProd = max(maxProd, p);
+                maxNeg = p;
+            } else {
+                maxProd = max(maxProd, p / maxNeg);
+                maxNeg = max(maxNeg, p);
+            }
+        } else {
+            maxProd = max(maxProd, p);
+            if (p == 0) {
+                p = 1;
+                maxNeg = LLONG_MIN;
+            }
+        }
+    }
+    return maxProd;
+}
+int maxProduct2(const vector<int> &nums) {
+    long long maxNegative = LLONG_MIN;
+    long long maxProd = LLONG_MIN;
+    long long prod = 1;
+    for (size_t i = 0; i < nums.size(); i++) {
+        prod *= nums[i];
+        if (prod < 0) {
+            if (maxNegative == LLONG_MIN) {
+                maxProd = max(maxProd, prod);
+            } else {
+                maxProd = max(maxProd, prod / maxNegative);
+            }
+            maxNegative = max(maxNegative, prod);
+        } else if (prod > 0) {
+            maxProd = max(maxProd, prod);
+        } else {
+            maxProd = max(maxProd, prod);
+            maxNegative = LLONG_MIN;
+            prod = 1;
+        }
+    }
+    return (int)maxProd;
+}
+int maxProduct3(const vector<int> &nums) {
+    long long maxProd = LLONG_MIN;
+    vector<long long> product(nums.begin(), nums.end());
+    for (size_t l = 1; l <= nums.size(); l++) {
+        for (size_t i = 0; i <= nums.size() - l; i++) {
+            if (l > 1) {
+                product[i] *= nums[i + l - 1];
+            }
+            // if (product[i] > maxProd) {
+            //     cout << "prod[" << i << ".." << i + l - 1 << "] = " <<
+            //     product[i] << endl;
+            // }
+            maxProd = max(product[i], maxProd);
+        }
+    }
+    return (int)maxProd;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
