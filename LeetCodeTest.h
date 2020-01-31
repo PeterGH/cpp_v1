@@ -5194,5 +5194,46 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("153. Find Minimum in Rotated Sorted Array", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int e = *min_element(v.cbegin(), v.cend());
+            int i = findMin(v);
+            int i2 = findMin2(v);
+            Logger() << "min: " << i << ", " << i2 << ", " << e << endl;
+            ASSERT1(i == e);
+            ASSERT1(i2 == e);
+        };
+        check({4, 5, 6, 7, 0, 1, 2});
+        check({1, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Util::IncreasingVector(n);
+            int d = (i % 10) == 0 ? 0 : Random::Int(n);
+            Util::RotateLeft(v, d);
+            check(v);
+        }
+    });
+
+    Add("154. Find Minimum in Rotated Sorted Array II", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int e = *min_element(v.cbegin(), v.cend());
+            int i = findMinII(v);
+            Logger() << "min: " << i << ", " << e << endl;
+            ASSERT1(i == e);
+        };
+        check({4, 5, 6, 7, 0, 1, 2});
+        check({1, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, n >> 1);
+            sort(v.begin(), v.end());
+            int d = (i % 10) == 0 ? 0 : Random::Int(n);
+            Util::RotateLeft(v, d);
+            check(v);
+        }
+    });
 }
 #endif

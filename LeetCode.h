@@ -13680,6 +13680,130 @@ int maxProduct3(const vector<int> &nums) {
     return (int)maxProd;
 }
 
+// 153. Find Minimum in Rotated Sorted Array
+// Suppose an array sorted in ascending order is rotated at some pivot unknown
+// to you beforehand. (i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
+// Find the minimum element. You may assume no duplicate exists in the array.
+// Example 1:
+// Input: [3,4,5,1,2]
+// Output: 1
+// Example 2:
+// Input: [4,5,6,7,0,1,2]
+// Output: 0
+int findMin(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    int m;
+    while (l <= h) {
+        m = l + ((h - l) >> 1);
+        if (nums[m] > nums[h]) {
+            if (m + 1 == h)
+                m = h;
+            if (m == h)
+                break;
+            l = m;
+        } else {
+            if (l == m)
+                break;
+            h = m;
+        }
+    }
+    return nums[m];
+}
+int findMin2(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    int m;
+    while (l <= h) {
+        m = l + ((h - l) >> 1);
+        if (nums[l] < nums[m]) {
+            if (nums[m] < nums[h])
+                h = m - 1;
+            else
+                l = m + 1;
+        } else if (nums[l] > nums[m]) {
+            h = m;
+        } else {
+            if (nums[m] < nums[h])
+                h = m;
+            else if (nums[m] > nums[h])
+                l = m + 1;
+            else
+                break;
+        }
+    }
+    return nums[m];
+}
+
+// 154. Find Minimum in Rotated Sorted Array II
+// Suppose an array sorted in ascending order is rotated at some pivot unknown
+// to you beforehand. (i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
+// Find the minimum element. The array may contain duplicates.
+// Example 1:
+// Input: [1,3,5]
+// Output: 1
+// Example 2:
+// Input: [2,2,2,0,1]
+// Output: 0
+// Note: This is a follow up problem to Find Minimum in Rotated Sorted Array.
+// Would allow duplicates affect the run-time complexity? How and why?
+int findMinII(const vector<int> &nums) {
+    function<int(int, int)> find = [&](int l, int h) -> int {
+        if (l == h)
+            return nums[l];
+        if (l + 1 == h)
+            return min(nums[l], nums[h]);
+        int m = l + ((h - l) >> 1);
+        if (nums[m] > nums[h])
+            return find(m + 1, h);
+        if (nums[m] < nums[h])
+            return find(l, m);
+        if (nums[l] > nums[m])
+            return find(l, m);
+        if (nums[l] < nums[m])
+            return find(l, m);
+        return min(find(l, m - 1), find(m + 1, h));
+    };
+    return find(0, nums.size() - 1);
+}
+
+// 155. Min Stack
+// Design a stack that supports push, pop, top, and retrieving the minimum
+// element in constant time.
+// push(x) -- Push element x onto stack.
+// pop() -- Removes the element on top of the stack.
+// top() -- Get the top element.
+// getMin() -- Retrieve the minimum element in the stack.
+// Example:
+// MinStack minStack = new MinStack();
+// minStack.push(-2);
+// minStack.push(0);
+// minStack.push(-3);
+// minStack.getMin();   --> Returns -3.
+// minStack.pop();
+// minStack.top();      --> Returns 0.
+// minStack.getMin();   --> Returns -2.
+class MinStack {
+  private:
+    stack<int> q;
+    stack<int> m;
+  public:
+    /** initialize your data structure here. */
+    MinStack() {}
+    void push(int x) {
+        q.push(x);
+        if (m.empty())
+            m.push(x);
+        else
+            m.push(min(m.top(), x));
+    }
+    void pop() {
+        q.pop();
+        m.pop();
+    }
+    int top() { return q.top(); }
+    int getMin() { return m.top(); }
+};
 } // namespace LeetCode
 } // namespace Test
 #endif
