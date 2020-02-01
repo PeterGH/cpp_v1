@@ -5235,5 +5235,32 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("162. Find Peak Element", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int i = findPeakElement(v);
+            int i2 = findPeakElement2(v);
+            Logger() << "Local peak: v[" << i << "] = " << v[i] << ", v[" << i2
+                     << "] = " << v[i2] << endl;
+            if (i == 0 && v.size() > 1)
+                ASSERT1(v[0] >= v[1]);
+            else if (i == (int)v.size() - 1 && v.size() > 1)
+                ASSERT1(v[i - 1] <= v[i]);
+            else if (0 < i && i < (int)v.size() - 1)
+                ASSERT1(v[i - 1] <= v[i] && v[i] >= v[i + 1]);
+            if (i2 == 0 && v.size() > 1)
+                ASSERT1(v[0] >= v[1]);
+            else if (i2 == (int)v.size() - 1 && v.size() > 1)
+                ASSERT1(v[i2 - 1] <= v[i2]);
+            else if (0 < i2 && i2 < (int)v.size() - 1)
+                ASSERT1(v[i2 - 1] <= v[i2] && v[i2] >= v[i2 + 1]);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, n);
+            check(v);
+        }
+    });
 }
 #endif
