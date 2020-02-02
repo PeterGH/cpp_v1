@@ -5262,5 +5262,20 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("164. Maximum Gap", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int g = maximumGap(v);
+            int g2 = maximumGap2(v);
+            Logger() << "MaxGap: " << g << ", " << g2 << endl;
+            ASSERT1(g == g2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
 }
 #endif
