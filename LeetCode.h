@@ -14082,6 +14082,179 @@ int maximumGap2(const vector<int> &nums) {
     }
     return gap;
 }
+
+// 165. Compare Version Numbers
+// Compare two version numbers version1 and version2. If version1 > version2
+// return 1; if version1 < version2 return -1;otherwise return 0. You may assume
+// that the version strings are non-empty and contain only digits and the .
+// character. The . character does not represent a decimal point and is used to
+// separate number sequences. For instance, 2.5 is not "two and a half" or "half
+// way to version three", it is the fifth second-level revision of the second
+// first-level revision. You may assume the default revision number for each
+// level of a version number to be 0. For example, version number 3.4 has a
+// revision number of 3 and 4 for its first and second level revision number.
+// Its third and fourth level revision number are both 0. Example 1: Input:
+// version1 = "0.1", version2 = "1.1" Output: -1 Example 2: Input: version1 =
+// "1.0.1", version2 = "1" Output: 1 Example 3: Input: version1 = "7.5.2.4",
+// version2 = "7.5.3" Output: -1 Example 4: Input: version1 = "1.01", version2 =
+// "1.001" Output: 0 Explanation: Ignoring leading zeroes, both “01” and “001"
+// represent the same number “1” Example 5: Input: version1 = "1.0", version2 =
+// "1.0.0" Output: 0 Explanation: The first version number does not have a third
+// level revision number, which means its third level revision number is default
+// to "0" Note: Version strings are composed of numeric strings separated by
+// dots . and this numeric strings may have leading zeroes. Version strings do
+// not start or end with dots, and they will not be two consecutive dots.
+int compareVersion(const string &version1, const string &version2) {
+    function<int(const string &, int)> nextDot = [&](const string &s,
+                                                     int i) -> int {
+        while (i < (int)s.size() && s[i] != '.')
+            i++;
+        return i;
+    };
+    function<int(int, int, int, int)> comp = [&](int i1, int i2, int j1,
+                                                 int j2) -> int {
+        while (i1 < i2 && version1[i1] == '0')
+            i1++;
+        while (j1 < j2 && version2[j1] == '0')
+            j1++;
+        if (i2 - i1 > j2 - j1)
+            return 1;
+        if (i2 - i1 < j2 - j1)
+            return -1;
+        while (i1 <= i2 && j1 <= j2) {
+            if (version1[i1] > version2[j1])
+                return 1;
+            if (version1[i1] < version2[j1])
+                return -1;
+            i1++;
+            j1++;
+        }
+        return 0;
+    };
+    function<bool(const string &, int)> allZeros = [&](const string &s,
+                                                       int i) -> bool {
+        while (i < (int)s.size()) {
+            if (s[i] != '0' && s[i] != '.')
+                return false;
+            i++;
+        }
+        return true;
+    };
+    int i1 = 0;
+    int j1 = 0;
+    while (i1 < (int)version1.size() && j1 < (int)version2.size()) {
+        int i2 = nextDot(version1, i1);
+        int j2 = nextDot(version2, j1);
+        int c = comp(i1, i2 - 1, j1, j2 - 1);
+        if (c != 0)
+            return c;
+        i1 = i2 + 1;
+        j1 = j2 + 1;
+    }
+    if (i1 >= (int)version1.size())
+        return allZeros(version2, j1) ? 0 : -1;
+    if (j1 >= (int)version2.size())
+        return allZeros(version1, i1) ? 0 : 1;
+    return 0;
+}
+int compareVersion2(const string &version1, const string &version2) {
+    function<int(const string &, size_t &)> version = [&](const string &str,
+                                                          size_t &i) -> int {
+        int val = 0;
+        while (i < str.size() && str[i] == '.')
+            i++;
+        if (i >= str.size())
+            return val;
+        size_t j = str.find_first_of('.', i);
+        if (j == string::npos) {
+            val = atoi(str.substr(i).c_str());
+            i = str.size();
+        } else {
+            val = atoi(str.substr(i, j - i).c_str());
+            i = j;
+        }
+        return val;
+    };
+    size_t i1 = 0;
+    size_t i2 = 0;
+    int v1;
+    int v2;
+    while (i1 < version1.size() || i2 < version2.size()) {
+        v1 = version(version1, i1);
+        v2 = version(version2, i2);
+        if (v1 < v2)
+            return -1;
+        else if (v1 > v2)
+            return 1;
+    }
+    return 0;
+}
+
+// 166. Fraction to Recurring Decimal
+// Given two integers representing the numerator and denominator of a fraction,
+// return the fraction in string format. If the fractional part is repeating,
+// enclose the repeating part in parentheses.
+// Example 1:
+// Input: numerator = 1, denominator = 2
+// Output: "0.5"
+// Example 2:
+// Input: numerator = 2, denominator = 1
+// Output: "2"
+// Example 3:
+// Input: numerator = 2, denominator = 3
+// Output: "0.(6)"
+string fractionToDecimal(int numerator, int denominator) {
+    string integer;
+    string fraction;
+    long long n = numerator;
+    long long d = denominator;
+    bool negative = false;
+    if (n < 0) {
+        negative = !negative;
+        n = -n;
+    }
+    if (d < 0) {
+        negative = !negative;
+        d = -d;
+    }
+    long long i = n / d;
+    n = n % d;
+    if (i == 0) {
+        integer = "0";
+    } else {
+        while (i > 0) {
+            long long c = i % 10;
+            i = i / 10;
+            integer.insert(0, 1, '0' + c);
+        }
+    }
+    map<long long, int> visited;
+    while (n != 0 && visited.find(n) == visited.end()) {
+        visited[n] = (int)fraction.size();
+        n *= 10;
+        long long c = n / d;
+        n %= d;
+        fraction.append(1, '0' + c);
+    }
+    if (visited.find(n) != visited.end()) {
+        fraction.insert(visited[n], 1, '(');
+        fraction.append(1, ')');
+    }
+    string decimal;
+    if (fraction.empty() && integer.compare("0") == 0)
+        decimal.append(1, '0');
+    else {
+        if (negative)
+            decimal.append(1, '-');
+        decimal.append(integer);
+        if (!fraction.empty()) {
+            decimal.append(1, '.');
+            decimal.append(fraction);
+        }
+    }
+    return decimal;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

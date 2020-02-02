@@ -5277,5 +5277,30 @@ void LeetCodeTest::Init(void) {
             check(v);
         }
     });
+
+    Add("165. Compare Version Numbers", [&]() {
+        auto check = [&](const string &v1, const string &v2) {
+            Logger() << "Compare(" << v1 << ", " << v2 << ")";
+            int r = compareVersion(v1, v2);
+            int r2 = compareVersion2(v1, v2);
+            Logger() << " = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+        };
+        auto version = [&]() -> string {
+            int n = Random::Int(8, 1);
+            string v;
+            for (int i = 0; i < n; i++) {
+                if (i > 0)
+                    v.append(1, '.');
+                v.append(Random::String<char>(Random::Int(6, 1), "0123456789"));
+            }
+            return v;
+        };
+        for (int i = 0; i < 100; i++) {
+            string v1 = version();
+            string v2 = version();
+            check(v1, v2);
+        }
+    });
 }
 #endif
