@@ -14255,6 +14255,141 @@ string fractionToDecimal(int numerator, int denominator) {
     return decimal;
 }
 
+// 167. Two Sum II - Input array is sorted
+// Given an array of integers that is already sorted in ascending order, find
+// two numbers such that they add up to a specific target number. The function
+// twoSum should return indices of the two numbers such that they add up to the
+// target, where index1 must be less than index2. Note: Your returned answers
+// (both index1 and index2) are not zero-based. You may assume that each input
+// would have exactly one solution and you may not use the same element twice.
+// Example:
+// Input: numbers = [2,7,11,15], target = 9
+// Output: [1,2]
+// Explanation: The sum of 2 and 7 is 9. Therefore index1 = 1, index2 = 2.
+vector<int> twoSum(const vector<int> &numbers, int target) {
+    int i = 0;
+    int j = numbers.size() - 1;
+    while (i < j) {
+        int t = numbers[i] + numbers[j];
+        if (t < target)
+            i++;
+        else if (t > target)
+            j--;
+        else
+            break;
+    }
+    return {i + 1, j + 1};
+}
+
+// 168. Excel Sheet Column Title
+// Given a positive integer, return its corresponding column title as appear in
+// an Excel sheet. For example:
+//     1 -> A
+//     2 -> B
+//     3 -> C
+//     ...
+//     26 -> Z
+//     27 -> AA
+//     28 -> AB
+//     ...
+// Example 1:
+// Input: 1
+// Output: "A"
+// Example 2:
+// Input: 28
+// Output: "AB"
+// Example 3:
+// Input: 701
+// Output: "ZY"
+string convertToTitle(int n) {
+    string s;
+    while (n > 0) {
+        int c = n % 26;
+        n /= 26;
+        if (c == 0) {
+            c = 26;
+            n--;
+        }
+        s.insert(0, 1, 'A' + c - 1);
+    }
+    return s;
+}
+
+// 169. Majority Element
+// Given an array of size n, find the majority element. The majority element is
+// the element that appears more than floor(n/2) times. You may assume that the
+// array is non-empty and the majority element always exist in the array.
+// Example 1:
+// Input: [3,2,3]
+// Output: 3
+// Example 2:
+// Input: [2,2,1,1,1,2,2]
+// Output: 2
+// Approach 6: Boyer-Moore Voting Algorithm
+// Intuition
+// If we had some way of counting instances of the majority element as +1 and
+// instances of any other element as −1, summing them would make it obvious that
+// the majority element is indeed the majority element.
+// Algorithm
+// Essentially, what Boyer-Moore does is look for a suffix suf of nums where
+// suf[0] is the majority element in that suffix. To do this, we maintain a
+// count, which is incremented whenever we see an instance of our current
+// candidate for majority element and decremented whenever we see anything else.
+// Whenever count equals 0, we effectively forget about everything in nums up to
+// the current index and consider the current number as the candidate for
+// majority element. It is not immediately obvious why we can get away with
+// forgetting prefixes of nums - consider the following examples (pipes are
+// inserted to separate runs of nonzero count). [7, 7, 5, 7, 5, 1 | 5, 7 | 5, 5,
+// 7, 7 | 7, 7, 7, 7] Here, the 7 at index 0 is selected to be the first
+// candidate for majority element. count will eventually reach 0 after index 5
+// is processed, so the 5 at index 6 will be the next candidate. In this case, 7
+// is the true majority element, so by disregarding this prefix, we are ignoring
+// an equal number of majority and minority elements - therefore, 7 will still
+// be the majority element in the suffix formed by throwing away the first
+// prefix. [7, 7, 5, 7, 5, 1 | 5, 7 | 5, 5, 7, 7 | 5, 5, 5, 5] Now, the majority
+// element is 5 (we changed the last run of the array from 7s to 5s), but our
+// first candidate is still 7. In this case, our candidate is not the true
+// majority element, but we still cannot discard more majority elements than
+// minority elements (this would imply that count could reach -1 before we
+// reassign candidate, which is obviously false). Therefore, given that it is
+// impossible (in both cases) to discard more majority elements than minority
+// elements, we are safe in discarding the prefix and attempting to recursively
+// solve the majority element problem for the suffix. Eventually, a suffix will
+// be found for which count does not hit 0, and the majority element of that
+// suffix will necessarily be the same as the majority element of the overall
+// array. Complexity Analysis Time complexity : O(n) Boyer-Moore performs
+// constant work exactly n times, so the algorithm runs in linear time. Space
+// complexity : O(1) Boyer-Moore allocates only constant additional memory.
+int majorityElement(const vector<int> &nums) {
+    int m;
+    int c = 0;
+    for (size_t i = 0; i < nums.size(); i++) {
+        if (c == 0) {
+            m = nums[i];
+            c++;
+        } else if (nums[i] == m) {
+            c++;
+        } else {
+            c--;
+        }
+    }
+    return m;
+}
+int majorityElement2(const vector<int> &nums) {
+    map<int, int> m;
+    for (size_t i = 0; i < nums.size(); i++) {
+        if (m.find(nums[i]) == m.end()) {
+            m[nums[i]] = 1;
+        } else {
+            m[nums[i]]++;
+        }
+        if (m[nums[i]] > (int)nums.size() / 2) {
+            return nums[i];
+        }
+    }
+    throw AssertError("No result");
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
