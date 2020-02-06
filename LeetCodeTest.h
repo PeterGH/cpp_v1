@@ -5302,5 +5302,83 @@ void LeetCodeTest::Init(void) {
             check(v1, v2);
         }
     });
+
+    Add("Excel", [&]() {
+        auto check = [&](const string &input, unsigned long long expect) {
+            Logger().WriteInformation("%s = ", input.c_str());
+            unsigned long long r = titleToNumber(input);
+            string e = convertToTitle(r);
+            Logger().WriteInformation("%llu = %s\n", r, e.c_str());
+            ASSERT1(r == expect);
+            ASSERT1(e == input);
+        };
+        check("A", 1);
+        check("B", 2);
+        check("C", 3);
+        check("X", 24);
+        check("Y", 25);
+        check("Z", 26);
+        check("AA", 27);
+        check("AB", 28);
+        check("AY", 51);
+        check("AZ", 52);
+        check("BA", 53);
+        check("BB", 54);
+        check("BZ", 78);
+        check("CA", 79);
+        check("ZA", 677);
+        check("ZY", 701);
+        check("ZZ", 702);
+        check("AAA", 703);
+        check("AAB", 704);
+        check("AAZ", 728);
+        for (unsigned long long i = 1; i <= 1000; i++) {
+            string code = convertToTitle(i);
+            unsigned long long decode = titleToNumber(code);
+            Logger().WriteInformation("%llu, %s, %llu\n", i, code.c_str(),
+                                      decode);
+            ASSERT1(decode == i);
+        }
+        for (unsigned int i = 0; i < 1000; i++) {
+            unsigned long long n = rand();
+            string code = convertToTitle(n);
+            unsigned long long decode = titleToNumber(code);
+            Logger().WriteInformation("%llu, %s, %llu\n", n, code.c_str(),
+                                      decode);
+            ASSERT1(decode == n);
+        }
+    });
+
+    Add("174. Dungeon Game", [&]() {
+        auto check = [&](const vector<vector<int>> &v, int e) {
+            Logger() << v;
+            int r = calculateMinimumHP(v);
+            ASSERT1(r == e);
+        };
+        check({{-2, -3, 3}, {-5, -10, 1}, {10, 30, -5}}, 7);
+    });
+
+    Add("179. Largest Number", [&]() {
+        auto check = [&](const vector<int> &nums, const string &expect,
+                         bool ignoreE = false) {
+            Logger() << nums;
+            string actual = largestNumber(nums);
+            string actual2 = largestNumber2(nums);
+            Logger() << actual << ", " << actual2 << endl;
+            if (ignoreE) {
+                ASSERT1(actual.compare(actual2) == 0);
+            } else {
+                ASSERT1(actual.compare(expect) == 0);
+                ASSERT1(actual2.compare(expect) == 0);
+            }
+        };
+        check({1}, "1");
+        check({3, 30, 34, 5, 9}, "9534330");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(20, 1);
+            vector<int> v = Random::Vector(n);
+            check(v, "", true);
+        }
+    });
 }
 #endif

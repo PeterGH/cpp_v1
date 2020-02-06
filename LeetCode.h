@@ -14390,6 +14390,240 @@ int majorityElement2(const vector<int> &nums) {
     throw AssertError("No result");
 }
 
+// 171. Excel Sheet Column Number
+// Given a column title as appear in an Excel sheet, return its corresponding
+// column number. For example:
+//     A -> 1
+//     B -> 2
+//     C -> 3
+//     ...
+//     Z -> 26
+//     AA -> 27
+//     AB -> 28
+//     ...
+// Example 1:
+// Input: "A"
+// Output: 1
+// Example 2:
+// Input: "AB"
+// Output: 28
+// Example 3:
+// Input: "ZY"
+// Output: 701
+int titleToNumber(const string &s) {
+    long long r = 0;
+    for (size_t i = 0; i < s.size(); i++)
+        r = r * 26 + s[i] - 'A' + 1;
+    return (int)r;
+}
+
+// 172. Factorial Trailing Zeroes
+// Given an integer n, return the number of trailing zeroes in n!.
+// Example 1:
+// Input: 3
+// Output: 0
+// Explanation: 3! = 6, no trailing zero.
+// Example 2:
+// Input: 5
+// Output: 1
+// Explanation: 5! = 120, one trailing zero.
+// Note: Your solution should be in logarithmic time complexity.
+// n! = 1 * 2 * 3 * 4 * 5 * ... * 10 * ... * 15 * ... * n
+//    = 2^x * 5^y * z
+// Usually x >= y. So just need to count occurrence of 5.
+//   n:      1, 2, 3, 4, 5, 6, ..., 2*5, ..., 3*5, ..., n1*5, ..., n
+// n/5 = n1:             1,    ..., 2,   ..., 3,   ..., n2*5, ..., n1
+// n1/5 = n2:                                   1, ..., n3*5, ..., n2
+// n2/5 = n3: ...
+// ...
+int trailingZeroes(int n) {
+    int c = 0;
+    while (n >= 5) {
+        n /= 5;
+        c += n;
+    }
+    return c;
+}
+
+// 173. Binary Search Tree Iterator
+// Implement an iterator over a binary search tree (BST). Your iterator will be
+// initialized with the root node of a BST.
+// Calling next() will return the next smallest number in the BST.
+// Example:
+// BSTIterator iterator = new BSTIterator(root);
+// iterator.next();    // return 3
+// iterator.next();    // return 7
+// iterator.hasNext(); // return true
+// iterator.next();    // return 9
+// iterator.hasNext(); // return true
+// iterator.next();    // return 15
+// iterator.hasNext(); // return true
+// iterator.next();    // return 20
+// iterator.hasNext(); // return false
+// Note:
+// next() and hasNext() should run in average O(1) time and uses O(h) memory,
+// where h is the height of the tree. You may assume that next() call will
+// always be valid, that is, there will be at least a next smallest number in
+// the BST when next() is called.
+class BSTIterator {
+  private:
+    TreeNode *_node;
+    stack<TreeNode *> _s;
+
+  public:
+    BSTIterator(TreeNode *root) { _node = root; }
+    /** @return the next smallest number */
+    int next() {
+        int v;
+        while (!_s.empty() || _node != nullptr) {
+            if (_node != nullptr) {
+                _s.push(_node);
+                _node = _node->left;
+            } else {
+                v = _s.top()->val;
+                _node = _s.top()->right;
+                _s.pop();
+                break;
+            }
+        }
+        return v;
+    }
+    /** @return whether we have a next smallest number */
+    bool hasNext() { return !_s.empty() || _node != nullptr; }
+};
+
+// 174. Dungeon Game
+// The demons had captured the princess (P) and imprisoned her in the
+// bottom-right corner of a dungeon. The dungeon consists of M x N rooms laid
+// out in a 2D grid. Our valiant knight (K) was initially positioned in the
+// top-left room and must fight his way through the dungeon to rescue the
+// princess. The knight has an initial health point represented by a positive
+// integer. If at any point his health point drops to 0 or below, he dies
+// immediately. Some of the rooms are guarded by demons, so the knight loses
+// health (negative integers) upon entering these rooms; other rooms are either
+// empty (0's) or contain magic orbs that increase the knight's health (positive
+// integers). In order to reach the princess as quickly as possible, the knight
+// decides to move only rightward or downward in each step. Write a function to
+// determine the knight's minimum initial health so that he is able to rescue
+// the princess. For example, given the dungeon below, the initial health of the
+// knight must be at least 7 if he follows the optimal path RIGHT-> RIGHT ->
+// DOWN -> DOWN. -2 (K) 	-3 	3 -5 	-10 	1 10 	30 	-5 (P)
+// Note: The knight's health has no upper bound. Any room can contain threats or
+// power-ups, even the first room the knight enters and the bottom-right room
+// where the princess is imprisoned.
+int calculateMinimumHP(const vector<vector<int>> &dungeon) {
+    int m = dungeon.size();
+    int n = dungeon[0].size();
+    vector<int> health(n, 0);
+    for (int i = m - 1; i >= 0; i--) {
+        for (int j = n - 1; j >= 0; j--) {
+            if (i == m - 1) {
+                if (j == n - 1)
+                    health[j] = 1 + (dungeon[i][j] >= 0 ? 0 : -dungeon[i][j]);
+                else
+                    health[j] = dungeon[i][j] >= health[j + 1]
+                                    ? 1
+                                    : health[j + 1] - dungeon[i][j];
+            } else {
+                if (j == n - 1)
+                    health[j] = dungeon[i][j] >= health[j]
+                                    ? 1
+                                    : health[j] - dungeon[i][j];
+                else {
+                    int m = min(health[j], health[j + 1]);
+                    health[j] = dungeon[i][j] > m ? 1 : m - dungeon[i][j];
+                }
+            }
+        }
+        // for (int j = 0; j < n; j++) {
+        //     cout << "  " << health[j];
+        // }
+        // cout << endl;
+    }
+    return health[0];
+}
+
+// 175. Combine Two Tables
+// SQL Schema
+// Table: Person
+// +-------------+---------+
+// | Column Name | Type    |
+// +-------------+---------+
+// | PersonId    | int     |
+// | FirstName   | varchar |
+// | LastName    | varchar |
+// +-------------+---------+
+// PersonId is the primary key column for this table.
+// Table: Address
+// +-------------+---------+
+// | Column Name | Type    |
+// +-------------+---------+
+// | AddressId   | int     |
+// | PersonId    | int     |
+// | City        | varchar |
+// | State       | varchar |
+// +-------------+---------+
+// AddressId is the primary key column for this table.
+// Write a SQL query for a report that provides the following information for
+// each person in the Person table, regardless if there is an address for each
+// of those people:
+// FirstName, LastName, City, State
+// # Write your MySQL query statement below
+// SELECT FirstName, LastName, City, State
+// FROM Person LEFT JOIN Address ON Person.PersonId = Address.PersonId
+
+// 179. Largest Number
+// Given a list of non negative integers, arrange them such that they form the
+// largest number. Example 1: Input: [10,2] Output: "210" Example 2: Input:
+// [3,30,34,5,9] Output: "9534330" Note: The result may be very large, so you
+// need to return a string instead of an integer.
+string largestNumber(const vector<int> &nums) {
+    vector<string> s;
+    s.resize(nums.size());
+    transform(nums.begin(), nums.end(), s.begin(),
+              [&](int i) { return std::to_string(i); });
+    sort(s.begin(), s.end(), [&](const string &a, const string &b) -> bool {
+        string ab = a + b;
+        string ba = b + a;
+        for (size_t i = 0; i < ab.size(); i++) {
+            if (ab[i] > ba[i])
+                return true;
+            else if (ab[i] < ba[i])
+                return false;
+        }
+        return false;
+    });
+    if (s[0] == "0")
+        return "0";
+    ostringstream ss;
+    for_each(s.cbegin(), s.cend(), [&](const string &i) { ss << i; });
+    return ss.str();
+}
+string largestNumber2(const vector<int> &nums) {
+    vector<string> strs;
+    strs.resize(nums.size());
+    transform(nums.begin(), nums.end(), strs.begin(), [&](int i) {
+        ostringstream oss;
+        oss << i;
+        return oss.str();
+    });
+    sort(strs.begin(), strs.end(), [&](const string &str1, const string &str2) {
+        string str12(str1);
+        str12.append(str2);
+        string str21(str2);
+        str21.append(str1);
+        return str12.compare(str21) > 0;
+    });
+    string result;
+    if (strs[0] == "0") {
+        result = "0";
+    } else {
+        for_each(strs.begin(), strs.end(),
+                 [&](const string &str) { result.append(str); });
+    }
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
