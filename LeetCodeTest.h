@@ -5380,5 +5380,43 @@ void LeetCodeTest::Init(void) {
             check(v, "", true);
         }
     });
+
+    Add("187. Repeated DNA Sequences", [&]() {
+        auto check = [&](const string &s) {
+            Logger() << s << endl;
+            vector<string> r = findRepeatedDnaSequences(s);
+            vector<string> r2 = findRepeatedDnaSequences2(s);
+            sort(r.begin(), r.end());
+            sort(r2.begin(), r2.end());
+            Logger() << r << r2;
+            ASSERT1(Util::Compare(r, r2) == 0);
+        };
+        check("AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT");
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            string s;
+            for (int j = 0; j < n; j++) {
+                switch (rand() & 0x3) {
+                case 0:
+                    s.append(1, 'A');
+                    break;
+                case 1:
+                    s.append(1, 'C');
+                    break;
+                case 2:
+                    s.append(1, 'G');
+                    break;
+                case 3:
+                    s.append(1, 'T');
+                    break;
+                }
+                if ((rand() & 0x7) == 0) {
+                    int i = s.size() > 10 ? s.size() - 10 : 0;
+                    s.append(s.substr(i));
+                }
+            }
+            check(s);
+        }
+    });
 }
 #endif

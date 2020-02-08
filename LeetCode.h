@@ -14624,6 +14624,60 @@ string largestNumber2(const vector<int> &nums) {
     return result;
 }
 
+// 187. Repeated DNA Sequences
+// All DNA is composed of a series of nucleotides abbreviated as A, C, G, and T,
+// for example: "ACGAATTCCG". When studying DNA, it is sometimes useful to
+// identify repeated sequences within the DNA. Write a function to find all the
+// 10-letter-long sequences (substrings) that occur more than once in a DNA
+// molecule. Example: Input: s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT" Output:
+// ["AAAAACCCCC", "CCCCCAAAAA"]
+// A is 0x41 = 01000001,
+// C is 0x43 = 01000011,
+// G is 0x47 = 01000111,
+// T is 0x54 = 01000100.
+// Using bit 3 and 2 to encode each one
+vector<string> findRepeatedDnaSequences(const string &s) {
+    vector<string> result;
+    map<int, int> m;
+    int t = 0;
+    for (size_t i = 0; i < s.size(); i++) {
+        t = ((t << 2) | (s[i] >> 1 & 0x3)) & 0xFFFFF;
+        if (i >= 9) {
+            if (m.find(t) == m.end())
+                m[t] = 1;
+            else {
+                if (m[t] == 1)
+                    result.push_back(s.substr(i - 9, 10));
+                m[t]++;
+            }
+        }
+    }
+    return result;
+}
+vector<string> findRepeatedDnaSequences2(const string &s) {
+    vector<string> result;
+    for (size_t i = 0; i + 10 < s.size(); i++) {
+        string t = s.substr(i, 10);
+        if (find(result.cbegin(), result.cend(), t) == result.cend()) {
+            size_t j = i + 1;
+            int stop = false;
+            while (!stop && j + 10 <= s.size()) {
+                if (s[i] == s[j]) {
+                    size_t k = 1;
+                    while (k < 10 && s[i + k] == s[j + k])
+                        k++;
+                    if (k == 10) {
+                        result.push_back(s.substr(i, k));
+                        stop = true;
+                    }
+                }
+                j++;
+            }
+        }
+    }
+    return result;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
