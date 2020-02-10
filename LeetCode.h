@@ -14678,6 +14678,79 @@ vector<string> findRepeatedDnaSequences2(const string &s) {
     return result;
 }
 
+// 188. Best Time to Buy and Sell Stock IV
+// Say you have an array for which the i-th element is the price of a given stock
+// on day i. Design an algorithm to find the maximum profit. You may complete at
+// most k transactions. Note: You may not engage in multiple transactions at the
+// same time (ie, you must sell the stock before you buy again).
+// Example 1:
+// Input: [2,4,1], k = 2
+// Output: 2
+// Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2.
+// Example 2:
+// Input: [3,2,6,5,0,3], k = 2
+// Output: 7
+// Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4.
+// Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
+// Let p[i] be the price on day i
+// Let P(i,k) be the max profit with k transactions on day i
+//            k               1                         2                   3 ......      k-1                          k
+// i     p[i]  
+// 0     p[0]     -p[0]
+// 1     p[1]     -p[1]   P(1,1)     -p[1]+P(1,1)
+// 2     p[2]     -p[2]   P(2,1)     -p[2]+P(2,1)   P(2,2) -p[2]+P(2,2)
+// 3     p[3]     -p[3]   P(3,1)     -p[3]+P(3,1)   P(3,2) -p[3]+P(3,2) P(3,3)
+// 4     p[4]     -p[4]   P(4,1)     -p[4]+P(4,1)   P(4,2) -p[4]+P(4,2) P(4,3)
+// ......
+// k-1 p[k-1]   -p[k-1] P(k-1,1) -p[k-1]+P(k-1,1) P(k-1,2) ...... -p[k-1]+P(k-1,k-2) P(k-1,k-1) -p[k-1]+P(k-1,k-1)
+// k     p[k]     -p[k]   P(k,1)     -p[k]+P(k,1)   P(k,2) ......     -p[k]+P(k,k-2)   P(k,k-1)     -p[k]+P(k,k-1)   P(k,k)
+// k+1 p[k+1]   -p[k+1] P(k+1,1) -p[k+1]+P[k+1,1] P(k+1,2) ...... -p[k+1]+P(k+1,k-2) P(k+1,k-1) -p[k+1]+P(k+1,k-1) P(k+1,k)
+// ......
+// i-1 p[i-1]   -p[i-1] P(i-1,1) -p[i-1]+P(i-1,1) P(i-1,2) ...... -p[i-1]+P(i-1,k-2) P(i-1,k-1) -p[i-1]+P(i-1,k-1) P(i-1,k)
+// i     p[i]             P(i,1)                    P(i,2) ......                      P(i,i-1)                      P(i,i)
+
+// P(i,1) = p[i] + max{-p[i-1],
+//                     -p[i-2],
+//                     ......
+//                     -p[2],
+//                     -p[1],
+//                     -p[0]}
+// P(i,2) = max{P(i-1, 2),
+//              p[i] + max{-p[i-1] + P(i-1, 1),
+//                         -p[i-2] + P(i-2, 1),
+//                         ......
+//                         -p[2] + P(2, 1),
+//                         -p[1] + P(1, 1)}}
+// P(i,3) = max{P(i-1, 3),
+//              p[i] + max{-p[i-1] + P(i-1, 2),
+//                         -p[i-2] + P(i-2, 2),
+//                         ......
+//                         -p[3] + P(3, 2),
+//                         -p[2] + P(2, 2)}}
+// ......
+// P(i,k-1) = max{P(i-1, k-1),
+//              p[i] + max{-p[i-1] + P(i-1, k-2),
+//                         -p[i-2] + P(i-2, k-2),
+//                         ......
+//                         -p[k-1] + P(k-1, k-2),
+//                         -p[k-2] + P(k-2, k-2)}}
+// P(i,k) = max{P(i-1, k),
+//              p[i] + max{-p[i-1] + P(i-1, k-1),
+//                         -p[i-2] + P(i-2, k-1),
+//                         ......
+//                         -p[k] + P(k, k-1),
+//                         -p[k-1] + P(k-1, k-1)}}
+int maxProfit(int k, const vector<int>& prices) {
+    vector<int> c(k, 0);
+    vector<int> p(k, 0);
+    for (int i = 1; i < prices.size(); i++) {
+        for (int j = min(i, k); j > 0; j--) {
+
+        }
+
+    }
+        
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
