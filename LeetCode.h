@@ -14679,42 +14679,44 @@ vector<string> findRepeatedDnaSequences2(const string &s) {
 }
 
 // 188. Best Time to Buy and Sell Stock IV
-// Say you have an array for which the i-th element is the price of a given stock
-// on day i. Design an algorithm to find the maximum profit. You may complete at
-// most k transactions. Note: You may not engage in multiple transactions at the
-// same time (ie, you must sell the stock before you buy again).
-// Example 1:
-// Input: [2,4,1], k = 2
-// Output: 2
-// Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2.
-// Example 2:
+// Say you have an array for which the i-th element is the price of a given
+// stock on day i. Design an algorithm to find the maximum profit. You may
+// complete at most k transactions. Note: You may not engage in multiple
+// transactions at the same time (ie, you must sell the stock before you buy
+// again). Example 1: Input: [2,4,1], k = 2 Output: 2 Explanation: Buy on day 1
+// (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2. Example 2:
 // Input: [3,2,6,5,0,3], k = 2
 // Output: 7
-// Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4.
-// Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
-// Let p[i] be the price on day i
-// Let P(i,k) be the max profit with k transactions on day i
-//            k               1                         2                   3 ......      k-1                          k
-// i     p[i]  
+// Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit =
+// 6-2 = 4. Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit
+// = 3-0 = 3. Let p[i] be the price on day i Let P(i,k) be the max profit with k
+// transactions on day i
+//            k               1                         2                   3
+//            ......      k-1                          k
+// i     p[i]
 // 0     p[0]     -p[0]
 // 1     p[1]     -p[1]   P(1,1)     -p[1]+P(1,1)
 // 2     p[2]     -p[2]   P(2,1)     -p[2]+P(2,1)   P(2,2) -p[2]+P(2,2)
 // 3     p[3]     -p[3]   P(3,1)     -p[3]+P(3,1)   P(3,2) -p[3]+P(3,2) P(3,3)
 // 4     p[4]     -p[4]   P(4,1)     -p[4]+P(4,1)   P(4,2) -p[4]+P(4,2) P(4,3)
 // ......
-// k-1 p[k-1]   -p[k-1] P(k-1,1) -p[k-1]+P(k-1,1) P(k-1,2) ...... -p[k-1]+P(k-1,k-2) P(k-1,k-1) -p[k-1]+P(k-1,k-1)
-// k     p[k]     -p[k]   P(k,1)     -p[k]+P(k,1)   P(k,2) ......     -p[k]+P(k,k-2)   P(k,k-1)     -p[k]+P(k,k-1)   P(k,k)
-// k+1 p[k+1]   -p[k+1] P(k+1,1) -p[k+1]+P[k+1,1] P(k+1,2) ...... -p[k+1]+P(k+1,k-2) P(k+1,k-1) -p[k+1]+P(k+1,k-1) P(k+1,k)
+// k-1 p[k-1]   -p[k-1] P(k-1,1) -p[k-1]+P(k-1,1) P(k-1,2) ......
+// -p[k-1]+P(k-1,k-2) P(k-1,k-1) -p[k-1]+P(k-1,k-1) k     p[k]     -p[k] P(k,1)
+// -p[k]+P(k,1)   P(k,2) ......     -p[k]+P(k,k-2)   P(k,k-1)     -p[k]+P(k,k-1)
+// P(k,k) k+1 p[k+1]   -p[k+1] P(k+1,1) -p[k+1]+P[k+1,1] P(k+1,2) ......
+// -p[k+1]+P(k+1,k-2) P(k+1,k-1) -p[k+1]+P(k+1,k-1) P(k+1,k)
 // ......
-// i-1 p[i-1]   -p[i-1] P(i-1,1) -p[i-1]+P(i-1,1) P(i-1,2) ...... -p[i-1]+P(i-1,k-2) P(i-1,k-1) -p[i-1]+P(i-1,k-1) P(i-1,k)
-// i     p[i]             P(i,1)                    P(i,2) ......                      P(i,i-1)                      P(i,i)
+// i-1 p[i-1]   -p[i-1] P(i-1,1) -p[i-1]+P(i-1,1) P(i-1,2) ......
+// -p[i-1]+P(i-1,k-2) P(i-1,k-1) -p[i-1]+P(i-1,k-1) P(i-1,k) i     p[i] P(i,1)
+// P(i,2) ......                      P(i,k-1)                      P(i,k)
 
-// P(i,1) = p[i] + max{-p[i-1],
-//                     -p[i-2],
-//                     ......
-//                     -p[2],
-//                     -p[1],
-//                     -p[0]}
+// P(i,1) = max(P(i-1,1),
+//              p[i] + max{-p[i-1],
+//                         -p[i-2],
+//                         ......
+//                         -p[2],
+//                         -p[1],
+//                         -p[0]}
 // P(i,2) = max{P(i-1, 2),
 //              p[i] + max{-p[i-1] + P(i-1, 1),
 //                         -p[i-2] + P(i-2, 1),
@@ -14740,16 +14742,65 @@ vector<string> findRepeatedDnaSequences2(const string &s) {
 //                         ......
 //                         -p[k] + P(k, k-1),
 //                         -p[k-1] + P(k-1, k-1)}}
-int maxProfit(int k, const vector<int>& prices) {
+int maxProfit(int k, const vector<int> &prices) {
+    k = min(k, (int)prices.size() - 1);
+    if (k <= 0)
+        return 0;
     vector<int> c(k, 0);
     vector<int> p(k, 0);
     for (int i = 1; i < prices.size(); i++) {
         for (int j = min(i, k); j > 0; j--) {
-
+            if (j == i) {
+                if (j == 1)
+                    c[j - 1] = -prices[i - 1];
+                else
+                    c[j - 1] = -prices[i - 1] + p[j - 2];
+                p[j - 1] = prices[i] + c[j - 1];
+            } else {
+                if (j == 1)
+                    c[j - 1] = max(c[j - 1], -prices[i - 1]);
+                else
+                    c[j - 1] = max(c[j - 1], -prices[i - 1] + p[j - 2]);
+                p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+            }
         }
-
     }
-        
+    int m = p[0];
+    for (size_t i = 1; i < p.size(); i++)
+        m = max(m, p[i]);
+    return m > 0 ? m : 0;
+}
+int maxProfit2(int k, const vector<int> &prices) {
+    k = min(k, (int)prices.size() - 1);
+    if (k <= 0)
+        return 0;
+    vector<int> c(k, 0);
+    vector<int> p(k, 0);
+    for (int i = 1; i < prices.size(); i++) {
+        for (int j = min(i, k); j > 0; j--) {
+            if (j == 1) {
+                if (j == i) {
+                    c[j - 1] = -prices[i - 1];
+                    p[j - 1] = prices[i] + c[j - 1];
+                } else {
+                    c[j - 1] = max(c[j - 1], -prices[i - 1]);
+                    p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+                }
+            } else {
+                if (j == i) {
+                    c[j - 1] = -prices[i - 1] + p[j - 2];
+                    p[j - 1] = prices[i] + c[j - 1];
+                } else {
+                    c[j - 1] = max(c[j - 1], -prices[i - 1] + p[j - 2]);
+                    p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+                }
+            }
+        }
+    }
+    int m = p[0];
+    for (size_t i = 1; i < p.size(); i++)
+        m = max(m, p[i]);
+    return m > 0 ? m : 0;
 }
 } // namespace LeetCode
 } // namespace Test
