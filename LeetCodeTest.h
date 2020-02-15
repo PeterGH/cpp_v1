@@ -5418,5 +5418,38 @@ void LeetCodeTest::Init(void) {
             check(s);
         }
     });
+
+    Add("189. Rotate Array", [&]() {
+        function<int(int, int)> gcd = [&](int a, int b) -> int {
+            if (a < b)
+                swap(a, b);
+            while (b != 0) {
+                int c = a % b;
+                a = b;
+                b = c;
+            }
+            return a;
+        };
+        auto check = [&](int length) {
+            vector<int> v = Util::IncreasingVector(length);
+            for (int i = 0; i <= 2 * length; i++) {
+                Logger() << v;
+                vector<int> v2(v);
+                vector<int> v3(v);
+                Logger() << "rotate to right by " << i << endl;
+                rotate(v, i);
+                rotate2(v2, i);
+                Logger() << v << v2;
+                ASSERT1(Util::Compare(v, v2) == 0);
+                if (i > 0 && gcd(length, i) == 1) {
+                    rotate3(v3, i);
+                    Logger() << v3;
+                    ASSERT1(Util::Compare(v, v3) == 0);
+                }
+            }
+        };
+        for (int i = 1; i < 20; i++)
+            check(i);
+    });
 }
 #endif

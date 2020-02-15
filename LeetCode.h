@@ -14748,7 +14748,7 @@ int maxProfit(int k, const vector<int> &prices) {
         return 0;
     vector<int> c(k, 0);
     vector<int> p(k, 0);
-    for (int i = 1; i < prices.size(); i++) {
+    for (int i = 1; i < (int)prices.size(); i++) {
         for (int j = min(i, k); j > 0; j--) {
             if (j == i) {
                 if (j == 1)
@@ -14776,7 +14776,7 @@ int maxProfit2(int k, const vector<int> &prices) {
         return 0;
     vector<int> c(k, 0);
     vector<int> p(k, 0);
-    for (int i = 1; i < prices.size(); i++) {
+    for (int i = 1; i < (int)prices.size(); i++) {
         for (int j = min(i, k); j > 0; j--) {
             if (j == 1) {
                 if (j == i) {
@@ -14801,6 +14801,149 @@ int maxProfit2(int k, const vector<int> &prices) {
     for (size_t i = 1; i < p.size(); i++)
         m = max(m, p[i]);
     return m > 0 ? m : 0;
+}
+
+// 189. Rotate Array
+// Given an array, rotate the array to the right by k steps, where k is
+// non-negative. Example 1: Input: [1,2,3,4,5,6,7] and k = 3 Output:
+// [5,6,7,1,2,3,4] Explanation: rotate 1 steps to the right: [7,1,2,3,4,5,6]
+// rotate 2 steps to the right: [6,7,1,2,3,4,5]
+// rotate 3 steps to the right: [5,6,7,1,2,3,4]
+// Example 2:
+// Input: [-1,-100,3,99] and k = 2
+// Output: [3,99,-1,-100]
+// Explanation:
+// rotate 1 steps to the right: [99,-1,-100,3]
+// rotate 2 steps to the right: [3,99,-1,-100]
+// Note: Try to come up as many solutions as you can, there are at least 3
+// different ways to solve this problem. Could you do it in-place with O(1)
+// extra space?
+void rotate(vector<int> &nums, int k) {
+    k = k % nums.size();
+    if (k == 0)
+        return;
+    function<void(int, int)> Swap = [&](int i, int j) {
+        while (i < j) {
+            swap(nums[i], nums[j]);
+            i++;
+            j--;
+        }
+    };
+    Swap(0, (int)nums.size() - 1);
+    Swap(0, k - 1);
+    Swap(k, (int)nums.size() - 1);
+}
+void rotate2(vector<int> &nums, int k) {
+    k %= nums.size();
+    if (k == 0)
+        return;
+    function<void(int, int, int)> Swap = [&](int p, int q, int n) {
+        for (int m = 0; m < n; m++)
+            swap(nums[p + m], nums[q + m]);
+    };
+    int i = 0;
+    int j = nums.size() - 1;
+    int t = j - k + 1;
+    // input[i..t-1] and input[t..j];
+    while (i < t && t <= j) {
+        if (t - i < j - t + 1) {
+            // Left range is shorter. Swap it to the right, and
+            // repeat with the rest on its left.
+            // input[i..t-1], input[t..j-(t-i)], input[j-(t-i)+1..j]
+            Swap(i, j - (t - i) + 1, t - i);
+            j = j - (t - i);
+        } else if (t - i > j - t + 1) {
+            // Right range is shorter. Swap it to the left, and
+            // repeat with the rest on its right.
+            // input[i..i+(j-t)], input(i+(j-t)+1..t-1], input[t..j]
+            Swap(i, t, j - t + 1);
+            i = i + (j - t) + 1;
+        } else {
+            // Both ranges have the same length
+            Swap(i, t, t - i);
+            break;
+        }
+    }
+}
+// This one works only if n and k are co-prime
+// 0, k, 2k, 3k, ..., (n-1)k, nk
+// 0, k % n, 2k % n, 3k % n, ..., (n-1)k % n, nk % n = 0
+void rotate3(vector<int> &nums, int k) {
+    if (nums.empty())
+        return;
+    k %= nums.size();
+    if (k == 0)
+        return;
+    size_t i = 0;
+    do {
+        i = (i + k) % nums.size();
+        swap(nums[0], nums[i]);
+    } while (i != 0);
+}
+
+// 190. Reverse Bits
+// Reverse bits of a given 32 bits unsigned integer.
+// Example 1:
+// Input: 00000010100101000001111010011100
+// Output: 00111001011110000010100101000000
+// Explanation: The input binary string 00000010100101000001111010011100
+// represents the unsigned integer 43261596, so return 964176192 which its
+// binary representation is 00111001011110000010100101000000.
+// Example 2:
+// Input: 11111111111111111111111111111101
+// Output: 10111111111111111111111111111111
+// Explanation: The input binary string 11111111111111111111111111111101
+// represents the unsigned integer 4294967293, so return 3221225471 which
+// its binary representation is 10111111111111111111111111111111.
+// Note: Note that in some languages such as Java, there is no unsigned integer
+// type. In this case, both input and output will be given as signed integer
+// type and should not affect your implementation, as the internal binary
+// representation of the integer is the same whether it is signed or unsigned.
+// In Java, the compiler represents the signed integers using 2's complement
+// notation. Therefore, in Example 2 above the input represents the signed
+// integer -3 and the output represents the signed integer -1073741825.
+// Follow up: If this function is called many times, how would you optimize it?
+uint32_t reverseBits(uint32_t n) {
+    n = ((n & 0xFFFF0000) >> 16) | ((n & 0x0000FFFF) << 16);
+    n = ((n & 0xFF00FF00) >> 8) | ((n & 0x00FF00FF) << 8);
+    n = ((n & 0xF0F0F0F0) >> 4) | ((n & 0x0F0F0F0F) << 4);
+    n = ((n & 0xCCCCCCCC) >> 2) | ((n & 0x33333333) << 2);
+    n = ((n & 0xAAAAAAAA) >> 1) | ((n & 0x55555555) << 1);
+    return n;
+}
+
+// 191. Number of 1 Bits
+// Write a function that takes an unsigned integer and return the number of '1'
+// bits it has (also known as the Hamming weight).
+// Example 1:
+// Input: 00000000000000000000000000001011
+// Output: 3
+// Explanation: The input binary string 00000000000000000000000000001011 has a
+// total of three '1' bits.
+// Example 2:
+// Input: 00000000000000000000000010000000
+// Output: 1
+// Explanation: The input binary string 00000000000000000000000010000000 has a
+// total of one '1' bit.
+// Example 3:
+// Input: 11111111111111111111111111111101
+// Output: 31
+// Explanation: The input binary string 11111111111111111111111111111101 has a
+// total of thirty one '1' bits.
+// Note: Note that in some languages such as Java, there is no unsigned integer
+// type. In this case, the input will be given as signed integer type and should
+// not affect your implementation, as the internal binary representation of the
+// integer is the same whether it is signed or unsigned. In Java, the compiler
+// represents the signed integers using 2's complement notation. Therefore, in
+// Example 3 above the input represents the signed integer -3.
+// Follow up: If this function is called many times, how would you optimize it?
+int hammingWeight(uint32_t n) {
+    int c = 0;
+    while (n > 0) {
+        n &= (n - 1);
+        c++;
+    }
+    return c;
 }
 } // namespace LeetCode
 } // namespace Test
