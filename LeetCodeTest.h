@@ -5451,5 +5451,34 @@ void LeetCodeTest::Init(void) {
         for (int i = 1; i < 20; i++)
             check(i);
     });
+
+    Add("198. House Robber", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int m = rob(v);
+            int m2 = rob2(v);
+            Logger() << "rob: " << m << ", " << m2 << endl;
+            ASSERT1(m == m2);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
+
+    Add("199. Binary Tree Right Side View", [&]() {
+        auto check = [&](int n) {
+            TreeNode *t = RandomTree(n);
+            Print(t);
+            vector<int> v = rightSideView(t);
+            vector<int> v2 = rightSideView2(t);
+            Logger() << v << v2;
+            DeleteTree(t);
+            ASSERT1(Util::Compare(v, v2) == 0);
+        };
+        for (int i = 0; i < 100; i++)
+            check(Random::Int(100, 1));
+    });
 }
 #endif

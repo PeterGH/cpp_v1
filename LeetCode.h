@@ -14945,6 +14945,157 @@ int hammingWeight(uint32_t n) {
     }
     return c;
 }
+
+// 198. House Robber
+// You are a professional robber planning to rob houses along a street. Each
+// house has a certain amount of money stashed, the only constraint stopping you
+// from robbing each of them is that adjacent houses have security system
+// connected and it will automatically contact the police if two adjacent houses
+// were broken into on the same night. Given a list of non-negative integers
+// representing the amount of money of each house, determine the maximum amount
+// of money you can rob tonight without alerting the police. Example 1: Input:
+// [1,2,3,1] Output: 4 Explanation: Rob house 1 (money = 1) and then rob house 3
+// (money = 3). Total amount you can rob = 1 + 3 = 4. Example 2: Input:
+// [2,7,9,3,1] Output: 12 Explanation: Rob house 1 (money = 2), rob house 3
+// (money = 9) and rob house 5 (money = 1). Total amount you can rob = 2 + 9 + 1
+// = 12. Let m[i] be the max amount for p[0..i] m[i] = max{m[i - 1],
+//            p[i] + max{m[i - 2],
+//                       m[i - 1],
+//                       ......
+//                       m[2],
+//                       m[1] = max{p[1], p[0]},
+//                       m[0] = p[0]}}
+int rob(const vector<int> &nums) {
+    if (nums.empty())
+        return 0;
+    if (nums.size() == 1)
+        return nums[0];
+    int s = nums[0];
+    int m = max(nums[0], nums[1]);
+    for (size_t i = 2; i < nums.size(); i++) {
+        int t = m;
+        m = max(m, nums[i] + s);
+        s = max(s, t);
+    }
+    return m;
+}
+int rob2(const vector<int> &nums) {
+    int a = 0; // max at i - 2
+    int b = 0; // max at i - 1
+    int c;     // max at i
+    for (size_t i = 0; i < nums.size(); i++) {
+        c = max(a + nums[i], b);
+        a = b;
+        b = c;
+    }
+    return b;
+}
+
+// 199. Binary Tree Right Side View
+// Given a binary tree, imagine yourself standing on the right side of it,
+// return the values of the nodes you can see ordered from top to bottom.
+// Example:
+// Input: [1,2,3,null,5,null,4]
+// Output: [1, 3, 4]
+// Explanation:
+//    1            <---
+//  /   \
+// 2     3         <---
+//  \     \
+//   5     4       <---
+vector<int> rightSideView(TreeNode *root) {
+    vector<int> v;
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    int d = 1;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            if (d > (int)v.size())
+                v.push_back(n->val);
+            s.push(make_pair(n, d));
+            d++;
+            n = n->right;
+        } else {
+            n = s.top().first->left;
+            d = s.top().second + 1;
+            s.pop();
+        }
+    }
+    return v;
+}
+vector<int> rightSideView2(TreeNode *root) {
+    vector<int> result;
+    if (root == nullptr)
+        return result;
+    queue<TreeNode *> q[2];
+    q[0].push(root);
+    int level = 0;
+    int current = 0;
+    int next = 0;
+    TreeNode *p;
+    while (!q[0].empty() || !q[1].empty()) {
+        current = level % 2;
+        next = (level + 1) % 2;
+        p = q[current].front();
+        result.push_back(p->val);
+        while (!q[current].empty()) {
+            p = q[current].front();
+            q[current].pop();
+            if (p->right != nullptr)
+                q[next].push(p->right);
+            if (p->left != nullptr)
+                q[next].push(p->left);
+        }
+        level++;
+    }
+    return result;
+}
+
+// 200. Number of Islands
+// Given a 2d grid map of '1's (land) and '0's (water), count the number of
+// islands. An island is surrounded by water and is formed by connecting
+// adjacent lands horizontally or vertically. You may assume all four edges of
+// the grid are all surrounded by water. Example 1: Input: 11110 11010 11000
+// 00000
+// Output: 1
+// Example 2:
+// Input:
+// 11000
+// 11000
+// 00100
+// 00011
+// Output: 3
+int numIslands(vector<vector<char>> &grid) {
+    if (grid.empty() || grid[0].empty())
+        return 0;
+    int m = grid.size();
+    int n = grid[0].size();
+    function<void(int, int)> mark = [&](int i, int j) {
+        if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] != '1')
+            return;
+        grid[i][j] = '2';
+        mark(i - 1, j);
+        mark(i + 1, j);
+        mark(i, j - 1);
+        mark(i, j + 1);
+    };
+    int c = 0;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == '1') {
+                c++;
+                mark(i, j);
+            }
+        }
+    }
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            if (grid[i][j] == '2')
+                grid[i][j] = '1';
+        }
+    }
+    return c;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
