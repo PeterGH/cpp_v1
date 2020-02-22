@@ -15096,6 +15096,50 @@ int numIslands(vector<vector<char>> &grid) {
     }
     return c;
 }
+
+// 201. Bitwise AND of Numbers Range
+// Given a range [m, n] where 0 <= m <= n <= 2147483647, return the bitwise AND
+// of all numbers in this range, inclusive.
+// Example 1:
+// Input: [5,7]
+// Output: 4
+// Example 2:
+// Input: [0,1]
+// Output: 0
+int rangeBitwiseAnd(int m, int n) {
+    int b = 0x40000000;
+    int r = 0;
+    while (b > 0) {
+        if ((b & n) == 0) {
+            b = b >> 1;
+            continue;
+        }
+        if (b <= m) {
+            r |= b;
+            m -= b;
+            n -= b;
+            b = b >> 1;
+        } else {
+            break;
+        }
+    }
+    return r;
+}
+int rangeBitwiseAnd2(int m, int n) {
+    int x = 0;
+    while (m != n) {
+        m >>= 1;
+        n >>= 1;
+        x++;
+    }
+    return m << x;
+}
+int rangeBitwiseAnd3(int m, int n) {
+    int r = m;
+    for (int i = m + 1; i <= n; i++)
+        r &= i;
+    return r;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

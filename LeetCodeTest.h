@@ -5480,5 +5480,22 @@ void LeetCodeTest::Init(void) {
         for (int i = 0; i < 100; i++)
             check(Random::Int(100, 1));
     });
+
+    Add("201. Bitwise AND of Numbers Range", [&]() {
+        auto check = [&](int m, int n) {
+            Logger() << "BitwiseAddRange [" << m << ", " << n << "] = ";
+            int r = rangeBitwiseAnd(m, n);
+            int r2 = rangeBitwiseAnd2(m, n);
+            int r3 = rangeBitwiseAnd3(m, n);
+            Logger() << r << ", " << r2 << ", " << r3 << endl;
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+        };
+        for (int i = 0; i < 100; i++) {
+            int m = Random::Int(INT_MAX, 0);
+            int n = Random::Int(INT_MAX, m);
+            check(m, n);
+        }
+    });
 }
 #endif
