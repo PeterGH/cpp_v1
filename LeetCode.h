@@ -15140,6 +15140,194 @@ int rangeBitwiseAnd3(int m, int n) {
         r &= i;
     return r;
 }
+
+// 202. Happy Number
+// Write an algorithm to determine if a number is "happy". A happy number is a
+// number defined by the following process: Starting with any positive integer,
+// replace the number by the sum of the squares of its digits, and repeat the
+// process until the number equals 1 (where it will stay), or it loops endlessly
+// in a cycle which does not include 1. Those numbers for which this process
+// ends in 1 are happy numbers. Example: Input: 19 Output: true Explanation: 12
+// + 92 = 82 82 + 22 = 68 62 + 82 = 100 12 + 02 + 02 = 1
+bool isHappy(int n) {
+    if (n <= 0)
+        return false;
+    set<int> s;
+    while (n != 1 && s.find(n) == s.end()) {
+        if (!s.empty())
+            cout << ", ";
+        cout << n;
+        s.insert(n);
+        int t = 0;
+        while (n > 0) {
+            int d = n % 10;
+            n /= 10;
+            t += d * d;
+        }
+        n = t;
+    }
+    cout << (s.empty() ? "" : ", ") << n << endl;
+    return n == 1;
+}
+// This is wrong. The input n may not be in the cycle, e.g.,
+// 2, 4, 16, 37, 58, 89, 145, 42, 20, 4
+bool isHappy2(int n) {
+    int x = n;
+    cout << n;
+    do {
+        int y = 0;
+        while (x > 0) {
+            int r = x % 10;
+            y += (r * r);
+            x /= 10;
+        }
+        x = y;
+        cout << ", " << x;
+    } while (x != n && x != 1);
+    cout << endl;
+    return x == 1;
+}
+
+// 203. Remove Linked List Elements
+// Remove all elements from a linked list of integers that have value val.
+// Example:
+// Input:  1->2->6->3->4->5->6, val = 6
+// Output: 1->2->3->4->5
+ListNode *removeElements(ListNode *head, int val) {
+    ListNode *p;
+    while (head != nullptr && head->val == val) {
+        p = head->next;
+        delete head;
+        head = p;
+    }
+    if (head == nullptr)
+        return head;
+    p = head;
+    while (p->next != nullptr) {
+        if (p->next->val == val) {
+            ListNode *t = p->next;
+            p->next = t->next;
+            delete t;
+        } else {
+            p = p->next;
+        }
+    }
+    return head;
+}
+
+// 204. Count Primes
+// Count the number of prime numbers less than a non-negative number, n.
+// Example:
+// Input: 10
+// Output: 4
+// Explanation: There are 4 prime numbers less than 10, they are 2, 3, 5, 7.
+int countPrimes(int n) {
+    if (n <= 2)
+        return 0;
+    vector<int> v;
+    v.push_back(2);
+    for (int i = 3; i < n; i++) {
+        bool isPrime = true;
+        for (size_t j = 0; (j < v.size()) && (v[j] * v[j] <= i); j++) {
+            if ((i % v[j]) == 0) {
+                isPrime = false;
+                break;
+            }
+        }
+        if (isPrime)
+            v.push_back(i);
+    }
+    return (int)v.size();
+}
+int countPrimes2(int n) {
+    if (n <= 2)
+        return 0;
+    const int NumBitsInt = sizeof(int) * 8;
+    const int NumInts = (n / NumBitsInt) + 1;
+    unique_ptr<int[]> bits(new int[NumInts]);
+    memset(bits.get(), 0, NumInts * sizeof(int));
+    function<void(int, int)> setbit = [&](int i, int b) {
+        int j = i / NumBitsInt;
+        int k = i % NumBitsInt;
+        if (b == 1)
+            bits[j] |= (0x1 << k);
+        else if (b == 0)
+            bits[j] &= ~(0x1 << k);
+    };
+    function<int(int)> getbit = [&](int i) -> int {
+        int j = i / NumBitsInt;
+        int k = i % NumBitsInt;
+        return (bits[j] & (0x1 << k)) >> k;
+    };
+    int c = 0;
+    for (int i = 2; i < n; i++) {
+        if (getbit(i) == 0) {
+            c++;
+            for (int j = i + i; j < n; j += i)
+                setbit(j, 1);
+        }
+    }
+    return c;
+}
+
+// 205. Isomorphic Strings
+// Given two strings s and t, determine if they are isomorphic. Two strings are
+// isomorphic if the characters in s can be replaced to get t. All occurrences
+// of a character must be replaced with another character while preserving the
+// order of characters. No two characters may map to the same character but a
+// character may map to itself. Example 1: Input: s = "egg", t = "add" Output:
+// true Example 2: Input: s = "foo", t = "bar" Output: false Example 3: Input: s
+// = "paper", t = "title" Output: true Note: You may assume both s and t have
+// the same length.
+bool isIsomorphic(const string &s, const string &t) {
+    if (s.size() != t.size())
+        return false;
+    map<char, char> st;
+    map<char, char> ts;
+    for (size_t i = 0; i < s.size(); i++) {
+        if ((st.find(s[i]) != st.end() && ts.find(t[i]) == ts.end()) ||
+            (st.find(s[i]) == st.end() && ts.find(t[i]) != ts.end()))
+            return false;
+        if (st.find(s[i]) == st.end()) {
+            st[s[i]] = t[i];
+            ts[t[i]] = s[i];
+        } else if (st[s[i]] != t[i])
+            return false;
+    }
+    return true;
+}
+
+// 206. Reverse Linked List
+// Reverse a singly linked list.
+// Example:
+// Input: 1->2->3->4->5->NULL
+// Output: 5->4->3->2->1->NULL
+// Follow up: A linked list can be reversed either iteratively or recursively.
+// Could you implement both?
+ListNode *reverseList(ListNode *head) {
+    if (head == nullptr || head->next == nullptr)
+        return head;
+    ListNode *p = nullptr;
+    ListNode *m = head;
+    while (m != nullptr) {
+        ListNode *n = m->next;
+        m->next = p;
+        p = m;
+        m = n;
+    }
+    return p;
+}
+ListNode *reverseList2(ListNode *head) {
+    function<ListNode *(ListNode *)> reverse = [&](ListNode *t) -> ListNode * {
+        if (t == nullptr || t->next == nullptr)
+            return t;
+        ListNode *h = reverse(t->next);
+        t->next->next = t;
+        t->next = nullptr;
+        return h;
+    };
+    return reverse(head);
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

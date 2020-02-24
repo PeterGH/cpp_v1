@@ -5497,5 +5497,29 @@ void LeetCodeTest::Init(void) {
             check(m, n);
         }
     });
+
+    Add("202. Happy Number", [&]() {
+        auto check = [&](int n) {
+            bool r = isHappy(n);
+            Logger() << "isHappy(" << n << ") = " << r << endl;
+        };
+        check(2);
+        for (int n = 3; n <= 100; n++)
+            check(n);
+    });
+
+    Add("204. Count Primes", [&]() {
+        auto check = [&](int n) {
+            Logger() << "Count of primes less than " << n << ": ";
+            int c = countPrimes(n);
+            int c2 = countPrimes2(n);
+            Logger() << c << ", " << c2 << endl;
+            ASSERT1(c == c2);
+        };
+        for (int n = 2; n < 100; n++) {
+            check(n);
+            check(Random::Int(1000000, 0));
+        }
+    });
 }
 #endif
