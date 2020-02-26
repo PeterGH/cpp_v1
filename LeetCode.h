@@ -15328,6 +15328,91 @@ ListNode *reverseList2(ListNode *head) {
     };
     return reverse(head);
 }
+
+// 207. Course Schedule
+// There are a total of n courses you have to take, labeled from 0 to n-1.
+// Some courses may have prerequisites, for example to take course 0 you have
+// to first take course 1, which is expressed as a pair: [0,1]. Given the
+// total number of courses and a list of prerequisite pairs, is it possible
+// for you to finish all courses?
+// Example 1:
+// Input: 2, [[1,0]]
+// Output: true
+// Explanation: There are a total of 2 courses to take. To take course 1 you
+// should have finished course 0. So it is possible.
+// Example 2:
+// Input: 2, [[1,0],[0,1]]
+// Output: false
+// Explanation: There are a total of 2 courses to take. To take course 1 you
+// should have finished course 0, and to take course 0 you should also have
+// finished course 1. So it is impossible.
+// Note: The input prerequisites is a graph represented by a list of edges,
+// not adjacency matrices. Read more about how a graph is represented.
+// You may assume that there are no duplicate edges in the input prerequisites.
+bool canFinish(int numCourses, const vector<vector<int>> &prerequisites) {
+    map<int, vector<int>> g;
+    for_each(prerequisites.cbegin(), prerequisites.cend(),
+             [&](const vector<int> &e) {
+                 if (g.find(e[1]) == g.end())
+                     g[e[1]] = vector<int>(1, e[0]);
+                 else
+                     g[e[1]].push_back(e[0]);
+             });
+    set<int> trees;
+    function<bool(int, set<int> &)> hasCircle = [&](int i,
+                                                    set<int> &visited) -> bool {
+        if (g.find(i) == g.end())
+            return false;
+        if (trees.find(i) != trees.end())
+            return false;
+        visited.insert(i);
+        for (size_t j = 0; j < g[i].size(); j++) {
+            if (visited.find(g[i][j]) != visited.end())
+                return true;
+            if (hasCircle(g[i][j], visited))
+                return true;
+        }
+        visited.erase(i);
+        trees.insert(i);
+        return false;
+    };
+    for (auto it = g.begin(); it != g.end(); it++) {
+        set<int> v;
+        if (hasCircle(it->first, v))
+            return false;
+    }
+    return true;
+}
+// This BFS is wrong, e.g., for inputs 3 and [[0,1],[0,2],[1,2]]
+bool canFinish2(int numCourses, const vector<vector<int>> &prerequisites) {
+    map<int, vector<int>> g;
+    for_each(prerequisites.cbegin(), prerequisites.cend(),
+             [&](const vector<int> &e) {
+                 if (g.find(e[1]) == g.end())
+                     g[e[1]] = vector<int>(1, e[0]);
+                 else
+                     g[e[1]].push_back(e[0]);
+             });
+    for (auto it = g.begin(); it != g.end(); it++) {
+        set<int> visited;
+        queue<int> q;
+        q.push(it->first);
+        visited.insert(it->first);
+        while (!q.empty()) {
+            int t = q.front();
+            q.pop();
+            if (g.find(t) == g.end())
+                continue;
+            for (int i = 0; i < g[t].size(); i++) {
+                if (visited.find(g[t][i]) != visited.end())
+                    return false;
+                q.push(g[t][i]);
+                visited.insert(g[t][i]);
+            }
+        }
+    }
+    return true;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
