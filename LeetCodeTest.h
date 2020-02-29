@@ -5521,5 +5521,25 @@ void LeetCodeTest::Init(void) {
             check(Random::Int(1000000, 0));
         }
     });
+
+    Add("208. Implement Trie (Prefix Tree)", [&]() {
+        auto check = [&](Trie *t, const string &w) {
+            Logger() << "search(" << w << ") = " << t->search(w) << endl;
+            Logger() << "startsWith(" << w << ") = " << t->startsWith(w)
+                     << endl;
+            Logger() << "insert(" << w << ") = " << endl;
+            t->insert(w);
+            Logger() << "search(" << w << ") = " << t->search(w) << endl;
+            Logger() << "startsWith(" << w << ") = " << t->startsWith(w)
+                     << endl;
+        };
+        vector<string> v = {"Trie",       "insert", "search", "search",
+                            "startsWith", "insert", "search", "",
+                            "apple",      "apple",  "app",    "app",
+                            "app",        "app"};
+        Trie t;
+        for (size_t i = 0; i < v.size(); i++)
+            check(&t, v[i]);
+    });
 }
 #endif

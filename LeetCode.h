@@ -15403,7 +15403,7 @@ bool canFinish2(int numCourses, const vector<vector<int>> &prerequisites) {
             q.pop();
             if (g.find(t) == g.end())
                 continue;
-            for (int i = 0; i < g[t].size(); i++) {
+            for (size_t i = 0; i < g[t].size(); i++) {
                 if (visited.find(g[t][i]) != visited.end())
                     return false;
                 q.push(g[t][i]);
@@ -15413,6 +15413,139 @@ bool canFinish2(int numCourses, const vector<vector<int>> &prerequisites) {
     }
     return true;
 }
+
+// 208. Implement Trie (Prefix Tree)
+// Implement a trie with insert, search, and startsWith methods.
+// Example:
+// Trie trie = new Trie();
+// trie.insert("apple");
+// trie.search("apple");   // returns true
+// trie.search("app");     // returns false
+// trie.startsWith("app"); // returns true
+// trie.insert("app");
+// trie.search("app");     // returns true
+// Note: You may assume that all inputs are consist of lowercase letters a-z.
+// All inputs are guaranteed to be non-empty strings.
+// Your Trie object will be instantiated and called as such:
+// Trie* obj = new Trie();
+// obj->insert(word);
+// bool param_2 = obj->search(word);
+// bool param_3 = obj->startsWith(prefix);
+class Trie {
+  private:
+    class Node {
+      public:
+        vector<Node *> children;
+        string val;
+        bool complete;
+        Node(const string &w, bool c) : val(w), complete(c) {}
+        Node() : Node(string(), true) {}
+        // Try to match word[i..] partially or entirely
+        bool Match(const string &word, size_t i, size_t &j) {
+            j = 0; // matched characters count
+            for (j = 0; j < val.size() && i < word.size(); j++, i++) {
+                if (word[i] != val[j])
+                    break;
+            }
+            return j > 0;
+        }
+    };
+
+    Node *root;
+
+    void Delete(Node *node) {
+        if (node == nullptr)
+            return;
+        for_each(node->children.begin(), node->children.end(),
+                 [&](Node *n) { Delete(n); });
+        node->children.clear();
+    }
+
+    // Return the deepest node matching the word partially or entirely
+    // Case 1: Return the root
+    //   word is empty
+    //   word not match any of the children of the root
+    // Case 2: Return a non-root node
+    //   word matches the node entirely (i == word.size(), j is the length of
+    //   the node->val) word matches the node partially (j < the length of the
+    //   node->val, i <= word.size())
+    Node *Search(const string &word, size_t &i, size_t &j) {
+        i = 0; // count the prefix characters of word that are matched
+        j = 0; // count the characters of the node that are matched
+        if (word.empty())
+            return root;
+        Node *node = root;
+        bool stop = false;
+        while (i < word.size() && !stop) {
+            stop = true;
+            for (size_t k = 0; k < node->children.size(); k++) {
+                size_t l = 0;
+                if (node->children[k]->Match(word, i, l)) {
+                    j = l;
+                    i += j;
+                    node = node->children[k];
+                    stop = (j < node->val.size());
+                    break;
+                }
+            }
+        }
+        return node;
+    }
+
+  public:
+    Trie() { root = new Node(); }
+
+    ~Trie() {
+        Delete(root);
+        root = nullptr;
+    }
+
+    void insert(string word) {
+        if (word.empty())
+            return;
+        size_t i = 0;
+        size_t j = 0;
+        Node *node = Search(word, i, j);
+        if (j < node->val.size()) {
+            // split between val[0..(j-1)] and val[j..]
+            Node *c = new Node(node->val.substr(j), node->complete);
+            c->children.insert(c->children.end(), node->children.begin(),
+                               node->children.end());
+            node->val.resize(j);
+            node->children.clear();
+            node->children.push_back(c);
+            node->complete = (i == word.size());
+        }
+        if (i == word.size()) {
+            if (!node->complete)
+                node->complete = true;
+        } else {
+            Node *c = new Node(word.substr(i), true);
+            node->children.push_back(c);
+        }
+    }
+
+    bool search(string word) {
+        if (word.empty())
+            return true;
+        size_t i = 0;
+        size_t j = 0;
+        Node *node = Search(word, i, j);
+        return i == word.size() && j == node->val.size() && node->complete;
+    }
+
+    // Returns if there is any word in the trie that starts with the given
+    // prefix.
+    bool startsWith(string prefix) {
+        if (prefix.empty())
+            return true;
+        size_t i = 0;
+        size_t j = 0;
+        Search(prefix, i, j);
+        return i == prefix.size();
+    }
+};
+
 } // namespace LeetCode
 } // namespace Test
 #endif
