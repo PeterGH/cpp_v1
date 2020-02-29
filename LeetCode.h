@@ -15545,7 +15545,88 @@ class Trie {
         return i == prefix.size();
     }
 };
+class Trie2 {
+  private:
+    struct Node {
+        vector<Node *> children;
+        char val;
+        bool complete;
 
+        Node(char v, bool c) : val(v), complete(c) {}
+
+        Node() : Node((char)0, true) {}
+    };
+
+    Node *root;
+
+    void Delete(Node *node) {
+        if (node == nullptr)
+            return;
+        for_each(node->children.begin(), node->children.end(),
+                 [&](Node *n) { Delete(n); });
+        node->children.clear();
+    }
+
+    Node *Search(const string &word, size_t &i) {
+        i = 0;
+        if (word.empty())
+            return root;
+        Node *node = root;
+        bool stop = false;
+        while (i < word.size() && !stop) {
+            stop = true;
+            for (size_t k = 0; k < node->children.size(); k++) {
+                if (word[i] == node->children[k]->val) {
+                    i++;
+                    node = node->children[k];
+                    stop = false;
+                    break;
+                }
+            }
+        }
+        return node;
+    }
+
+  public:
+    Trie2() { root = new Node(); }
+
+    ~Trie2() {
+        Delete(root);
+        root = nullptr;
+    }
+
+    void insert(string word) {
+        if (word.empty())
+            return;
+        size_t i = 0;
+        Node *node = Search(word, i);
+        while (i < word.size()) {
+            Node *c = new Node(word[i], false);
+            node->children.push_back(c);
+            node = c;
+            i++;
+        }
+        node->complete = true;
+    }
+
+    bool search(string word) {
+        if (word.empty())
+            return true;
+        size_t i = 0;
+        Node *node = Search(word, i);
+        return i == word.size() && node->complete;
+    }
+
+    // Returns if there is any word in the trie that starts with the given
+    // prefix.
+    bool startsWith(string prefix) {
+        if (prefix.empty())
+            return true;
+        size_t i = 0;
+        Search(prefix, i);
+        return i == prefix.size();
+    }
+};
 } // namespace LeetCode
 } // namespace Test
 #endif

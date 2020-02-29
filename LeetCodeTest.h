@@ -5523,23 +5523,39 @@ void LeetCodeTest::Init(void) {
     });
 
     Add("208. Implement Trie (Prefix Tree)", [&]() {
-        auto check = [&](Trie *t, const string &w) {
-            Logger() << "search(" << w << ") = " << t->search(w) << endl;
-            Logger() << "startsWith(" << w << ") = " << t->startsWith(w)
-                     << endl;
-            Logger() << "insert(" << w << ") = " << endl;
+        auto check = [&](Trie *t, Trie *t2, const string &w) {
+            bool r = t->search(w);
+            bool r2 = t2->search(w);
+            Logger() << "search(" << w << ") = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+            r = t->startsWith(w);
+            r2 = t2->startsWith(w);
+            Logger() << "startsWith(" << w << ") = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+            Logger() << "insert(" << w << ")" << endl;
             t->insert(w);
-            Logger() << "search(" << w << ") = " << t->search(w) << endl;
-            Logger() << "startsWith(" << w << ") = " << t->startsWith(w)
-                     << endl;
+            t2->insert(w);
+            r = t->search(w);
+            r2 = t2->search(w);
+            Logger() << "search(" << w << ") = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+            r = t->startsWith(w);
+            r2 = t2->startsWith(w);
+            Logger() << "startsWith(" << w << ") = " << r << ", " << r2 << endl;
+            ASSERT1(r == r2);            
         };
         vector<string> v = {"Trie",       "insert", "search", "search",
                             "startsWith", "insert", "search", "",
                             "apple",      "apple",  "app",    "app",
                             "app",        "app"};
         Trie t;
+        Trie t2;
         for (size_t i = 0; i < v.size(); i++)
-            check(&t, v[i]);
+            check(&t, &t2, v[i]);
+        for (int i = 0; i < 100; i++) {
+            string w = Random::String<char>(100, "abcdefghijklmnopqrstuvwxyz");
+            check(&t, &t2, w);
+        }
     });
 }
 #endif
