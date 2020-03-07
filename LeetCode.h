@@ -15715,6 +15715,90 @@ vector<int> findOrder(int numCourses,
     }
     return result;
 }
+
+// 211. Add and Search Word - Data structure design
+// Design a data structure that supports the following two operations:
+// void addWord(word)
+// bool search(word)
+// search(word) can search a literal word or a regular expression string
+// containing only letters a-z or .. A . means it can represent any one letter.
+// Example:
+// addWord("bad")
+// addWord("dad")
+// addWord("mad")
+// search("pad") -> false
+// search("bad") -> true
+// search(".ad") -> true
+// search("b..") -> true
+// Note: You may assume that all words are consist of lowercase letters a-z.
+// Your WordDictionary object will be instantiated and called as such:
+// WordDictionary* obj = new WordDictionary();
+// obj->addWord(word);
+// bool param_2 = obj->search(word);
+class WordDictionary {
+  private:
+    struct Node {
+        char val;
+        vector<Node *> children;
+        bool valid;
+        Node(char v, bool b) : val(v), valid(b) {}
+        Node() : Node(0, true) {}
+    };
+    Node *root;
+    void Delete(Node *n) {
+        if (n != nullptr) {
+            for_each(n->children.begin(), n->children.end(),
+                     [&](Node *c) { Delete(c); });
+            n->children.clear();
+        }
+    }
+
+  public:
+    WordDictionary() { root = new Node(); }
+    ~WordDictionary() {
+        Delete(root);
+        root = nullptr;
+    }
+    void addWord(const string &word) {
+        size_t i = 0;
+        function<Node *(Node *, size_t &)> match = [&](Node *node,
+                                                       size_t &i) -> Node * {
+            if (i == word.size())
+                return node;
+            for (size_t j = 0; j < node->children.size(); j++) {
+                Node *c = node->children[j];
+                if (c->val == word[i]) {
+                    i++;
+                    return match(c, i);
+                }
+            }
+            return node;
+        };
+        Node *node = match(root, i);
+        for (; i < word.size(); i++) {
+            Node *c = new Node(word[i], i + 1 == word.size());
+            node->children.push_back(c);
+            node = c;
+        }
+    }
+    bool search(const string &word) {
+        function<bool(Node *, size_t)> match = [&](Node *node,
+                                                   size_t i) -> bool {
+            if (i == word.size())
+                return node->valid;
+            for (size_t j = 0; j < node->children.size(); j++) {
+                Node *c = node->children[j];
+                if (word[i] == '.' || word[i] == c->val) {
+                    if (match(c, i + 1))
+                        return true;
+                }
+            }
+            return false;
+        };
+        return match(root, 0);
+    }
+};
+
 } // namespace LeetCode
 } // namespace Test
 #endif
