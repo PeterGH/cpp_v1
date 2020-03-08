@@ -15799,6 +15799,60 @@ class WordDictionary {
     }
 };
 
+// 212. Word Search II
+// Given a 2D board and a list of words from the dictionary, find all words in
+// the board. Each word must be constructed from letters of sequentially
+// adjacent cell, where "adjacent" cells are those horizontally or vertically
+// neighboring. The same letter cell may not be used more than once in a word.
+// Example:
+// Input:
+// board = [
+//   ['o','a','a','n'],
+//   ['e','t','a','e'],
+//   ['i','h','k','r'],
+//   ['i','f','l','v']
+// ]
+// words = ["oath","pea","eat","rain"]
+// Output: ["eat","oath"]
+// Note: All inputs are consist of lowercase letters a-z. The values of words
+// are distinct.
+vector<string> findWords(const vector<vector<char>> &board,
+                         const vector<string> &words) {
+    vector<string> result;
+    if (board.empty() || board[0].empty())
+        return result;
+    int m = board.size();
+    int n = board[0].size();
+    set<pair<int, int>> path;
+    function<bool(int, int, const string &, int)> find =
+        [&](int i, int j, const string &word, size_t k) -> bool {
+        if (k == word.size())
+            return true;
+        if (i < 0 || i >= m || j < 0 || j >= n || board[i][j] != word[k])
+            return false;
+        pair<int, int> p = make_pair(i, j);
+        if (path.find(p) != path.end())
+            return false;
+        path.insert(p);
+        bool found = find(i - 1, j, word, k + 1) ||
+                     find(i + 1, j, word, k + 1) ||
+                     find(i, j - 1, word, k + 1) || find(i, j + 1, word, k + 1);
+        path.erase(p);
+        return found;
+    };
+    for_each(words.cbegin(), words.cend(), [&](const string &w) {
+        bool found = false;
+        for (int i = 0; i < m && !found; i++) {
+            for (int j = 0; j < n && !found; j++) {
+                if (find(i, j, w, 0))
+                    found = true;
+            }
+        }
+        if (found)
+            result.push_back(w);
+    });
+    return result;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
