@@ -15853,6 +15853,47 @@ vector<string> findWords(const vector<vector<char>> &board,
     });
     return result;
 }
+
+// 213. House Robber II
+// You are a professional robber planning to rob houses along a street. Each
+// house has a certain amount of money stashed. All houses at this place are
+// arranged in a circle. That means the first house is the neighbor of the last
+// one. Meanwhile, adjacent houses have security system connected and it will
+// automatically contact the police if two adjacent houses were broken into on
+// the same night. Given a list of non-negative integers representing the amount
+// of money of each house, determine the maximum amount of money you can rob
+// tonight without alerting the police.
+// Example 1:
+// Input: [2,3,2]
+// Output: 3
+// Explanation: You cannot rob house 1 (money = 2) and then rob house 3 (money =
+// 2), because they are adjacent houses. Example 2: Input: [1,2,3,1] Output: 4
+// Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+// Total amount you can rob = 1 + 3 = 4.
+int robII(const vector<int> &nums) {
+    int a1 = 0;
+    int b1 = 0;
+    int a2 = 0;
+    int b2 = 0;
+    for (size_t i = 0; i < nums.size(); i++) {
+        if (i == 0)
+            b1 = nums[i]; // track when starting at house 1
+        if (i == 1)
+            b2 = nums[i]; // track when starting at house 2
+        if (i > 0 && i + 1 < nums.size()) { // ignore the last house
+            int c1 = max(a1 + nums[i], b1);
+            a1 = b1;
+            b1 = c1;
+        }
+        if (i > 1) {
+            int c2 = max(a2 + nums[i], b2);
+            a2 = b2;
+            b2 = c2;
+        }
+    }
+    return max(b1, b2);
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
