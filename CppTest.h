@@ -679,6 +679,39 @@ void CppTest::Init(void) {
         s.insert({2, 2});
         Logger() << s;
     });
+
+    Add("Reference", [&]() {
+        map<int, vector<int>> m;
+        for (int i = 0; i < 5; i++)
+            m[i] = {};
+        Logger() << m;
+        function<vector<int>&(int)> getVector = [&](int i)->vector<int>&{
+            if (m.find(i) != m.end())
+                return m[i];
+            else
+                return m[0];
+        };
+        function<void(int, vector<int>&)> getVector2 = [&](int i, vector<int>& v){
+            if (m.find(i) != m.end())
+                v = m[i];
+            else
+                v = vector<int>();
+        };
+        vector<int>& v = getVector(0);
+        v.push_back(0);
+        v.push_back(1);
+        v = getVector(1);
+        v.push_back(2);
+        v.push_back(3);
+        vector<int>& v2 = v;
+        getVector2(2, v2);
+        v2.push_back(4);
+        v2.push_back(5);
+        getVector2(3, v2);
+        v2.push_back(6);
+        v2.push_back(7);
+        Logger() << m;
+    });
 }
 
 #endif
