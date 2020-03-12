@@ -78,7 +78,7 @@ static vector<basic_string<T>> Strings(size_t count, size_t maxStringlength,
     vector<basic_string<T>> result(count);
     std::generate(result.begin(), result.end(), [&]() {
         return maxStringlength == 0
-                   ? String::Empty<T>()
+                   ? Test::String::Empty<T>()
                    : String(rand() % maxStringlength, alphabet);
     });
     return result;
