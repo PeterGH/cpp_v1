@@ -5542,7 +5542,7 @@ void LeetCodeTest::Init(void) {
             r = t->startsWith(w);
             r2 = t2->startsWith(w);
             Logger() << "startsWith(" << w << ") = " << r << ", " << r2 << endl;
-            ASSERT1(r == r2);            
+            ASSERT1(r == r2);
         };
         vector<string> v = {"Trie",       "insert", "search", "search",
                             "startsWith", "insert", "search", "",
@@ -5555,6 +5555,25 @@ void LeetCodeTest::Init(void) {
         for (int i = 0; i < 100; i++) {
             string w = Random::String<char>(100, "abcdefghijklmnopqrstuvwxyz");
             check(&t, &t2, w);
+        }
+    });
+
+    Add("214. Shortest Palindrome", [&]() {
+        auto check = [&](const string &s) {
+            Logger() << "ShortestPalindrome(" << s << ") = " << endl;
+            string r = shortestPalindrome(s);
+            string r2 = shortestPalindrome2(s);
+            string r3 = shortestPalindrome3(s);
+            string r4 = shortestPalindrome4(s);
+            Logger() << r << endl << r2 << endl << r3 << endl << r4 << endl;
+            ASSERT1(r.compare(r2) == 0);
+            ASSERT1(r.compare(r3) == 0);
+            ASSERT1(r.compare(r4) == 0);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(30);
+            string s = Random::String<char>(n, "abcd");
+            check(s);
         }
     });
 }

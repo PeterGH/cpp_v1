@@ -15879,7 +15879,7 @@ int robII(const vector<int> &nums) {
         if (i == 0)
             b1 = nums[i]; // track when starting at house 1
         if (i == 1)
-            b2 = nums[i]; // track when starting at house 2
+            b2 = nums[i];                   // track when starting at house 2
         if (i > 0 && i + 1 < nums.size()) { // ignore the last house
             int c1 = max(a1 + nums[i], b1);
             a1 = b1;
@@ -15894,6 +15894,102 @@ int robII(const vector<int> &nums) {
     return max(b1, b2);
 }
 
+// 214. Shortest Palindrome
+// Given a string s, you are allowed to convert it to a palindrome by adding
+// characters in front of it. Find and return the shortest palindrome you can
+// find by performing this transformation.
+// Example 1:
+// Input: "aacecaaa"
+// Output: "aaacecaaa"
+// Example 2:
+// Input: "abcd"
+// Output: "dcbabcd"
+string shortestPalindrome(const string &s) {
+    string r(s);
+    reverse(r.begin(), r.end());
+    // Find the prefix of s which is also a suffix of r
+    string w = s + "#" + r;
+    // Using KMP
+    vector<int> p(w.size(), 0);
+    int c = 0;
+    for (int i = 1; i < (int)w.size(); i++) {
+        while (c > 0 && w[c] != w[i])
+            c = p[c - 1];
+        if (w[c] == w[i])
+            c++;
+        p[i] = c;
+    }
+    int n = p[w.size() - 1];
+    string t = s.substr(n);
+    reverse(t.begin(), t.end());
+    string o = t + s;
+    return o;
+}
+string shortestPalindrome2(const string &s) {
+    if (s.empty())
+        return s;
+    string r(s);
+    reverse(r.begin(), r.end());
+    string w = s + r; // eliminate the extra '#'
+    vector<int> p(w.size(), 0);
+    int c = 0;
+    for (int i = 1; i < (int)w.size(); i++) {
+        // Need an extra check if c exceeds the length of s
+        while (c > 0 && (w[c] != w[i] || c >= (int)s.size()))
+            c = p[c - 1];
+        if (w[c] == w[i])
+            c++;
+        p[i] = c;
+    }
+    int n = p[w.size() - 1];
+    string t = s.substr(n);
+    reverse(t.begin(), t.end());
+    string o = t + s;
+    return o;
+}
+string shortestPalindrome3(const string &s) {
+    if (s.empty())
+        return s;
+    int n = s.size();
+    int m = n << 1; // eliminate the extra string w
+    vector<int> p(m, 0);
+    int c = 0;
+    for (int i = 1; i < m; i++) {
+        // map w[i] back to s[j]
+        int j = i < n ? i : m - i - 1;
+        while (c > 0 && (s[c] != s[j] || c >= n))
+            c = p[c - 1];
+        if (s[c] == s[j])
+            c++;
+        p[i] = c;
+    }
+    string t = s.substr(p[m - 1]);
+    reverse(t.begin(), t.end());
+    string o = t + s;
+    return o;
+}
+string shortestPalindrome4(const string &s) {
+    int i = (int)s.size() - 1;
+    while (i >= 0) {
+        int j = 0;
+        int k = i;
+        while (j <= k) {
+            if (s[j] != s[k])
+                break;
+            j++;
+            k--;
+        }
+        if (j > k) {
+            // s[0..i] is a palindrome
+            break;
+        } else {
+            i--;
+        }
+    }
+    string t = s.substr(i + 1);
+    reverse(t.begin(), t.end());
+    return t + s;
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
