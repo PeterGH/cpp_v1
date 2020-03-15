@@ -5576,5 +5576,27 @@ void LeetCodeTest::Init(void) {
             check(s);
         }
     });
+
+    Add("215. Kth Largest Element in an Array", [&]() {
+        auto check = [&](const vector<int> &v) {
+            for (int k = 1; k <= (int)v.size(); k++) {
+                vector<int> v1(v);
+                vector<int> v2(v);
+                Logger() << v1;
+                int r = findKthLargest(v1, k);
+                int r2 = findKthLargest2(v2, k);
+                int r3 = findKthLargest3(v, k);
+                Logger() << "FindKthLargest(" << k << ") = " << r << ", " << r2
+                         << ", " << r3 << endl;
+                ASSERT1(r == r2);
+                ASSERT1(r == r3);
+            }
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(50, 1);
+            vector<int> v = Random::Vector(n, 20);
+            check(v);
+        }
+    });
 }
 #endif

@@ -15990,6 +15990,55 @@ string shortestPalindrome4(const string &s) {
     reverse(t.begin(), t.end());
     return t + s;
 }
+
+// 215. Kth Largest Element in an Array
+// Find the kth largest element in an unsorted array. Note that it is the kth
+// largest element in the sorted order, not the kth distinct element.
+// Example 1:
+// Input: [3,2,1,5,6,4] and k = 2
+// Output: 5
+// Example 2:
+// Input: [3,2,3,1,2,4,5,5,6] and k = 4
+// Output: 4
+// Note: You may assume k is always valid, 1 <= k <= array's length.
+int findKthLargest(vector<int> &nums, int k) {
+    int b = 0;
+    int e = (int)nums.size() - 1;
+    while (b <= e) {
+        int i = b;
+        int j = e - 1;
+        while (i <= j) {
+            if (nums[i] < nums[e]) {
+                swap(nums[i], nums[j]);
+                j--;
+            } else {
+                i++;
+            }
+        }
+        swap(nums[i], nums[e]);
+        if (i - b + 1 < k) {
+            k -= (i - b + 1);
+            b = i + 1;
+        } else if (i - b + 1 > k) {
+            e = i - 1;
+        } else {
+            return nums[i];
+        }
+    }
+    return nums[b];
+}
+int findKthLargest2(vector<int> &nums, int k) {
+    sort(nums.begin(), nums.end(), [&](int a, int b) -> bool { return a > b; });
+    return nums[k - 1];
+}
+int findKthLargest3(const vector<int> &nums, int k) {
+    priority_queue<int> q;
+    for (int n : nums)
+        q.push(n);
+    for (int i = 0; i < k - 1; i++)
+        q.pop();
+    return q.top();
+}
 } // namespace LeetCode
 } // namespace Test
 #endif
