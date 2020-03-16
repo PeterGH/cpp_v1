@@ -1,6 +1,7 @@
 #ifndef _ALGORITHM_H_
 #define _ALGORITHM_H_
 
+#include "String.h"
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -9,11 +10,71 @@
 #include <string.h>
 #include <unordered_map>
 #include <vector>
-#include "String.h"
 
 using namespace std;
 
 namespace Test {
+
+// Assume the input is sorted.
+// Cases:
+// 1. empty input
+// 2. target exists
+// 3. target not exists
+int BinarySearch(const vector<int> &input, int target) {
+    int b = 0;
+    int e = (int)input.size() - 1;
+    // [b..e] contain possible answers
+    while (b <= e) {
+        int m = b + ((e - b) >> 1);
+        if (input[m] < target)
+            b = m + 1;
+        else if (input[m] > target)
+            e = m - 1;
+        else
+            return m;
+    }
+    return -1;
+}
+int BinarySearch2(const vector<int> &input, int target) {
+    int b = 0;
+    int e = (int)input.size();
+    // [b..e) contain possible answers
+    while (b < e) {
+        int m = b + (e - b) / 2;
+        if (input[m] < target)
+            b = m + 1;
+        else if (input[m] > target)
+            e = m;
+        else
+            return m;
+    }
+    // Post-processing: End Condition: b == e
+    if (b != (int)input.size() && input[b] == target)
+        return b;
+    return -1;
+}
+int BinarySearch3(const vector<int> &input, int target) {
+    if (input.size() == 0)
+        return -1;
+    int b = 0;
+    int e = input.size() - 1;
+    // (b..e) contain possible answers
+    while (b + 1 < e) {
+        int m = b + (e - b) / 2;
+        if (input[m] == target)
+            return m;
+        else if (input[m] < target)
+            b = m;
+        else
+            e = m;
+    }
+    // Post-processing: End Condition: b + 1 == e
+    if (input[b] == target)
+        return b;
+    if (input[e] == target)
+        return e;
+    return -1;
+}
 
 class KMP {
   private:

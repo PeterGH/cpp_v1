@@ -898,11 +898,14 @@ void LeetCodeTest::Init(void) {
             vector<int> p = searchRange(v, e);
             vector<int> p2 = searchRange2(v, e);
             vector<int> p3 = searchRange3(v, e);
-            Logger() << p << p2 << p3;
+            vector<int> p4 = searchRange4(v, e);
+            Logger() << p << p2 << p3 << p4;
             ASSERT1(p[0] == p2[0]);
             ASSERT1(p[1] == p2[1]);
             ASSERT1(p[0] == p3[0]);
             ASSERT1(p[1] == p3[1]);
+            ASSERT1(p[0] == p4[0]);
+            ASSERT1(p[1] == p4[1]);
             if (p[0] > 0) {
                 ASSERT1(v[p[0] - 1] < v[p[0]]);
                 ASSERT1(v[p[0]] == e);
@@ -2096,11 +2099,13 @@ void LeetCodeTest::Init(void) {
             int a = mySqrt(x);
             int a2 = mySqrt2(x);
             int a3 = mySqrt3(x);
+            int a4 = mySqrt4(x);
             int b = (int)sqrt(x);
-            Logger().WriteInformation("%d, %d, %d, %d\n", a, a2, a3, b);
+            Logger().WriteInformation("%d, %d, %d, %d, %d\n", a, a2, a3, a4, b);
             ASSERT1(a == b);
             ASSERT1(a2 == b);
             ASSERT1(a3 == b);
+            ASSERT1(a4 == b);
         };
         check(0);
         check(1);
@@ -5201,9 +5206,12 @@ void LeetCodeTest::Init(void) {
             int e = *min_element(v.cbegin(), v.cend());
             int i = findMin(v);
             int i2 = findMin2(v);
-            Logger() << "min: " << i << ", " << i2 << ", " << e << endl;
+            int i3 = findMin3(v);
+            Logger() << "min: " << i << ", " << i2 << ", " << i3 << ", " << e
+                     << endl;
             ASSERT1(i == e);
             ASSERT1(i2 == e);
+            ASSERT1(i3 == e);
         };
         check({4, 5, 6, 7, 0, 1, 2});
         check({1, 3});
@@ -5239,22 +5247,21 @@ void LeetCodeTest::Init(void) {
     Add("162. Find Peak Element", [&]() {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
-            int i = findPeakElement(v);
-            int i2 = findPeakElement2(v);
-            Logger() << "Local peak: v[" << i << "] = " << v[i] << ", v[" << i2
-                     << "] = " << v[i2] << endl;
-            if (i == 0 && v.size() > 1)
-                ASSERT1(v[0] >= v[1]);
-            else if (i == (int)v.size() - 1 && v.size() > 1)
-                ASSERT1(v[i - 1] <= v[i]);
-            else if (0 < i && i < (int)v.size() - 1)
-                ASSERT1(v[i - 1] <= v[i] && v[i] >= v[i + 1]);
-            if (i2 == 0 && v.size() > 1)
-                ASSERT1(v[0] >= v[1]);
-            else if (i2 == (int)v.size() - 1 && v.size() > 1)
-                ASSERT1(v[i2 - 1] <= v[i2]);
-            else if (0 < i2 && i2 < (int)v.size() - 1)
-                ASSERT1(v[i2 - 1] <= v[i2] && v[i2] >= v[i2 + 1]);
+            vector<int> idx(4, -1);
+            idx[0] = findPeakElement(v);
+            idx[1] = findPeakElement2(v);
+            idx[2] = findPeakElement3(v);
+            idx[3] = findPeakElement4(v);
+            Logger() << "Local peak:" << endl;
+            for (int i : idx) {
+                Logger() << "v[" << i << "] = " << v[i] << endl;
+                if (i == 0 && v.size() > 1)
+                    ASSERT1(v[0] >= v[1]);
+                else if (i == (int)v.size() - 1 && v.size() > 1)
+                    ASSERT1(v[i - 1] <= v[i]);
+                else if (0 < i && i < (int)v.size() - 1)
+                    ASSERT1(v[i - 1] <= v[i] && v[i] >= v[i + 1]);
+            }
         };
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(100, 1);

@@ -2634,35 +2634,21 @@ int search(const vector<int> &nums, int target) {
         int m = l + ((h - l) >> 1);
         if (target < nums[m]) {
             if (nums[0] <= nums[m]) {
-                if (nums[0] <= target) {
-                    if (l == m)
-                        break;
+                if (nums[0] <= target)
                     h = m - 1;
-                } else {
-                    if (m == h)
-                        break;
+                else
                     l = m + 1;
-                }
             } else {
-                if (l == m)
-                    break;
                 h = m - 1;
             }
         } else if (nums[m] < target) {
             if (nums[0] <= nums[m]) {
-                if (m == h)
-                    break;
                 l = m + 1;
             } else {
-                if (nums[0] <= target) {
-                    if (l == m)
-                        break;
+                if (nums[0] <= target)
                     h = m - 1;
-                } else {
-                    if (m == h)
-                        break;
+                else
                     l = m + 1;
-                }
             }
         } else {
             return m;
@@ -2704,6 +2690,33 @@ int search2(const vector<int> &nums, int target) {
 // 8 Output: [3,4] Example 2: Input: nums = [5,7,7,8,8,10], target = 6 Output:
 // [-1,-1]
 vector<int> searchRange(const vector<int> &nums, int target) {
+    if (nums.empty())
+        return {-1, -1};
+    if (nums.size() == 1)
+        return nums[0] == target ? vector<int>({0, 0}) : vector<int>({-1, -1});
+    vector<int> range = {-1, -1};
+    int l = 0;
+    int h = (int)nums.size() - 1;
+    while (l + 1 < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] < target)
+            l = m;
+        else
+            h = m;
+    }
+    range[0] = (nums[l] == target ? l : (nums[h] == target ? h : -1));
+    h = (int)nums.size() - 1;
+    while (l + 1 < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] <= target)
+            l = m;
+        else
+            h = m;
+    }
+    range[1] = (nums[h] == target ? h : (nums[l] == target ? l : -1));
+    return range;
+}
+vector<int> searchRange2(const vector<int> &nums, int target) {
     int l = 0;
     int h = (int)nums.size() - 1;
     int first = -1;
@@ -2712,12 +2725,8 @@ vector<int> searchRange(const vector<int> &nums, int target) {
     while (l <= h) {
         int m = l + ((h - l) >> 1);
         if (target < nums[m]) {
-            if (l == m)
-                break;
             h = m - 1;
         } else if (nums[m] < target) {
-            if (m == h)
-                break;
             l = m + 1;
         } else {
             if (!foundFirst) {
@@ -2741,7 +2750,7 @@ vector<int> searchRange(const vector<int> &nums, int target) {
     }
     return vector<int>{first, second};
 }
-vector<int> searchRange2(const vector<int> &nums, int target) {
+vector<int> searchRange3(const vector<int> &nums, int target) {
     if (nums.empty())
         return vector<int>{-1, -1};
     int l = 0;
@@ -2803,7 +2812,7 @@ vector<int> searchRange2(const vector<int> &nums, int target) {
     }
     return vector<int>{b, e};
 }
-vector<int> searchRange3(const vector<int> &nums, int target) {
+vector<int> searchRange4(const vector<int> &nums, int target) {
     int b = -1;
     int e = -1;
     bool foundBegin = false;
@@ -5918,6 +5927,30 @@ int mySqrt(int x) {
     long long h = x;
     long long m = 0;
     while (l <= h) {
+        // [l..h] contain possible answers
+        m = l + ((h - l) >> 1);
+        long long m2 = m * m;
+        if (x < m2) {
+            h = m - 1; // it is possible h * h <= x
+        } else if (m2 < x) {
+            if (l < m)
+                l = m;
+            else {
+                if (m < h && x >= h * h)
+                    m = h;
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    return m;
+}
+int mySqrt2(int x) {
+    long long l = 0;
+    long long h = x;
+    long long m = 0;
+    while (l <= h) {
         m = l + ((h - l) >> 1);
         long long m2 = m * m; // long long to avoid overflow
         if (x < m2) {
@@ -5932,7 +5965,7 @@ int mySqrt(int x) {
     }
     return m;
 }
-int mySqrt2(int x) {
+int mySqrt3(int x) {
     long long l = 0;
     long long r = x;
     // Use long long to avoid overflow of m * m.
@@ -5951,7 +5984,7 @@ int mySqrt2(int x) {
     }
     return (int)m;
 }
-int mySqrt3(int x) {
+int mySqrt4(int x) {
     if (x < 0)
         throw invalid_argument("x cannot be negative");
     if (x < 2)
@@ -13693,6 +13726,19 @@ int maxProduct3(const vector<int> &nums) {
 int findMin(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
+    int e = nums[h];
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] > e)
+            l = m + 1;
+        else
+            h = m;
+    }
+    return nums[l];
+}
+int findMin2(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
     int m;
     while (l <= h) {
         m = l + ((h - l) >> 1);
@@ -13710,7 +13756,7 @@ int findMin(const vector<int> &nums) {
     }
     return nums[m];
 }
-int findMin2(const vector<int> &nums) {
+int findMin3(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int m;
@@ -13896,6 +13942,41 @@ ListNode *getIntersectionNode2(ListNode *headA, ListNode *headB) {
 // element is 2, or index number 5 where the peak element is 6. Note: Your
 // solution should be in logarithmic complexity.
 int findPeakElement(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] > nums[m + 1])
+            h = m;
+        else
+            l = m + 1;
+    }
+    return l == h ? l : -1;
+}
+int findPeakElement2(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        if (m == 0) {
+            if (nums[m] >= nums[m + 1])
+                return m;
+            l = m + 1;
+        } else if (m == (int)nums.size() - 1) {
+            if (nums[m - 1] <= nums[m])
+                return m;
+            h = m - 1;
+        } else if (nums[m - 1] <= nums[m] && nums[m] >= nums[m + 1]) {
+            return m;
+        } else if (nums[m - 1] < nums[m + 1]) {
+            l = m + 1;
+        } else {
+            h = m - 1;
+        }
+    }
+    return l == h ? l : -1;
+}
+int findPeakElement3(const vector<int> &nums) {
     if (nums.empty())
         return -1;
     if (nums.size() == 1)
@@ -13923,7 +14004,7 @@ int findPeakElement(const vector<int> &nums) {
     }
     return m;
 }
-int findPeakElement2(const vector<int> &nums) {
+int findPeakElement4(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int m;
@@ -16068,6 +16149,75 @@ vector<vector<int>> combinationSum3(int k, int n) {
     solve(1, k, n);
     return result;
 }
+
+// 278. First Bad Version
+// You are a product manager and currently leading a team to develop a new
+// product. Unfortunately, the latest version of your product fails the quality
+// check. Since each version is developed based on the previous version, all the
+// versions after a bad version are also bad. Suppose you have n versions [1, 2,
+// ..., n] and you want to find out the first bad one, which causes all the
+// following ones to be bad. You are given an API bool isBadVersion(version)
+// which will return whether version is bad. Implement a function to find the
+// first bad version. You should minimize the number of calls to the API.
+// Example:
+// Given n = 5, and version = 4 is the first bad version.
+// call isBadVersion(3) -> false
+// call isBadVersion(5) -> true
+// call isBadVersion(4) -> true
+// Then 4 is the first bad version.
+int firstBadVersion(int n, int firstBadVersion) {
+    function<bool(int)> isBadVersion = [&](int v) -> bool {
+        return v >= firstBadVersion;
+    };
+    int b = 1;
+    int e = n;
+    while (b < e) {
+        int m = b + ((e - b) >> 1);
+        if (isBadVersion(m))
+            e = m;
+        else
+            b = m + 1;
+    }
+    // Assume there must be a bad version
+    return b;
+}
+
+// 374. Guess Number Higher or Lower
+// We are playing the Guess Game. The game is as follows:
+// I pick a number from 1 to n. You have to guess which number I picked.
+// Every time you guess wrong, I'll tell you whether the number is higher or
+// lower. You call a pre-defined API guess(int num) which returns 3 possible
+// results: -1 : My number is lower
+//  1 : My number is higher
+//  0 : Congrats! You got it!
+// Example :
+// Input: n = 10, pick = 6
+// Output: 6
+int guessNumber(int n, int pick) {
+    function<int(int)> guess = [&](int x) -> int {
+        if (pick < x)
+            return -1;
+        else if (pick > x)
+            return 1;
+        else
+            return 0;
+    };
+    int b = 1;
+    int e = n;
+    int m = b;
+    while (b <= e) {
+        m = b + ((e - b) >> 1);
+        int c = guess(m);
+        if (c == -1)
+            e = m - 1;
+        else if (c == 1)
+            b = m + 1;
+        else
+            break;
+    }
+    return m;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
