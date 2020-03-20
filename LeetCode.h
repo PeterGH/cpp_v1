@@ -13795,6 +13795,29 @@ int findMin3(const vector<int> &nums) {
 // Note: This is a follow up problem to Find Minimum in Rotated Sorted Array.
 // Would allow duplicates affect the run-time complexity? How and why?
 int findMinII(const vector<int> &nums) {
+    int n = (int)nums.size();
+    int e = nums[n - 1];
+    function<int(int, int)> find = [&](int l, int h) -> int {
+        int m;
+        while (l < h) {
+            m = l + ((h - l) >> 1);
+            if (nums[m] < e)
+                h = m;
+            else if (nums[m] > e)
+                l = m + 1;
+            else
+                break;
+        }
+        if (l == h)
+            return nums[l];
+        else if (l == m) // e.g. [1, 1]
+            return find(m + 1, h);
+        else
+            return min(find(l, m - 1), find(m + 1, h));
+    };
+    return find(0, n - 1);
+}
+int findMinII2(const vector<int> &nums) {
     function<int(int, int)> find = [&](int l, int h) -> int {
         if (l == h)
             return nums[l];
@@ -16183,6 +16206,28 @@ int firstBadVersion(int n, int firstBadVersion) {
     return b;
 }
 
+// 367. Valid Perfect Square
+// Given a positive integer num, write a function which returns True if num is a
+// perfect square else False. Note: Do not use any built-in library function
+// such as sqrt. Example 1: Input: 16 Output: true Example 2: Input: 14 Output:
+// false
+bool isPerfectSquare(int num) {
+    long long x = num;
+    long long b = 1;
+    long long e = x;
+    while (b <= e) {
+        long long m = b + ((e - b) >> 1);
+        long long s = m * m;
+        if (s < x)
+            b = m + 1;
+        else if (s > x)
+            e = m - 1;
+        else
+            return true;
+    }
+    return false;
+}
+
 // 374. Guess Number Higher or Lower
 // We are playing the Guess Game. The game is as follows:
 // I pick a number from 1 to n. You have to guess which number I picked.
@@ -16276,6 +16321,89 @@ vector<int> findClosestElements(const vector<int> &arr, int k, int x) {
             result.push_back(arr[e++]);
     }
     return result;
+}
+// This may not output the smaller ones on tie
+// arr:[0,0,1,2,3,3,4,7,7,8]
+// k: 3
+// x: 5
+// Output: [4,7,7]
+// Expected: [3,3,4]
+vector<int> findClosestElements2(vector<int> &arr, int k, int x) {
+    vector<int> result;
+    int b = 0;
+    int e = (int)arr.size() - 1;
+    int i = b;
+    while (b <= e) {
+        i = b;
+        int j = e - 1;
+        while (i <= j) {
+            if (abs(arr[i] - x) > abs(arr[e] - x))
+                swap(arr[i], arr[j--]);
+            else
+                i++;
+        }
+        swap(arr[i++], arr[e]);
+        if (i - b < k) {
+            k -= i - b;
+            b = i;
+        } else if (i - b > k) {
+            e = i - 2;
+        } else {
+            break;
+        }
+    }
+    result.insert(result.begin(), arr.begin(), arr.begin() + i);
+    sort(result.begin(), result.end());
+    return result;
+}
+
+// 744. Find Smallest Letter Greater Than Target
+// Given a list of sorted characters letters containing only lowercase letters,
+// and given a target letter target, find the smallest element in the list that
+// is larger than the given target. Letters also wrap around. For example, if
+// the target is target = 'z' and letters = ['a', 'b'], the answer is 'a'.
+// Examples:
+// Input:
+// letters = ["c", "f", "j"]
+// target = "a"
+// Output: "c"
+// Input:
+// letters = ["c", "f", "j"]
+// target = "c"
+// Output: "f"
+// Input:
+// letters = ["c", "f", "j"]
+// target = "d"
+// Output: "f"
+// Input:
+// letters = ["c", "f", "j"]
+// target = "g"
+// Output: "j"
+// Input:
+// letters = ["c", "f", "j"]
+// target = "j"
+// Output: "c"
+// Input:
+// letters = ["c", "f", "j"]
+// target = "k"
+// Output: "c"
+// Note: letters has a length in range [2, 10000]. letters consists of lowercase
+// letters, and contains at least 2 unique letters. target is a lowercase
+// letter.
+char nextGreatestLetter(const vector<char> &letters, char target) {
+    int b = 0;
+    int e = (int)letters.size();
+    while (b < e) {
+        int m = b + ((e - b) >> 1);
+        if (letters[m] <= target)
+            b = m + 1;
+        else
+            e = m;
+    }
+    if (b == (int)letters.size())
+        return letters[0];
+    else
+        return letters[b];
 }
 } // namespace LeetCode
 } // namespace Test

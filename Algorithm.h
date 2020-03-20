@@ -18,14 +18,18 @@ namespace Test {
 // Assume the input is sorted.
 // Cases:
 // 1. empty input
-// 2. target exists
-// 3. target not exists
+// 2. target is the first
+// 3. target is the last
+// 4. target is in the middle
+// 5. target is less than everyone
+// 6. target is greater than everyone
+// 7. target does not exists and is neither less than nor greater than everyone
 int BinarySearch(const vector<int> &input, int target) {
     int b = 0;
     int e = (int)input.size() - 1;
     // [b..e] contain possible answers
     while (b <= e) {
-        int m = b + ((e - b) >> 1);
+        int m = b + ((e - b) >> 1); // b <= m <= e
         if (input[m] < target)
             b = m + 1;
         else if (input[m] > target)
@@ -40,7 +44,7 @@ int BinarySearch2(const vector<int> &input, int target) {
     int e = (int)input.size();
     // [b..e) contain possible answers
     while (b < e) {
-        int m = b + (e - b) / 2;
+        int m = b + (e - b) / 2; // b <= m < e
         if (input[m] < target)
             b = m + 1;
         else if (input[m] > target)
@@ -60,7 +64,7 @@ int BinarySearch3(const vector<int> &input, int target) {
     int e = input.size() - 1;
     // (b..e) contain possible answers
     while (b + 1 < e) {
-        int m = b + (e - b) / 2;
+        int m = b + (e - b) / 2; // b < m < e
         if (input[m] == target)
             return m;
         else if (input[m] < target)
