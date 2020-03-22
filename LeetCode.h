@@ -16206,6 +16206,137 @@ int firstBadVersion(int n, int firstBadVersion) {
     return b;
 }
 
+// 287. Find the Duplicate Number
+// Given an array nums containing n + 1 integers where each integer is between 1
+// and n (inclusive), prove that at least one duplicate number must exist.
+// Assume that there is only one duplicate number, find the duplicate one.
+// Example 1:
+// Input: [1,3,4,2,2]
+// Output: 2
+// Example 2:
+// Input: [3,1,3,4,2]
+// Output: 3
+// Note:
+// You must not modify the array (assume the array is read only).
+// You must use only constant, O(1) extra space.
+// Your runtime complexity should be less than O(n2).
+// There is only one duplicate number in the array, but it could be repeated
+// more than once. The first two approaches mentioned do not satisfy the
+// constraints given in the prompt, but they are solutions that you might be
+// likely to come up with during a technical interview. As an interviewer, I
+// personally would not expect someone to come up with the cycle detection
+// solution unless they have heard it before. Proof Proving that at least one
+// duplicate must exist in nums is simple application of the pigeonhole
+// principle. Here, each number in nums is a "pigeon" and each distinct number
+// that can appear in nums is a "pigeonhole". Because there are n+1 numbers are
+// nnn distinct possible numbers, the pigeonhole principle implies that at least
+// one of the numbers is duplicated. Approach #3 Floyd's Tortoise and Hare
+// (Cycle Detection) [Accepted] Intuition If we interpret nums such that for
+// each pair of index i and value v_i, the "next" value v_j​ is at index
+// v_i​, we can reduce this problem to cycle detection. See the solution to
+// Linked List Cycle II for more details. Algorithm First off, we can easily
+// show that the constraints of the problem imply that a cycle must exist.
+// Because each number in nums is between 1 and n, it will necessarily point to
+// an index that exists. Therefore, the list can be traversed infinitely, which
+// implies that there is a cycle. Additionally, because 0 cannot appear as a
+// value in nums, nums[0] cannot be part of the cycle. Therefore, traversing the
+// array in this manner from nums[0] is equivalent to traversing a cyclic linked
+// list. Given this, the problem can be solved just like Linked List Cycle II.
+int findDuplicate(const vector<int> &nums) {
+    int i = nums[0];
+    int j = nums[0];
+    do {
+        i = nums[i];
+        j = nums[nums[j]];
+    } while (i != j);
+    i = nums[0];
+    while (i != j) {
+        i = nums[i];
+        j = nums[j];
+    }
+    return i;
+}
+
+// 349. Intersection of Two Arrays
+// Given two arrays, write a function to compute their intersection.
+// Example 1:
+// Input: nums1 = [1,2,2,1], nums2 = [2,2]
+// Output: [2]
+// Example 2:
+// Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+// Output: [9,4]
+// Note: Each element in the result must be unique. The result can be in any
+// order.
+vector<int> intersection(vector<int> &nums1, vector<int> &nums2) {
+    vector<int> result;
+    function<void(vector<int> &, vector<int> &)> solve = [&](vector<int> &n1,
+                                                             vector<int> &n2) {
+        for (int i = 0; i < (int)n1.size(); i++) {
+            if (i > 0 && n1[i - 1] == n1[i])
+                continue;
+            int b = 0;
+            int e = (int)n2.size() - 1;
+            while (b <= e) {
+                int m = b + ((e - b) >> 1);
+                if (n2[m] < n1[i])
+                    b = m + 1;
+                else if (n2[m] > n1[i])
+                    e = m - 1;
+                else {
+                    result.push_back(n1[i]);
+                    break;
+                }
+            }
+        }
+    };
+    sort(nums1.begin(), nums1.end());
+    sort(nums2.begin(), nums2.end());
+    if (nums1.size() < nums2.size())
+        solve(nums1, nums2);
+    else
+        solve(nums2, nums1);
+    return result;
+}
+
+// Intersection of Two Arrays II
+// Given two arrays, write a function to compute their intersection.
+// Example 1:
+// Input: nums1 = [1,2,2,1], nums2 = [2,2]
+// Output: [2,2]
+// Example 2:
+// Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+// Output: [4,9]
+// Note: Each element in the result should appear as many times as it shows in
+// both arrays. The result can be in any order.
+// Follow up:
+// What if the given array is already sorted? How would you optimize your
+// algorithm? What if nums1's size is small compared to nums2's size? Which
+// algorithm is better? What if elements of nums2 are stored on disk, and the
+// memory is limited such that you cannot load all elements into the memory at
+// once?
+vector<int> intersect(vector<int> &nums1, vector<int> &nums2) {
+    function<map<int, int>(const vector<int> &)> count =
+        [&](const vector<int> &n) -> map<int, int> {
+        map<int, int> m;
+        for (int x : n) {
+            if (m.find(x) == m.end())
+                m[x] = 1;
+            else
+                m[x]++;
+        }
+        return m;
+    };
+    map<int, int> m1 = count(nums1);
+    map<int, int> m2 = count(nums2);
+    vector<int> result;
+    for (auto it = m1.begin(); it != m1.end(); it++) {
+        if (m2.find(it->first) != m2.end())
+            result.insert(result.end(), min(it->second, m2[it->first]),
+                          it->first);
+    }
+    return result;
+}
+
 // 367. Valid Perfect Square
 // Given a positive integer num, write a function which returns True if num is a
 // perfect square else False. Note: Do not use any built-in library function
@@ -16405,6 +16536,7 @@ char nextGreatestLetter(const vector<char> &letters, char target) {
     else
         return letters[b];
 }
+
 } // namespace LeetCode
 } // namespace Test
 #endif
