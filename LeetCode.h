@@ -103,6 +103,99 @@ int lengthOfLongestSubstring3(const string &s) {
     return l;
 }
 
+// 4. Median of Two Sorted Arrays
+// There are two sorted arrays nums1 and nums2 of size m and n respectively.
+// Find the median of the two sorted arrays. The overall run time complexity
+// should be O(log (m+n)). You may assume nums1 and nums2 cannot be both empty.
+// Example 1:
+// nums1 = [1, 3]
+// nums2 = [2]
+// The median is 2.0
+// Example 2:
+// nums1 = [1, 2]
+// nums2 = [3, 4]
+// The median is (2 + 3)/2 = 2.5
+double findMedianSortedArrays(const vector<int> &nums1,
+                              const vector<int> &nums2) {
+    function<double(const vector<int> &, const vector<int> &)> solve =
+        [&](const vector<int> &n1, const vector<int> &n2) -> double {
+        int l1 = n1.size();
+        int l2 = n2.size();
+        int l = l1 + l2;
+        int m = l >> 1;
+        if ((l & 0x1) == 0) {
+            if (l1 == 0)
+                return (n2[m - 1] + n2[m]) >> 1;
+            else if (n1[l1 - 1] <= n2[0]) {
+                if (l1 < l2)
+                    return (n2[m - l1 - 1] + n2[m - l1]) >> 1;
+                else
+                    return (n1[l1 - 1] + n2[0]) >> 1;
+            } else if (n2[l2 - 1] < n1[0]) {
+                if (l1 < l2)
+                    return (n2[m - 1] + n2[m]) >> 1;
+                else
+                    return (n2[l2 - 1] + n1[0]) >> 1;
+            }
+            int b = 0;
+            int e = l1 - 1;
+            while (b <= e) {
+                int m1 = b + ((e - b) >> 1);
+                int m2 = m - m1 - 2;
+                if (n1[m1] >= n2[m2]) {
+                    if (n1[m1] > n2[m2 + 1])
+                        e = m1 - 1;
+                    else if (m1 + 1 < l1)
+                        return (n1[m1] + min(n1[m1 + 1], n2[m2 + 1])) >> 1;
+                    else
+                        return (n1[m1] + n2[m2 + 1]) >> 1;
+                } else {
+                    if (m1 + 1 < l1 && n1[m1 + 1] < n2[m2])
+                        b = m1 + 1;
+                    else if (m1 + 1 < l1)
+                        return (n2[m2] + min(n1[m1 + 1], n2[m2 + 1])) >> 1;
+                    else
+                        return (n2[m2] + n2[m2 + 1]) >> 1;
+                }
+            }
+        } else {
+            if (l1 == 0)
+                return n2[m];
+            else if (n1[l1 - 1] <= n2[0])
+                return n2[m - l1];
+            else if (n2[l2 - 1] < n1[0])
+                return n2[m];
+            int b = 0;
+            int e = l1 - 1;
+            while (b <= e) {
+                int m1 = b + ((e - b) >> 1);
+                int m2 = m - m1 - 2;
+                if (n1[m1] >= n2[m2]) {
+                    if (n1[m1] > n2[m2 + 1])
+                        e = m1 - 1;
+                    else if (m1 + 1 < l1)
+                        return min(n1[m1 + 1], n2[m2 + 1]);
+                    else
+                        return n2[m2 + 1];
+                } else {
+                    if (m1 + 1 < l1 && n1[m1 + 1] < n2[m2])
+                        b = m1 + 1;
+                    else if (m1 + 1 < l1)
+                        return min(n1[m1 + 1], n2[m2 + 1]);
+                    else
+                        return n2[m2 + 1];
+                }
+            }
+        }
+        throw runtime_error("failed to find the median");
+    };
+
+    if (nums1.size() <= nums2.size())
+        return solve(nums1, nums2);
+    else
+        return solve(nums2, nums1);
+}
+
 // 5. Longest Palindromic Substring
 // Given a string s, find the longest palindromic substring in s.
 // You may assume that the maximum length of s is 1000.
