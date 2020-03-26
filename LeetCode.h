@@ -117,83 +117,125 @@ int lengthOfLongestSubstring3(const string &s) {
 // The median is (2 + 3)/2 = 2.5
 double findMedianSortedArrays(const vector<int> &nums1,
                               const vector<int> &nums2) {
-    function<double(const vector<int> &, const vector<int> &)> solve =
-        [&](const vector<int> &n1, const vector<int> &n2) -> double {
-        int l1 = n1.size();
-        int l2 = n2.size();
-        int l = l1 + l2;
-        int m = l >> 1;
-        if ((l & 0x1) == 0) {
-            if (l1 == 0)
-                return (n2[m - 1] + n2[m]) >> 1;
-            else if (n1[l1 - 1] <= n2[0]) {
-                if (l1 < l2)
-                    return (n2[m - l1 - 1] + n2[m - l1]) >> 1;
-                else
-                    return (n1[l1 - 1] + n2[0]) >> 1;
-            } else if (n2[l2 - 1] < n1[0]) {
-                if (l1 < l2)
-                    return (n2[m - 1] + n2[m]) >> 1;
-                else
-                    return (n2[l2 - 1] + n1[0]) >> 1;
-            }
-            int b = 0;
-            int e = l1 - 1;
-            while (b <= e) {
-                int m1 = b + ((e - b) >> 1);
-                int m2 = m - m1 - 2;
-                if (n1[m1] >= n2[m2]) {
-                    if (n1[m1] > n2[m2 + 1])
-                        e = m1 - 1;
-                    else if (m1 + 1 < l1)
-                        return (n1[m1] + min(n1[m1 + 1], n2[m2 + 1])) >> 1;
-                    else
-                        return (n1[m1] + n2[m2 + 1]) >> 1;
-                } else {
-                    if (m1 + 1 < l1 && n1[m1 + 1] < n2[m2])
-                        b = m1 + 1;
-                    else if (m1 + 1 < l1)
-                        return (n2[m2] + min(n1[m1 + 1], n2[m2 + 1])) >> 1;
-                    else
-                        return (n2[m2] + n2[m2 + 1]) >> 1;
+    // For an array a[0..n-1]
+    // If n is even, its medians are indexed at (n-1)/2 and n/2
+    // If n is odd, its median is indexed at (n-1)/2 == n/2
+    function<double(const vector<int> &, const vector<int> &)> search =
+        [&](const vector<int> &s, const vector<int> &l) -> double {
+        // Assume s.size() <= l.size()
+        int bs = 0;
+        int es = s.size() - 1;
+        int n = s.size() + l.size();
+        bool odd = ((n & 0x1) == 1);
+        // index of the lower median is (n-1)/2 whether n is odd or even
+        // index of the upper median is n/2 whether n is odd or even
+        int m = (n - 1) / 2;
+        if (s.empty()) {
+            if (odd)
+                return l[m];
+            else
+                return (l[m] + l[m + 1]) / 2.0;
+        }
+        while (bs <= es) {
+            // index of the lower median
+            // 0 <= ms <= s.size() - 1
+            int ms = bs + ((es - bs) >> 1);
+            // s[0..ms] has ms + 1 elements
+            // l[0..ml] has ml + 1 elements
+            // Combining two has m + 1 elements, i.e., n[0..m]
+            // so ms + 1 + ml + 1 = m + 1
+            // (1) ml = -1, if ms = s.size() - 1 && s.size() == l.size()
+            // (2) 0 <= ml < l.size() - 1, otherwise
+            int ml = m - ms - 1;
+            if (ml == -1)
+                return (s[ms] + l[0]) / 2.0;
+            if (s[ms] >= l[ml]) {
+                if (s[ms] <= l[ml + 1]) {
+                    // The median or the lower median is in s
+                    if (odd) {
+                        // s[0..(ms-1)], s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml],        l[(ml+1)..(ll-1)]
+                        return s[ms];
+                    } else if (ms + 1 < (int)s.size()) {
+                        // even
+                        // s[0..(ms-1)], s[ms], s[ms+1], s[(ms+2)..(ls-1)]
+                        //     l[0..ml],        l[ml+1], l[(ml+2)..(ll-1)]
+                        return (s[ms] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                    } else {
+                        // even
+                        // s[0..(ms-1)], s[ms]
+                        //     l[0..ml],        l[(ml+1)..(ll-1)]
+                        return (s[ms] + l[ml + 1]) / 2.0;
+                    }
                 }
-            }
-        } else {
-            if (l1 == 0)
-                return n2[m];
-            else if (n1[l1 - 1] <= n2[0])
-                return n2[m - l1];
-            else if (n2[l2 - 1] < n1[0])
-                return n2[m];
-            int b = 0;
-            int e = l1 - 1;
-            while (b <= e) {
-                int m1 = b + ((e - b) >> 1);
-                int m2 = m - m1 - 2;
-                if (n1[m1] >= n2[m2]) {
-                    if (n1[m1] > n2[m2 + 1])
-                        e = m1 - 1;
-                    else if (m1 + 1 < l1)
-                        return min(n1[m1 + 1], n2[m2 + 1]);
-                    else
-                        return n2[m2 + 1];
-                } else {
-                    if (m1 + 1 < l1 && n1[m1 + 1] < n2[m2])
-                        b = m1 + 1;
-                    else if (m1 + 1 < l1)
-                        return min(n1[m1 + 1], n2[m2 + 1]);
-                    else
-                        return n2[m2 + 1];
+                if (bs == ms) {
+                    // The median or the lower median is in l
+                    if (odd) {
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1],        l[(ml+2)..(ll-1)]
+                        return l[ml + 1];
+                    } else if (ml + 2 < (int)l.size()) {
+                        // even
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1], l[(ml+2)..(ll-1)]
+                        return (l[ml + 1] + min(s[ms], l[ml + 2])) / 2.0;
+                    } else {
+                        // even
+                        // s[0..(ms-1)],          s[ms], s[(ms+1)..(ls-1)]
+                        //     l[0..ml], l[ml+1]
+                        return (l[ml + 1] + s[ms]) / 2.0;
+                    }
                 }
+                es = ms - 1;
+            } else {
+                if (ms == (int)s.size() - 1) {
+                    if (odd) {
+                        //     s[0..ms]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
+                        return l[ml];
+                    } else {
+                        //     s[0..ms]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)], l[(ml+2)..(ll-1)]
+                        return (l[ml] + l[ml + 1]) / 2.0;
+                    }
+                }
+                if (l[ml] <= s[ms + 1]) {
+                    if (odd) {
+                        //     s[0..ms],        s[(ms+1)..(ls-1)]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
+                        return l[ml];
+                    } else {
+                        // even
+                        //     s[0..ms],        s[(ms+1)..(ls-1)]
+                        // l[0..(ml-1)], l[ml], l[(ml+1)..(ll-1)]
+                        return (l[ml] + min(s[ms + 1], l[ml + 1])) / 2.0;
+                    }
+                }
+                if (ms == es) {
+                    if (odd) {
+                        //     s[0..ms], s[ms+1],        s[(ms+2)..(ls-1)]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
+                        return s[ms + 1];
+                    } else if (ms + 2 < (int)s.size()) {
+                        //     s[0..ms], s[ms+1], s[(ms+2)..(ls-1)]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
+                        return (s[ms + 1] + min(s[ms + 2], l[ml])) / 2.0;
+                    } else {
+                        //     s[0..ms], s[ms+1]
+                        // l[0..(ml-1)],          l[ml], l[(ml+1)..(ll-1)]
+                        return (s[ms + 1] + l[ml]) / 2.0;
+                    }
+                }
+                bs = ms + 1;
             }
         }
-        throw runtime_error("failed to find the median");
+        throw runtime_error("The median is not found.");
     };
 
     if (nums1.size() <= nums2.size())
-        return solve(nums1, nums2);
+        return search(nums1, nums2);
     else
-        return solve(nums2, nums1);
+        return search(nums2, nums1);
 }
 
 // 5. Longest Palindromic Substring
@@ -16579,6 +16621,51 @@ vector<int> findClosestElements2(vector<int> &arr, int k, int x) {
     result.insert(result.begin(), arr.begin(), arr.begin() + i);
     sort(result.begin(), result.end());
     return result;
+}
+
+// 719. Find K-th Smallest Pair Distance
+// Given an integer array, return the k-th smallest distance among all the
+// pairs. The distance of a pair (A, B) is defined as the absolute difference
+// between A and B. Example 1: Input: nums = [1,3,1] k = 1 Output: 0
+// Explanation:
+// Here are all the pairs:
+// (1,3) -> 2
+// (1,1) -> 0
+// (3,1) -> 2
+// Then the 1st smallest distance pair is (1,1), and its distance is 0.
+// Note:
+// 2 <= len(nums) <= 10000.
+// 0 <= nums[i] < 1000000.
+// 1 <= k <= len(nums) * (len(nums) - 1) / 2.
+int smallestDistancePair(const vector<int> &nums, int k) {
+    priority_queue<int> q;
+    for (size_t i = 0; i + 1 < nums.size(); i++) {
+        for (size_t j = i + 1; j < nums.size(); j++) {
+            int d = abs(nums[j] - nums[i]);
+            if ((int)q.size() < k || d < q.top())
+                q.push(d);
+            if ((int)q.size() > k)
+                q.pop();
+        }
+    }
+    return q.top();
+}
+// This is wrong
+int smallestDistancePair2(vector<int> &nums, int k) {
+    sort(nums.begin(), nums.end());
+    priority_queue<int> q;
+    int t = 1;
+    while ((int)q.size() < k && t <= (int)nums.size() - 1) {
+        for (size_t i = 0; i + t < nums.size(); i++) {
+            int d = abs(nums[i + t] - nums[i]);
+            if ((int)q.size() < k || d < q.top())
+                q.push(d);
+            if ((int)q.size() > k)
+                q.pop();
+        }
+        t++;
+    }
+    return q.top();
 }
 
 // 744. Find Smallest Letter Greater Than Target
