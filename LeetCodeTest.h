@@ -5625,13 +5625,16 @@ void LeetCodeTest::Init(void) {
             vector<int> v1(v);
             vector<int> v2(v);
             vector<int> v3(v);
+            vector<int> v4(v);
             int d = smallestDistancePair(v1, k);
             int d2 = smallestDistancePair2(v2, k);
             int d3 = smallestDistancePair3(v3, k);
+            int d4 = smallestDistancePair4(v4, k);
             Logger() << k << "-th smallest distance: " << d << ", " << d2
-                     << ", " << d3 << endl;
+                     << ", " << d3 << ", " << d4 << endl;
             ASSERT1(d == d2);
             ASSERT1(d == d3);
+            ASSERT1(d == d4);
         };
         check({0, 1, 2, 3, 100}, 4);
         check({10, 6,  2, 10, 5,  4, 0, 1, 5, 2, 5, 5, 5, 0, 4, 9, 8,
