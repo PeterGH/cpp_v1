@@ -16637,7 +16637,77 @@ vector<int> findClosestElements2(vector<int> &arr, int k, int x) {
 // 2 <= len(nums) <= 10000.
 // 0 <= nums[i] < 1000000.
 // 1 <= k <= len(nums) * (len(nums) - 1) / 2.
-int smallestDistancePair(const vector<int> &nums, int k) {
+// Approach #2: Binary Search + Prefix Sum [Accepted]
+// Let's binary search for the answer. It's definitely in the range [0, W],
+// where W = max(nums) - min(nums)]. Let possible(guess) be true if and only
+// if there are k or more pairs with distance less than or equal to guess.
+// We will focus on evaluating our possible function quickly.
+// Algorithm
+// Let countLessOrEqual[v] be the number of points in nums less than or equal to
+// v. Also, let countEqualOnLeft[j] be the number of points i with i < j and
+// nums[i] == nums[j]. We can record both of these with a simple linear scan.
+// Now, for every point i, the number of points j with i < j and nums[j] -
+// nums[i] <= guess is countLessOrEqual[nums[i]+guess] -
+// countLessOrEqual[nums[i]] + (countTotal[i] - countEqualOnLeft[i]), where
+// countTotal[i] is the number of ocurrences of nums[i] in nums. The sum of this
+// over all i is the number of pairs with distance <= guess. Finally, because
+// the sum of countTotal[i] - countEqualOnLeft[i] is the same as the sum of
+// countEqualOnLeft[i] when the sum is over all elements having the same value
+// nums[i], we could just replace that term with countEqualOnLeft[i] without
+// affecting the answer.
+int smallestDistancePair(vector<int> &nums, int k) {
+    sort(nums.begin(), nums.end());
+    int min = nums[0];
+    int max = nums[nums.size() - 1];
+    // let d = max - min
+    //     min, min+1, ..., max-1, max
+    // i = 0,   1,     ..., d-1,   d
+    // countLessOrEqual[i] is the count of elements in nums whose value is 
+    // less than or equal to (min + i)
+    vector<int> countLessOrEqual(max - min + 1, 0);
+    int i = 0; // walk through nums
+    for (int v = min; v <= max; v++) {
+        // Since nums is sorted, only need to walk towards right until
+        // the first element greater than v
+        // Thw while loop will be skiped if v < nums[i]
+        while (i < (int)nums.size() && nums[i] == v)
+            i++;
+        // There are i elements <= v
+        countLessOrEqual[v - min] = i;
+    }
+    vector<int> countEqualOnLeft(nums.size(), 0);
+    for (i = 1; i < (int)nums.size(); i++) {
+        // Since nums is sorted, just need to compare with previous one
+        // to count the equal elements
+        if (nums[i] == nums[i - 1])
+            countEqualOnLeft[i] = countEqualOnLeft[i - 1] + 1;
+    }
+    int l = 0;
+    int h = max - min;
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        int count = 0;
+        for (i = 0; i < (int)nums.size(); i++) {
+            // countLessOrEqual[guessHigh] will be elements <= nums[i] + m
+            // countLessOrEqual[guessLow] will be elements <= nums[i]
+            int guessLow = nums[i] - min;
+            int guessHigh = guessLow + m;
+            count += (guessHigh >= (int)countLessOrEqual.size()
+                          ? (int)nums.size()
+                          : countLessOrEqual[guessHigh]);
+            // This excludes all elements == nums[i], so need to compensate
+            // by adding countEqualOnLeft[i]
+            count -= countLessOrEqual[guessLow];
+            count += countEqualOnLeft[i];
+        }
+        if (count < k)
+            l = m + 1;
+        else
+            h = m;
+    }
+    return l;
+}
+int smallestDistancePair2(const vector<int> &nums, int k) {
     priority_queue<int> q;
     for (size_t i = 0; i + 1 < nums.size(); i++) {
         for (size_t j = i + 1; j < nums.size(); j++) {
@@ -16650,7 +16720,7 @@ int smallestDistancePair(const vector<int> &nums, int k) {
     }
     return q.top();
 }
-int smallestDistancePair2(vector<int> &nums, int k) {
+int smallestDistancePair3(vector<int> &nums, int k) {
     sort(nums.begin(), nums.end());
     priority_queue<int> q;
     for (int i = 1; i < (int)nums.size(); i++) {
@@ -16668,7 +16738,7 @@ int smallestDistancePair2(vector<int> &nums, int k) {
     return q.top();
 }
 // This is wrong
-int smallestDistancePair3(vector<int> &nums, int k) {
+int smallestDistancePair4(vector<int> &nums, int k) {
     sort(nums.begin(), nums.end());
     priority_queue<int> q;
     int t = 1;

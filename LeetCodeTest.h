@@ -5622,12 +5622,16 @@ void LeetCodeTest::Init(void) {
     Add("719. Find K-th Smallest Pair Distance", [&]() {
         auto check = [&](const vector<int> &v, int k) {
             Logger() << v;
+            vector<int> v1(v);
             vector<int> v2(v);
-            int d = smallestDistancePair(v, k);
+            vector<int> v3(v);
+            int d = smallestDistancePair(v1, k);
             int d2 = smallestDistancePair2(v2, k);
+            int d3 = smallestDistancePair3(v3, k);
             Logger() << k << "-th smallest distance: " << d << ", " << d2
-                     << endl;
+                     << ", " << d3 << endl;
             ASSERT1(d == d2);
+            ASSERT1(d == d3);
         };
         check({0, 1, 2, 3, 100}, 4);
         check({10, 6,  2, 10, 5,  4, 0, 1, 5, 2, 5, 5, 5, 0, 4, 9, 8,
