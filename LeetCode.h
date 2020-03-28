@@ -16650,8 +16650,25 @@ int smallestDistancePair(const vector<int> &nums, int k) {
     }
     return q.top();
 }
-// This is wrong
 int smallestDistancePair2(vector<int> &nums, int k) {
+    sort(nums.begin(), nums.end());
+    priority_queue<int> q;
+    for (int i = 1; i < (int)nums.size(); i++) {
+        for (int j = i - 1; j >= 0; j--) {
+            int d = abs(nums[i] - nums[j]);
+            if ((int)q.size() < k || d < q.top()) {
+                q.push(d);
+                if ((int)q.size() > k)
+                    q.pop();
+            } else {
+                break;
+            }
+        }
+    }
+    return q.top();
+}
+// This is wrong
+int smallestDistancePair3(vector<int> &nums, int k) {
     sort(nums.begin(), nums.end());
     priority_queue<int> q;
     int t = 1;
