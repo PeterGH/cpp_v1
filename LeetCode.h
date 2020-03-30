@@ -16536,21 +16536,21 @@ bool isPerfectSquare(int num) {
 // Example :
 // Input: n = 10, pick = 6
 // Output: 6
+int guess(int x, int pick) {
+    if (pick < x)
+        return -1;
+    else if (pick > x)
+        return 1;
+    else
+        return 0;
+}
 int guessNumber(int n, int pick) {
-    function<int(int)> guess = [&](int x) -> int {
-        if (pick < x)
-            return -1;
-        else if (pick > x)
-            return 1;
-        else
-            return 0;
-    };
     int b = 1;
     int e = n;
     int m = b;
     while (b <= e) {
         m = b + ((e - b) >> 1);
-        int c = guess(m);
+        int c = guess(m, pick);
         if (c == -1)
             e = m - 1;
         else if (c == 1)
@@ -16559,6 +16559,36 @@ int guessNumber(int n, int pick) {
             break;
     }
     return m;
+}
+int guessNumber2(int n, int pick) {
+    int b = 1;
+    int e = n;
+    while (b < e) {
+        int m = b + ((e - b) >> 1);
+        int c = guess(m, pick);
+        if (c == -1)
+            e = m;
+        else if (c == 1)
+            b = m + 1;
+        else
+            return m;
+    }
+    return b;
+}
+int guessNumber3(int n, int pick) {
+    int b = 1;
+    int e = n;
+    while (b + 1 < e) {
+        int m = b + ((e - b) >> 1);
+        int c = guess(m, pick);
+        if (c == -1)
+            e = m;
+        else if (c == 1)
+            b = m;
+        else
+            return m;
+    }
+    return guess(b, pick) == 0 ? b : e;
 }
 
 // 410. Split Array Largest Sum
