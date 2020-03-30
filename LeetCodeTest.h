@@ -2100,12 +2100,17 @@ void LeetCodeTest::Init(void) {
             int a2 = mySqrt2(x);
             int a3 = mySqrt3(x);
             int a4 = mySqrt4(x);
+            int a5 = mySqrt5(x);
+            int a6 = mySqrt6(x);
             int b = (int)sqrt(x);
-            Logger().WriteInformation("%d, %d, %d, %d, %d\n", a, a2, a3, a4, b);
+            Logger().WriteInformation("%d, %d, %d, %d, %d, %d, %d\n", a, a2, a3,
+                                      a4, a5, a6, b);
             ASSERT1(a == b);
             ASSERT1(a2 == b);
             ASSERT1(a3 == b);
             ASSERT1(a4 == b);
+            ASSERT1(a5 == b);
+            ASSERT1(a6 == b);
         };
         check(0);
         check(1);

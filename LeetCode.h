@@ -6061,6 +6061,36 @@ vector<string> fullJustify2(const vector<string> &words, int L) {
 int mySqrt(int x) {
     long long l = 0;
     long long h = x;
+    while (l < h) {
+        long long m = l + ((h - l) >> 1);
+        long long m2 = m * m;
+        if (x < m2)
+            h = m;
+        else if (m2 < x)
+            l = m + 1;
+        else
+            return m;
+    }
+    return h * h == x ? h : h - 1;
+}
+int mySqrt2(int x) {
+    long long l = 0;
+    long long h = x;
+    while (l + 1 < h) {
+        long long m = l + ((h - l) >> 1);
+        long long m2 = m * m;
+        if (x < m2)
+            h = m;
+        else if (m2 < x)
+            l = m;
+        else
+            return m;
+    }
+    return h * h == x ? h : l;
+}
+int mySqrt3(int x) {
+    long long l = 0;
+    long long h = x;
     long long m = 0;
     while (l <= h) {
         // [l..h] contain possible answers
@@ -6069,9 +6099,11 @@ int mySqrt(int x) {
         if (x < m2) {
             h = m - 1; // it is possible h * h <= x
         } else if (m2 < x) {
-            if (l < m)
+            if (l < m) {
                 l = m;
-            else {
+            } else {
+                // case 1: l = m = h
+                // case 2: l = m < h (= m + 1)
                 if (m < h && x >= h * h)
                     m = h;
                 break;
@@ -6082,7 +6114,7 @@ int mySqrt(int x) {
     }
     return m;
 }
-int mySqrt2(int x) {
+int mySqrt4(int x) {
     long long l = 0;
     long long h = x;
     long long m = 0;
@@ -6101,7 +6133,7 @@ int mySqrt2(int x) {
     }
     return m;
 }
-int mySqrt3(int x) {
+int mySqrt5(int x) {
     long long l = 0;
     long long r = x;
     // Use long long to avoid overflow of m * m.
@@ -6110,17 +6142,16 @@ int mySqrt3(int x) {
         m = l + ((r - l) >> 1);
         long long low = m * m;
         long long high = (m + 1) * (m + 1);
-        if (low <= x && x < high) {
+        if (low <= x && x < high)
             break;
-        } else if (x < low) {
+        else if (x < low)
             r = m - 1;
-        } else {
+        else
             l = m + 1;
-        }
     }
     return (int)m;
 }
-int mySqrt4(int x) {
+int mySqrt6(int x) {
     if (x < 0)
         throw invalid_argument("x cannot be negative");
     if (x < 2)
