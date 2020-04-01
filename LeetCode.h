@@ -2765,6 +2765,114 @@ int longestValidParentheses5(const string &s) {
 // Note: The pivot may be 0, i.e., no rotation
 int search(const vector<int> &nums, int target) {
     int l = 0;
+    int r = nums.size() - 1;
+    while (l <= r) {
+        int m = l + ((r - l) >> 1);
+        if (nums[m] == target)
+            return m;
+        else if (nums[m] < target) {
+            if (nums[0] < nums[m])
+                l = m + 1;
+            else if (target <= nums[r])
+                l = m + 1;
+            else
+                r = m - 1;
+        } else {
+            if (nums[0] > nums[m])
+                r = m - 1;
+            else if (nums[l] <= target)
+                r = m - 1;
+            else
+                l = m + 1;
+        }
+    }
+    return -1;
+}
+int search2(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (nums[0] <= target)
+                h = m - 1;
+            else if (nums[0] <= nums[m])
+                l = m + 1;
+            else
+                h = m - 1;
+        } else if (nums[m] < target) {
+            if (nums[0] <= nums[m])
+                l = m + 1;
+            else if (nums[0] <= target)
+                h = m - 1;
+            else
+                l = m + 1;
+        } else {
+            return m;
+        }
+    }
+    return -1;
+}
+int search3(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (nums[0] <= target)
+                h = m;
+            else if (nums[0] <= nums[m])
+                l = m + 1;
+            else
+                h = m;
+        } else if (nums[m] < target) {
+            if (nums[0] <= nums[m])
+                l = m + 1;
+            else if (nums[0] <= target)
+                h = m;
+            else
+                l = m + 1;
+        } else {
+            return m;
+        }
+    }
+    if (l == h && nums[l] == target)
+        return l;
+    return -1;
+}
+int search4(const vector<int> &nums, int target) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l + 1 < h) {
+        int m = l + ((h - l) >> 1);
+        if (target < nums[m]) {
+            if (nums[0] <= target)
+                h = m;
+            else if (nums[0] <= nums[m])
+                l = m;
+            else
+                h = m;
+        } else if (nums[m] < target) {
+            if (nums[0] <= nums[m])
+                l = m;
+            else if (nums[0] <= target)
+                h = m;
+            else
+                l = m;
+        } else {
+            return m;
+        }
+    }
+    if (l <= h) {
+        if (nums[l] == target)
+            return l;
+        if (nums[h] == target)
+            return h;
+    }
+    return -1;
+}
+int search5(const vector<int> &nums, int target) {
+    int l = 0;
     int h = nums.size() - 1;
     while (l <= h) {
         int m = l + ((h - l) >> 1);
@@ -2788,31 +2896,6 @@ int search(const vector<int> &nums, int target) {
             }
         } else {
             return m;
-        }
-    }
-    return -1;
-}
-int search2(const vector<int> &nums, int target) {
-    int l = 0;
-    int r = nums.size() - 1;
-    while (l <= r) {
-        int m = l + ((r - l) >> 1);
-        if (nums[m] == target)
-            return m;
-        else if (nums[m] < target) {
-            if (nums[0] < nums[m])
-                l = m + 1;
-            else if (target <= nums[r])
-                l = m + 1;
-            else
-                r = m - 1;
-        } else {
-            if (nums[0] > nums[m])
-                r = m - 1;
-            else if (nums[l] <= target)
-                r = m - 1;
-            else
-                l = m + 1;
         }
     }
     return -1;

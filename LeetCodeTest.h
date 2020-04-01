@@ -868,14 +868,24 @@ void LeetCodeTest::Init(void) {
                          bool ignoreE = false) {
             int i = search(v, t);
             int i2 = search2(v, t);
+            int i3 = search3(v, t);
+            int i4 = search4(v, t);
+            int i5 = search5(v, t);
             if (ignoreE) {
-                Logger() << v << t << ", " << i << ", " << i2 << endl;
+                Logger() << v << t << ", " << i << ", " << i2 << ", " << i3
+                         << ", " << i4 << ", " << i5 << endl;
                 ASSERT1(i == i2);
+                ASSERT1(i == i3);
+                ASSERT1(i == i4);
+                ASSERT1(i == i5);
             } else {
-                Logger() << v << t << ", " << i << ", " << i2 << ", " << e
-                         << endl;
+                Logger() << v << t << ", " << i << ", " << i2 << ", " << i3
+                         << ", " << i4 << ", " << i5 << ", " << e << endl;
                 ASSERT1(i == e);
                 ASSERT1(i2 == e);
+                ASSERT1(i3 == e);
+                ASSERT1(i4 == e);
+                ASSERT1(i5 == e);
             }
         };
         check({4, 5, 6, 7, 0, 1, 2}, 0, 4);
