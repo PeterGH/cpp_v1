@@ -5222,11 +5222,15 @@ void LeetCodeTest::Init(void) {
             int i = findMin(v);
             int i2 = findMin2(v);
             int i3 = findMin3(v);
-            Logger() << "min: " << i << ", " << i2 << ", " << i3 << ", " << e
-                     << endl;
+            int i4 = findMin4(v);
+            int i5 = findMin5(v);
+            Logger() << "min: " << i << ", " << i2 << ", " << i3 << ", " << i4
+                     << ", " << i5 << ", " << e << endl;
             ASSERT1(i == e);
             ASSERT1(i2 == e);
             ASSERT1(i3 == e);
+            ASSERT1(i4 == e);
+            ASSERT1(i5 == e);
         };
         check({4, 5, 6, 7, 0, 1, 2});
         check({1, 3});

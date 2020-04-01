@@ -13977,6 +13977,23 @@ int findMin(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int e = nums[h];
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (m < h) {
+            if (nums[m] > e)
+                l = m + 1;
+            else
+                h = m;
+        } else {
+            return nums[m];
+        }
+    }
+    throw runtime_error("not found");
+}
+int findMin2(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    int e = nums[h];
     while (l < h) {
         int m = l + ((h - l) >> 1);
         if (nums[m] > e)
@@ -13986,7 +14003,22 @@ int findMin(const vector<int> &nums) {
     }
     return nums[l];
 }
-int findMin2(const vector<int> &nums) {
+int findMin3(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    int e = nums[h];
+    while (l + 1 < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] > e)
+            l = m;
+        else
+            h = m;
+    }
+    if (l <= h)
+        return min(nums[l], nums[h]);
+    throw runtime_error("not found");
+}
+int findMin4(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int m;
@@ -14006,7 +14038,7 @@ int findMin2(const vector<int> &nums) {
     }
     return nums[m];
 }
-int findMin3(const vector<int> &nums) {
+int findMin5(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int m;
