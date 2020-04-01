@@ -16438,10 +16438,23 @@ vector<vector<int>> combinationSum3(int k, int n) {
 // call isBadVersion(5) -> true
 // call isBadVersion(4) -> true
 // Then 4 is the first bad version.
-int firstBadVersion(int n, int firstBadVersion) {
-    function<bool(int)> isBadVersion = [&](int v) -> bool {
-        return v >= firstBadVersion;
-    };
+bool isBadVersion(int v) { return v >= 0; }
+int firstBadVersion(int n) {
+    int b = 1;
+    int e = n;
+    while (b <= e) {
+        int m = b + ((e - b) >> 1);
+        if (isBadVersion(m)) {
+            if (b == e)
+                return m;
+            e = m;
+        } else {
+            b = m + 1;
+        }
+    }
+    throw runtime_error("not found");
+}
+int firstBadVersion2(int n) {
     int b = 1;
     int e = n;
     while (b < e) {
@@ -16452,7 +16465,24 @@ int firstBadVersion(int n, int firstBadVersion) {
             b = m + 1;
     }
     // Assume there must be a bad version
+    // e.g., when the bad version is n.
     return b;
+}
+int firstBadVersion3(int n) {
+    int b = 1;
+    int e = n;
+    while (b + 1 < e) {
+        int m = b + ((e - b) >> 1);
+        if (isBadVersion(m))
+            e = m;
+        else
+            b = m;
+    }
+    if (isBadVersion(b))
+        return b;
+    if (isBadVersion(e))
+        return e;
+    throw runtime_error("not found");
 }
 
 // 287. Find the Duplicate Number
