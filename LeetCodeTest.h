@@ -5264,11 +5264,13 @@ void LeetCodeTest::Init(void) {
     Add("162. Find Peak Element", [&]() {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
-            vector<int> idx(4, -1);
+            vector<int> idx(6, -1);
             idx[0] = findPeakElement(v);
             idx[1] = findPeakElement2(v);
             idx[2] = findPeakElement3(v);
             idx[3] = findPeakElement4(v);
+            idx[4] = findPeakElement5(v);
+            idx[5] = findPeakElement6(v);
             Logger() << "Local peak:" << endl;
             for (int i : idx) {
                 Logger() << "v[" << i << "] = " << v[i] << endl;

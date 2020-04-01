@@ -14217,6 +14217,22 @@ ListNode *getIntersectionNode2(ListNode *headA, ListNode *headB) {
 int findPeakElement(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (m < h) {
+            if (nums[m] > nums[m + 1])
+                h = m;
+            else
+                l = m + 1;
+        } else {
+            return m;
+        }
+    }
+    throw runtime_error("not found");
+}
+int findPeakElement2(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
     while (l < h) {
         int m = l + ((h - l) >> 1);
         if (nums[m] > nums[m + 1])
@@ -14226,7 +14242,25 @@ int findPeakElement(const vector<int> &nums) {
     }
     return l == h ? l : -1;
 }
-int findPeakElement2(const vector<int> &nums) {
+int findPeakElement3(const vector<int> &nums) {
+    int l = 0;
+    int h = nums.size() - 1;
+    while (l + 1 < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] > nums[m + 1])
+            h = m;
+        else
+            l = m;
+    }
+    if (l <= h) {
+        if (nums[l] <= nums[h])
+            return h;
+        else
+            return l;
+    }
+    throw runtime_error("not found");
+}
+int findPeakElement4(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     while (l < h) {
@@ -14249,7 +14283,7 @@ int findPeakElement2(const vector<int> &nums) {
     }
     return l == h ? l : -1;
 }
-int findPeakElement3(const vector<int> &nums) {
+int findPeakElement5(const vector<int> &nums) {
     if (nums.empty())
         return -1;
     if (nums.size() == 1)
@@ -14277,7 +14311,7 @@ int findPeakElement3(const vector<int> &nums) {
     }
     return m;
 }
-int findPeakElement4(const vector<int> &nums) {
+int findPeakElement6(const vector<int> &nums) {
     int l = 0;
     int h = nums.size() - 1;
     int m;
