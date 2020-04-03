@@ -2909,6 +2909,76 @@ int search5(const vector<int> &nums, int target) {
 // 8 Output: [3,4] Example 2: Input: nums = [5,7,7,8,8,10], target = 6 Output:
 // [-1,-1]
 vector<int> searchRange(const vector<int> &nums, int target) {
+    vector<int> range = {-1, -1};
+    bool foundFirst = false;
+    int l = 0;
+    int h = (int)nums.size() - 1;
+    while (l <= h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] < target) {
+            l = m + 1;
+        } else if (nums[m] > target) {
+            h = m - 1;
+        } else if (!foundFirst) {
+            if (l == m || nums[m - 1] < target) {
+                foundFirst = true;
+                range[0] = m;
+                l = m;
+                h = (int)nums.size() - 1;
+            } else {
+                // l < m < h && nums[m - 1] == target
+                h = m - 1;
+            }
+        } else {
+            if (m == h || nums[m] < nums[m + 1]) {
+                range[1] = m;
+                break;
+            } else {
+                // l <= m < h && nums[m] == nums[m + 1]
+                l = m + 1;
+            }
+        }
+    }
+    return range;
+}
+vector<int> searchRange2(const vector<int> &nums, int target) {
+    vector<int> range = {-1, -1};
+    bool foundFirst = false;
+    int l = 0;
+    int h = (int)nums.size() - 1;
+    while (l < h) {
+        int m = l + ((h - l) >> 1);
+        if (nums[m] < target) {
+            l = m + 1;
+        } else if (nums[m] > target) {
+            h = m;
+        } else if (!foundFirst) {
+            if (l == m || nums[m - 1] < target) {
+                foundFirst = true;
+                range[0] = m;
+                l = m;
+                h = (int)nums.size() - 1;
+            } else {
+                h = m;
+            }
+        } else {
+            if (nums[m] < nums[m + 1]) {
+                range[1] = m;
+                break;
+            } else {
+                l = m + 1;
+            }
+        }
+    }
+    if (l == h && nums[l] == target) {
+        if (range[0] == -1)
+            range[0] = l;
+        if (range[1] == -1)
+            range[1] = l;
+    }
+    return range;
+}
+vector<int> searchRange3(const vector<int> &nums, int target) {
     if (nums.empty())
         return {-1, -1};
     if (nums.size() == 1)
@@ -2935,41 +3005,7 @@ vector<int> searchRange(const vector<int> &nums, int target) {
     range[1] = (nums[h] == target ? h : (nums[l] == target ? l : -1));
     return range;
 }
-vector<int> searchRange2(const vector<int> &nums, int target) {
-    int l = 0;
-    int h = (int)nums.size() - 1;
-    int first = -1;
-    int second = -1;
-    bool foundFirst = false;
-    while (l <= h) {
-        int m = l + ((h - l) >> 1);
-        if (target < nums[m]) {
-            h = m - 1;
-        } else if (nums[m] < target) {
-            l = m + 1;
-        } else {
-            if (!foundFirst) {
-                if (l == m || nums[m - 1] < target) {
-                    foundFirst = true;
-                    first = m;
-                    l = m;
-                    h = (int)nums.size() - 1;
-                } else {
-                    h = m - 1;
-                }
-            } else {
-                if (m == h || target < nums[m + 1]) {
-                    second = m;
-                    break;
-                } else {
-                    l = m + 1;
-                }
-            }
-        }
-    }
-    return vector<int>{first, second};
-}
-vector<int> searchRange3(const vector<int> &nums, int target) {
+vector<int> searchRange4(const vector<int> &nums, int target) {
     if (nums.empty())
         return vector<int>{-1, -1};
     int l = 0;
@@ -3028,40 +3064,6 @@ vector<int> searchRange3(const vector<int> &nums, int target) {
         }
         if (n > r)
             e = -1;
-    }
-    return vector<int>{b, e};
-}
-vector<int> searchRange4(const vector<int> &nums, int target) {
-    int b = -1;
-    int e = -1;
-    bool foundBegin = false;
-    bool foundEnd = false;
-    int l = 0;
-    int r = nums.size() - 1;
-    while (l <= r) {
-        int m = l + ((r - l) >> 1);
-        if (nums[m] < target)
-            l = m + 1;
-        else if (target < nums[m])
-            r = m - 1;
-        else if (!foundBegin) {
-            if (l == m) {
-                foundBegin = true;
-                b = m;
-                l = b;
-                r = nums.size() - 1;
-            } else
-                r = m;
-        } else if (!foundEnd) {
-            if (l < m)
-                l = m;
-            else {
-                foundEnd = true;
-                e = m == r ? m : (nums[r] == target ? r : m);
-            }
-        } else {
-            break;
-        }
     }
     return vector<int>{b, e};
 }
