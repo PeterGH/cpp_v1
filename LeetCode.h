@@ -4466,6 +4466,17 @@ vector<vector<string>> groupAnagrams2(const vector<string> &strs) {
 // Note:
 // -100.0 < x < 100.0
 // n is a 32-bit signed integer, within the range [−2^31, 2^31 − 1]
+// Keep dividing n by 2 and get the remainder r (0 or 1)
+// then there is a sequence:
+// n n_1 n_2 n_3 n_4 ...... n_k (= 0)
+//   r_1 r_2 r_3 r_4 ...... r_k (= 0)
+// x^n = x^{r_1} * (x^2)^{n_1}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{n_2}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{n_3}
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4}
+//     ......
+//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{r_5} ......
+//     * (x^{2^(k-1)})^{r_(k-1)} * (x^{2^k})^{n_k}
 double myPow(double x, int n) {
     double y = 1;
     bool negative = false;
@@ -4512,17 +4523,6 @@ double myPow2(double x, int n) {
     }
     return inverse ? 1 / z : z;
 }
-// Keep dividing n by 2 and get the remainder r (0 or 1)
-// then there is a sequence:
-// n n_1 n_2 n_3 n_4 ...... n_k (= 0)
-//   r_1 r_2 r_3 r_4 ...... r_k (= 0)
-// x^n = x^{r_1} * (x^2)^{n_1}
-//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{n_2}
-//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{n_3}
-//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4}
-//     ......
-//     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4} ......
-//     * (x^{2^(k-1)})^{r_(k-1)} * (x^{2^k})^{n_k}
 double myPow3(double x, int n) {
     if (x == 0)
         return 0;
@@ -16644,8 +16644,18 @@ vector<int> intersection(vector<int> &nums1, vector<int> &nums2) {
         solve(nums2, nums1);
     return result;
 }
+vector<int> intersection2(const vector<int> &nums1, const vector<int> &nums2) {
+    vector<int> result;
+    set<int> s1(nums1.cbegin(), nums1.cend());
+    set<int> s2(nums2.cbegin(), nums2.cend());
+    result.resize(min(s1.size(), s2.size()));
+    auto it = set_intersection(s1.cbegin(), s1.cend(), s2.cbegin(), s2.cend(),
+                               result.begin());
+    result.resize(it - result.begin());
+    return result;
+}
 
-// Intersection of Two Arrays II
+// 350. Intersection of Two Arrays II
 // Given two arrays, write a function to compute their intersection.
 // Example 1:
 // Input: nums1 = [1,2,2,1], nums2 = [2,2]
@@ -16683,6 +16693,16 @@ vector<int> intersect(vector<int> &nums1, vector<int> &nums2) {
     }
     return result;
 }
+vector<int> intersect2(vector<int> &nums1, vector<int> &nums2) {
+    vector<int> result;
+    sort(nums1.begin(), nums1.end());
+    sort(nums2.begin(), nums2.end());
+    result.resize(min(nums1.size(), nums2.size()));
+    auto it = set_intersection(nums1.cbegin(), nums1.cend(), nums2.cbegin(),
+                               nums2.cend(), result.begin());
+    result.resize(it - result.begin());
+    return result;
+}
 
 // 367. Valid Perfect Square
 // Given a positive integer num, write a function which returns True if num is a
@@ -16701,6 +16721,44 @@ bool isPerfectSquare(int num) {
         else if (s > x)
             e = m - 1;
         else
+            return true;
+    }
+    return false;
+}
+bool isPerfectSquare2(int num) {
+    long long x = num;
+    long long b = 1;
+    long long e = x;
+    while (b < e) {
+        long long m = b + ((e - b) >> 1);
+        long long s = m * m;
+        if (s < x)
+            b = m + 1;
+        else if (s > x)
+            e = m;
+        else
+            return true;
+    }
+    return b == e && b * b == x;
+}
+bool isPerfectSquare3(int num) {
+    long long x = num;
+    long long b = 1;
+    long long e = x;
+    while (b + 1 < e) {
+        long long m = b + ((e - b) >> 1);
+        long long s = m * m;
+        if (s < x)
+            b = m;
+        else if (s > x)
+            e = m;
+        else
+            return true;
+    }
+    if (b <= e) {
+        if (b * b == x)
+            return true;
+        if (b < e && e * e == x)
             return true;
     }
     return false;
@@ -17106,6 +17164,25 @@ int smallestDistancePair5(vector<int> &nums, int k) {
 // letter.
 char nextGreatestLetter(const vector<char> &letters, char target) {
     int b = 0;
+    int e = (int)letters.size() - 1;
+    while (b <= e) {
+        int m = b + ((e - b) >> 1);
+        if (letters[m] <= target) {
+            if (m < e)
+                b = m + 1;
+            else
+                return letters[0];
+        } else {
+            if (m < e)
+                e = m;
+            else
+                return letters[m];
+        }
+    }
+    throw runtime_error("not found");
+}
+char nextGreatestLetter2(const vector<char> &letters, char target) {
+    int b = 0;
     int e = (int)letters.size();
     while (b < e) {
         int m = b + ((e - b) >> 1);
@@ -17119,7 +17196,22 @@ char nextGreatestLetter(const vector<char> &letters, char target) {
     else
         return letters[b];
 }
-
+char nextGreatestLetter3(const vector<char> &letters, char target) {
+    int b = 0;
+    int e = (int)letters.size() - 1;
+    while (b + 1 < e) {
+        int m = b + ((e - b) >> 1);
+        if (letters[m] <= target)
+            b = m;
+        else
+            e = m;
+    }
+    if (target < letters[b])
+        return letters[b];
+    if (target < letters[e])
+        return letters[e];
+    return letters[0];
+}
 } // namespace LeetCode
 } // namespace Test
 #endif

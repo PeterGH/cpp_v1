@@ -5629,6 +5629,25 @@ void LeetCodeTest::Init(void) {
         }
     });
 
+    Add("367. Valid Perfect Square", [&]() {
+        auto check = [&](int n) {
+            bool r = isPerfectSquare(n);
+            bool r2 = isPerfectSquare2(n);
+            bool r3 = isPerfectSquare3(n);
+            int q = sqrt(n);
+            bool r4 = (q * q == n);
+            Logger() << "isPerfectSquare(" << n << ") = " << r << ", " << r2
+                     << ", " << r3 << ", " << r4 << " ~= " << q << "^2" << endl;
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+            ASSERT1(r == r4);
+        };
+        for (int i = 1; i <= 100; i++) {
+            check(i);
+            check(rand());
+        }
+    });
+
     Add("658. Find K Closest Elements", [&]() {
         auto check = [&](const vector<int> &v, int k, int x) {
             Logger() << v;
@@ -5662,6 +5681,27 @@ void LeetCodeTest::Init(void) {
                6,  7,  9, 1,  10, 4, 8, 6, 3, 6, 2, 1, 7, 5, 0, 2, 6,
                10, 10, 0, 3,  9,  0, 8, 3, 5, 9, 4, 4, 5, 2, 2, 7},
               444);
+    });
+
+    Add("744. Find Smallest Letter Greater Than Target", [&]() {
+        auto check = [&](vector<char> &v, char t) {
+            Logger() << v << "nextGreatestLetter(" << t << ") = ";
+            char c = nextGreatestLetter(v, t);
+            char c2 = nextGreatestLetter2(v, t);
+            char c3 = nextGreatestLetter3(v, t);
+            Logger() << c << ", " << c2 << ", " << c3 << endl;
+            ASSERT1(c == c2);
+            ASSERT1(c == c3);
+        };
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100, 1);
+            vector<char> v;
+            v.resize(n);
+            generate(v.begin(), v.end(), [&]() { return 'a' + (rand() % 26); });
+            sort(v.begin(), v.end());
+            for (char c = 'a'; c <= 'z'; c++)
+                check(v, c);
+        }
     });
 }
 #endif
