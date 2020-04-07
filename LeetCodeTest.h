@@ -3779,16 +3779,20 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("PreOrderTraversal", [&]() {
+    Add("144. Binary Tree Preorder Traversal", [&]() {
         auto check = [&](const vector<int> &v) {
             Logger() << "Input: " << v;
             TreeNode *t = RandomTree(v);
             Print(t);
             vector<int> w = preorderTraversal(t);
             vector<int> w2 = preorderTraversal2(t);
+            vector<int> w3 = preorderTraversal3(t);
+            vector<int> w4 = preorderTraversal4(t);
             DeleteTree(t);
-            Logger() << w << w2;
+            Logger() << w << w2 << w3 << w4;
             ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(0 == Util::Compare(w, w3));
+            ASSERT1(0 == Util::Compare(w, w4));
             ASSERT1(v.size() == w.size());
             vector<int> v1(v);
             sort(v1.begin(), v1.end());

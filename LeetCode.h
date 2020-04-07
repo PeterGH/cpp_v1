@@ -9077,6 +9077,7 @@ TreeNode *RandomSymmetricTree(const vector<int> &values) {
 // Follow up: Recursive solution is trivial, could you do it iteratively?
 vector<int> preorderTraversal(TreeNode *root) {
     vector<int> v;
+    // Simulate the stack in recursive traversal
     stack<TreeNode *> s;
     TreeNode *n = root;
     while (!s.empty() || n != nullptr) {
@@ -9085,9 +9086,10 @@ vector<int> preorderTraversal(TreeNode *root) {
             s.push(n);
             n = n->left;
         } else {
-            n = s.top();
+            n = s.top()->right;
+            // Pop the top. Do not want to come back to it
+            // after finishing its right tree.
             s.pop();
-            n = n->right;
         }
     }
     return v;
@@ -9108,6 +9110,45 @@ vector<int> preorderTraversal2(TreeNode *root) {
         if (n->left != nullptr)
             s.push(n->left);
     }
+    return v;
+}
+vector<int> preorderTraversal3(TreeNode *root) {
+    vector<int> v;
+    if (root == nullptr)
+        return v;
+    // Track the path to the current node being visited
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *prev = root;
+    while (!path.empty()) {
+        TreeNode *n = path.top();
+        if (prev == n->right) {
+            path.pop();
+        } else if (n->left != nullptr && n->left != prev) {
+            v.push_back(n->val);
+            path.push(n->left);
+        } else {
+            if (n->left == nullptr)
+                v.push_back(n->val);
+            if (n->right == nullptr)
+                path.pop();
+            else
+                path.push(n->right);
+        }
+        prev = n;
+    }
+    return v;
+}
+vector<int> preorderTraversal4(TreeNode *root) {
+    vector<int> v;
+    function<void(TreeNode *)> visit = [&](TreeNode *n) {
+        if (n == nullptr)
+            return;
+        v.push_back(n->val);
+        visit(n->left);
+        visit(n->right);
+    };
+    visit(root);
     return v;
 }
 
