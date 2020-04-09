@@ -9172,43 +9172,61 @@ vector<int> inorderTraversal(TreeNode *root) {
             s.push(n);
             n = n->left;
         } else {
-            n = s.top();
+            v.push_back(s.top()->val);
+            n = s.top()->right;
             s.pop();
-            v.push_back(n->val);
-            n = n->right;
         }
     }
     return v;
 }
 vector<int> inorderTraversal2(TreeNode *root) {
-    if (root == nullptr)
-        return vector<int>{};
-    stack<TreeNode *> path;
-    TreeNode *lastVisited = nullptr;
-    path.push(root);
-    TreeNode *node;
     vector<int> result;
+    if (root == nullptr)
+        return result;
+    stack<TreeNode *> path;
+    path.push(root);
+    TreeNode *prev = nullptr;
     while (!path.empty()) {
-        node = path.top();
-        if (node->right != nullptr && node->right == lastVisited) {
+        TreeNode *node = path.top();
+        if (node->right != nullptr && node->right == prev) {
             path.pop();
-            lastVisited = node;
-        } else if (node->left != nullptr && node->left != lastVisited) {
+        } else if (node->left != nullptr && node->left != prev) {
             path.push(node->left);
-            lastVisited = node;
         } else {
             // left is null or left is just visited
             result.push_back(node->val);
-            lastVisited = node;
             if (node->right != nullptr)
                 path.push(node->right);
             else
                 path.pop();
         }
+        prev = node;
     }
     return result;
 }
 vector<int> inorderTraversal3(TreeNode *root) {
+    vector<int> result;
+    if (root == nullptr)
+        return result;
+    stack<TreeNode *> path;
+    path.push(root);
+    set<TreeNode *> visited;
+    while (!path.empty()) {
+        TreeNode *node = path.top();
+        if (node->left == nullptr ||
+            visited.find(node->left) != visited.end()) {
+            result.push_back(node->val);
+            path.pop();
+            visited.insert(node);
+            if (node->right != nullptr)
+                path.push(node->right);
+        } else {
+            path.push(node->left);
+        }
+    }
+    return result;
+}
+vector<int> inorderTraversal4(TreeNode *root) {
     vector<int> v;
     function<void(TreeNode *)> trav = [&](TreeNode *n) {
         if (n == nullptr)
@@ -9255,6 +9273,55 @@ vector<int> postorderTraversal(TreeNode *root) {
     return v;
 }
 vector<int> postorderTraversal2(TreeNode *root) {
+    vector<int> results;
+    if (root == nullptr)
+        return results;
+    stack<TreeNode *> s;
+    s.push(root);
+    TreeNode *last = nullptr;
+    while (!s.empty()) {
+        TreeNode *n = s.top();
+        if (n->right != nullptr && n->right == last) {
+            results.push_back(n->val);
+            s.pop();
+        } else if (n->left != nullptr && n->left != last) {
+            s.push(n->left);
+        } else {
+            if (n->right == nullptr) {
+                results.push_back(n->val);
+                s.pop();
+            } else {
+                s.push(n->right);
+            }
+        }
+        last = n;
+    }
+    return results;
+}
+vector<int> postorderTraversal3(TreeNode *root) {
+    vector<int> results;
+    if (root == nullptr)
+        return results;
+    stack<TreeNode *> s;
+    s.push(root);
+    set<TreeNode *> visited;
+    while (!s.empty()) {
+        TreeNode *n = s.top();
+        if ((n->right == nullptr || visited.find(n->right) != visited.end()) &&
+            (n->left == nullptr || visited.find(n->left) != visited.end())) {
+            results.push_back(n->val);
+            visited.insert(n);
+            s.pop();
+        } else {
+            if (n->right != nullptr)
+                s.push(n->right);
+            if (n->left != nullptr)
+                s.push(n->left);
+        }
+    }
+    return results;
+}
+vector<int> postorderTraversal4(TreeNode *root) {
     vector<int> v;
     function<void(TreeNode *)> trav = [&](TreeNode *n) {
         if (n == nullptr)

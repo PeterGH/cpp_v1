@@ -3817,10 +3817,12 @@ void LeetCodeTest::Init(void) {
             vector<int> w = inorderTraversal(t);
             vector<int> w2 = inorderTraversal2(t);
             vector<int> w3 = inorderTraversal3(t);
+            vector<int> w4 = inorderTraversal4(t);
             DeleteTree(t);
             Logger() << w;
             ASSERT1(0 == Util::Compare(w, w2));
             ASSERT1(0 == Util::Compare(w, w3));
+            ASSERT1(0 == Util::Compare(w, w4));
             ASSERT1(v.size() == w.size());
             vector<int> v1(v);
             sort(v1.begin(), v1.end());
@@ -3838,16 +3840,20 @@ void LeetCodeTest::Init(void) {
         }
     });
 
-    Add("PostOrderTraversal", [&]() {
+    Add("145. Binary Tree Postorder Traversal", [&]() {
         auto check = [&](const vector<int> &v) {
             Logger() << "Input: " << v;
             TreeNode *t = RandomTree(v);
             Print(t);
             vector<int> w = postorderTraversal(t);
             vector<int> w2 = postorderTraversal2(t);
+            vector<int> w3 = postorderTraversal3(t);
+            vector<int> w4 = postorderTraversal4(t);
             DeleteTree(t);
-            Logger() << w << w2;
+            Logger() << w << w2 << w3 << w4;
             ASSERT1(0 == Util::Compare(w, w2));
+            ASSERT1(0 == Util::Compare(w, w3));
+            ASSERT1(0 == Util::Compare(w, w4));
             ASSERT1(v.size() == w.size());
             vector<int> v1(v);
             sort(v1.begin(), v1.end());
