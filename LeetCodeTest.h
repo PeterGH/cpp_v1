@@ -4027,9 +4027,12 @@ void LeetCodeTest::Init(void) {
             Print(t);
             bool r = isSymmetric(t);
             bool r2 = isSymmetric2(t);
-            Logger() << "isSymmetric: " << r << ", " << r2 << endl;
+            bool r3 = isSymmetric3(t);
+            Logger() << "isSymmetric: " << r << ", " << r2 << ", " << r3
+                     << endl;
             DeleteTree(t);
             ASSERT1(r == r2);
+            ASSERT1(r == r3);
         };
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(20, 1);
@@ -4046,9 +4049,11 @@ void LeetCodeTest::Init(void) {
             Print(t);
             vector<vector<int>> r = levelOrder(t);
             vector<vector<int>> r2 = levelOrder2(t);
+            vector<vector<int>> r3 = levelOrder3(t);
             Logger() << "levelOrder: " << r << endl;
             DeleteTree(t);
             ASSERT1(0 == Util::Compare(r, r2));
+            ASSERT1(0 == Util::Compare(r, r3));
         };
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(100, 1);
@@ -4091,9 +4096,11 @@ void LeetCodeTest::Init(void) {
             Print(t);
             int d = maxDepth(t);
             int d2 = maxDepth2(t);
-            Logger() << "maxDepth: " << d << ", " << d2 << endl;
+            int d3 = maxDepth3(t);
+            Logger() << "maxDepth: " << d << ", " << d2 << ", " << d3 << endl;
             DeleteTree(t);
             ASSERT1(d == d2);
+            ASSERT1(d == d3);
         };
         for (int i = 0; i < 100; i++) {
             int n = Random::Int(100, 1);

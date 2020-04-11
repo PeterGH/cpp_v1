@@ -9940,6 +9940,29 @@ bool isSymmetric2(TreeNode *root) {
     }
     return true;
 }
+bool isSymmetric3(TreeNode *root) {
+    deque<TreeNode *> deq;
+    TreeNode *p = root;
+    TreeNode *q = root;
+    while (!deq.empty() || p != nullptr || q != nullptr) {
+        if ((p != nullptr) != (q != nullptr))
+            return false;
+        if (p != nullptr && q != nullptr) {
+            if (p->val != q->val)
+                return false;
+            deq.push_front(p);
+            p = p->left;
+            deq.push_back(q);
+            q = q->right;
+        } else {
+            p = deq.front()->right;
+            deq.pop_front();
+            q = deq.back()->left;
+            deq.pop_back();
+        }
+    }
+    return true;
+}
 
 // 102. Binary Tree Level Order Traversal
 // Given a binary tree, return the level order traversal of its nodes' values.
@@ -10000,6 +10023,20 @@ vector<vector<int>> levelOrder2(TreeNode *root) {
             l = p.second + 1;
         }
     }
+    return result;
+}
+vector<vector<int>> levelOrder3(TreeNode *root) {
+    vector<vector<int>> result;
+    function<void(TreeNode *, size_t)> visit = [&](TreeNode *n, size_t l) {
+        if (n == nullptr)
+            return;
+        if (result.size() < l)
+            result.push_back({});
+        result[l - 1].push_back(n->val);
+        visit(n->left, l + 1);
+        visit(n->right, l + 1);
+    };
+    visit(root, 1);
     return result;
 }
 
@@ -10134,8 +10171,18 @@ int maxDepth2(TreeNode *root) {
     };
     return depth(root);
 }
-// This is wrong
 int maxDepth3(TreeNode *root) {
+    function<int(TreeNode *, int)> depth = [&](TreeNode *n, int d) -> int {
+        if (n == nullptr)
+            return 0;
+        if (n->left == nullptr && n->right == nullptr)
+            return d;
+        return max(depth(n->left, d + 1), depth(n->right, d + 1));
+    };
+    return depth(root, 1);
+}
+// This is wrong
+int maxDepth4(TreeNode *root) {
     if (root == nullptr)
         return 0;
     stack<TreeNode *> path;
