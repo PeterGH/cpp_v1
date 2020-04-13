@@ -10337,9 +10337,13 @@ TreeNode *buildTreeInOrderPostOrder2(const vector<int> &inorder,
     // Current insertion point
     TreeNode *t = node;
     i--;
+    // Post {{l_0}, {{l_1}, {{l_2}, {r_2}, n_2}, n_1}, n_0}
+    // In   {{l_0}, n_0, {{l_1}, n_1, {{l_2}, n_2, {r_2}}}}
     while (i >= 0) {
         if (!path.empty() && path.top()->val == inorder[j]) {
             // Done with a right subtree, start to insert the left subtree
+            // Pop the current top so that we can return to its parent after
+            // done with its left subtree
             t = path.top();
             path.pop();
             f = 1;
@@ -11091,6 +11095,16 @@ NodeWithNextLink *connect2(NodeWithNextLink *root) {
     }
     return root;
 }
+NodeWithNextLink *connect3(NodeWithNextLink *root) {
+    if (root != nullptr && root->left != nullptr && root->right != nullptr) {
+        root->left->next = root->right;
+        if (root->next != nullptr)
+            root->right->next = root->next->left;
+        connect(root->left);
+        connect(root->right);
+    }
+    return root;
+}
 
 // 117. Populating Next Right Pointers in Each Node II
 // Given a binary tree
@@ -11134,6 +11148,33 @@ NodeWithNextLink *connectII(NodeWithNextLink *root) {
             node = node->next;
         }
         node = left;
+    }
+    return root;
+}
+NodeWithNextLink *connectII2(NodeWithNextLink *root) {
+    if (root != nullptr && (root->left != nullptr || root->right != nullptr)) {
+        NodeWithNextLink *prev = nullptr;
+        if (root->left != nullptr)
+            prev = root->left;
+        if (root->right != nullptr) {
+            if (prev != nullptr)
+                prev->next = root->right;
+            prev = root->right;
+        }
+        NodeWithNextLink *n = root->next;
+        while (n != nullptr) {
+            if (n->left != nullptr) {
+                prev->next = n->left;
+                prev = n->left;
+            }
+            if (n->right != nullptr) {
+                prev->next = n->right;
+                prev = n->right;
+            }
+            n = n->next;
+        }
+        connectII2(root->left);
+        connectII2(root->right);
     }
     return root;
 }
