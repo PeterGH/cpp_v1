@@ -5720,5 +5720,41 @@ void LeetCodeTest::Init(void) {
                 check(v, c);
         }
     });
+
+    Add("Serialize and Deserialize Binary Tree", [&]() {
+        auto checkTree = [&](TreeNode *t) {
+            Print(t);
+            string d = serialize(t);
+            Logger() << d << endl;
+            TreeNode *t2 = deserialize(d);
+            Print(t2);
+            bool r = isSameTree(t, t2);
+            DeleteTree(t2);
+            DeleteTree(t);
+            ASSERT1(r == true);
+        };
+        auto check = [&](const vector<int> &v) {
+            Logger() << "Input: " << v;
+            TreeNode *t = RandomTree(v);
+            checkTree(t);
+        };
+        {
+            TreeNode *n = new TreeNode(1);
+            n->left = new TreeNode(2);
+            n->right = new TreeNode(3);
+            n->right->left = new TreeNode(4);
+            n->right->right = new TreeNode(5);
+            checkTree(n);
+        }
+        check({});
+        check({1});
+        check({1, 2});
+        check({1, 2, 3});
+        for (int i = 0; i < 100; i++) {
+            int n = Random::Int(100);
+            vector<int> v = Util::IncreasingVector(n);
+            check(v);
+        }
+    });
 }
 #endif
