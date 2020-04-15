@@ -17443,6 +17443,36 @@ TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q) {
     }
     return (root == p || root == q) ? root : nullptr;
 }
+TreeNode *lowestCommonAncestor2(TreeNode *root, TreeNode *p, TreeNode *q) {
+    stack<pair<TreeNode *, int>> s;
+    TreeNode *n = root;
+    TreeNode *last = nullptr;
+    while (!s.empty() || n != nullptr) {
+        if (n != nullptr) {
+            // If found one then mark it
+            s.push(make_pair(n, (n == p || n == q) ? 1 : 0));
+            n = n->left;
+        } else {
+            pair<TreeNode *, int> p = s.top();
+            if (p.first->right != nullptr && p.first->right != last) {
+                n = p.first->right;
+            } else {
+                s.pop();
+                if (p.second == 1) {
+                    if (s.top().second == 1) {
+                        // Two nodes are found
+                        return s.top().first;
+                    } else {
+                        // Only one found
+                        s.top().second = 1;
+                    }
+                }
+                last = p.first;
+            }
+        }
+    }
+    return nullptr;
+}
 
 } // namespace LeetCode
 } // namespace Test
