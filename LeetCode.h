@@ -11215,35 +11215,8 @@ bool isInterleave2(const string &s1, const string &s2, const string &s3)
 // Input: [5,1,4,null,null,3,6]
 // Output: false
 // Explanation: The root node's value is 5 but its right child's value is 4.
-bool isValidBST(TreeNode *root)
-{
-    TreeNode *prev = nullptr;
-    stack<TreeNode *> s;
-    TreeNode *n = root;
-    while (!s.empty() || n != nullptr)
-    {
-        if (n != nullptr)
-        {
-            s.push(n);
-            n = n->left;
-        }
-        else
-        {
-            n = s.top();
-            s.pop();
-            if (prev == nullptr)
-                prev = n;
-            else if (prev->val >= n->val)
-                return false;
-            else
-                prev = n;
-            n = n->right;
-        }
-    }
-    return true;
-}
 // In-order traverse and check whether values are increasing.
-bool isValidBST2(TreeNode *root)
+bool isValidBST(TreeNode *root)
 {
     stack<TreeNode *> path;
     TreeNode *node = root;
@@ -11288,7 +11261,7 @@ bool isValidBST2(TreeNode *root)
     }
     return true;
 }
-bool isValidBST3(TreeNode *root)
+bool isValidBST2(TreeNode *root)
 {
     if (root == nullptr)
         return true;
@@ -11324,7 +11297,7 @@ bool isValidBST3(TreeNode *root)
     }
     return true;
 }
-bool isValidBST4(TreeNode *root)
+bool isValidBST3(TreeNode *root)
 {
     function<bool(TreeNode *, int &, int &)> verify =
         [&](TreeNode *node, int &min, int &max) -> bool {
@@ -17466,6 +17439,19 @@ public:
         }
         return v;
     }
+    int next2()
+    {
+        while (_node != nullptr)
+        {
+            _s.push(_node);
+            _node = _node->left;
+        }
+        TreeNode *t = _s.top();
+        _s.pop();
+        _node = t->right;
+        return t->val;
+    }
+
     /** @return whether we have a next smallest number */
     bool hasNext() { return !_s.empty() || _node != nullptr; }
 };
@@ -20312,6 +20298,92 @@ public:
         return root;
     }
 };
+
+// Search in a Binary Search Tree
+// Given the root node of a binary search tree (BST) and a value. You need to
+// find the node in the BST that the node's value equals the given value. Return
+// the subtree rooted with that node. If such node doesn't exist, you should
+// return NULL. For example, Given the tree:
+//         4
+//        / \
+//       2   7
+//      / \
+//     1   3
+// And the value to search: 2
+// You should return this subtree:
+//       2
+//      / \   
+//     1   3
+// In the example above, if we want to search the value 5, since there is no node
+// with value 5, we should return NULL.
+TreeNode *searchBST(TreeNode *root, int val)
+{
+    TreeNode *n = root;
+    while (n != nullptr)
+    {
+        if (n->val == val)
+            break;
+        if (n->val > val)
+            n = n->left;
+        else
+            n = n->right;
+    }
+    return n;
+}
+
+// Insert into a Binary Search Tree
+// Given the root node of a binary search tree (BST) and a value to be inserted
+// into the tree, insert the value into the BST. Return the root node of the BST
+// after the insertion. It is guaranteed that the new value does not exist in the
+// original BST. Note that there may exist multiple valid ways for the insertion,
+// as long as the tree remains a BST after insertion. You can return any of them.
+// For example, Given the tree:
+//         4
+//        / \
+//       2   7
+//      / \
+//     1   3
+// And the value to insert: 5
+// You can return this binary search tree:
+//          4
+//        /   \
+//       2     7
+//      / \   /
+//     1   3 5
+// This tree is also valid:
+//          5
+//        /   \
+//       2     7
+//      / \   
+//     1   3
+//          \
+//           4
+TreeNode *insertIntoBST(TreeNode *root, int val)
+{
+    TreeNode *p = nullptr;
+    TreeNode *n = root;
+    while (n != nullptr)
+    {
+        p = n;
+        if (n->val > val)
+            n = n->left;
+        else
+            n = n->right;
+    }
+    n = new TreeNode(val);
+    if (p == nullptr)
+    {
+        root = n;
+    }
+    else
+    {
+        if (p->val > val)
+            p->left = n;
+        else
+            p->right = n;
+    }
+    return root;
+}
 
 } // namespace LeetCode
 } // namespace Test

@@ -4124,13 +4124,11 @@ void LeetCodeTest::Init(void)
             bool r = isValidBST(t);
             bool r2 = isValidBST2(t);
             bool r3 = isValidBST3(t);
-            bool r4 = isValidBST4(t);
             DeleteTree(t);
             Logger() << "is valid BST: " << r << ", " << r2 << ", " << r3
-                     << ", " << r4 << endl;
+                     << endl;
             ASSERT1(r == r2);
             ASSERT1(r == r3);
-            ASSERT1(r == r4);
         };
         check({});
         check({1});
