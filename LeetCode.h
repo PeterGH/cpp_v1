@@ -20385,6 +20385,104 @@ TreeNode *insertIntoBST(TreeNode *root, int val)
     return root;
 }
 
+// Delete Node in a BST
+// Given a root node reference of a BST and a key, delete the node with the given
+// key in the BST. Return the root node reference (possibly updated) of the BST.
+// Basically, the deletion can be divided into two stages:
+// Search for a node to remove.
+// If the node is found, delete the node.
+// Note: Time complexity should be O(height of tree).
+// Example:
+// root = [5,3,6,2,4,null,7]
+// key = 3
+//     5
+//    / \
+//   3   6
+//  / \   \
+// 2   4   7
+// Given key to delete is 3. So we find the node with value 3 and delete it.
+// One valid answer is [5,4,6,2,null,null,7], shown in the following BST.
+//     5
+//    / \
+//   4   6
+//  /     \
+// 2       7
+// Another valid answer is [5,2,6,null,4,null,7].
+//     5
+//    / \
+//   2   6
+//    \   \
+//     4   7
+TreeNode *deleteNode(TreeNode *root, int key)
+{
+    function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool {
+        *parent = nullptr;
+        *node = root;
+        while (*node != nullptr)
+        {
+            if ((*node)->val == key)
+                break;
+            *parent = *node;
+            if ((*node)->val > key)
+                *node = (*node)->left;
+            else
+                *node = (*node)->right;
+        }
+        return (*node) != nullptr;
+    };
+    function<bool(TreeNode *, TreeNode **, TreeNode **)> findSuccessor =
+        [&](TreeNode *node, TreeNode **parent, TreeNode **successor) -> bool {
+        if (node == nullptr || node->right == nullptr)
+            return false;
+        *parent = node;
+        *successor = node->right;
+        while ((*successor)->left != nullptr)
+        {
+            *parent = *successor;
+            *successor = (*successor)->left;
+        }
+        return true;
+    };
+    TreeNode *parent = nullptr;
+    TreeNode *node = nullptr;
+    if (!findNode(&parent, &node))
+        return root;
+    TreeNode *successorParent = nullptr;
+    TreeNode *successor = nullptr;
+    if (!findSuccessor(node, &successorParent, &successor))
+    {
+        if (node == root)
+            root = node->left;
+        else if (node == parent->left)
+            parent->left = node->left;
+        else if (node == parent->right)
+            parent->right = node->left;
+        node->left = nullptr;
+        delete node;
+        node = nullptr;
+        return root;
+    }
+    TreeNode *successorChild = successor->right;
+    if (successor == successorParent->left)
+        successorParent->left = successorChild;
+    else if (successor == successorParent->right)
+        successorParent->right = successorChild;
+    successor->right = nullptr;
+    successor->left = node->left;
+    successor->right = node->right;
+    node->left = nullptr;
+    node->right = nullptr;
+    if (node == root)
+        root = successor;
+    else if (node == parent->left)
+        parent->left = successor;
+    else if (node == parent->right)
+        parent->right = successor;
+    delete node;
+    node = nullptr;
+    return root;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif

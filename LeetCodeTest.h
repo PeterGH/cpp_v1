@@ -6030,5 +6030,25 @@ void LeetCodeTest::Init(void)
             check(v);
         }
     });
+
+    Add("Delete Node in a BST", [&]() {
+        auto check = [&](vector<int> &v) {
+            Logger() << v;
+            TreeNode *t = RandomTreeFromInOrder(v);
+            Print(t);
+            random_shuffle(v.begin(), v.end());
+            for (int i : v)
+            {
+                Logger() << "Delete " << i << endl;
+                t = deleteNode(t, i);
+                Print(t);
+            }
+        };
+        for (int i = 0; i < 20; i++)
+        {
+            vector<int> v = Util::IncreasingVector(i + 1);
+            check(v);
+        }
+    });
 }
 #endif
