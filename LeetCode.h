@@ -20483,6 +20483,99 @@ TreeNode *deleteNode(TreeNode *root, int key)
     return root;
 }
 
+// Kth Largest Element in a Stream
+// Design a class to find the kth largest element in a stream. Note that it is
+// the kth largest element in the sorted order, not the kth distinct element.
+// Your KthLargest class will have a constructor which accepts an integer k and
+// an integer array nums, which contains initial elements from the stream. For
+// each call to the method KthLargest.add, return the element representing the
+// kth largest element in the stream.
+// Example:
+// int k = 3;
+// int[] arr = [4,5,8,2];
+// KthLargest kthLargest = new KthLargest(3, arr);
+// kthLargest.add(3);   // returns 4
+// kthLargest.add(5);   // returns 5
+// kthLargest.add(10);  // returns 5
+// kthLargest.add(9);   // returns 8
+// kthLargest.add(4);   // returns 8
+// Note: You may assume that nums' length >= k-1 and k >= 1.
+class KthLargest
+{
+private:
+    struct Node
+    {
+        int val;
+        Node *left;
+        Node *right;
+        int count;
+        Node(int v) : val(v), left(nullptr), right(nullptr), count(1) {}
+    };
+    Node *_root;
+    int _k;
+
+    void insert(int v)
+    {
+        Node *parent = nullptr;
+        Node *node = _root;
+        while (node != nullptr)
+        {
+            parent = node;
+            parent->count++;
+            if (node->val > v)
+                node = node->left;
+            else
+                node = node->right;
+        }
+        node = new Node(v);
+        if (parent == nullptr)
+            _root = node;
+        else if (parent->val > v)
+            parent->left = node;
+        else
+            parent->right = node;
+    }
+
+    int find(int k)
+    {
+        Node *node = _root;
+        while (node != nullptr)
+        {
+            int rightCount = node->count - (node->left == nullptr ? 0 : node->left->count);
+            if (rightCount < k)
+            {
+                node = node->left;
+                k -= rightCount;
+            }
+            else if (rightCount > k)
+            {
+                node = node->right;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (node == nullptr)
+            throw runtime_error("Not found");
+        return node->val;
+    }
+
+public:
+    KthLargest(int k, vector<int> &nums)
+        : _root(nullptr), _k(k)
+    {
+        for (int n : nums)
+            insert(n);
+    }
+
+    int add(int val)
+    {
+        insert(val);
+        return find(_k);
+    }
+};
+
 } // namespace LeetCode
 } // namespace Test
 #endif
