@@ -20121,6 +20121,37 @@ TreeNode *lowestCommonAncestor2(TreeNode *root, TreeNode *p, TreeNode *q)
     return nullptr;
 }
 
+// Lowest Common Ancestor of a Binary Search Tree
+// Given a binary search tree (BST), find the lowest common ancestor (LCA) of
+// two given nodes in the BST. According to the definition of LCA on Wikipedia:
+// "The lowest common ancestor is defined between two nodes p and q as the lowest
+// node in T that has both p and q as descendants (where we allow a node to be
+// a descendant of itself)."
+// Given binary search tree:  root = [6,2,8,0,4,7,9,null,null,3,5]
+// Example 1:
+// Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+// Output: 6
+// Explanation: The LCA of nodes 2 and 8 is 6.
+// Example 2:
+// Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+// Output: 2
+// Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant
+// of itself according to the LCA definition.
+TreeNode *lowestCommonAncestorBST(TreeNode *root, TreeNode *p, TreeNode *q)
+{
+    TreeNode *node = root;
+    while (node != nullptr)
+    {
+        if (node->val > p->val && node->val > q->val)
+            node = node->left;
+        else if (node->val < p->val && node->val < q->val)
+            node = node->right;
+        else
+            break;
+    }
+    return node;
+}
+
 class Codec
 {
 public:
@@ -20573,6 +20604,71 @@ public:
     {
         insert(val);
         return find(_k);
+    }
+};
+
+// Contains Duplicate III
+// Given an array of integers, find out whether there are two distinct indices i
+// and j in the array such that the absolute difference between nums[i] and nums[j]
+// is at most t and the absolute difference between i and j is at most k.
+// Example 1:
+// Input: nums = [1,2,3,1], k = 3, t = 0
+// Output: true
+// Example 2:
+// Input: nums = [1,0,1,1], k = 1, t = 2
+// Output: true
+// Example 3:
+// Input: nums = [1,5,9,1,5,9], k = 2, t = 3
+// Output: false
+// Hint #1
+// Time complexity O(n logk) - This will give an indication that sorting is involved
+// for k elements.
+// Hide Hint #2
+// Use already existing state to evaluate next state - Like, a set of k sorted
+// numbers are only needed to be tracked. When we are processing the next number
+// in array, then we can utilize the existing sorted state and it is not necessary
+// to sort next overlapping set of k numbers again.
+class ContainsDuplicateIII
+{
+public:
+    bool containsNearbyAlmostDuplicate(vector<int> &nums, int k, int t)
+    {
+        map<int, int> m;
+        for (int i = 0; i < (int)nums.size(); i++)
+        {
+            if (m.find(nums[i]) == m.end())
+                m[nums[i]] = 1;
+            else
+                m[nums[i]]++;
+            if (i > k)
+            {
+                if (m[nums[i - k - 1]] == 1)
+                    m.erase(nums[i - k - 1]);
+                else
+                    m[nums[i - k - 1]]--;
+            }
+            // This is not efficient. A better way is to use a BST implemention
+            // struct Node {
+            //     int val;
+            //     int count; // count duplicates of val
+            //     int min; // min of subtree at this node
+            //     int max; // max of subtree at this node
+            //     Node *left;
+            //     Node *right;
+            // };
+            for (map<int, int>::iterator it = m.begin(); it != m.end(); it++)
+            {
+                if (it->second > 1 && t >= 0)
+                    return true;
+                map<int, int>::iterator it2 = it;
+                it2++;
+                if (it2 == m.end())
+                    break;
+                if ((long long)it2->first - (long long)it->first <= (long long)t)
+                    return true;
+            }
+        }
+        return false;
     }
 };
 
