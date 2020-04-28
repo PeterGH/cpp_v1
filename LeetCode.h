@@ -20630,8 +20630,150 @@ public:
 // to sort next overlapping set of k numbers again.
 class ContainsDuplicateIII
 {
+private:
+    struct Node
+    {
+        int val;
+        set<int> indices;
+        Node *left;
+        Node *right;
+        Node(int v, int i)
+            : val(v), indices({i}), left(nullptr), right(nullptr)
+        {
+        }
+    };
+
+    Node *root;
+
+    bool insert(int v, int i, int k, int t)
+    {
+        bool result = false;
+        Node *parent = nullptr;
+        Node *node = root;
+        while (node != nullptr)
+        {
+            parent = node;
+            if (abs((long long)node->val - (long long)v) <= (long long)t)
+            {
+                for (int j : node->indices)
+                {
+                    if (abs(i - j) <= k)
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+            if (node->val > v)
+            {
+                node = node->left;
+            }
+            else if (node->val < v)
+            {
+                node = node->right;
+            }
+            else
+            {
+                node->indices.insert(i);
+                return result;
+            }
+        }
+        node = new Node(v, i);
+        if (parent == nullptr)
+            root = node;
+        else if (parent->val > v)
+            parent->left = node;
+        else
+            parent->right = node;
+        return result;
+    }
+
+    void deleteNode(int v, int i)
+    {
+        Node *parent = nullptr;
+        Node *node = root;
+        while (node != nullptr && node->val != v)
+        {
+            parent = node;
+            if (node->val > v)
+                node = node->left;
+            else
+                node = node->right;
+        }
+        if (node == nullptr)
+            return;
+        node->indices.erase(i);
+        if (!node->indices.empty())
+            return;
+        if (node->right == nullptr)
+        {
+            if (parent == nullptr)
+                root = node->left;
+            else if (parent->left == node)
+                parent->left = node->left;
+            else
+                parent->right = node->left;
+            node->left = nullptr;
+            delete node;
+            node = nullptr;
+            return;
+        }
+        Node *nextParent = node;
+        Node *next = node->right;
+        while (next->left != nullptr)
+        {
+            nextParent = next;
+            next = next->left;
+        }
+        if (nextParent->right == next)
+            nextParent->right = next->right;
+        else
+            nextParent->left = next->right;
+        next->left = node->left;
+        next->right = node->right;
+        if (parent == nullptr)
+            root = next;
+        else if (parent->left == node)
+            parent->left = next;
+        else
+            parent->right = next;
+        node->left = nullptr;
+        node->right = nullptr;
+        delete node;
+        node = nullptr;
+    }
+
+    void deleteTree(Node *node)
+    {
+        if (node == nullptr)
+            return;
+        deleteTree(node->left);
+        node->left = nullptr;
+        deleteTree(node->right);
+        node->right = nullptr;
+        delete node;
+    }
+
 public:
     bool containsNearbyAlmostDuplicate(vector<int> &nums, int k, int t)
+    {
+        bool result = false;
+        root = nullptr;
+        for (int i = 0; i < (int)nums.size(); i++)
+        {
+            if (i > k)
+                deleteNode(nums[i - k - 1], i - k - 1);
+            if (insert(nums[i], i, k, t))
+            {
+                result = true;
+                break;
+            }
+        }
+        deleteTree(root);
+        return result;
+    }
+
+    bool containsNearbyAlmostDuplicate2(vector<int> &nums, int k, int t)
     {
         map<int, int> m;
         for (int i = 0; i < (int)nums.size(); i++)
@@ -20647,15 +20789,6 @@ public:
                 else
                     m[nums[i - k - 1]]--;
             }
-            // This is not efficient. A better way is to use a BST implemention
-            // struct Node {
-            //     int val;
-            //     int count; // count duplicates of val
-            //     int min; // min of subtree at this node
-            //     int max; // max of subtree at this node
-            //     Node *left;
-            //     Node *right;
-            // };
             for (map<int, int>::iterator it = m.begin(); it != m.end(); it++)
             {
                 if (it->second > 1 && t >= 0)
