@@ -12199,7 +12199,7 @@ TreeNode *sortedArrayToBST2(const vector<int> &nums)
             }
             s.push(make_pair(n, make_pair(k, j)));
             j = k - 1;
-            k = middle(j, i);
+            k = middle(i, j);
         }
         else
         {
@@ -12381,6 +12381,42 @@ bool isBalanced(TreeNode *root)
     };
     int h = 0;
     return balanced(root, h);
+}
+bool isBalanced2(TreeNode *root)
+{
+    stack<TreeNode *> s;
+    map<TreeNode *, int> m;
+    TreeNode *node = root;
+    TreeNode *last = nullptr;
+    while (!s.empty() || node != nullptr)
+    {
+        if (node != nullptr)
+        {
+            s.push(node);
+            m[node] = 0;
+            node = node->left;
+        }
+        else
+        {
+            TreeNode *t = s.top();
+            if (t->left != nullptr && t->left == last)
+                m[t] = m[t->left];
+            if (t->right != nullptr && t->right != last)
+            {
+                node = t->right;
+            }
+            else
+            {
+                s.pop();
+                int rightHeight = t->right == nullptr ? 0 : m[t->right];
+                if (abs(m[t] - rightHeight) > 1)
+                    return false;
+                m[t] = 1 + max(m[t], rightHeight);
+            }
+            last = t;
+        }
+    }
+    return true;
 }
 
 // 111. Minimum Depth of Binary Tree
