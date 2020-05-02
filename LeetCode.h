@@ -2302,6 +2302,20 @@ int removeDuplicates2(vector<int> &nums)
     }
     return i + 1;
 }
+int removeDuplicates3(vector<int> &nums)
+{
+    int i = nums.empty() ? -1 : 0;
+    for (int j = 1; j < (int)nums.size(); j++)
+    {
+        if (nums[j] != nums[j - 1])
+        {
+            i++;
+            if (i < j)
+                nums[i] = nums[j];
+        }
+    }
+    return i + 1;
+}
 
 // 27. Remove Element
 // Given an array nums and a value val, remove all instances of that value
@@ -2356,6 +2370,22 @@ int removeElement3(vector<int> &nums, int val)
             i++;
     }
     return n;
+}
+int removeElement4(vector<int> &nums, int val)
+{
+    int i = 0;
+    for (int j = 0; j < (int)nums.size(); j++)
+    {
+        if (nums[j] != val)
+        {
+            if (i < j)
+            {
+                nums[i] = nums[j];
+            }
+            i++;
+        }
+    }
+    return i;
 }
 
 // 28. Implement strStr()
@@ -9731,6 +9761,24 @@ bool isScramble3(const string &s1, const string &s2)
 void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
 {
     int i = m + n - 1;
+    while (n > 0)
+    {
+        if (m > 0 && nums1[m - 1] > nums2[n - 1])
+        {
+            nums1[i] = nums1[m - 1];
+            m--;
+        }
+        else
+        {
+            nums1[i] = nums2[n - 1];
+            n--;
+        }
+        i--;
+    }
+}
+void merge2(vector<int> &nums1, int m, vector<int> &nums2, int n)
+{
+    int i = m + n - 1;
     m--;
     n--;
     while (m >= 0 || n >= 0)
@@ -9745,7 +9793,7 @@ void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
 }
 // Another solution: shift elements in nums1 to the end, and then merge
 // with nums2 starting from the beginning of nums1.
-void merge2(vector<int> &nums1, int m, vector<int> &nums2, int n)
+void merge3(vector<int> &nums1, int m, vector<int> &nums2, int n)
 {
     vector<int>::iterator it1 = nums1.begin();
     vector<int>::iterator it2 = nums2.begin();
@@ -9785,7 +9833,7 @@ void merge2(vector<int> &nums1, int m, vector<int> &nums2, int n)
     while (it1 != nums1.end())
         it1 = nums1.erase(it1);
 }
-void merge3(vector<int> &nums1, int m, vector<int> &nums2, int n)
+void merge4(vector<int> &nums1, int m, vector<int> &nums2, int n)
 {
     if (m < 0 || n < 0)
         return;
@@ -9816,7 +9864,7 @@ void merge3(vector<int> &nums1, int m, vector<int> &nums2, int n)
         }
     }
 }
-void merge4(vector<int> &nums1, int m, vector<int> &nums2, int n)
+void merge5(vector<int> &nums1, int m, vector<int> &nums2, int n)
 {
     if (m < 0 || n < 0)
         return;
@@ -20981,6 +21029,91 @@ vector<int> sortedSquares(const vector<int> &A)
         }
     }
     return r;
+}
+
+// Duplicate Zeros
+// Given a fixed length array arr of integers, duplicate each occurrence of zero,
+// shifting the remaining elements to the right. Note that elements beyond the
+// length of the original array are not written. Do the above modifications to
+// the input array in place, do not return anything from your function.
+// Example 1:
+// Input: [1,0,2,3,0,4,5,0]
+// Output: null
+// Explanation: After calling your function, the input array is modified to: [1,0,0,2,3,0,0,4]
+// Example 2:
+// Input: [1,2,3]
+// Output: null
+// Explanation: After calling your function, the input array is modified to: [1,2,3]
+// Note:
+// 1 <= arr.length <= 10000
+// 0 <= arr[i] <= 9
+void duplicateZeros(vector<int> &arr)
+{
+    int n = (int)arr.size();
+    int c = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (arr[i] == 0)
+            c++;
+    }
+    for (int i = n - 1; i >= 0 && c > 0; i--)
+    {
+        int j = i + c;
+        if (j < n)
+            arr[j] = arr[i];
+        if (arr[i] == 0)
+        {
+            if (j - 1 < n)
+                arr[j - 1] = 0;
+            c--;
+        }
+    }
+}
+
+// Check If N and Its Double Exist
+// Given an array arr of integers, check if there exists two integers N and M
+// such that N is the double of M ( i.e. N = 2 * M). More formally check if
+// there exists two indices i and j such that :
+// i != j
+// 0 <= i, j < arr.length
+// arr[i] == 2 * arr[j]
+// Example 1:
+// Input: arr = [10,2,5,3]
+// Output: true
+// Explanation: N = 10 is the double of M = 5,that is, 10 = 2 * 5.
+// Example 2:
+// Input: arr = [7,1,14,11]
+// Output: true
+// Explanation: N = 14 is the double of M = 7,that is, 14 = 2 * 7.
+// Example 3:
+// Input: arr = [3,1,7,11]
+// Output: false
+// Explanation: In this case does not exist N and M, such that N = 2 * M.
+// Constraints:
+// 2 <= arr.length <= 500
+// -10^3 <= arr[i] <= 10^3
+bool checkIfExist(const vector<int> &arr)
+{
+    set<int> s;
+    for (int i : arr)
+    {
+        if (s.find(i) != s.end())
+            return true;
+        int j;
+        if (i >= 0)
+            j = i << 1;
+        else
+            j = -((-i) << 1);
+        if (s.find(j) == s.end())
+            s.insert(j);
+        if ((i & 0x1) == 0)
+        {
+            j = i >> 1;
+            if (s.find(j) == s.end())
+                s.insert(j);
+        }
+    }
+    return false;
 }
 
 } // namespace LeetCode
