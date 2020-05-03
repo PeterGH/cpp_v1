@@ -21116,6 +21116,83 @@ bool checkIfExist(const vector<int> &arr)
     return false;
 }
 
+// Valid Mountain Array
+// Given an array A of integers, return true if and only if it is a valid
+// mountain array. Recall that A is a mountain array if and only if:
+// A.length >= 3
+// There exists some i with 0 < i < A.length - 1 such that:
+// A[0] < A[1] < ... A[i-1] < A[i]
+// A[i] > A[i+1] > ... > A[A.length - 1]
+// Example 1:
+// Input: [2,1]
+// Output: false
+// Example 2:
+// Input: [3,5,5]
+// Output: false
+// Example 3:
+// Input: [0,3,2,1]
+// Output: true
+// Note:
+// 0 <= A.length <= 10000
+// 0 <= A[i] <= 10000
+bool validMountainArray(const vector<int> &A)
+{
+    size_t i = 0;
+    while (i + 1 < A.size() && A[i] < A[i + 1])
+        i++;
+    if (i == 0 || i + 1 >= A.size() || A[i] == A[i + 1])
+        return false;
+    while (i + 1 < A.size() && A[i] > A[i + 1])
+        i++;
+    return i + 1 == A.size();
+}
+bool validMountainArray2(const vector<int> &A)
+{
+    if (A.size() < 3)
+        return false;
+    bool up = true;
+    for (size_t i = 1; i < A.size(); i++)
+    {
+        if (A[i - 1] == A[i])
+            return false;
+        if (A[i - 1] > A[i])
+        {
+            if (i == 1)
+                return false;
+            if (up)
+                up = false;
+        }
+        else
+        {
+            if (!up)
+                return false;
+        }
+    }
+    return !up;
+}
+
+// Replace Elements with Greatest Element on Right Side
+// Given an array arr, replace every element in that array with the greatest
+// element among the elements to its right, and replace the last element with -1.
+// After doing so, return the array.
+// Example 1:
+// Input: arr = [17,18,5,4,6,1]
+// Output: [18,6,6,6,1,-1]
+// Constraints:
+// 1 <= arr.length <= 10^4
+// 1 <= arr[i] <= 10^5
+vector<int> replaceElements(vector<int> &arr)
+{
+    int m = -1;
+    for (int i = (int)arr.size() - 1; i >= 0; i--)
+    {
+        int t = arr[i];
+        arr[i] = m;
+        m = max(m, t);
+    }
+    return arr;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
