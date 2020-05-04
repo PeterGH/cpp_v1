@@ -2280,29 +2280,13 @@ int removeDuplicates(vector<int> &nums)
     size_t i = 0;
     for (size_t j = 1; j < nums.size(); j++)
     {
-        if (nums[j - 1] != nums[j])
-        {
-            if (i + 1 != j)
-                nums[i + 1] = nums[j];
-            i++;
-        }
-    }
-    return i + 1;
-}
-int removeDuplicates2(vector<int> &nums)
-{
-    if (nums.empty())
-        return 0;
-    size_t i = 0;
-    for (size_t j = 1; j < nums.size(); j++)
-    {
         // i increases only when j should be kept
         if (nums[j - 1] != nums[j] && (++i) != j)
             nums[i] = nums[j];
     }
     return i + 1;
 }
-int removeDuplicates3(vector<int> &nums)
+int removeDuplicates2(vector<int> &nums)
 {
     int i = nums.empty() ? -1 : 0;
     for (int j = 1; j < (int)nums.size(); j++)
@@ -20970,6 +20954,30 @@ int findNumbers(const vector<int> &nums)
 // A is sorted in non-decreasing order.
 vector<int> sortedSquares(const vector<int> &A)
 {
+    vector<int> r;
+    r.resize(A.size());
+    int i = 0;
+    int j = (int)A.size() - 1;
+    int k = j;
+    while (i <= j)
+    {
+        int a = abs(A[i]);
+        int b = abs(A[j]);
+        if (a <= b)
+        {
+            r[k--] = b * b;
+            j--;
+        }
+        else
+        {
+            r[k--] = a * a;
+            i++;
+        }
+    }
+    return r;
+}
+vector<int> sortedSquares2(const vector<int> &A)
+{
     int i = 0;
     int n = (int)A.size();
     int j = n - 1;
@@ -21191,6 +21199,184 @@ vector<int> replaceElements(vector<int> &arr)
         m = max(m, t);
     }
     return arr;
+}
+
+// Move Zeroes
+// Given an array nums, write a function to move all 0's to the end of it while
+// maintaining the relative order of the non-zero elements. Example:
+// Input: [0,1,0,3,12]
+// Output: [1,3,12,0,0]
+// Note: You must do this in-place without making a copy of the array.
+// Minimize the total number of operations.
+void moveZeroes(vector<int> &nums)
+{
+    int i = -1;
+    for (int j = 0; j < (int)nums.size(); j++)
+    {
+        if (nums[j] != 0)
+        {
+            i++;
+            if (i < j)
+                nums[i] = nums[j];
+        }
+    }
+    for (i++; i < (int)nums.size(); i++)
+        nums[i] = 0;
+}
+
+// Sort Array By Parity
+// Given an array A of non-negative integers, return an array consisting of all
+// the even elements of A, followed by all the odd elements of A.
+// You may return any answer array that satisfies this condition. Example 1:
+// Input: [3,1,2,4]
+// Output: [2,4,3,1]
+// The outputs [4,2,3,1], [2,4,1,3], and [4,2,1,3] would also be accepted.
+// Note:
+// 1 <= A.length <= 5000
+// 0 <= A[i] <= 5000
+vector<int> sortArrayByParity(vector<int> &A)
+{
+    int i = 0;
+    int j = (int)A.size() - 1;
+    while (i < j)
+    {
+        if ((A[i] & 0x1) == 0)
+            i++;
+        else if ((A[j] & 0x1) == 1)
+            j--;
+        else
+            swap(A[i++], A[j--]);
+    }
+    return A;
+}
+
+// Height Checker
+// Students are asked to stand in non-decreasing order of heights for an annual
+// photo. Return the minimum number of students that must move in order for all
+// students to be standing in non-decreasing order of height. Notice that when a
+// group of students is selected they can reorder in any possible way between
+// themselves and the non selected students remain on their seats.
+// Example 1:
+// Input: heights = [1,1,4,2,1,3]
+// Output: 3
+// Explanation:
+// Current array : [1,1,4,2,1,3]
+// Target array  : [1,1,1,2,3,4]
+// On index 2 (0-based) we have 4 vs 1 so we have to move this student.
+// On index 4 (0-based) we have 1 vs 3 so we have to move this student.
+// On index 5 (0-based) we have 3 vs 4 so we have to move this student.
+// Example 2:
+// Input: heights = [5,1,2,3,4]
+// Output: 5
+// Example 3:
+// Input: heights = [1,2,3,4,5]
+// Output: 0
+// Constraints:
+// 1 <= heights.length <= 100
+// 1 <= heights[i] <= 100
+int heightChecker(const vector<int> &heights)
+{
+    vector<int> s(heights.begin(), heights.end());
+    sort(s.begin(), s.end());
+    int c = 0;
+    for (size_t i = 0; i < s.size(); i++)
+    {
+        if (s[i] != heights[i])
+            c++;
+    }
+    return c;
+}
+
+// Third Maximum Number
+// Given a non-empty array of integers, return the third maximum number in this
+// array. If it does not exist, return the maximum number. The time complexity
+// must be in O(n).
+// Example 1:
+// Input: [3, 2, 1]
+// Output: 1
+// Explanation: The third maximum is 1.
+// Example 2:
+// Input: [1, 2]
+// Output: 2
+// Explanation: The third maximum does not exist, so the maximum (2) is returned instead.
+// Example 3:
+// Input: [2, 2, 3, 1]
+// Output: 1
+// Explanation: Note that the third maximum here means the third maximum distinct number.
+// Both numbers with value 2 are both considered as second maximum.
+int thirdMax(const vector<int> &nums)
+{
+    vector<int> m;
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        if (m.empty())
+        {
+            m.push_back(nums[i]);
+        }
+        else if (m.size() == 1)
+        {
+            if (m[0] < nums[i])
+                m.push_back(nums[i]);
+            else if (m[0] > nums[i])
+                m.insert(m.begin(), nums[i]);
+        }
+        else if (m.size() == 2)
+        {
+            if (m[1] < nums[i])
+                m.push_back(nums[i]);
+            else if (m[0] < nums[i] && nums[i] < m[1])
+                m.insert(m.begin() + 1, nums[i]);
+            else if (nums[i] < m[0])
+                m.insert(m.begin(), nums[i]);
+        }
+        else
+        {
+            if (m[2] < nums[i])
+            {
+                m[0] = m[1];
+                m[1] = m[2];
+                m[2] = nums[i];
+            }
+            else if (m[1] < nums[i] && nums[i] < m[2])
+            {
+                m[0] = m[1];
+                m[1] = nums[i];
+            }
+            else if (m[0] < nums[i] && nums[i] < m[1])
+            {
+                m[0] = nums[i];
+            }
+        }
+    }
+    return m.size() == 3 ? m[0] : m.back();
+}
+
+// Find All Numbers Disappeared in an Array
+// Given an array of integers where 1 <= a[i] <= n (n = size of array), some
+// elements appear twice and others appear once. Find all the elements of
+// [1, n] inclusive that do not appear in this array. Could you do it without
+// extra space and in O(n) runtime? You may assume the returned list does not
+// count as extra space. Example:
+// Input: [4,3,2,7,8,2,3,1]
+// Output: [5,6]
+vector<int> findDisappearedNumbers(vector<int> &nums)
+{
+    for (int i = 0; i < (int)nums.size(); i++)
+    {
+        while (nums[i] != i + 1 and nums[i] != nums[nums[i] - 1])
+        {
+            int t = nums[i];
+            nums[i] = nums[t - 1];
+            nums[t - 1] = t;
+        }
+    }
+    vector<int> r;
+    for (int i = 0; i < (int)nums.size(); i++)
+    {
+        if (nums[i] != i + 1)
+            r.push_back(i + 1);
+    }
+    return r;
 }
 
 } // namespace LeetCode
