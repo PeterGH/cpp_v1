@@ -1863,6 +1863,32 @@ bool IsSorted(ListNode *node)
 ListNode *removeNthFromEnd(ListNode *head, int n)
 {
     ListNode *q = head;
+    int i;
+    for (i = 0; i < n && q != nullptr; i++)
+        q = q->next;
+    if (i < n)
+        return head;
+    if (q == nullptr)
+    {
+        q = head;
+        head = head->next;
+        delete q;
+        return head;
+    }
+    ListNode *p = head;
+    while (q->next != nullptr)
+    {
+        p = p->next;
+        q = q->next;
+    }
+    q = p->next;
+    p->next = q->next;
+    delete q;
+    return head;
+}
+ListNode *removeNthFromEnd2(ListNode *head, int n)
+{
+    ListNode *q = head;
     for (int i = 0; i < n - 1; i++)
         q = q->next;
     ListNode *p = head;
@@ -1885,7 +1911,7 @@ ListNode *removeNthFromEnd(ListNode *head, int n)
     delete q;
     return head;
 }
-ListNode *removeNthFromEnd2(ListNode *head, int n)
+ListNode *removeNthFromEnd3(ListNode *head, int n)
 {
     if (head == nullptr || n <= 0)
         return head;
@@ -15525,6 +15551,20 @@ bool hasCycle(ListNode *head)
     }
     return false;
 }
+bool hasCycle2(ListNode *head)
+{
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q != nullptr && q->next != nullptr)
+    {
+        p = p->next;
+        q = q->next;
+        q = q->next;
+        if (p == q)
+            return true;
+    }
+    return false;
+}
 
 // 142. Linked List Cycle II
 // Given a linked list, return the node where the cycle begins. If there is no
@@ -15563,6 +15603,27 @@ ListNode *detectCycle(ListNode *head)
         q = q->next;
     }
     return q;
+}
+ListNode *detectCycle2(ListNode *head)
+{
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q != nullptr && q->next != nullptr)
+    {
+        p = p->next;
+        q = q->next->next;
+        if (p == q)
+            break;
+    }
+    if (q == nullptr || q->next == nullptr)
+        return nullptr;
+    p = head;
+    while (p != q)
+    {
+        p = p->next;
+        q = q->next;
+    }
+    return p;
 }
 
 // 143. Reorder List
@@ -16695,6 +16756,23 @@ ListNode *getIntersectionNode(ListNode *headA, ListNode *headB)
     {
         a = a->next;
         b = b->next;
+        if (a == nullptr && b == nullptr)
+            break;
+        if (a == nullptr)
+            a = headB;
+        if (b == nullptr)
+            b = headA;
+    }
+    return (a == nullptr || b == nullptr) ? nullptr : a;
+}
+ListNode *getIntersectionNode2(ListNode *headA, ListNode *headB)
+{
+    ListNode *a = headA;
+    ListNode *b = headB;
+    while (a != nullptr && b != nullptr && a != b)
+    {
+        a = a->next;
+        b = b->next;
         if (a == b)
             return a;
         if (a == nullptr)
@@ -16704,7 +16782,7 @@ ListNode *getIntersectionNode(ListNode *headA, ListNode *headB)
     }
     return a == b ? a : nullptr;
 }
-ListNode *getIntersectionNode2(ListNode *headA, ListNode *headB)
+ListNode *getIntersectionNode3(ListNode *headA, ListNode *headB)
 {
     function<int(ListNode *)> getLength = [&](ListNode *h) -> int {
         int i = 0;
@@ -21378,6 +21456,146 @@ vector<int> findDisappearedNumbers(vector<int> &nums)
     }
     return r;
 }
+
+// Design Linked List
+// Design your implementation of the linked list. You can choose to use the
+// singly linked list or the doubly linked list. A node in a singly linked list
+// should have two attributes: val and next. val is the value of the current
+// node, and next is a pointer/reference to the next node. If you want to use
+// the doubly linked list, you will need one more attribute prev to indicate the
+// previous node in the linked list. Assume all nodes in the linked list are 0-indexed.
+// Implement these functions in your linked list class:
+// get(index) : Get the value of the index-th node in the linked list. If the index
+// is invalid, return -1.
+// addAtHead(val) : Add a node of value val before the first element of the linked
+// list. After the insertion, the new node will be the first node of the linked list.
+// addAtTail(val) : Append a node of value val to the last element of the linked list.
+// addAtIndex(index, val) : Add a node of value val before the index-th node in the
+// linked list. If index equals to the length of linked list, the node will be appended
+// to the end of linked list. If index is greater than the length, the node will not be inserted.
+// deleteAtIndex(index) : Delete the index-th node in the linked list, if the index is valid.
+// Example:
+// Input:
+// ["MyLinkedList","addAtHead","addAtTail","addAtIndex","get","deleteAtIndex","get"]
+// [[],[1],[3],[1,2],[1],[1],[1]]
+// Output:
+// [null,null,null,null,2,null,3]
+// Explanation:
+// MyLinkedList linkedList = new MyLinkedList(); // Initialize empty LinkedList
+// linkedList.addAtHead(1);
+// linkedList.addAtTail(3);
+// linkedList.addAtIndex(1, 2);  // linked list becomes 1->2->3
+// linkedList.get(1);            // returns 2
+// linkedList.deleteAtIndex(1);  // now the linked list is 1->3
+// linkedList.get(1);            // returns 3
+// Constraints:
+// 0 <= index,val <= 1000
+// Please do not use the built-in LinkedList library.
+// At most 2000 calls will be made to get, addAtHead, addAtTail,  addAtIndex and deleteAtIndex.
+class MyLinkedList
+{
+private:
+    struct Node
+    {
+        int val;
+        Node *next;
+        Node(int v) : val(v), next(nullptr) {}
+    };
+
+    Node *head;
+    Node *tail;
+
+public:
+    /** Initialize your data structure here. */
+    MyLinkedList()
+    {
+        head = nullptr;
+        tail = nullptr;
+    }
+
+    /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
+    int get(int index)
+    {
+        Node *p = head;
+        for (int i = 0; i < index && p != nullptr; i++)
+            p = p->next;
+        return p == nullptr ? -1 : p->val;
+    }
+
+    /** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
+    void addAtHead(int val)
+    {
+        Node *n = new Node(val);
+        n->next = head;
+        head = n;
+        if (tail == nullptr)
+            tail = n;
+    }
+
+    /** Append a node of value val to the last element of the linked list. */
+    void addAtTail(int val)
+    {
+        Node *n = new Node(val);
+        if (tail == nullptr)
+            head = n;
+        else
+            tail->next = n;
+        tail = n;
+    }
+
+    /** Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted. */
+    void addAtIndex(int index, int val)
+    {
+        if (index == 0)
+        {
+            addAtHead(val);
+            return;
+        }
+        Node *p = head;
+        int i;
+        for (i = 1; i < index && p->next != nullptr; i++)
+            p = p->next;
+        if (i == index)
+        {
+            Node *n = new Node(val);
+            n->next = p->next;
+            p->next = n;
+            if (n->next == nullptr)
+                tail = n;
+        }
+    }
+
+    /** Delete the index-th node in the linked list, if the index is valid. */
+    void deleteAtIndex(int index)
+    {
+        Node *p = head;
+        if (index == 0)
+        {
+            if (head != nullptr)
+            {
+                Node *p = head;
+                head = head->next;
+                delete p;
+                p = nullptr;
+                if (head == nullptr || head->next == nullptr)
+                    tail = head;
+            }
+            return;
+        }
+        int i;
+        for (i = 1; i < index && p->next != nullptr; i++)
+            p = p->next;
+        if (i == index && p->next != nullptr)
+        {
+            Node *t = p->next;
+            if (tail == t)
+                tail = p;
+            p->next = t->next;
+            delete t;
+            t = nullptr;
+        }
+    }
+};
 
 } // namespace LeetCode
 } // namespace Test
