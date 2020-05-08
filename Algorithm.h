@@ -13,7 +13,8 @@
 
 using namespace std;
 
-namespace Test {
+namespace Test
+{
 
 // Assume the input is sorted.
 // Cases:
@@ -24,11 +25,13 @@ namespace Test {
 // 5. target is less than everyone
 // 6. target is greater than everyone
 // 7. target does not exists and is neither less than nor greater than everyone
-int BinarySearch(const vector<int> &input, int target) {
+int BinarySearch(const vector<int> &input, int target)
+{
     int b = 0;
     int e = (int)input.size() - 1;
     // [b..e] contain possible answers
-    while (b <= e) {
+    while (b <= e)
+    {
         int m = b + ((e - b) >> 1); // b <= m <= e
         if (input[m] < target)
             b = m + 1;
@@ -39,11 +42,13 @@ int BinarySearch(const vector<int> &input, int target) {
     }
     return -1;
 }
-int BinarySearch2(const vector<int> &input, int target) {
+int BinarySearch2(const vector<int> &input, int target)
+{
     int b = 0;
     int e = (int)input.size();
     // [b..e) contain possible answers
-    while (b < e) {
+    while (b < e)
+    {
         int m = b + ((e - b) >> 1); // b <= m < e
         if (input[m] < target)
             b = m + 1;
@@ -57,11 +62,13 @@ int BinarySearch2(const vector<int> &input, int target) {
         return b;
     return -1;
 }
-int BinarySearch2_2(const vector<int> &input, int target) {
+int BinarySearch2_2(const vector<int> &input, int target)
+{
     int b = 0;
     int e = (int)input.size() - 1;
     // [b..e) contain possible answers
-    while (b < e) {
+    while (b < e)
+    {
         int m = b + ((e - b) >> 1); // b <= m < e
         if (input[m] < target)
             b = m + 1;
@@ -75,13 +82,15 @@ int BinarySearch2_2(const vector<int> &input, int target) {
         return b;
     return -1;
 }
-int BinarySearch3(const vector<int> &input, int target) {
+int BinarySearch3(const vector<int> &input, int target)
+{
     if (input.empty())
         return -1;
     int b = 0;
     int e = input.size() - 1;
     // (b..e) contain possible answers
-    while (b + 1 < e) {
+    while (b + 1 < e)
+    {
         int m = b + ((e - b) >> 1); // b < m < e
         if (input[m] == target)
             return m;
@@ -98,14 +107,16 @@ int BinarySearch3(const vector<int> &input, int target) {
     return -1;
 }
 
-class KMP {
-  private:
+class KMP
+{
+private:
     unique_ptr<char[]> pattern;
     unique_ptr<int[]> prefix;
     int length;
 
-  public:
-    KMP(const char *pattern) {
+public:
+    KMP(const char *pattern)
+    {
         if (pattern == nullptr)
             throw invalid_argument("pattern is nullptr");
         this->length = (int)strlen(pattern);
@@ -121,8 +132,10 @@ class KMP {
         // pattern[0..k] is suffix of input[0..i].
         int k = -1;
         this->prefix[0] = k;
-        for (int i = 1; i < this->length; i++) {
-            while (k > -1 && this->pattern[k + 1] != this->pattern[i]) {
+        for (int i = 1; i < this->length; i++)
+        {
+            while (k > -1 && this->pattern[k + 1] != this->pattern[i])
+            {
                 // Keep searching backward for minimum k
                 // such that pattern[0..k)] is a suffix of pattern[0..(i-1)]
                 k = this->prefix[k];
@@ -131,36 +144,45 @@ class KMP {
             // 1. there is a k such that pattern[0..(k+1)] is a suffix of
             // pattern[0..i], or
             // 2. k = -1 (i.e., pattern[0] != pattern[i])
-            if (this->pattern[k + 1] == this->pattern[i]) {
+            if (this->pattern[k + 1] == this->pattern[i])
+            {
                 // One more match
                 k = k + 1;
-            } else {
+            }
+            else
+            {
                 // k = -1
             }
             this->prefix[i] = k;
         }
     }
-    void Print(void) {
-        for (int i = 0; i < this->length; i++) {
+    void Print(void)
+    {
+        for (int i = 0; i < this->length; i++)
+        {
             printf("\t%d", i);
         }
         printf("\n");
-        for (int i = 0; i < this->length; i++) {
+        for (int i = 0; i < this->length; i++)
+        {
             printf("\t%d", this->prefix[i]);
         }
         printf("\n");
     }
-    vector<int> SearchString(const char *input, int length) {
+    vector<int> SearchString(const char *input, int length)
+    {
         vector<int> indices;
         if (input == nullptr || input[0] == '\0' || length <= 0)
             return indices;
         int k = -1;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
+        {
             while (k > -1 && this->pattern[k + 1] != input[i])
                 k = this->prefix[k];
             if (this->pattern[k + 1] == input[i])
                 k = k + 1;
-            if (k == this->length - 1) {
+            if (k == this->length - 1)
+            {
                 indices.push_back(i - k);
                 k = this->prefix[k];
             }
@@ -169,5 +191,51 @@ class KMP {
     }
 };
 
+class Monge
+{
+public:
+    static vector<vector<int>> Random(size_t m, size_t n, int max = RAND_MAX, int min = 0)
+    {
+        vector<vector<int>> result(m, vector<int>(n));
+        auto rnd = [&]() -> int { return min + (rand() % (max - min)); };
+        for (size_t j = 0; j < n; j++)
+            result[0][j] = rnd();
+        for (size_t i = 1; i < m; i++)
+        {
+            result[i][0] = rnd();
+            for (size_t j = 1; j < n; j++)
+            {
+                result[i][j] = std::min(rnd(),
+                                   result[i - 1][j] + result[i][j - 1] - result[i - 1][j - 1]);
+                if (j < n - 1)
+                {
+                    int d = result[i - 1][j] - result[i - 1][j + 1] - result[i][j];
+                    if (d > 0)
+                    {
+                        d += (rnd() >> 1);
+                        for (size_t k = 0; k <= j; k++)
+                            result[i][k] += d;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static bool IsMonge(const vector<vector<int>> &grid)
+    {
+        if (grid.size() <= 1 || grid[0].size() <= 1)
+            return false;
+        for (size_t i = 0; i < grid.size() - 1; i++)
+        {
+            for (size_t j = 0; j < grid[i].size() - 1; j++)
+            {
+                if (grid[i][j] + grid[i + 1][j + 1] > grid[i][j + 1] + grid[i + 1][j])
+                    return false;
+            }
+        }
+        return true;
+    }
+};
 } // namespace Test
 #endif
