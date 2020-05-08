@@ -6050,5 +6050,20 @@ void LeetCodeTest::Init(void)
             check(v);
         }
     });
+
+    Add("Odd Even Linked List", [&]() {
+        auto check = [&](const vector<int> &v, const vector<int> &e) {
+            Logger() << v;
+            ListNode *l = ToList(v);
+            Print(l);
+            l = oddEvenList(l);
+            Print(l);
+            vector<int> w = ToVector(l);
+            DeleteList(l);
+            Logger() << w;
+            ASSERT1(0 == Util::Compare(w, e));
+        };
+        check({1, 2, 3, 4, 5}, {1, 3, 5, 2, 4});
+    });
 }
 #endif

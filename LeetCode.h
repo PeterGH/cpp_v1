@@ -18536,6 +18536,20 @@ ListNode *reverseList(ListNode *head)
 }
 ListNode *reverseList2(ListNode *head)
 {
+    if (head == nullptr)
+        return nullptr;
+    ListNode *t = head;
+    while (t->next != nullptr)
+    {
+        ListNode *n = t->next;
+        t->next = n->next;
+        n->next = head;
+        head = n;
+    }
+    return head;
+}
+ListNode *reverseList3(ListNode *head)
+{
     function<ListNode *(ListNode *)> reverse = [&](ListNode *t) -> ListNode * {
         if (t == nullptr || t->next == nullptr)
             return t;
@@ -21596,6 +21610,102 @@ public:
         }
     }
 };
+
+// Odd Even Linked List
+// Given a singly linked list, group all odd nodes together followed by the even
+// nodes. Please note here we are talking about the node number and not the value
+// in the nodes. You should try to do it in place. The program should run in O(1)
+// space complexity and O(nodes) time complexity.
+// Example 1:
+// Input: 1->2->3->4->5->NULL
+// Output: 1->3->5->2->4->NULL
+// Example 2:
+// Input: 2->1->3->5->6->4->7->NULL
+// Output: 2->3->6->7->1->5->4->NULL
+// Note: The relative order inside both the even and odd groups should remain as
+// it was in the input. The first node is considered odd, the second node even and so on ...
+ListNode *oddEvenList(ListNode *head)
+{
+    if (head == nullptr)
+        return nullptr;
+    ListNode *p = head;
+    ListNode *h2 = nullptr;
+    ListNode *t2 = nullptr;
+    while (p->next != nullptr)
+    {
+        ListNode *q = p->next;
+        p->next = q->next;
+        q->next = nullptr; // tail
+        if (h2 == nullptr)
+            h2 = q;
+        else
+            t2->next = q;
+        t2 = q;
+        if (p->next == nullptr)
+            break;
+        p = p->next;
+    }
+    p->next = h2;
+    return head;
+}
+
+// Palindrome Linked List
+// Given a singly linked list, determine if it is a palindrome.
+// Example 1:
+// Input: 1->2
+// Output: false
+// Example 2:
+// Input: 1->2->2->1
+// Output: true
+// Follow up: Could you do it in O(n) time and O(1) space?
+bool isPalindrome(ListNode *head)
+{
+    if (head == nullptr || head->next == nullptr)
+        return true;
+    function<ListNode *(ListNode *)> reverse = [&](ListNode *h) -> ListNode * {
+        if (h == nullptr)
+            return nullptr;
+        ListNode *t = h;
+        while (t->next != nullptr)
+        {
+            ListNode *p = t->next;
+            t->next = p->next;
+            p->next = h;
+            h = p;
+        }
+        return h;
+    };
+    ListNode *p = head;
+    ListNode *q = head;
+    while (q->next != nullptr && q->next->next != nullptr)
+    {
+        p = p->next;
+        q = q->next->next;
+    }
+    bool oddCount = (q->next == nullptr);
+    ListNode *h2 = p->next;
+    p->next = nullptr;
+    head = reverse(head);
+    p = oddCount ? head->next : head;
+    q = h2;
+    bool result = true;
+    while (p != nullptr && q != nullptr)
+    {
+        if (p->val != q->val)
+        {
+            result = false;
+            break;
+        }
+        p = p->next;
+        q = q->next;
+    }
+    if (result && !(p == nullptr && q == nullptr))
+        result = false;
+    p = head;
+    head = reverse(head);
+    p->next = h2;
+    return result;
+}
 
 } // namespace LeetCode
 } // namespace Test
