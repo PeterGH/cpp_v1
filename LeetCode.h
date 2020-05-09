@@ -15348,57 +15348,129 @@ int singleNumberII3(const vector<int> &nums)
 class NodeWithRandomLink
 {
 public:
-    int val;
-    NodeWithRandomLink *next;
-    NodeWithRandomLink *random;
-
-    NodeWithRandomLink(int _val)
+    struct Node
     {
-        val = _val;
-        next = nullptr;
-        random = nullptr;
+        int val;
+        Node *next;
+        Node *random;
+
+        Node(int _val)
+        {
+            val = _val;
+            next = nullptr;
+            random = nullptr;
+        }
+    };
+    // 138. Copy List with Random Pointer
+    // A linked list is given such that each node contains an additional random
+    // pointer which could point to any node in the list or null. Return a deep
+    // copy of the list. The Linked List is represented in the input/output as a
+    // list of n nodes. Each node is represented as a pair of [val, random_index]
+    // where: val: an integer representing Node.val, and random_index: the index
+    // of the node (range from 0 to n-1) where random pointer points to, or null
+    // if it does not point to any node.
+    // Example 1:
+    // Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+    // Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+    // Example 2:
+    // Input: head = [[1,1],[2,1]]
+    // Output: [[1,1],[2,1]]
+    // Example 3:
+    // Input: head = [[3,null],[3,0],[3,null]]
+    // Output: [[3,null],[3,0],[3,null]]
+    // Example 4:
+    // Input: head = []
+    // Output: []
+    // Explanation: Given linked list is empty (null pointer), so return null.
+    // Constraints: -10000 <= Node.val <= 10000. Node.random is null or pointing
+    // to a node in the linked list. Number of Nodes will not exceed 1000.
+    Node *copyRandomList(Node *head)
+    {
+        map<Node *, Node *> m;
+        function<Node *(Node *)> copy =
+            [&](Node *n) -> Node * {
+            if (n == nullptr)
+                return nullptr;
+            if (m.find(n) == m.end())
+            {
+                m[n] = new Node(n->val);
+                m[n]->next = copy(n->next);
+                m[n]->random = copy(n->random);
+            }
+            return m[n];
+        };
+        return copy(head);
+    }
+    Node *copyRandomList2(Node *head)
+    {
+        map<Node *, Node *> m;
+        function<Node *(Node *)> copy = [&](Node *n) -> Node * {
+            if (n == nullptr)
+                return nullptr;
+            if (m.find(n) != m.end())
+                return m[n];
+            Node *c = new Node(n->val);
+            m[n] = c; // save it before copying next and random
+            c->next = copy(n->next);
+            c->random = copy(n->random);
+            return c;
+        };
+        return copy(head);
+    }
+    Node *copyRandomList3(Node *head)
+    {
+        map<Node *, Node *> m;
+        function<Node *(Node *)> copy = [&](Node *n) -> Node * {
+            if (n == nullptr)
+                return nullptr;
+            if (m.find(n) == m.end())
+                m[n] = new Node(n->val);
+            return m[n];
+        };
+        Node *n = head;
+        while (n != nullptr)
+        {
+            Node *c = copy(n);
+            c->next = copy(n->next);
+            c->random = copy(n->random);
+            n = n->next;
+        }
+        return head == nullptr ? nullptr : m[head];
+    }
+    Node *copyRandomList4(Node *head)
+    {
+        Node *n = head;
+        while (n != nullptr)
+        {
+            Node *c = new Node(n->val);
+            c->next = n->next;
+            n->next = c;
+            n = c->next;
+        }
+        n = head;
+        while (n != nullptr)
+        {
+            if (n->random != nullptr)
+                n->next->random = n->random->next;
+            n = n->next->next;
+        }
+        Node *h = nullptr;
+        Node *t = nullptr;
+        n = head;
+        while (n != nullptr)
+        {
+            if (h == nullptr)
+                h = n->next;
+            else
+                t->next = n->next;
+            t = n->next;
+            n->next = t->next;
+            t->next = nullptr;
+            n = n->next;
+        }
+        return h;
     }
 };
-// 138. Copy List with Random Pointer
-// A linked list is given such that each node contains an additional random
-// pointer which could point to any node in the list or null. Return a deep
-// copy of the list. The Linked List is represented in the input/output as a
-// list of n nodes. Each node is represented as a pair of [val, random_index]
-// where: val: an integer representing Node.val, and random_index: the index
-// of the node (range from 0 to n-1) where random pointer points to, or null
-// if it does not point to any node.
-// Example 1:
-// Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
-// Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
-// Example 2:
-// Input: head = [[1,1],[2,1]]
-// Output: [[1,1],[2,1]]
-// Example 3:
-// Input: head = [[3,null],[3,0],[3,null]]
-// Output: [[3,null],[3,0],[3,null]]
-// Example 4:
-// Input: head = []
-// Output: []
-// Explanation: Given linked list is empty (null pointer), so return null.
-// Constraints: -10000 <= Node.val <= 10000. Node.random is null or pointing
-// to a node in the linked list. Number of Nodes will not exceed 1000.
-NodeWithRandomLink *copyRandomList(NodeWithRandomLink *head)
-{
-    map<NodeWithRandomLink *, NodeWithRandomLink *> m;
-    function<NodeWithRandomLink *(NodeWithRandomLink *)> copy =
-        [&](NodeWithRandomLink *n) -> NodeWithRandomLink * {
-        if (n == nullptr)
-            return nullptr;
-        if (m.find(n) == m.end())
-        {
-            m[n] = new NodeWithRandomLink(n->val);
-            m[n]->next = copy(n->next);
-            m[n]->random = copy(n->random);
-        }
-        return m[n];
-    };
-    return copy(head);
-}
 
 // 139. Word Break
 // Given a non-empty string s and a dictionary wordDict containing a list of
