@@ -7575,48 +7575,6 @@ static ListNode *MergeKLists3(vector<ListNode *> &lists) {
     return list;
 }
 
-// 2. Add Two Numbers
-// Given two non-empty linked lists representing two non-negative integers. The
-// digits are stored in reverse order (LSB is the head) and each node contain a
-// single digit. Add the two numbers and return a linked list. The two numbers
-// do not contain leading zero, except the number 0 itself.
-// Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
-// Output: (7 -> 0 -> 8)
-// @list
-static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2) {
-    if (l1 == nullptr)
-        return l2;
-    if (l2 == nullptr)
-        return l1;
-    ListNode *l = nullptr;
-    ListNode *n = nullptr;
-    int c = 0;
-    while (l1 != nullptr || l2 != nullptr || c == 1) {
-        int v = c;
-        if (l1 != nullptr) {
-            v += l1->val;
-            l1 = l1->next;
-        }
-        if (l2 != nullptr) {
-            v += l2->val;
-            l2 = l2->next;
-        }
-        if (v >= 10) {
-            v -= 10;
-            c = 1;
-        } else
-            c = 0;
-        if (l == nullptr) {
-            l = new ListNode(v);
-            n = l;
-        } else {
-            n->next = new ListNode(v);
-            n = n->next;
-        }
-    }
-    return l;
-}
-
 // 61. Rotate List
 // Given a list, rotate the list to the right by k places, where k is
 // non-negative. For example : Given 1->2->3->4->5->NULL and k = 2, return

@@ -24,6 +24,99 @@ namespace Test
 namespace LeetCode
 {
 
+struct ListNode
+{
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+// 2. Add Two Numbers
+// Given two non-empty linked lists representing two non-negative integers. The
+// digits are stored in reverse order (LSB is the head) and each node contain a
+// single digit. Add the two numbers and return a linked list. The two numbers
+// do not contain leading zero, except the number 0 itself.
+// Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+// Output: (7 -> 0 -> 8)
+// @list
+static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
+{
+    if (l1 == nullptr)
+        return l2;
+    if (l2 == nullptr)
+        return l1;
+    ListNode *l = nullptr;
+    ListNode *n = nullptr;
+    int c = 0;
+    while (l1 != nullptr || l2 != nullptr || c == 1)
+    {
+        int v = c;
+        if (l1 != nullptr)
+        {
+            v += l1->val;
+            l1 = l1->next;
+        }
+        if (l2 != nullptr)
+        {
+            v += l2->val;
+            l2 = l2->next;
+        }
+        if (v >= 10)
+        {
+            v -= 10;
+            c = 1;
+        }
+        else
+            c = 0;
+        if (l == nullptr)
+        {
+            l = new ListNode(v);
+            n = l;
+        }
+        else
+        {
+            n->next = new ListNode(v);
+            n = n->next;
+        }
+    }
+    return l;
+}
+static ListNode *addTwoNumbers2(ListNode *l1, ListNode *l2)
+{
+    ListNode *h = nullptr;
+    ListNode *t = nullptr;
+    int c = 0;
+    while (l1 != nullptr || l2 != nullptr || c > 0)
+    {
+        ListNode *n = new ListNode(c);
+        if (l1 != nullptr)
+        {
+            n->val += l1->val;
+            l1 = l1->next;
+        }
+        if (l2 != nullptr)
+        {
+            n->val += l2->val;
+            l2 = l2->next;
+        }
+        if (n->val >= 10)
+        {
+            n->val -= 10;
+            c = 1;
+        }
+        else
+        {
+            c = 0;
+        }
+        if (h == nullptr)
+            h = n;
+        else
+            t->next = n;
+        t = n;
+    }
+    return h;
+}
+
 // 3. Longest Substring Without Repeating Characters
 // Given a string, find the length of the longest substring
 // without repeating characters.
@@ -1747,13 +1840,6 @@ vector<vector<int>> fourSum4(vector<int> &num, int target)
     return o;
 }
 
-struct ListNode
-{
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(nullptr) {}
-};
-
 void Print(ListNode *node)
 {
     if (node == nullptr)
@@ -2037,6 +2123,46 @@ ListNode *mergeTwoLists(ListNode *l1, ListNode *l2)
     else
         n->next = l1;
     return l;
+}
+ListNode *mergeTwoLists2(ListNode *l1, ListNode *l2)
+{
+    ListNode *h = nullptr;
+    ListNode *t = nullptr;
+    while (l1 != nullptr && l2 != nullptr)
+    {
+        if (l1->val <= l2->val)
+        {
+            if (t != nullptr)
+                t->next = l1;
+            t = l1;
+            l1 = l1->next;
+        }
+        else
+        {
+            if (t != nullptr)
+                t->next = l2;
+            t = l2;
+            l2 = l2->next;
+        }
+        t->next = nullptr;
+        if (h == nullptr)
+            h = t;
+    }
+    if (l1 != nullptr)
+    {
+        if (h == nullptr)
+            h = l1;
+        else
+            t->next = l1;
+    }
+    else if (l2 != nullptr)
+    {
+        if (h == nullptr)
+            h = l2;
+        else
+            t->next = l2;
+    }
+    return h;
 }
 
 // 22. Generate Parentheses
@@ -21605,6 +21731,121 @@ public:
             if (tail == t)
                 tail = p;
             p->next = t->next;
+            delete t;
+            t = nullptr;
+        }
+    }
+};
+class MyDoubleLinkedList
+{
+private:
+    struct Node
+    {
+        int val;
+        Node *prev;
+        Node *next;
+        Node(int v) : val(v), prev(nullptr), next(nullptr) {}
+    };
+
+    Node *head;
+    Node *tail;
+
+public:
+    /** Initialize your data structure here. */
+    MyDoubleLinkedList()
+    {
+        head = nullptr;
+        tail = nullptr;
+    }
+
+    /** Get the value of the index-th node in the linked list. If the index is invalid, return -1. */
+    int get(int index)
+    {
+        Node *p = head;
+        for (int i = 0; i < index && p != nullptr; i++)
+            p = p->next;
+        return p == nullptr ? -1 : p->val;
+    }
+
+    /** Add a node of value val before the first element of the linked list. After the insertion, the new node will be the first node of the linked list. */
+    void addAtHead(int val)
+    {
+        Node *n = new Node(val);
+        n->next = head;
+        if (head != nullptr)
+            head->prev = n;
+        head = n;
+        if (tail == nullptr)
+            tail = n;
+    }
+
+    /** Append a node of value val to the last element of the linked list. */
+    void addAtTail(int val)
+    {
+        Node *n = new Node(val);
+        if (tail == nullptr)
+            head = n;
+        else
+            tail->next = n;
+        n->prev = tail;
+        tail = n;
+    }
+
+    /** Add a node of value val before the index-th node in the linked list. If index equals to the length of linked list, the node will be appended to the end of linked list. If index is greater than the length, the node will not be inserted. */
+    void addAtIndex(int index, int val)
+    {
+        if (index == 0)
+        {
+            addAtHead(val);
+            return;
+        }
+        Node *p = head;
+        int i;
+        for (i = 1; i < index && p->next != nullptr; i++)
+            p = p->next;
+        if (i == index)
+        {
+            Node *n = new Node(val);
+            n->next = p->next;
+            if (p->next != nullptr)
+                p->next->prev = n;
+            p->next = n;
+            n->prev = p;
+            if (n->next == nullptr)
+                tail = n;
+        }
+    }
+
+    /** Delete the index-th node in the linked list, if the index is valid. */
+    void deleteAtIndex(int index)
+    {
+        Node *p = head;
+        if (index == 0)
+        {
+            if (head != nullptr)
+            {
+                Node *p = head;
+                head = head->next;
+                delete p;
+                p = nullptr;
+                if (head == nullptr || head->next == nullptr)
+                    tail = head;
+                else
+                    head->prev = nullptr;
+            }
+            return;
+        }
+        int i;
+        for (i = 1; i < index && p->next != nullptr; i++)
+            p = p->next;
+        if (i == index && p->next != nullptr)
+        {
+            Node *t = p->next;
+            if (tail == t)
+                tail = p;
+            p->next = t->next;
+            if (t->next != nullptr)
+                t->next->prev = p;
             delete t;
             t = nullptr;
         }
