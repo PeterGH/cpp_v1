@@ -6585,6 +6585,40 @@ ListNode *rotateRight(ListNode *head, int k)
 ListNode *rotateRight2(ListNode *head, int k)
 {
     if (head == nullptr)
+        return nullptr;
+    ListNode *p = head;
+    int i = 1;
+    while (i <= k)
+    {
+        if (p->next == nullptr)
+        {
+            k %= i;
+            p = head;
+            i = 1;
+        }
+        else
+        {
+            p = p->next;
+            i++;
+        }
+    }
+    if (p == head)
+        return head;
+    ListNode *q = p;
+    p = head;
+    while (q->next != nullptr)
+    {
+        q = q->next;
+        p = p->next;
+    }
+    q->next = head;
+    head = p->next;
+    p->next = nullptr;
+    return head;
+}
+ListNode *rotateRight3(ListNode *head, int k)
+{
+    if (head == nullptr)
         return head;
     ListNode *tail = head;
     int i = 1;
@@ -6611,7 +6645,7 @@ ListNode *rotateRight2(ListNode *head, int k)
     p->next = nullptr;
     return head;
 }
-ListNode *rotateRight3(ListNode *head, int k)
+ListNode *rotateRight4(ListNode *head, int k)
 {
     if (head == nullptr || k <= 0)
         return head;
