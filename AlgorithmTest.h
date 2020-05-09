@@ -86,10 +86,13 @@ void AlgorithmTest::Init(void)
             int n = Random::Int(20, 2);
             int h = Random::Int(100);
             vector<vector<int>> grid = Monge::Random(m, n, h);
+            vector<vector<int>> grid2 = Monge::Random2(m, n, h);
             bool r = Monge::IsMonge(grid);
-            Logger() << grid;
-            Logger() << "IsMonge = " << r << endl;
+            bool r2 = Monge::IsMonge(grid2);
+            Logger() << grid << grid2;
+            Logger() << "IsMonge = " << r << ", " << r2 << endl;
             ASSERT1(r);
+            ASSERT1(r2);
         }
     });
 }

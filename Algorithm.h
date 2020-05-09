@@ -198,6 +198,49 @@ public:
     {
         vector<vector<int>> result(m, vector<int>(n));
         auto rnd = [&]() -> int { return min + (rand() % (max - min)); };
+        int l = 0;
+        for (int j = 0; j < (int)n; j++)
+        {
+            for (int i = 0; i <= j && i < (int)m; i++)
+            {
+                int k = j - i;
+                if (i == 0 || i == j)
+                    result[i][k] = rnd();
+                else
+                    result[i][k] = std::min(
+                        rnd(),
+                        result[i][k - 1] + result[i - 1][k] - result[i - 1][k - 1]);
+                l = std::min(l, result[i][k]);
+            }
+        }
+        for (int i = 1; i < (int)m; i++)
+        {
+            for (int j = (int)n - 1; j >= 0 && j >= (int)n - (int)m + i; j--)
+            {
+                int k = i + (int)n - 1 - j;
+                if (j == 0)
+                    result[k][j] = rnd();
+                else
+                    result[k][j] = std::min(
+                        rnd(),
+                        result[k][j - 1] + result[k - 1][j] - result[k - 1][j - 1]);
+                l = std::min(l, result[k][j]);
+            }
+        }
+        if (l < 0)
+        {
+            for (int i = 0; i < (int)m; i++)
+            {
+                for (int j = 0; j < (int)n; j++)
+                    result[i][j] -= l;
+            }
+        }
+        return result;
+    }
+    static vector<vector<int>> Random2(size_t m, size_t n, int max = RAND_MAX, int min = 0)
+    {
+        vector<vector<int>> result(m, vector<int>(n));
+        auto rnd = [&]() -> int { return min + (rand() % (max - min)); };
         for (size_t j = 0; j < n; j++)
             result[0][j] = rnd();
         for (size_t i = 1; i < m; i++)
@@ -206,7 +249,7 @@ public:
             for (size_t j = 1; j < n; j++)
             {
                 result[i][j] = std::min(rnd(),
-                                   result[i - 1][j] + result[i][j - 1] - result[i - 1][j - 1]);
+                                        result[i - 1][j] + result[i][j - 1] - result[i - 1][j - 1]);
                 if (j < n - 1)
                 {
                     int d = result[i - 1][j] - result[i - 1][j + 1] - result[i][j];
