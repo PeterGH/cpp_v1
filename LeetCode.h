@@ -31,6 +31,50 @@ struct ListNode
     ListNode(int x) : val(x), next(nullptr) {}
 };
 
+// Get the node at the index (zero-based)
+static ListNode *GetNode(ListNode *head, int index)
+{
+    if (index < 0)
+        return nullptr;
+    ListNode *p = head;
+    int i = 0; // i is at the index of head
+    while (i < index && p != nullptr)
+    {
+        // Hop p and i together
+        p = p->next;
+        i++;
+    }
+    // 1. i == index, p != nullptr
+    // 2. i == index, p == nullptr
+    // 3. i < index, p == nullptr
+    return p;
+}
+static ListNode *GetNode2(ListNode *head, int index)
+{
+    if (index < 0)
+        return nullptr;
+    ListNode *p = head;
+    int i = 1; // i is at the index of head->next;
+    while (i < index && p != nullptr)
+    {
+        p = p->next; // move p to catch i
+        i++;         // but i moves again
+        // so i will always be one step ahead
+    }
+    // 1. index == 0, p == head
+    // 2. i == index, p != nullptr, p is at (i - 1)
+    // 3. i == index, p == nullptr, p is at (i - 1)
+    // 4. i < index, p == nullptr, p is at(i - 1)
+    if (index == 0)
+        return head;
+    if (p != nullptr)
+    {
+        // If need to get the prev of the node at index, then just return p
+        p = p->next;
+    }
+    return p;
+}
+
 // 2. Add Two Numbers
 // Given two non-empty linked lists representing two non-negative integers. The
 // digits are stored in reverse order (LSB is the head) and each node contain a

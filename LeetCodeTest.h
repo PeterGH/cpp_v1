@@ -6065,5 +6065,43 @@ void LeetCodeTest::Init(void)
         };
         check({1, 2, 3, 4, 5}, {1, 3, 5, 2, 4});
     });
+
+    Add("GetNode", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            ListNode *h = ToList(v);
+            Print(h);
+            vector<int> w;
+            vector<int> w2;
+            for (int i = 0; i < (int)v.size(); i++)
+            {
+                ListNode *n = GetNode(h, i);
+                ListNode *n2 = GetNode2(h, i);
+                w.push_back(n->val);
+                w2.push_back(n2->val);
+            }
+            ListNode *a = GetNode(h, -1);
+            ListNode *a2 = GetNode2(h, -1);
+            ListNode *b = GetNode(h, (int)v.size());
+            ListNode *b2 = GetNode2(h, (int)v.size());
+            DeleteList(h);
+            h = nullptr;
+            Logger() << w;
+            ASSERT1(a == nullptr);
+            ASSERT1(a2 == nullptr);
+            ASSERT1(b == nullptr);
+            ASSERT1(b2 == nullptr);
+            ASSERT1(0 == Util::Compare(v, w));
+            ASSERT1(0 == Util::Compare(v, w2));
+            ASSERT1(nullptr == GetNode(nullptr, 0));
+            ASSERT1(nullptr == GetNode2(nullptr, 0));
+        };
+        for (int i = 0; i < 10; i++)
+        {
+            int n = Random::Int(100);
+            vector<int> v = Random::Vector(n, 100);
+            check(v);
+        }
+    });
 }
 #endif
