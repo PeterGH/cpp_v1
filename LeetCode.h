@@ -22224,6 +22224,111 @@ public:
     }
 };
 
+// Find Pivot Index
+// Given an array of integers nums, write a method that returns the "pivot"
+// index of this array. We define the pivot index as the index where the sum
+// of the numbers to the left of the index is equal to the sum of the numbers
+// to the right of the index. If no such index exists, we should return -1. If
+// there are multiple pivot indexes, you should return the left-most pivot index.
+// Example 1:
+// Input:
+// nums = [1, 7, 3, 6, 5, 6]
+// Output: 3
+// Explanation:
+// The sum of the numbers to the left of index 3 (nums[3] = 6) is equal to the
+// sum of numbers to the right of index 3. Also, 3 is the first index where this occurs.
+// Example 2:
+// Input:
+// nums = [1, 2, 3]
+// Output: -1
+// Explanation:
+// There is no index that satisfies the conditions in the problem statement.
+// Note:
+// The length of nums will be in the range [0, 10000].
+// Each element nums[i] will be an integer in the range [-1000, 1000].
+// Hide Hint #1
+// We can precompute prefix sums P[i] = nums[0] + nums[1] + ... + nums[i-1]. Then
+// for each index, the left sum is P[i], and the right sum is P[P.length - 1] - P[i] - nums[i].
+int pivotIndex(const vector<int> &nums)
+{
+    if (nums.empty())
+        return -1;
+    vector<int> p(nums.size());
+    int s = 0;
+    for (size_t i = 0; i < nums.size(); i++)
+    {
+        s += nums[i];
+        p[i] = s;
+    }
+    if (p[nums.size() - 1] - nums[0] == 0)
+        return 0;
+    for (size_t i = 1; i + 1 < nums.size(); i++)
+    {
+        if (p[i - 1] == p[nums.size() - 1] - nums[i] - p[i - 1])
+            return i;
+    }
+    if (p[nums.size() - 1] - nums[nums.size() - 1] == 0)
+        return nums.size() - 1;
+    return -1;
+}
+
+// Largest Number At Least Twice of Others
+// In a given integer array nums, there is always exactly one largest element.
+// Find whether the largest element in the array is at least twice as much as
+// every other number in the array. If it is, return the index of the largest
+// element, otherwise return -1.
+// Example 1:
+// Input: nums = [3, 6, 1, 0]
+// Output: 1
+// Explanation: 6 is the largest integer, and for every other number in the array x,
+// 6 is more than twice as big as x.  The index of value 6 is 1, so we return 1.
+// Example 2:
+// Input: nums = [1, 2, 3, 4]
+// Output: -1
+// Explanation: 4 isn't at least as big as twice the value of 3, so we return -1.
+// Note:
+// nums will have a length in the range [1, 50].
+// Every nums[i] will be an integer in the range [0, 99].
+// Hide Hint #1
+// Scan through the array to find the unique largest element m, keeping track of
+// it's index maxIndex. Scan through the array again. If we find some x != m
+// with m < 2*x, we should return -1. Otherwise, we should return maxIndex.
+int dominantIndex(const vector<int> &nums)
+{
+    if (nums.empty())
+        return -1;
+    if (nums.size() == 1)
+        return 0;
+    int a;
+    int b;
+    if (nums[0] <= nums[1])
+    {
+        a = 0;
+        b = 1;
+    }
+    else
+    {
+        a = 1;
+        b = 0;
+    }
+    for (size_t i = 2; i < nums.size(); i++)
+    {
+        if (nums[b] <= nums[i])
+        {
+            a = b;
+            b = i;
+        }
+        else if (nums[a] <= nums[i])
+        {
+            a = i;
+        }
+    }
+    if ((nums[a] << 1) <= nums[b])
+        return b;
+    else
+        return -1;
+}
+
 } // namespace LeetCode
 } // namespace Test
 #endif
