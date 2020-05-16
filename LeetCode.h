@@ -16633,7 +16633,41 @@ namespace Test
         // You need to reduce multiple spaces between two words to a single space in the
         // reversed string. Follow up: For C programmers, try to solve it in-place in
         // O(1) extra space.
-        string reverseWords(const string &s)
+        string reverseWords(string s)
+        {
+            function<void()> compact = [&]() {
+                int i = -1;
+                for (int j = 0; j < (int)s.size(); j++)
+                {
+                    if (s[j] == ' ' && (i == -1 || s[i] == ' '))
+                        continue;
+                    if (++i < j)
+                        s[i] = s[j];
+                }
+                if (i == -1 || s[i] != ' ')
+                    i++;
+                s.resize(i);
+            };
+            function<void(int, int)> reverse = [&](int i, int j) {
+                while (i < j)
+                    swap(s[i++], s[j--]);
+            };
+            compact();
+            reverse(0, (int)s.size() - 1);
+            int i = 0;
+            int j = 0;
+            while (j <= (int)s.size())
+            {
+                if (j == (int)s.size() || s[j] == ' ')
+                {
+                    reverse(i, j - 1);
+                    i = j + 1;
+                }
+                j++;
+            }
+            return s;
+        }
+        string reverseWords2(const string &s)
         {
             string r(s);
             int i = -1;
@@ -16679,7 +16713,7 @@ namespace Test
             }
             return r;
         }
-        void reverseWords2(string &s)
+        void reverseWords3(string &s)
         {
             if (s.empty())
                 return;
@@ -16725,6 +16759,34 @@ namespace Test
                 }
                 j++;
             }
+        }
+
+        // Reverse Words in a String III
+        // Given a string, you need to reverse the order of characters in each word
+        // within a sentence while still preserving whitespace and initial word order.
+        // Example 1:
+        // Input: "Let's take LeetCode contest"
+        // Output: "s'teL ekat edoCteeL tsetnoc"
+        // Note: In the string, each word is separated by single space and there will
+        // not be any extra space in the string.
+        string reverseWordsIII(string s)
+        {
+            int i = 0;
+            while (i < (int)s.size())
+            {
+                if (s[i] != ' ')
+                {
+                    int j = i;
+                    while (j < (int)s.size() && s[j] != ' ')
+                        j++;
+                    int k = j--;
+                    while (i < j)
+                        swap(s[i++], s[j--]);
+                    i = k;
+                }
+                i++;
+            }
+            return s;
         }
 
         // 152. Maximum Product Subarray
@@ -21676,6 +21738,18 @@ namespace Test
         // Note: You must do this in-place without making a copy of the array.
         // Minimize the total number of operations.
         void moveZeroes(vector<int> &nums)
+        {
+            int i = -1;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                if (nums[j] != 0)
+                {
+                    if (++i < j)
+                        swap(nums[i], nums[j]);
+                }
+            }
+        }
+        void moveZeroes2(vector<int> &nums)
         {
             int i = -1;
             for (int j = 0; j < (int)nums.size(); j++)
