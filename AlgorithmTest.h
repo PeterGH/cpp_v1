@@ -95,6 +95,30 @@ void AlgorithmTest::Init(void)
             ASSERT1(r2);
         }
     });
+
+    Add("RandomInt", [&]() {
+        auto check = [&](int a, int b) {
+            map<int, int> m;
+            int n = 100 * (b - a + 1);
+            for (int i = 0; i < n; i++)
+            {
+                int j = RandomInt(a, b);
+                if (m.find(j) == m.end())
+                    m[j] = 1;
+                else
+                    m[j]++;
+            }
+            Logger() << "RandomInt(" << a << ", " << b << ") distribution:" << endl;
+            Logger() << m;
+            ASSERT1((int)m.size() == b - a + 1);
+            for (int i = a; i <= b; i++)
+                ASSERT1(m.find(i) != m.end());
+        };
+        for (int i = 0; i < 10; i++)
+        {
+            check(0, i);
+        }
+    });
 }
 
 #endif
