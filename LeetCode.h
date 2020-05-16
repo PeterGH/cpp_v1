@@ -18352,10 +18352,42 @@ namespace Test
                 }
             }
         }
+        void rotate3(vector<int> &nums, int k)
+        {
+            if (nums.empty())
+                return;
+            int n = (int)nums.size();
+            k %= n;
+            if (k == 0)
+                return;
+            vector<int> b(k, 0);
+            for (int i = 0; i < k; i++)
+            {
+                if (b[i] == 1)
+                    continue;
+                int j = i;
+                int x = nums[j];
+                while (true)
+                {
+                    int t = j + k;
+                    while (t < n)
+                    {
+                        swap(x, nums[t]);
+                        t += k;
+                    }
+                    t %= n;
+                    swap(x, nums[t]);
+                    b[t] = 1;
+                    if (j == t || t == i)
+                        break;
+                    j = t;
+                }
+            }
+        }
         // This one works only if n and k are co-prime
         // 0, k, 2k, 3k, ..., (n-1)k, nk
         // 0, k % n, 2k % n, 3k % n, ..., (n-1)k % n, nk % n = 0
-        void rotate3(vector<int> &nums, int k)
+        void rotate4(vector<int> &nums, int k)
         {
             if (nums.empty())
                 return;
@@ -19249,6 +19281,22 @@ namespace Test
                 }
             }
             return m;
+        }
+        int minSubArrayLen2(int s, const vector<int> &nums)
+        {
+            int l = 0;
+            int c = 0;
+            int i = 0;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                c += nums[j];
+                while (c >= s)
+                {
+                    l = (l == 0 ? j - i + 1 : min(l, j - i + 1));
+                    c -= nums[i++];
+                }
+            }
+            return l;
         }
 
         // 210. Course Schedule II

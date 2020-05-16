@@ -5736,20 +5736,23 @@ void LeetCodeTest::Init(void)
                 Logger() << v;
                 vector<int> v2(v);
                 vector<int> v3(v);
+                vector<int> v4(v);
                 Logger() << "rotate to right by " << i << endl;
                 rotate(v, i);
                 rotate2(v2, i);
-                Logger() << v << v2;
+                rotate3(v3, i);
+                Logger() << v << v2 << v3;
                 ASSERT1(Util::Compare(v, v2) == 0);
+                ASSERT1(Util::Compare(v, v3) == 0);
                 if (i > 0 && gcd(length, i) == 1)
                 {
-                    rotate3(v3, i);
-                    Logger() << v3;
-                    ASSERT1(Util::Compare(v, v3) == 0);
+                    rotate4(v4, i);
+                    Logger() << v4;
+                    ASSERT1(Util::Compare(v, v4) == 0);
                 }
             }
         };
-        for (int i = 1; i < 20; i++)
+        for (int i = 1; i < 100; i++)
             check(i);
     });
 
