@@ -1383,6 +1383,23 @@ namespace Test
             }
             return strs[0].substr(0, k);
         }
+        string longestCommonPrefix4(const vector<string> &strs)
+        {
+            if (strs.empty())
+                return "";
+            int l = strs[0].size();
+            for (int i = 1; i < (int)strs.size() && l > 0; i++)
+            {
+                int j = 0;
+                for (j = 0; j < l && j < (int)strs[i].size(); j++)
+                {
+                    if (strs[0][j] != strs[i][j])
+                        break;
+                }
+                l = min(l, j);
+            }
+            return l > 0 ? strs[0].substr(0, l) : "";
+        }
 
         // 15. 3Sum
         // Given an array nums of n integers, are there elements a, b, c in nums such
@@ -22413,6 +22430,49 @@ namespace Test
             }
             return o;
         }
+
+        // Reverse String
+        // Write a function that reverses a string. The input string is given as
+        // an array of characters char[]. Do not allocate extra space for another
+        // array, you must do this by modifying the input array in-place with O(1)
+        // extra memory. You may assume all the characters consist of printable
+        // ascii characters.
+        // Example 1:
+        // Input: ["h","e","l","l","o"]
+        // Output: ["o","l","l","e","h"]
+        // Example 2:
+        // Input: ["H","a","n","n","a","h"]
+        // Output: ["h","a","n","n","a","H"]
+        void reverseString(vector<char> &s)
+        {
+            int i = 0;
+            int j = (int)s.size() - 1;
+            while (i < j)
+                swap(s[i++], s[j--]);
+        }
+
+        // Array Partition I
+        // Given an array of 2n integers, your task is to group these integers into n
+        // pairs of integer, say (a1, b1), (a2, b2), ..., (an, bn) which makes sum of
+        // min(ai, bi) for all i from 1 to n as large as possible.
+        // Example 1:
+        // Input: [1,4,3,2]
+        // Output: 4
+        // Explanation: n is 2, and the maximum sum of pairs is 4 = min(1, 2) + min(3, 4).
+        // Note:
+        // n is a positive integer, which is in the range of [1, 10000].
+        // All the integers in the array will be in the range of [-10000, 10000].
+        // Suppose a0 < a1 < a2 < a3, then
+        // min(a0, a1) + min(a2, a3) > min(a0, a2) + min(a1, a3)
+        int arrayPairSum(vector<int> &nums)
+        {
+            sort(nums.begin(), nums.end());
+            int s = 0;
+            for (size_t i = 0; i < nums.size(); i += 2)
+                s += nums[i];
+            return s;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 #endif
