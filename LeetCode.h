@@ -18700,6 +18700,51 @@ namespace Test
             }
             return c;
         }
+        int numIslands2(vector<vector<char>> &grid)
+        {
+            if (grid.empty() || grid[0].empty())
+                return 0;
+            function<void(int, int)> visit = [&](int i, int j) {
+                queue<pair<int, int>> q;
+                pair<int, int> p = make_pair(i, j);
+                q.push(p);
+                while (!q.empty())
+                {
+                    p = q.front();
+                    q.pop();
+                    grid[p.first][p.second] = 'x';
+                    if (p.first > 0 && grid[p.first - 1][p.second] == '1')
+                        q.push(make_pair(p.first - 1, p.second));
+                    if (p.second + 1 < (int)grid[p.first].size() && grid[p.first][p.second + 1] == '1')
+                        q.push(make_pair(p.first, p.second + 1));
+                    if (p.first + 1 < (int)grid.size() && grid[p.first + 1][p.second] == '1')
+                        q.push(make_pair(p.first + 1, p.second));
+                    if (p.second > 0 && grid[p.first][p.second - 1] == '1')
+                        q.push(make_pair(p.first, p.second - 1));
+                }
+            };
+            int c = 0;
+            for (int i = 0; i < (int)grid.size(); i++)
+            {
+                for (int j = 0; j < (int)grid[i].size(); j++)
+                {
+                    if (grid[i][j] == '1')
+                    {
+                        c++;
+                        visit(i, j);
+                    }
+                }
+            }
+            for (int i = 0; i < (int)grid.size(); i++)
+            {
+                for (int j = 0; j < (int)grid[i].size(); j++)
+                {
+                    if (grid[i][j] == 'x')
+                        grid[i][j] = '1';
+                }
+            }
+            return c;
+        }
 
         // 201. Bitwise AND of Numbers Range
         // Given a range [m, n] where 0 <= m <= n <= 2147483647, return the bitwise AND

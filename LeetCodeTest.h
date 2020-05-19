@@ -5786,6 +5786,40 @@ void LeetCodeTest::Init(void)
             check(Random::Int(100, 1));
     });
 
+    Add("200. Number of Islands", [&]() {
+        auto check = [&](vector<vector<char>> &grid) {
+            Logger() << grid;
+            vector<vector<char>> grid2(grid);
+            int c = numIslands(grid);
+            int c2 = numIslands2(grid2);
+            Logger() << "#Islands: " << c << ", " << c2 << endl;
+            ASSERT1(c == c2);
+        };
+        {
+            vector<vector<char>> g = {
+                {'1', '1', '1', '1', '0'},
+                {'1', '1', '0', '1', '0'},
+                {'1', '1', '0', '0', '0'},
+                {'0', '0', '0', '0', '0'}};
+            check(g);
+        }
+        {
+            vector<vector<char>> g = {
+                {'1', '1', '0', '0', '0'},
+                {'1', '1', '0', '0', '0'},
+                {'0', '0', '1', '0', '0'},
+                {'0', '0', '0', '1', '1'}};
+            check(g);
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            int m = Random::Int(100, 1);
+            int n = Random::Int(100, 1);
+            vector<vector<char>> v = Random::Grid(m, n, '1', '0');
+            check(v);
+        }
+    });
+
     Add("201. Bitwise AND of Numbers Range", [&]() {
         auto check = [&](int m, int n) {
             Logger() << "BitwiseAddRange [" << m << ", " << n << "] = ";
