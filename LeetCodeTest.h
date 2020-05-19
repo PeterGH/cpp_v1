@@ -6140,5 +6140,15 @@ void LeetCodeTest::Init(void)
             check(v);
         }
     });
+
+    Add("Open the Lock", [&]() {
+        auto check = [&](const vector<string> &deadends, const string &target) {
+            Logger() << deadends;
+            Logger() << "0000 => " << target << ": ";
+            int c = openLock(deadends, target);
+            Logger() << c << " steps" << endl;
+        };
+        check({"8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"}, "8888");
+    });
 }
 #endif
