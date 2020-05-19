@@ -8,6 +8,7 @@
 #include <functional>
 #include <limits.h>
 #include <map>
+#include <math.h>
 #include <queue>
 #include <set>
 #include <sstream>
@@ -22824,6 +22825,51 @@ namespace Test
                 currentq.swap(nextq);
             }
             return -1;
+        }
+
+        // Perfect Squares
+        // Given a positive integer n, find the least number of perfect square numbers
+        // (for example, 1, 4, 9, 16, ...) which sum to n.
+        // Example 1:
+        // Input: n = 12
+        // Output: 3
+        // Explanation: 12 = 4 + 4 + 4.
+        // Example 2:
+        // Input: n = 13
+        // Output: 2
+        // Explanation: 13 = 4 + 9.
+        int numSquares(int n)
+        {
+            set<int> visited;
+            queue<int> current;
+            current.push(n);
+            visited.insert(n);
+            queue<int> next;
+            int c = 0;
+            while (!current.empty())
+            {
+                while (!current.empty())
+                {
+                    n = current.front();
+                    current.pop();
+                    int s = (int)sqrt(n);
+                    for (int i = 1; i <= s; i++)
+                    {
+                        int i2 = i * i;
+                        if (i2 == n)
+                            return c + 1;
+                        i2 = n - i2;
+                        if (visited.find(i2) == visited.end())
+                        {
+                            next.push(i2);
+                            visited.insert(i2);
+                        }
+                    }
+                }
+                c++;
+                current.swap(next);
+            }
+            throw runtime_error("not found");
         }
 
     } // namespace LeetCode
