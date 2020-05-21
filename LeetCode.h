@@ -22872,6 +22872,88 @@ namespace Test
             throw runtime_error("not found");
         }
 
+        // Daily Temperatures
+        // Given a list of daily temperatures T, return a list such that, for each day
+        // in the input, tells you how many days you would have to wait until a warmer
+        // temperature. If there is no future day for which this is possible, put 0 instead.
+        // For example, given the list of temperatures T = [73, 74, 75, 71, 69, 72, 76, 73],
+        // your output should be [1, 1, 4, 2, 1, 1, 0, 0].
+        // Note: The length of temperatures will be in the range [1, 30000]. Each
+        // temperature will be an integer in the range [30, 100].
+        vector<int> dailyTemperatures(const vector<int> &T)
+        {
+            vector<int> o(T.size(), 0);
+            stack<int> s;
+            for (int i = 0; i < (int)T.size(); i++)
+            {
+                while (!s.empty() && T[s.top()] < T[i])
+                {
+                    int j = s.top();
+                    s.pop();
+                    o[j] = i - j;
+                }
+                s.push(i);
+            }
+            return o;
+        }
+
+        // Target Sum
+        // You are given a list of non-negative integers, a1, a2, ..., an, and a
+        // target, S. Now you have 2 symbols + and -. For each integer, you should
+        // choose one from + and - as its new symbol. Find out how many ways to
+        // assign symbols to make sum of integers equal to target S.
+        // Example 1:
+        // Input: nums is [1, 1, 1, 1, 1], S is 3.
+        // Output: 5
+        // Explanation:
+        // -1+1+1+1+1 = 3
+        // +1-1+1+1+1 = 3
+        // +1+1-1+1+1 = 3
+        // +1+1+1-1+1 = 3
+        // +1+1+1+1-1 = 3
+        // There are 5 ways to assign symbols to make the sum of nums be target 3.
+        // Note:
+        // The length of the given array is positive and will not exceed 20.
+        // The sum of elements in the given array will not exceed 1000.
+        // Your output answer is guaranteed to be fitted in a 32-bit integer.
+        int findTargetSumWays(const vector<int> &nums, int S)
+        {
+            map<pair<int, long long>, int> m;
+            // Use long long because may overflow if it is INT_MAX
+            function<int(int, long long)> count = [&](int i, long long a) -> int {
+                // cout << string(i * 2, ' ') << "c(" << i << "," << a << ")" << endl;
+                if (i >= (int)nums.size())
+                    return 0;
+                pair<int, long long> p = make_pair(i, a);
+                if (m.find(p) == m.end())
+                {
+                    if (i + 1 == (int)nums.size())
+                        m[p] = ((a == nums[i] || -a == nums[i]) ? (a == 0 ? 2 : 1) : 0);
+                    else
+                        m[p] = count(i + 1, a + nums[i]) + count(i + 1, a - nums[i]);
+                }
+                // cout << string(i * 2, ' ') << "c(" << i << "," << a << ") = " << m[p] << endl;
+                return m[p];
+            };
+            return count(0, S);
+        }
+        int findTargetSumWays2(const vector<int> &nums, int S)
+        {
+            int c = 0;
+            function<void(int, int)> count = [&](int i, int a) {
+                if (i >= (int)nums.size())
+                {
+                    if (a == S)
+                        c++;
+                    return;
+                }
+                count(i + 1, a - nums[i]);
+                count(i + 1, a + nums[i]);
+            };
+            count(0, 0);
+            return c;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 #endif

@@ -6150,5 +6150,18 @@ void LeetCodeTest::Init(void)
         };
         check({"8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"}, "8888");
     });
+
+    Add("Target Sum", [&]() {
+        auto check = [&](const vector<int> &v, int t) {
+            Logger() << v;
+            Logger() << "target sum: " << t << endl;
+            int c = findTargetSumWays(v, t);
+            int c2 = findTargetSumWays2(v, t);
+            Logger() << "Count ways: " << c << ", " << c2 << endl;
+            ASSERT1(c == c2);
+        };
+        check({1, 1, 1, 1, 1}, 3);
+        check({1, 0}, 1);
+    });
 }
 #endif
