@@ -22923,6 +22923,22 @@ namespace Test
             function<int(int, long long)> count = [&](int i, long long a) -> int {
                 // cout << string(i * 2, ' ') << "c(" << i << "," << a << ")" << endl;
                 if (i >= (int)nums.size())
+                    return a == 0 ? 1 : 0;
+                pair<int, long long> p = make_pair(i, a);
+                if (m.find(p) == m.end())
+                    m[p] = count(i + 1, a + nums[i]) + count(i + 1, a - nums[i]);
+                // cout << string(i * 2, ' ') << "c(" << i << "," << a << ") = " << m[p] << endl;
+                return m[p];
+            };
+            return count(0, S);
+        }
+        int findTargetSumWays2(const vector<int> &nums, int S)
+        {
+            map<pair<int, long long>, int> m;
+            // Use long long because may overflow if it is INT_MAX
+            function<int(int, long long)> count = [&](int i, long long a) -> int {
+                // cout << string(i * 2, ' ') << "c(" << i << "," << a << ")" << endl;
+                if (i >= (int)nums.size())
                     return 0;
                 pair<int, long long> p = make_pair(i, a);
                 if (m.find(p) == m.end())
@@ -22937,7 +22953,7 @@ namespace Test
             };
             return count(0, S);
         }
-        int findTargetSumWays2(const vector<int> &nums, int S)
+        int findTargetSumWays3(const vector<int> &nums, int S)
         {
             int c = 0;
             function<void(int, int)> count = [&](int i, int a) {
@@ -22952,6 +22968,344 @@ namespace Test
             };
             count(0, 0);
             return c;
+        }
+
+        // Implement Queue using Stacks
+        // Implement the following operations of a queue using stacks.
+        // push(x) -- Push element x to the back of queue.
+        // pop() -- Removes the element from in front of queue.
+        // peek() -- Get the front element.
+        // empty() -- Return whether the queue is empty.
+        // Example:
+        // MyQueue queue = new MyQueue();
+        // queue.push(1);
+        // queue.push(2);
+        // queue.peek();  // returns 1
+        // queue.pop();   // returns 1
+        // queue.empty(); // returns false
+        class MyQueue
+        {
+        private:
+            stack<int> back;
+            stack<int> front;
+            void flush()
+            {
+                if (front.empty())
+                {
+                    while (!back.empty())
+                    {
+                        front.push(back.top());
+                        back.pop();
+                    }
+                }
+            }
+
+        public:
+            /** Initialize your data structure here. */
+            MyQueue()
+            {
+            }
+
+            /** Push element x to the back of queue. */
+            void push(int x)
+            {
+                back.push(x);
+            }
+
+            /** Removes the element from in front of queue and returns that element. */
+            int pop()
+            {
+                flush();
+                int v = front.top();
+                front.pop();
+                return v;
+            }
+
+            /** Get the front element. */
+            int peek()
+            {
+                flush();
+                return front.top();
+            }
+
+            /** Returns whether the queue is empty. */
+            bool empty()
+            {
+                return front.empty() && back.empty();
+            }
+        };
+
+        // Implement Stack using Queues
+        // Implement the following operations of a stack using queues.
+        // push(x) -- Push element x onto stack.
+        // pop() -- Removes the element on top of the stack.
+        // top() -- Get the top element.
+        // empty() -- Return whether the stack is empty.
+        // Example:
+        // MyStack stack = new MyStack();
+        // stack.push(1);
+        // stack.push(2);
+        // stack.top();   // returns 2
+        // stack.pop();   // returns 2
+        // stack.empty(); // returns false
+        class MyStack
+        {
+        private:
+            queue<int> q0;
+            queue<int> q1;
+            void flush(queue<int> &from, queue<int> &to)
+            {
+                while (from.size() > 1)
+                {
+                    to.push(from.front());
+                    from.pop();
+                }
+            }
+
+        public:
+            /** Initialize your data structure here. */
+            MyStack()
+            {
+            }
+
+            /** Push element x onto stack. */
+            void push(int x)
+            {
+                if (q1.empty())
+                    q0.push(x);
+                else
+                    q1.push(x);
+            }
+
+            /** Removes the element on top of the stack and returns that element. */
+            int pop()
+            {
+                int v;
+                if (q1.empty())
+                {
+                    flush(q0, q1);
+                    v = q0.front();
+                    q0.pop();
+                }
+                else
+                {
+                    flush(q1, q0);
+                    v = q1.front();
+                    q1.pop();
+                }
+                return v;
+            }
+
+            /** Get the top element. */
+            int top()
+            {
+                int v;
+                if (q1.empty())
+                {
+                    flush(q0, q1);
+                    v = q0.front();
+                    q1.push(v);
+                    q0.pop();
+                }
+                else
+                {
+                    flush(q1, q0);
+                    v = q1.front();
+                    q0.push(v);
+                    q1.pop();
+                }
+                return v;
+            }
+
+            /** Returns whether the stack is empty. */
+            bool empty()
+            {
+                return q0.empty() && q1.empty();
+            }
+        };
+
+        // Decode String
+        // Given an encoded string, return its decoded string.
+        // The encoding rule is: k[encoded_string], where the encoded_string inside the
+        // square brackets is being repeated exactly k times. Note that k is guaranteed
+        // to be a positive integer. You may assume that the input string is always valid;
+        // No extra white spaces, square brackets are well-formed, etc. Furthermore, you
+        // may assume that the original data does not contain any digits and that digits
+        // are only for those repeat numbers, k. For example, there won't be input like 3a or 2[4].
+        // Examples:
+        // s = "3[a]2[bc]", return "aaabcbc".
+        // s = "3[a2[c]]", return "accaccacc".
+        // s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
+        string decodeString(const string &s)
+        {
+            function<string(size_t &)> decode = [&](size_t &i) -> string {
+                if (i >= s.size())
+                    return "";
+                ostringstream oss;
+                while (i < s.size())
+                {
+                    while (i < s.size() && (s[i] < '0' || s[i] > '9') && s[i] != ']')
+                        oss << s[i++];
+                    if (i >= s.size())
+                        break;
+                    if (s[i] == ']')
+                    {
+                        i++;
+                        break;
+                    }
+                    int k = 0;
+                    while (i < s.size() && '0' <= s[i] && s[i] <= '9')
+                        k = (k * 10) + s[i++] - '0';
+                    i++;
+                    string c = decode(i);
+                    for (; k > 0; k--)
+                        oss << c;
+                }
+                return oss.str();
+            };
+            size_t i = 0;
+            return decode(i);
+        }
+        string decodeString2(const string &s)
+        {
+            stack<pair<string, int>> stk;
+            string o;
+            size_t i = 0;
+            while (i < s.size())
+            {
+                if ((s[i] < '0' || s[i] > '9') && s[i] != ']')
+                {
+                    o.append(1, s[i++]);
+                }
+                else if (s[i] == ']')
+                {
+                    pair<string, int> p = stk.top();
+                    stk.pop();
+                    for (; p.second > 0; p.second--)
+                        p.first.append(o);
+                    o = p.first;
+                    i++;
+                }
+                else
+                {
+                    int k = 0;
+                    while (i < s.size() && '0' <= s[i] && s[i] <= '9')
+                        k = k * 10 + s[i++] - '0';
+                    i++;
+                    stk.push(make_pair(o, k));
+                    o = "";
+                }
+            }
+            return o;
+        }
+
+        // Flood Fill
+        // An image is represented by a 2-D array of integers, each integer representing
+        // the pixel value of the image (from 0 to 65535). Given a coordinate (sr, sc)
+        // representing the starting pixel (row and column) of the flood fill, and a pixel
+        // value newColor, "flood fill" the image. To perform a "flood fill", consider
+        // the starting pixel, plus any pixels connected 4-directionally to the starting
+        // pixel of the same color as the starting pixel, plus any pixels connected
+        // 4-directionally to those pixels (also with the same color as the starting pixel),
+        // and so on. Replace the color of all of the aforementioned pixels with the newColor.
+        // At the end, return the modified image.
+        // Example 1:
+        // Input:
+        // image = [[1,1,1],
+        //          [1,1,0],
+        //          [1,0,1]]
+        // sr = 1, sc = 1, newColor = 2
+        // Output: [[2,2,2],
+        //          [2,2,0],
+        //          [2,0,1]]
+        // Explanation:
+        // From the center of the image (with position (sr, sc) = (1, 1)), all pixels connected
+        // by a path of the same color as the starting pixel are colored with the new color.
+        // Note the bottom corner is not colored 2, because it is not 4-directionally connected
+        // to the starting pixel. Note:
+        // The length of image and image[0] will be in the range [1, 50].
+        // The given starting pixel will satisfy 0 <= sr < image.length and 0 <= sc < image[0].length.
+        // The value of each color in image[i][j] and newColor will be an integer in [0, 65535].
+        vector<vector<int>> floodFill(vector<vector<int>> &image, int sr, int sc, int newColor)
+        {
+            int c = image[sr][sc];
+            if (c == newColor)
+                return image; // no change needed
+            int m = (int)image.size();
+            int n = (int)image[0].size();
+            function<void(int, int)> flood = [&](int i, int j) {
+                if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
+                    return;
+                image[i][j] = newColor;
+                flood(i - 1, j);
+                flood(i, j + 1);
+                flood(i + 1, j);
+                flood(i, j - 1);
+            };
+            flood(sr, sc);
+            return image;
+        }
+        vector<vector<int>> floodFill2(vector<vector<int>> &image, int sr, int sc, int newColor)
+        {
+            int c = image[sr][sc];
+            int m = (int)image.size();
+            int n = (int)image[0].size();
+            stack<pair<int, int>> path;
+            set<pair<int, int>> visited;
+            path.push(make_pair(sr, sc));
+            visited.insert(path.top());
+            function<void(int, int)> check = [&](int i, int j) {
+                if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (visited.find(p) == visited.end())
+                {
+                    path.push(p);
+                    visited.insert(p);
+                }
+            };
+            while (!path.empty())
+            {
+                pair<int, int> p = path.top();
+                path.pop();
+                image[p.first][p.second] = newColor;
+                check(p.first - 1, p.second);
+                check(p.first, p.second + 1);
+                check(p.first + 1, p.second);
+                check(p.first, p.second - 1);
+            }
+            return image;
+        }
+        vector<vector<int>> floodFill3(vector<vector<int>> &image, int sr, int sc, int newColor)
+        {
+            int c = image[sr][sc];
+            int m = (int)image.size();
+            int n = (int)image[0].size();
+            queue<pair<int, int>> front;
+            set<pair<int, int>> visited;
+            front.push(make_pair(sr, sc));
+            visited.insert(front.front());
+            function<void(int, int)> check = [&](int i, int j) {
+                if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (visited.find(p) == visited.end())
+                {
+                    front.push(p);
+                    visited.insert(p);
+                }
+            };
+            while (!front.empty())
+            {
+                pair<int, int> p = front.front();
+                front.pop();
+                image[p.first][p.second] = newColor;
+                check(p.first - 1, p.second);
+                check(p.first, p.second + 1);
+                check(p.first + 1, p.second);
+                check(p.first, p.second - 1);
+            }
+            return image;
         }
 
     } // namespace LeetCode

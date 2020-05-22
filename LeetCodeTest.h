@@ -6157,11 +6157,20 @@ void LeetCodeTest::Init(void)
             Logger() << "target sum: " << t << endl;
             int c = findTargetSumWays(v, t);
             int c2 = findTargetSumWays2(v, t);
-            Logger() << "Count ways: " << c << ", " << c2 << endl;
+            int c3 = findTargetSumWays3(v, t);
+            Logger() << "Count ways: " << c << ", " << c2 << ", " << c3 << endl;
             ASSERT1(c == c2);
+            ASSERT1(c == c3);
         };
         check({1, 1, 1, 1, 1}, 3);
         check({1, 0}, 1);
+        for (int i = 0; i < 100; i++)
+        {
+            int n = Random::Int(10, 1);
+            vector<int> v = Random::Vector(n, 10);
+            int t = Random::Int(100, -100);
+            check(v, t);
+        }
     });
 }
 #endif
