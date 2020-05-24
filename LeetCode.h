@@ -23308,6 +23308,173 @@ namespace Test
             return image;
         }
 
+        // 01 Matrix
+        // Given a matrix consists of 0 and 1, find the distance of the nearest 0 for each cell.
+        // The distance between two adjacent cells is 1.
+        // Example 1:
+        // Input:
+        // [[0,0,0],
+        //  [0,1,0],
+        //  [0,0,0]]
+        // Output:
+        // [[0,0,0],
+        //  [0,1,0],
+        //  [0,0,0]]
+        // Example 2:
+        // Input:
+        // [[0,0,0],
+        //  [0,1,0],
+        //  [1,1,1]]
+        // Output:
+        // [[0,0,0],
+        //  [0,1,0],
+        //  [1,2,1]]
+        // Note:
+        // The number of elements of the given matrix will not exceed 10,000.
+        // There are at least one 0 in the given matrix.
+        // The cells are adjacent in only four directions: up, down, left and right.
+        vector<vector<int>> updateMatrix(const vector<vector<int>> &matrix)
+        {
+            vector<vector<int>> d(matrix);
+            int m = (int)matrix.size();
+            int n = (int)matrix[0].size();
+            function<void(int, int)> search = [&](int i, int j) {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return;
+                queue<pair<int, int>> current;
+                queue<pair<int, int>> next;
+                set<pair<int, int>> visited;
+                pair<int, int> p = make_pair(i, j);
+                current.push(p);
+                visited.insert(p);
+                int l = 0;
+                function<void(int, int)> check = [&](int a, int b) {
+                    if (a < 0 || a >= m || b < 0 || b >= n)
+                        return;
+                    pair<int, int> t = make_pair(a, b);
+                    if (visited.find(t) == visited.end())
+                    {
+                        next.push(t);
+                        visited.insert(t);
+                    }
+                };
+                while (!current.empty())
+                {
+                    while (!current.empty())
+                    {
+                        p = current.front();
+                        current.pop();
+                        if (matrix[p.first][p.second] == 0)
+                        {
+                            d[i][j] = l;
+                            return;
+                        }
+                        check(p.first - 1, p.second);
+                        check(p.first, p.second + 1);
+                        check(p.first + 1, p.second);
+                        check(p.first, p.second - 1);
+                    }
+                    l++;
+                    current.swap(next);
+                }
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    search(i, j);
+                }
+            }
+            return d;
+        }
+
+        // Keys and Rooms
+        // There are N rooms and you start in room 0.  Each room has a distinct number
+        // in 0, 1, 2, ..., N-1, and each room may have some keys to access the next room.
+        // Formally, each room i has a list of keys rooms[i], and each key rooms[i][j]
+        // is an integer in [0, 1, ..., N-1] where N = rooms.length.
+        // A key rooms[i][j] = v opens the room with number v.
+        // Initially, all the rooms start locked (except for room 0).
+        // You can walk back and forth between rooms freely.
+        // Return true if and only if you can enter every room.
+        // Example 1:
+        // Input: [[1],[2],[3],[]]
+        // Output: true
+        // Explanation:
+        // We start in room 0, and pick up key 1.
+        // We then go to room 1, and pick up key 2.
+        // We then go to room 2, and pick up key 3.
+        // We then go to room 3.  Since we were able to go to every room, we return true.
+        // Example 2:
+        // Input: [[1,3],[3,0,1],[2],[0]]
+        // Output: false
+        // Explanation: We can't enter the room with number 2.
+        // Note:
+        // 1 <= rooms.length <= 1000
+        // 0 <= rooms[i].length <= 1000
+        // The number of keys in all rooms combined is at most 3000.
+        bool canVisitAllRooms(const vector<vector<int>> &rooms)
+        {
+            set<int> visited;
+            stack<int> path;
+            path.push(0);
+            visited.insert(0);
+            while (!path.empty())
+            {
+                int i = path.top();
+                path.pop();
+                for (int j = 0; j < (int)rooms[i].size(); j++)
+                {
+                    int r = rooms[i][j];
+                    if (visited.find(r) == visited.end())
+                    {
+                        path.push(r);
+                        visited.insert(r);
+                    }
+                }
+            }
+            return visited.size() == rooms.size();
+        }
+        bool canVisitAllRooms2(const vector<vector<int>> &rooms)
+        {
+            set<int> visited;
+            function<void(int)> visit = [&](int i) {
+                if (i >= (int)rooms.size())
+                    return;
+                visited.insert(i);
+                for (int j = 0; j < (int)rooms[i].size(); j++)
+                {
+                    int r = rooms[i][j];
+                    if (visited.find(r) == visited.end())
+                        visit(r);
+                }
+            };
+            visit(0);
+            return visited.size() == rooms.size();
+        }
+        bool canVisitAllRooms3(const vector<vector<int>> &rooms)
+        {
+            set<int> visited;
+            queue<int> q;
+            q.push(0);
+            visited.insert(0);
+            while (!q.empty())
+            {
+                int i = q.front();
+                q.pop();
+                for (int j = 0; j < (int)rooms[i].size(); j++)
+                {
+                    int r = rooms[i][j];
+                    if (visited.find(r) == visited.end())
+                    {
+                        q.push(r);
+                        visited.insert(r);
+                    }
+                }
+            }
+            return visited.size() == rooms.size();
+        }
+
     } // namespace LeetCode
 } // namespace Test
 #endif
