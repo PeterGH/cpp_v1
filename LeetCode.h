@@ -20068,7 +20068,7 @@ namespace Test
                 solve(nums2, nums1);
             return result;
         }
-        vector<int> intersection2(const vector<int> &nums1, const vector<int> &nums2)
+        vector<int> intersection2(vector<int> &nums1, vector<int> &nums2)
         {
             vector<int> result;
             set<int> s1(nums1.cbegin(), nums1.cend());
@@ -20118,7 +20118,7 @@ namespace Test
         // algorithm is better? What if elements of nums2 are stored on disk, and the
         // memory is limited such that you cannot load all elements into the memory at
         // once?
-        vector<int> intersect(vector<int> &nums1, vector<int> &nums2)
+        vector<int> intersectII(const vector<int> &nums1, const vector<int> &nums2)
         {
             function<map<int, int>(const vector<int> &)> count =
                 [&](const vector<int> &n) -> map<int, int> {
@@ -20143,7 +20143,7 @@ namespace Test
             }
             return result;
         }
-        vector<int> intersect2(vector<int> &nums1, vector<int> &nums2)
+        vector<int> intersectII2(vector<int> &nums1, vector<int> &nums2)
         {
             vector<int> result;
             sort(nums1.begin(), nums1.end());
@@ -20153,6 +20153,36 @@ namespace Test
                                        nums2.cend(), result.begin());
             result.resize(it - result.begin());
             return result;
+        }
+        vector<int> intersectII3(const vector<int> &nums1, const vector<int> &nums2)
+        {
+            vector<int> o;
+            function<void(const vector<int> &, const vector<int> &)> solve =
+                [&](const vector<int> &n1, const vector<int> &n2) {
+                    map<int, int> m;
+                    for (int n : n1)
+                    {
+                        if (m.find(n) == m.end())
+                            m[n] = 1;
+                        else
+                            m[n]++;
+                    }
+                    for (int n : n2)
+                    {
+                        if (m.find(n) != m.end())
+                        {
+                            o.push_back(n);
+                            m[n]--;
+                            if (m[n] == 0)
+                                m.erase(n);
+                        }
+                    }
+                };
+            if (nums1.size() < nums2.size())
+                solve(nums1, nums2);
+            else
+                solve(nums2, nums1);
+            return o;
         }
 
         // 367. Valid Perfect Square
@@ -23746,6 +23776,61 @@ namespace Test
             else
                 solve(list2, list1);
             return o;
+        }
+
+        // First Unique Character in a String
+        // Given a string, find the first non-repeating character in it
+        // and return it's index. If it doesn't exist, return -1.
+        // Examples:
+        // s = "leetcode"
+        // return 0.
+        // s = "loveleetcode",
+        // return 2.
+        // Note: You may assume the string contain only lowercase letters.
+        int firstUniqChar(const string &s)
+        {
+            map<char, int> m;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m.find(s[i]) == m.end())
+                    m[s[i]] = 1;
+                else
+                    m[s[i]]++;
+            }
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m[s[i]] == 1)
+                    return i;
+            }
+            return -1;
+        }
+
+        // Contains Duplicate II
+        // Given an array of integers and an integer k, find out whether there are two
+        // distinct indices i and j in the array such that nums[i] = nums[j] and the
+        // absolute difference between i and j is at most k.
+        // Example 1:
+        // Input: nums = [1,2,3,1], k = 3
+        // Output: true
+        // Example 2:
+        // Input: nums = [1,0,1,1], k = 1
+        // Output: true
+        // Example 3:
+        // Input: nums = [1,2,3,1,2,3], k = 2
+        // Output: false
+        bool containsNearbyDuplicate(const vector<int> &nums, int k)
+        {
+            set<int> s;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (s.find(nums[i]) == s.end())
+                    s.insert(nums[i]);
+                else
+                    return true;
+                if (i >= k)
+                    s.erase(nums[i - k]);
+            }
+            return false;
         }
 
     } // namespace LeetCode
