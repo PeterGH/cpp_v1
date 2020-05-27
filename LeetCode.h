@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <map>
 #include <math.h>
+#include <numeric>
 #include <queue>
 #include <set>
 #include <sstream>
@@ -15402,6 +15403,10 @@ namespace Test
             for_each(nums.begin(), nums.end(), [&](int n) { r ^= n; });
             return r;
         }
+        int singleNumber2(const vector<int> &nums)
+        {
+            return accumulate(nums.cbegin(), nums.cend(), 0, [&](int x, int n) -> int { return x ^ n; });
+        }
 
         // 137. Single Number II
         // Given a non-empty array of integers, every element appears three times except
@@ -18978,6 +18983,25 @@ namespace Test
             }
             return true;
         }
+        bool isIsomorphic2(const string &s, const string &t)
+        {
+            if (s.size() != s.size())
+                return false;
+            map<char, char> ms;
+            map<char, char> mt;
+            for (size_t i = 0; i < s.size(); i++)
+            {
+                if (ms.find(s[i]) == ms.end())
+                    ms[s[i]] = t[i];
+                else if (ms[s[i]] != t[i])
+                    return false;
+                if (mt.find(t[i]) == mt.end())
+                    mt[t[i]] = s[i];
+                else if (mt[t[i]] != s[i])
+                    return false;
+            }
+            return true;
+        }
 
         // 206. Reverse Linked List
         // Reverse a singly linked list.
@@ -20054,6 +20078,28 @@ namespace Test
                                        result.begin());
             result.resize(it - result.begin());
             return result;
+        }
+        vector<int> intersection3(const vector<int> &nums1, const vector<int> &nums2)
+        {
+            vector<int> o;
+            function<void(const vector<int> &, const vector<int> &)> solve =
+                [&](const vector<int> &n1, const vector<int> &n2) {
+                    set<int> s(n1.cbegin(), n1.cend());
+                    set<int> u;
+                    for (int n : n2)
+                    {
+                        if (s.find(n) != s.end() && u.find(n) == u.end())
+                        {
+                            o.push_back(n);
+                            u.insert(n);
+                        }
+                    }
+                };
+            if (nums1.size() < nums2.size())
+                solve(nums1, nums2);
+            else
+                solve(nums2, nums1);
+            return o;
         }
 
         // 350. Intersection of Two Arrays II
@@ -23547,6 +23593,160 @@ namespace Test
                 return it != set[k].end();
             }
         };
+
+        // Design HashMap
+        // Design a HashMap without using any built-in hash table libraries.
+        // To be specific, your design should include these functions:
+        // put(key, value) : Insert a (key, value) pair into the HashMap.
+        // If the value already exists in the HashMap, update the value.
+        // get(key): Returns the value to which the specified key is mapped,
+        // or -1 if this map contains no mapping for the key.
+        // remove(key) : Remove the mapping for the value key if this map
+        // contains the mapping for the key.
+        // Example:
+        // MyHashMap hashMap = new MyHashMap();
+        // hashMap.put(1, 1);
+        // hashMap.put(2, 2);
+        // hashMap.get(1);            // returns 1
+        // hashMap.get(3);            // returns -1 (not found)
+        // hashMap.put(2, 1);          // update the existing value
+        // hashMap.get(2);            // returns 1
+        // hashMap.remove(2);          // remove the mapping for 2
+        // hashMap.get(2);            // returns -1 (not found)
+        // Note:
+        // All keys and values will be in the range of [0, 1000000].
+        // The number of operations will be in the range of [1, 10000].
+        // Please do not use the built-in HashMap library.
+        class MyHashMap
+        {
+        private:
+            vector<vector<pair<int, int>>> v;
+            int n;
+
+        public:
+            /** Initialize your data structure here. */
+            MyHashMap()
+            {
+                n = 10000;
+                v.resize(n);
+            }
+
+            /** value will always be non-negative. */
+            void put(int key, int value)
+            {
+                int k = key % n;
+                vector<pair<int, int>>::iterator it = v[k].begin();
+                while (it != v[k].end() && it->first != key)
+                    it++;
+                if (it == v[k].end())
+                    v[k].push_back(make_pair(key, value));
+                else
+                    it->second = value;
+            }
+
+            /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+            int get(int key)
+            {
+                int k = key % n;
+                vector<pair<int, int>>::iterator it = v[k].begin();
+                while (it != v[k].end() && it->first != key)
+                    it++;
+                return it == v[k].end() ? -1 : it->second;
+            }
+
+            /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+            void remove(int key)
+            {
+                int k = key % n;
+                vector<pair<int, int>>::iterator it = v[k].begin();
+                while (it != v[k].end() && it->first != key)
+                    it++;
+                if (it != v[k].end())
+                    v[k].erase(it);
+            }
+        };
+
+        // Contains Duplicate
+        // Given an array of integers, find if the array contains any duplicates.
+        // Your function should return true if any value appears at least twice
+        // in the array, and it should return false if every element is distinct.
+        // Example 1:
+        // Input: [1,2,3,1]
+        // Output: true
+        // Example 2:
+        // Input: [1,2,3,4]
+        // Output: false
+        // Example 3:
+        // Input: [1,1,1,3,3,4,3,2,4,2]
+        // Output: true
+        bool containsDuplicate(const vector<int> &nums)
+        {
+            set<int> s;
+            for (int n : nums)
+            {
+                if (s.find(n) != s.end())
+                    return true;
+                s.insert(n);
+            }
+            return false;
+        }
+
+        // Minimum Index Sum of Two Lists
+        // Suppose Andy and Doris want to choose a restaurant for dinner, and
+        // they both have a list of favorite restaurants represented by strings.
+        // You need to help them find out their common interest with the least
+        // list index sum. If there is a choice tie between answers, output all
+        // of them with no order requirement. You could assume there always exists an answer.
+        // Example 1:
+        // Input:
+        // ["Shogun", "Tapioca Express", "Burger King", "KFC"]
+        // ["Piatti", "The Grill at Torrey Pines", "Hungry Hunter Steakhouse", "Shogun"]
+        // Output: ["Shogun"]
+        // Explanation: The only restaurant they both like is "Shogun".
+        // Example 2:
+        // Input:
+        // ["Shogun", "Tapioca Express", "Burger King", "KFC"]
+        // ["KFC", "Shogun", "Burger King"]
+        // Output: ["Shogun"]
+        // Explanation: The restaurant they both like and have the least index sum is "Shogun" with index sum 1 (0+1).
+        // Note:
+        // The length of both lists will be in the range of [1, 1000].
+        // The length of strings in both lists will be in the range of [1, 30].
+        // The index is starting from 0 to the list length minus 1.
+        // No duplicates in both lists.
+        vector<string> findRestaurant(const vector<string> &list1, const vector<string> &list2)
+        {
+            vector<string> o;
+            function<void(const vector<string> &, const vector<string> &)> solve =
+                [&](const vector<string> &l1, const vector<string> &l2) {
+                    map<string, int> m;
+                    int minIndex = INT_MAX;
+                    for (int i = 0; i < (int)l1.size(); i++)
+                        m[l1[i]] = i;
+                    for (int i = 0; i < (int)l2.size(); i++)
+                    {
+                        if (m.find(l2[i]) != m.end())
+                        {
+                            int j = m[l2[i]] + i;
+                            if (j < minIndex)
+                            {
+                                o.clear();
+                                o.push_back(l2[i]);
+                                minIndex = j;
+                            }
+                            else if (j == minIndex)
+                            {
+                                o.push_back(l2[i]);
+                            }
+                        }
+                    }
+                };
+            if (list1.size() < list2.size())
+                solve(list1, list2);
+            else
+                solve(list2, list1);
+            return o;
+        }
 
     } // namespace LeetCode
 } // namespace Test
