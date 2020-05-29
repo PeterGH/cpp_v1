@@ -4003,6 +4003,32 @@ namespace Test
         // character '.'. The given board size is always 9x9.
         bool isValidSudoku(const vector<vector<char>> &board)
         {
+            vector<set<char>> row(9);
+            vector<set<char>> col(9);
+            vector<set<char>> cell(9);
+            for (int i = 0; i < (int)board.size(); i++)
+            {
+                for (int j = 0; j < (int)board[i].size(); j++)
+                {
+                    char c = board[i][j];
+                    if (c == '.')
+                        continue;
+                    if (row[i].find(c) != row[i].end())
+                        return false;
+                    if (col[j].find(c) != col[j].end())
+                        return false;
+                    int k = (i / 3) * 3 + (j / 3);
+                    if (cell[k].find(c) != cell[k].end())
+                        return false;
+                    row[i].insert(c);
+                    col[j].insert(c);
+                    cell[k].insert(c);
+                }
+            }
+            return true;
+        }
+        bool isValidSudoku2(const vector<vector<char>> &board)
+        {
             map<size_t, set<char>> row;
             map<size_t, set<char>> col;
             map<size_t, set<char>> cell;
@@ -4027,41 +4053,6 @@ namespace Test
                         if (cell[k].find(board[i][j]) != cell[k].end())
                             return false;
                         cell[k].insert(board[i][j]);
-                    }
-                }
-            }
-            return true;
-        }
-        bool isValidSudoku2(const vector<vector<char>> &board)
-        {
-            map<size_t, set<char>> rows;
-            map<size_t, set<char>> cols;
-            map<size_t, set<char>> grids;
-            for (size_t i = 0; i < board.size(); i++)
-            {
-                if (rows.find(i) == rows.end())
-                    rows[i] = set<char>{};
-                for (size_t j = 0; j < board[i].size(); j++)
-                {
-                    if (i == 0 && cols.find(j) == cols.end())
-                        cols[j] = set<char>();
-                    if (i % 3 == 0 && j % 3 == 0 &&
-                        grids.find(i * 3 + j) == grids.end())
-                    {
-                        grids[i * 3 + j] = set<char>{};
-                    }
-                    if (board[i][j] != '.')
-                    { // A real check may be against '0'-'9'
-                        if (rows[i].find(board[i][j]) != rows[i].end())
-                            return false;
-                        rows[i].insert(board[i][j]);
-                        if (cols[j].find(board[i][j]) != cols[j].end())
-                            return false;
-                        cols[j].insert(board[i][j]);
-                        auto k = (i / 3) * 3 + (j / 3);
-                        if (grids[k].find(board[i][j]) != grids[k].end())
-                            return false;
-                        grids[k].insert(board[i][j]);
                     }
                 }
             }
