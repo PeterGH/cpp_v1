@@ -6172,5 +6172,42 @@ void LeetCodeTest::Init(void)
             check(v, t);
         }
     });
+
+    Add("Find Duplicate Subtrees", [&]() {
+        auto check = [&](TreeNode *t) {
+            Print(t);
+            vector<TreeNode *> d = findDuplicateSubtrees(t);
+            vector<TreeNode *> d2 = findDuplicateSubtrees2(t);
+            Logger() << d << d2;
+            bool sameSize = (d.size() == d2.size());
+            bool sameTree = true;
+            for (TreeNode *n : d)
+            {
+                bool found = false;
+                for (TreeNode *n2 : d2)
+                {
+                    if (isSameTree(n, n2))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                sameTree &= found;
+            }
+            DeleteTree(t);
+            ASSERT1(sameSize);
+            ASSERT1(sameTree);
+        };
+        {
+            TreeNode *n1 = new TreeNode(1);
+            n1->left = new TreeNode(2);
+            n1->left->left = new TreeNode(4);
+            n1->right = new TreeNode(3);
+            n1->right->left = new TreeNode(2);
+            n1->right->left->left = new TreeNode(4);
+            n1->right->right = new TreeNode(4);
+            check(n1);
+        }
+    });
 }
 #endif

@@ -11779,19 +11779,19 @@ namespace Test
         // not. Two binary trees are considered the same if they are structurally
         // identical and the nodes have the same value. Example 1: Input:     1 1
         //           / \       / \
-//          2   3     2   3
+        //          2   3     2   3
         //         [1,2,3],   [1,2,3]
         // Output: true
         // Example 2:
         // Input:     1         1
         //           /           \
-//          2             2
+        //          2             2
         //         [1,2],     [1,null,2]
         // Output: false
         // Example 3:
         // Input:     1         1
         //           / \       / \
-//          2   1     1   2
+        //          2   1     1   2
         //         [1,2,1],   [1,1,2]
         // Output: false
         bool isSameTree(TreeNode *p, TreeNode *q)
@@ -11815,15 +11815,15 @@ namespace Test
         // tree [1,2,2,3,4,4,3] is symmetric:
         //     1
         //    / \
-//   2   2
+        //   2   2
         //  / \ / \
-// 3  4 4  3
+        // 3  4 4  3
         // But the following [1,2,2,null,3,null,3] is not:
         //     1
         //    / \
-//   2   2
+        //   2   2
         //    \   \
-//    3    3
+        //    3    3
         // Note:
         // Bonus points if you could solve it both recursively and iteratively.
         bool isSymmetric(TreeNode *root)
@@ -23822,6 +23822,111 @@ namespace Test
                     s.erase(nums[i - k]);
             }
             return false;
+        }
+
+        // Find Duplicate Subtrees
+        // Given a binary tree, return all duplicate subtrees. For each kind of duplicate
+        // subtrees, you only need to return the root node of any one of them.
+        // Two trees are duplicate if they have the same structure with same node values.
+        // Example 1:
+        //         1
+        //        / \
+        //       2   3
+        //      /   / \
+        //     4   2   4
+        //        /
+        //       4
+        // The following are two duplicate subtrees:
+        //       2
+        //      /
+        //     4
+        // and
+        //     4
+        // Therefore, you need to return above trees' root in the form of a list.
+        vector<TreeNode *> findDuplicateSubtrees(TreeNode *root)
+        {
+            vector<TreeNode *> dup;
+            map<string, int> m;
+            map<int, int> c;
+            int id = 0;
+            function<int(TreeNode *)> getId = [&](TreeNode *n) -> int {
+                if (n == nullptr)
+                    return 0;
+                string k = to_string(n->val) + "," + to_string(getId(n->left)) + "," + to_string(getId(n->right));
+                if (m.find(k) == m.end())
+                    m[k] = (++id);
+                if (c.find(m[k]) == c.end())
+                    c[m[k]] = 1;
+                else
+                    c[m[k]]++;
+                if (c[m[k]] == 2) // c[m[k]] can be greater than 2, but we only count it once
+                    dup.push_back(n);
+                return m[k];
+            };
+            getId(root);
+            return dup;
+        }
+        vector<TreeNode *> findDuplicateSubtrees2(TreeNode *root)
+        {
+            vector<TreeNode *> dup;
+            map<TreeNode *, string> m;
+            map<string, int> mid;
+            map<int, int> c;
+            int id = 0;
+            stack<TreeNode *> s;
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        string k = to_string(t->val) + "," + (t->left == nullptr ? "" : to_string(mid[m[t->left]])) + "," + (t->right == nullptr ? "" : to_string(mid[m[t->right]]));
+                        m[t] = k;
+                        if (mid.find(k) == mid.end())
+                            mid[k] = (++id);
+                        if (c.find(mid[k]) == c.end())
+                            c[mid[k]] = 1;
+                        else
+                            c[mid[k]]++;
+                        if (c[mid[k]] == 2)
+                            dup.push_back(t);
+                        s.pop();
+                        last = t;
+                    }
+                }
+            }
+            // cout << "{" << endl;
+            // for (auto it = m.begin(); it != m.end(); it++)
+            // {
+            //     cout << it->first << ":" << it->first->val << ":" << it->second << endl;
+            // }
+            // cout << "}" << endl;
+            // cout << "{" << endl;
+            // for (auto it = mid.begin(); it != mid.end(); it++)
+            // {
+            //     cout << it->first << ":" << it->second << endl;
+            // }
+            // cout << "}" << endl;
+            // cout << "{" << endl;
+            // for (auto it = c.begin(); it != c.end(); it++)
+            // {
+            //     cout << it->first << ":" << it->second << endl;
+            // }
+            // cout << "}" << endl;
+
+            return dup;
         }
 
     } // namespace LeetCode
