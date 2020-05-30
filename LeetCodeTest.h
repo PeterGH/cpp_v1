@@ -6209,5 +6209,17 @@ void LeetCodeTest::Init(void)
             check(n1);
         }
     });
+
+    Add("4Sum II", [&]() {
+        auto check = [&](vector<int> a, vector<int> b, vector<int> c, vector<int> d) {
+            Logger() << a << b << c << d;
+            int n = fourSumCount(a, b, c, d);
+            int n2 = fourSumCount2(a, b, c, d);
+            Logger() << "fourSumCount: " << n << ", " << n2 << endl;
+            ASSERT1(n == n2);
+        };
+        check({1, 2}, {-2, -1}, {-1, 2}, {0, 2});
+        check({-1, -1}, {-1, 1}, {-1, 1}, {1, -1});
+    });
 }
 #endif

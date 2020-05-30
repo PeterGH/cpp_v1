@@ -1941,6 +1941,101 @@ namespace Test
             }
             return c;
         }
+        int fourSumCount2(vector<int> &A, vector<int> &B, vector<int> &C, vector<int> &D)
+        {
+            sort(A.begin(), A.end());
+            sort(B.begin(), B.end());
+            sort(C.begin(), C.end());
+            sort(D.begin(), D.end());
+            int nA = (int)A.size();
+            int nB = (int)B.size();
+            int nC = (int)C.size();
+            int nD = (int)D.size();
+            int count = 0;
+            set<tuple<int, int, int, int>> s;
+            function<void(int, int, int, int)> solve =
+                [&](int a, int b, int c, int d) {
+                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                        return;
+                    int t = A[a] + B[b] + C[c] + D[d];
+                    auto i = make_tuple(a, b, c, d);
+                    if (t == 0)
+                    {
+                        if (s.find(i) == s.end())
+                        {
+                            count++;
+                            s.insert(i);
+                        }
+                    }
+                    solve(a + 1, b, c, d);
+                    solve(a, b + 1, c, d);
+                    solve(a, b, c - 1, d);
+                    solve(a, b, c, d - 1);
+                };
+            solve(0, 0, nC - 1, nD - 1);
+            return count;
+        }
+        // This is wrong
+        int fourSumCount3(vector<int> &A, vector<int> &B, vector<int> &C, vector<int> &D)
+        {
+            function<int(const vector<int> &, int &)> increase =
+                [&](const vector<int> &v, int &i) -> int {
+                int s = 1;
+                while (i + 1 < (int)v.size() && v[i] == v[i + 1])
+                {
+                    i++;
+                    s++;
+                }
+                return s;
+            };
+            function<int(const vector<int> &, int &)> decrease =
+                [&](const vector<int> &v, int &i) -> int {
+                int s = 1;
+                while (i > 0 && v[i - 1] == v[i])
+                {
+                    i--;
+                    s++;
+                }
+                return s;
+            };
+            sort(A.begin(), A.end());
+            sort(B.begin(), B.end());
+            sort(C.begin(), C.end());
+            sort(D.begin(), D.end());
+            int nA = (int)A.size();
+            int nB = (int)B.size();
+            int nC = (int)C.size();
+            int nD = (int)D.size();
+            int count = 0;
+            set<tuple<int, int, int, int>> s;
+            function<void(int, int, int, int, int)> solve =
+                [&](int k, int a, int b, int c, int d) {
+                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                        return;
+                    cout << string(k, ' ') << "count(" << a << ", " << b << ", " << c << ", " << d << ") = ";
+                    int t = A[a] + B[b] + C[c] + D[d];
+                    auto i = make_tuple(a, b, c, d);
+                    int cA = increase(A, a);
+                    int cB = increase(B, b);
+                    int cC = decrease(C, c);
+                    int cD = decrease(D, d);
+                    if (t == 0)
+                    {
+                        if (s.find(i) == s.end())
+                        {
+                            count += cA * cB * cC * cD;
+                            s.insert(i);
+                        }
+                    }
+                    cout << count << endl;
+                    solve(k + 1, a + 1, b, c, d);
+                    solve(k + 1, a, b + 1, c, d);
+                    solve(k + 1, a, b, c - 1, d);
+                    solve(k + 1, a, b, c, d - 1);
+                };
+            solve(0, 0, 0, nC - 1, nD - 1);
+            return count;
+        }
 
         void Print(ListNode *node)
         {
