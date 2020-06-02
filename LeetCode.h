@@ -19511,6 +19511,181 @@ namespace Test
                 return i == prefix.size();
             }
         };
+        class Trie3
+        {
+        private:
+            struct Node
+            {
+                char val;
+                map<char, Node *> children;
+                bool complete;
+                Node(char v)
+                {
+                    val = v;
+                    complete = false;
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = children.begin(); it != children.end(); it++)
+                        delete it->second;
+                    children.clear();
+                }
+            } * root;
+
+        public:
+            /** Initialize your data structure here. */
+            Trie3()
+                : root(new Node('\0'))
+            {
+            }
+
+            ~Trie3()
+            {
+                delete root;
+                root = nullptr;
+            }
+
+            /** Inserts a word into the trie. */
+            void insert(string word)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->children.find(word[i]) == node->children.end())
+                        break;
+                    node = node->children[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->children[word[i]] = new Node(word[i]);
+                    node = node->children[word[i++]];
+                }
+                node->complete = true;
+            }
+
+            /** Returns if the word is in the trie. */
+            bool search(string word)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->children.find(word[i]) == node->children.end())
+                        return false;
+                    node = node->children[word[i++]];
+                }
+                return node->complete;
+            }
+
+            /** Returns if there is any word in the trie that starts with the given prefix. */
+            bool startsWith(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < prefix.size())
+                {
+                    if (node->children.find(prefix[i]) == node->children.end())
+                        return false;
+                    node = node->children[prefix[i++]];
+                }
+                return true;
+            }
+        };
+
+        // Map Sum Pairs
+        // Implement a MapSum class with insert, and sum methods.
+        // For the method insert, you'll be given a pair of (string, integer).
+        // The string represents the key and the integer represents the value.
+        // If the key already existed, then the original key-value pair will
+        // be overridden to the new one. For the method sum, you'll be given a
+        // string representing the prefix, and you need to return the sum of all
+        // the pairs' value whose key starts with the prefix.
+        // Example 1:
+        // Input: insert("apple", 3), Output: Null
+        // Input: sum("ap"), Output: 3
+        // Input: insert("app", 2), Output: Null
+        // Input: sum("ap"), Output: 5
+        class MapSum
+        {
+        private:
+            struct Node
+            {
+                char key;
+                int val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char k, int v, bool c)
+                    : key(k), val(v), complete(c)
+                {
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+
+            void search(string key, Node *&node, size_t &i)
+            {
+                while (i < key.size())
+                {
+                    if (node->next.find(key[i]) == node->next.end())
+                        break;
+                    node = node->next[key[i++]];
+                }
+            }
+
+        public:
+            /** Initialize your data structure here. */
+            MapSum()
+                : root(new Node('\0', 0, true))
+            {
+            }
+
+            ~MapSum()
+            {
+                delete root;
+                root = nullptr;
+            }
+
+            void insert(string key, int val)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(key, node, i);
+                while (i < key.size())
+                {
+                    node->next[key[i]] = new Node(key[i], 0, false);
+                    node = node->next[key[i++]];
+                }
+                node->val = val;
+                node->complete = true;
+            }
+
+            int sum(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(prefix, node, i);
+                if (i < prefix.size())
+                    return 0;
+                stack<Node *> s;
+                int a = 0;
+                s.push(node);
+                while (!s.empty())
+                {
+                    node = s.top();
+                    s.pop();
+                    if (node->complete)
+                        a += node->val;
+                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        s.push(it->second);
+                }
+                return a;
+            }
+        };
 
         // 209. Minimum Size Subarray Sum
         // Given an array of n positive integers and a positive integer s, find the
