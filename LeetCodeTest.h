@@ -6221,5 +6221,36 @@ void LeetCodeTest::Init(void)
         check({1, 2}, {-2, -1}, {-1, 2}, {0, 2});
         check({-1, -1}, {-1, 1}, {-1, 1}, {1, -1});
     });
+
+    Add("Add and Search Word - Data structure design", [&]() {
+        {
+            WordDictionary2 dict;
+            dict.addWord("ran");
+            dict.addWord("rune");
+            dict.addWord("runner");
+            dict.addWord("runs");
+            dict.addWord("add");
+            dict.addWord("adds");
+            dict.addWord("adder");
+            dict.addWord("addee");
+            ASSERT1(dict.search("r.n") == dict.search2("r.n"));
+        }
+        {
+            WordDictionary2 dict;
+            dict.addWord("at");
+            dict.addWord("and");
+            dict.addWord("an");
+            dict.addWord("add");
+            ASSERT1(dict.search("a") == dict.search2("a"));
+            ASSERT1(dict.search(".at") == dict.search2(".at"));
+            dict.addWord("bat");
+            ASSERT1(dict.search(".at") == dict.search2(".at"));
+            ASSERT1(dict.search("an.") == dict.search2("an."));
+            ASSERT1(dict.search("a.d.") == dict.search2("a.d."));
+            ASSERT1(dict.search("b.") == dict.search2("b."));
+            ASSERT1(dict.search("a.d") == dict.search2("a.d"));
+            ASSERT1(dict.search(".") == dict.search2("."));
+        }
+    });
 }
 #endif

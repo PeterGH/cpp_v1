@@ -19791,6 +19791,150 @@ namespace Test
             return sentence.substr(0, i);
         }
 
+        // Add and Search Word - Data structure design
+        // Design a data structure that supports the following two operations:
+        // void addWord(word)
+        // bool search(word)
+        // search(word) can search a literal word or a regular expression string
+        // containing only letters a-z or .. A . means it can represent any one letter.
+        // Example:
+        // addWord("bad")
+        // addWord("dad")
+        // addWord("mad")
+        // search("pad") -> false
+        // search("bad") -> true
+        // search(".ad") -> true
+        // search("b..") -> true
+        // Note: You may assume that all words are consist of lowercase letters a-z.
+        class WordDictionary2
+        {
+        private:
+            struct Node
+            {
+                char val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char v, bool c) : val(v), complete(c) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+
+        public:
+            /** Initialize your data structure here. */
+            WordDictionary2()
+            {
+                root = new Node('\0', true);
+            }
+
+            ~WordDictionary2()
+            {
+                if (root != nullptr)
+                    delete root;
+            }
+
+            void Print()
+            {
+                function<void(int, Node *)> print = [&](int i, Node *node) {
+                    cout << string(i, ' ') << node->val << (node->complete ? "/" : " ") << endl;
+                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        print(i + 2, it->second);
+                };
+                print(0, root);
+            }
+
+            /** Adds a word into the data structure. */
+            void addWord(const string &word)
+            {
+                cout << "addWord(" << word << ")" << endl;
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->next.find(word[i]) == node->next.end())
+                        break;
+                    node = node->next[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->next[word[i]] = new Node(word[i], false);
+                    node = node->next[word[i++]];
+                }
+                node->complete = true;
+                Print();
+            }
+
+            /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
+            bool search(const string &word)
+            {
+                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool {
+                    if (i >= word.size())
+                        return node->complete;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            return false;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            if (find(it->second, i + 1))
+                                return true;
+                        }
+                    }
+                    else if (find(node->next[word[i]], i + 1))
+                    {
+                        return true;
+                    }
+                    return false;
+                };
+                bool f = find(root, 0);
+                cout << "search(" << word << ") = " << f << endl;
+                return f;
+            }
+
+            bool search2(const string &word)
+            {
+                stack<pair<Node *, size_t>> s;
+                s.push(make_pair(root, 0));
+                bool found = false;
+                while (!s.empty())
+                {
+                    pair<Node *, size_t> t = s.top();
+                    s.pop();
+                    Node *node = t.first;
+                    size_t i = t.second;
+                    cout << "<'" << node->val << "', " << i << ">" << endl;
+                    if (i == word.size())
+                    {
+                        found = node->complete;
+                        if (found)
+                            break;
+                        else
+                            continue;
+                    }
+                    if (node->next.empty())
+                        continue;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            continue;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            s.push(make_pair(it->second, i + 1));
+                        }
+                    }
+                    else
+                    {
+                        s.push(make_pair(node->next[word[i]], i + 1));
+                    }
+                }
+                cout << "search2(" << word << ") = " << found << endl;
+                return found;
+            }
+        };
+
         // 209. Minimum Size Subarray Sum
         // Given an array of n positive integers and a positive integer s, find the
         // minimal length of a contiguous subarray of which the sum >= s. If there
