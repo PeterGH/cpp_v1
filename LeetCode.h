@@ -24681,6 +24681,136 @@ namespace Test
             }
         };
 
+        // Maximum XOR of Two Numbers in an Array
+        // Given a non-empty array of numbers, a0, a1, a2, … , an-1, where 0 <= ai < 2^31.
+        // Find the maximum result of ai XOR aj, where 0 <= i, j < n.
+        // Could you do this in O(n) runtime?
+        // Example:
+        // Input: [3, 10, 5, 25, 2, 8]
+        // Output: 28
+        // Explanation: The maximum result is 5 ^ 25 = 28.
+        int findMaximumXOR(vector<int> &nums)
+        {
+            int m = 0;
+            for (size_t i = 0; i + 1 < nums.size(); i++)
+            {
+                for (size_t j = i + 1; j < nums.size(); j++)
+                    m = max(m, (nums[i] ^ nums[j]));
+            }
+            return m;
+        }
+        int findMaximumXOR2(vector<int> &nums)
+        {
+            struct Node
+            {
+                char bit;
+                map<char, Node *> next;
+                Node(char b) : bit(b) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            };
+            unique_ptr<Node> root(new Node('\0'));
+            function<char(int, int)> getBit = [&](int n, int p) -> char {
+                return (char)((n >> p) & 0x1);
+            };
+            function<void(int)> add = [&](int n) {
+                Node *node = root.get();
+                int i = 0;
+                while (i < 32)
+                {
+                    char b = getBit(n, 31 - i);
+                    if (node->next.find(b) == node->next.end())
+                        node->next[b] = new Node(b);
+                    node = node->next[b];
+                    i++;
+                }
+            };
+            for (int n : nums)
+                add(n);
+            int m = 0;
+            function<void(Node *, Node *, int)> find = [&](Node *n0, Node *n1, int x) {
+                if (n0->next.empty() || n1->next.empty())
+                {
+                    m = max(m, x);
+                    return;
+                }
+                if (n0->next.size() == 1 && n1->next.size() == 1 && n0->next.cbegin()->first == n1->next.cbegin()->first)
+                {
+                    find(n0->next.cbegin()->second, n1->next.cbegin()->second, (x << 1));
+                }
+                else
+                {
+                    if (n0->next.find(0) != n0->next.end() && n1->next.find(1) != n1->next.end())
+                    {
+                        find(n0->next[0], n1->next[1], ((x << 1) ^ 0x1));
+                    }
+                    if (n0->next.find(1) != n0->next.end() && n1->next.find(0) != n1->next.end())
+                    {
+                        find(n0->next[1], n1->next[0], ((x << 1) ^ 0x1));
+                    }
+                }
+            };
+            find(root.get(), root.get(), 0);
+            return m;
+        }
+        int findMaximumXOR3(vector<int> &nums)
+        {
+            sort(nums.begin(), nums.end());
+            function<void(int, int, int, int &, int &, int &, int &)> getBitRange =
+                [&](int b, int e, int i, int &b0, int &e0, int &b1, int &e1) {
+                    b0 = -1;
+                    e0 = -1;
+                    b1 = -1;
+                    e1 = -1;
+                    int x = 0x1 << i;
+                    for (int j = b; j <= e; j++)
+                    {
+                        switch ((nums[j] & x) >> i)
+                        {
+                        case 0:
+                            if (b0 == -1)
+                                b0 = j;
+                            e0 = j;
+                            break;
+                        case 1:
+                            if (b1 == -1)
+                                b1 = j;
+                            e1 = j;
+                            break;
+                        }
+                    }
+                };
+            int m = 0;
+            function<void(int, int, int, int, int, int)> find =
+                [&](int b0, int e0, int b1, int e1, int i, int x) {
+                    if (i < 0)
+                    {
+                        m = max(m, x);
+                        return;
+                    }
+                    int b00, e00, b01, e01, b10, e10, b11, e11;
+                    getBitRange(b0, e0, i, b00, e00, b01, e01);
+                    getBitRange(b1, e1, i, b10, e10, b11, e11);
+                    if ((b00 == -1 && b10 == -1) || (b01 == -1 && b11 == -1))
+                    {
+                        find(b0, e0, b1, e1, i - 1, x << 1);
+                    }
+                    else
+                    {
+                        if (b00 != -1 && b11 != -1)
+                            find(b00, e00, b11, e11, i - 1, ((x << 1) ^ 0x1));
+                        if (b01 != -1 && b10 != -1)
+                            find(b01, e01, b10, e10, i - 1, ((x << 1) ^ 0x1));
+                    }
+                };
+            find(0, (int)nums.size() - 1, 0, (int)nums.size() - 1, 31, 0);
+            return m;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 #endif
