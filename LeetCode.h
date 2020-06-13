@@ -20199,6 +20199,68 @@ namespace Test
             });
             return result;
         }
+        vector<string> findWords2(const vector<vector<char>> &board, const vector<string> &words)
+        {
+            struct Node
+            {
+                char val;
+                int index;
+                map<char, Node *> next;
+                Node(char v, int i = -1) : val(v), index(i) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            };
+            unique_ptr<Node> root(new Node('\0'));
+            function<void(int)> add = [&](int i) {
+                const string &w = words[i];
+                Node *node = root.get();
+                size_t j = 0;
+                while (j < w.size() && node->next.find(w[j]) != node->next.end())
+                    node = node->next[w[j++]];
+                while (j < w.size())
+                {
+                    node->next[w[j]] = new Node(w[j]);
+                    node = node->next[w[j++]];
+                }
+                node->index = i;
+            };
+            for (int i = 0; i < (int)words.size(); i++)
+                add(i);
+            set<string> found; // use set because a word may appear more than once in the board
+            function<void(int, int, Node *, set<pair<int, int>> &)> find =
+                [&](int i, int j, Node *node, set<pair<int, int>> &visited) {
+                    if (i < 0 || i >= (int)board.size() || j < 0 || j >= (int)board[i].size() || node == nullptr)
+                        return;
+                    if (node->next.find(board[i][j]) == node->next.end())
+                        return;
+                    pair<int, int> p = make_pair(i, j);
+                    if (visited.find(p) != visited.end())
+                        return;
+                    node = node->next[board[i][j]];
+                    if (node->index >= 0)
+                        found.insert(words[node->index]);
+                    visited.insert(p);
+                    find(i - 1, j, node, visited);
+                    find(i, j + 1, node, visited);
+                    find(i + 1, j, node, visited);
+                    find(i, j - 1, node, visited);
+                    visited.erase(p);
+                };
+            set<pair<int, int>> visited;
+            for (int i = 0; i < (int)board.size(); i++)
+            {
+                for (int j = 0; j < (int)board[i].size(); j++)
+                {
+                    find(i, j, root.get(), visited);
+                }
+            }
+            vector<string> result(found.cbegin(), found.cend());
+            return result;
+        }
 
         // 213. House Robber II
         // You are a professional robber planning to rob houses along a street. Each
