@@ -25063,6 +25063,73 @@ namespace Test
                 }
                 return result;
             }
+            vector<int> postorder(Node *root)
+            {
+                vector<int> result;
+                if (root == nullptr)
+                    return result;
+                stack<Node *> s;
+                s.push(root);
+                set<Node *> visited;
+                while (!s.empty())
+                {
+                    Node *node = s.top();
+                    if (node->children.empty() || visited.find(node->children[0]) != visited.end())
+                    {
+                        result.push_back(node->val);
+                        visited.insert(node);
+                        s.pop();
+                    }
+                    else
+                    {
+                        for (int i = (int)node->children.size() - 1; i >= 0; i--)
+                            s.push(node->children[i]);
+                    }
+                }
+                return result;
+            }
+            vector<vector<int>> levelOrder(Node *root)
+            {
+                vector<vector<int>> result;
+                if (root == nullptr)
+                    return result;
+                vector<Node *> current;
+                vector<Node *> next;
+                current.push_back(root);
+                while (!current.empty())
+                {
+                    vector<int> level;
+                    for (Node *node : current)
+                    {
+                        level.push_back(node->val);
+                        for (Node *child : node->children)
+                        {
+                            if (child != nullptr)
+                                next.push_back(child);
+                        }
+                    }
+                    result.push_back(level);
+                    current.clear();
+                    current.swap(next);
+                }
+                return result;
+            }
+            int maxDepth(Node *root)
+            {
+                function<int(Node *)> depth = [&](Node *node) -> int {
+                    if (node == nullptr)
+                        return 0;
+                    if (node->children.empty())
+                        return 1;
+                    int m = 0;
+                    for (Node *child : node->children)
+                    {
+                        m = max(m, depth(child));
+                    }
+                    return m + 1;
+                };
+                return depth(root);
+            }
         };
 
     } // namespace LeetCode
