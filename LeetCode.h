@@ -2607,6 +2607,18 @@ namespace Test
             }
             return head;
         }
+        ListNode *swapPairs3(ListNode *head)
+        {
+            function<ListNode *(ListNode *)> solve = [&](ListNode *node) -> ListNode * {
+                if (node == nullptr || node->next == nullptr)
+                    return node;
+                ListNode *next = node->next;
+                node->next = solve(next->next);
+                next->next = node;
+                return next;
+            };
+            return solve(head);
+        }
 
         // 26. Remove Duplicates from Sorted Array
         // Given a sorted array nums, remove the duplicates in-place such that each
@@ -13483,6 +13495,16 @@ namespace Test
             }
             return row;
         }
+        vector<int> getRow3(int rowIndex)
+        {
+            if (rowIndex <= 0)
+                return vector<int>{1};
+            vector<int> row = getRow3(rowIndex - 1);
+            for (int i = (int)row.size() - 1; i > 0; i--)
+                row[i] += row[i - 1];
+            row.push_back(1);
+            return row;
+        }
 
         // 120. Triangle
         // Given a triangle, find the minimum path sum from top to bottom. Each step you
@@ -19176,6 +19198,25 @@ namespace Test
             };
             return reverse(head);
         }
+        ListNode *reverseList4(ListNode *head)
+        {
+            function<void(ListNode *, ListNode **, ListNode **)> reverse =
+                [&](ListNode *node, ListNode **h, ListNode **t) {
+                    if (node == nullptr || node->next == nullptr)
+                    {
+                        *h = node;
+                        *t = node;
+                        return;
+                    }
+                    reverse(node->next, h, t);
+                    (*t)->next = node;
+                    node->next = nullptr;
+                    *t = node;
+                };
+            ListNode *tail = nullptr;
+            reverse(head, &head, &tail);
+            return head;
+        }
 
         // 207. Course Schedule
         // There are a total of n courses you have to take, labeled from 0 to n-1.
@@ -21814,14 +21855,14 @@ namespace Test
         // return NULL. For example, Given the tree:
         //         4
         //        / \
-//       2   7
+        //       2   7
         //      / \
-//     1   3
+        //     1   3
         // And the value to search: 2
         // You should return this subtree:
         //       2
         //      / \   
-//     1   3
+        //     1   3
         // In the example above, if we want to search the value 5, since there is no node
         // with value 5, we should return NULL.
         TreeNode *searchBST(TreeNode *root, int val)
@@ -21837,6 +21878,12 @@ namespace Test
                     n = n->right;
             }
             return n;
+        }
+        TreeNode *searchBST2(TreeNode *root, int val)
+        {
+            if (root == nullptr || root->val == val)
+                return root;
+            return val < root->val ? searchBST2(root->left, val) : searchBST2(root->right, val);
         }
 
         // Insert into a Binary Search Tree
@@ -23451,6 +23498,16 @@ namespace Test
             int j = (int)s.size() - 1;
             while (i < j)
                 swap(s[i++], s[j--]);
+        }
+        void reverseString2(vector<char> &s)
+        {
+            function<void(int, int)> reverse = [&](int i, int j) {
+                if (i >= j)
+                    return;
+                swap(s[i], s[j]);
+                reverse(i + 1, j - 1);
+            };
+            reverse(0, (int)s.size() - 1);
         }
 
         // Array Partition I
