@@ -2361,6 +2361,26 @@ namespace Test
             }
             return h;
         }
+        ListNode *mergeTwoLists3(ListNode *l1, ListNode *l2)
+        {
+            function<ListNode *(ListNode *, ListNode *)> merge = [&](ListNode *n1, ListNode *n2) -> ListNode * {
+                if (n1 == nullptr)
+                    return n2;
+                if (n2 == nullptr)
+                    return n1;
+                if (n1->val < n2->val)
+                {
+                    n1->next = merge(n1->next, n2);
+                    return n1;
+                }
+                else
+                {
+                    n2->next = merge(n1, n2->next);
+                    return n2;
+                }
+            };
+            return merge(l1, l2);
+        }
 
         // 22. Generate Parentheses
         // Given n pairs of parentheses, write a function to generate all combinations
@@ -5745,6 +5765,32 @@ namespace Test
                 p = 1 / p;
             return p;
         }
+        double myPow6(double x, int n)
+        {
+            if (x == 0)
+                return 0;
+            map<int, double> m;
+            function<double(int)> p = [&](int k) -> double {
+                if (m.find(k) != m.end())
+                    return m[k];
+                if (k == 0)
+                    m[k] = 1;
+                else if (k == 1)
+                    m[k] = x;
+                else
+                {
+                    m[k] = p(k >> 1) * p(k >> 1);
+                    if ((k & 0x1) == 1)
+                        m[k] *= x;
+                }
+                return m[k];
+            };
+            if (n >= 0)
+                return p(n);
+            if (n == INT_MIN)
+                return 1 / (x * p(INT_MAX));
+            return 1 / p(-n);
+        }
 
         // 51. N-Queens
         // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
@@ -7817,6 +7863,21 @@ namespace Test
                 b = c;
             }
             return c;
+        }
+        int climbStairs3(int n)
+        {
+            map<int, int> m;
+            function<int(int)> f = [&](int k) -> int {
+                if (m.find(k) == m.end())
+                {
+                    if (k == 1 || k == 2)
+                        m[k] = k;
+                    else
+                        m[k] = f(k - 1) + f(k - 2);
+                }
+                return m[k];
+            };
+            return f(n);
         }
 
         // 71. Simplify Path
@@ -12236,9 +12297,9 @@ namespace Test
         // Given binary tree [3,9,20,null,null,15,7],
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // return its depth = 3.
         int maxDepth(TreeNode *root)
         {
@@ -25188,6 +25249,79 @@ namespace Test
                 return depth(root);
             }
         };
+
+        // Fibonacci Number
+        // The Fibonacci numbers, commonly denoted F(n) form a sequence, called the
+        // Fibonacci sequence, such that each number is the sum of the two preceding
+        // ones, starting from 0 and 1. That is,
+        // F(0) = 0,   F(1) = 1
+        // F(N) = F(N - 1) + F(N - 2), for N > 1.
+        // Given N, calculate F(N).
+        // Example 1:
+        // Input: 2
+        // Output: 1
+        // Explanation: F(2) = F(1) + F(0) = 1 + 0 = 1.
+        // Example 2:
+        // Input: 3
+        // Output: 2
+        // Explanation: F(3) = F(2) + F(1) = 1 + 1 = 2.
+        // Example 3:
+        // Input: 4
+        // Output: 3
+        // Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3.
+        // Note:
+        // 0 <= N <= 30.
+        int fib(int N)
+        {
+            map<int, int> m;
+            function<int(int)> f = [&](int n) -> int {
+                if (n < 0)
+                    return 0;
+                if (n == 1 || n == 0)
+                    return n;
+                if (m.find(n - 2) == m.end())
+                    m[n - 2] = f(n - 2);
+                if (m.find(n - 1) == m.end())
+                    m[n - 1] = f(n - 1);
+                return m[n - 1] + m[n - 2];
+            };
+            return f(N);
+        }
+
+        // K-th Symbol in Grammar
+        // On the first row, we write a 0. Now in every subsequent row, we look at
+        // the previous row and replace each occurrence of 0 with 01, and each
+        // occurrence of 1 with 10. Given row N and index K, return the K-th indexed
+        // symbol in row N. (The values of K are 1-indexed.) (1 indexed).
+        // Examples:
+        // Input: N = 1, K = 1
+        // Output: 0
+        // Input: N = 2, K = 1
+        // Output: 0
+        // Input: N = 2, K = 2
+        // Output: 1
+        // Input: N = 4, K = 5
+        // Output: 1
+        // Explanation:
+        // row 1: 0
+        // row 2: 01
+        // row 3: 0110
+        // row 4: 01101001
+        // Note:
+        // N will be an integer in the range [1, 30].
+        // K will be an integer in the range [1, 2^(N-1)].
+        // N:   1   2   3   4   ... K-1             K       K+1             ... 2^(N-1)
+        // N+1: 1 2 3 4 5 6 7 8 ... 2(K-1)-1 2(K-1) 2K-1 2K 2(K+1)-1 2(K+1) ... 2^N-1 2^N
+        int kthGrammar(int N, int K)
+        {
+            function<int(int, int)> g = [&](int n, int k) -> int {
+                if (n == 1)
+                    return 0;
+                int b = g(n - 1, (k + 1) >> 1);
+                return ((k & 0x1) == 1) ? b : 1 - b;
+            };
+            return g(N, K);
+        }
 
     } // namespace LeetCode
 } // namespace Test
