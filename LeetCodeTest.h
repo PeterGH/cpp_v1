@@ -4056,6 +4056,7 @@ void LeetCodeTest::Init(void)
         auto check = [&](int n) {
             vector<TreeNode *> trees = generateTrees(n);
             vector<TreeNode *> trees2 = generateTrees2(n);
+            vector<TreeNode *> trees3 = generateTrees3(n);
             vector<vector<int>> m;
             for (size_t i = 0; i < trees.size(); i++)
             {
@@ -4070,9 +4071,17 @@ void LeetCodeTest::Init(void)
                 m2.push_back(inorderTraversal(trees2[i]));
                 DeleteTree(trees2[i]);
             }
+            vector<vector<int>> m3;
+            for (size_t i = 0; i < trees3.size(); i++)
+            {
+                m3.push_back(inorderTraversal(trees3[i]));
+                DeleteTree(trees3[i]);
+            }
             Util::Sort(m);
             Util::Sort(m2);
+            Util::Sort(m3);
             ASSERT1(0 == Util::Compare(m, m2));
+            ASSERT1(0 == Util::Compare(m, m3));
             int c = numTrees(n);
             int c2 = numTrees2(n);
             int c3 = numTrees3(n);

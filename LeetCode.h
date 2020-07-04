@@ -11432,9 +11432,9 @@ namespace Test
         // The above output corresponds to the 5 unique BST's shown below:
         //    1         3     3      2      1
         //     \       /     /      / \      \
-//      3     2     1      1   3      2
+        //      3     2     1      1   3      2
         //     /     /       \                 \
-//    2     1         2                 3
+        //    2     1         2                 3
         vector<TreeNode *> generateTrees(int n)
         {
             function<TreeNode *(TreeNode *)> clone = [&](TreeNode *m) -> TreeNode * {
@@ -11575,6 +11575,76 @@ namespace Test
             }
             return trees;
         }
+        vector<TreeNode *> generateTrees3(int n)
+        {
+            // Generate all the preorder serializations
+            function<vector<vector<int>>(int, int)> generate = [&](int i, int j) -> vector<vector<int>> {
+                if (i > j)
+                    return vector<vector<int>>();
+                vector<vector<int>> result;
+                for (int k = i; k <= j; k++)
+                {
+                    vector<vector<int>> left = generate(i, k - 1);
+                    vector<vector<int>> right = generate(k + 1, j);
+                    if (left.empty() && right.empty())
+                    {
+                        result.push_back({k});
+                    }
+                    else if (left.empty())
+                    {
+                        for (const auto &r : right)
+                        {
+                            vector<int> t = {k};
+                            t.insert(t.end(), r.begin(), r.end());
+                            result.push_back(t);
+                        }
+                    }
+                    else if (right.empty())
+                    {
+                        for (const auto &l : left)
+                        {
+                            vector<int> t = {k};
+                            t.insert(t.end(), l.begin(), l.end());
+                            result.push_back(t);
+                        }
+                    }
+                    else
+                    {
+                        for (const auto &l : left)
+                        {
+                            for (const auto &r : right)
+                            {
+                                vector<int> t = {k};
+                                t.insert(t.end(), l.begin(), l.end());
+                                t.insert(t.end(), r.begin(), r.end());
+                                result.push_back(t);
+                            }
+                        }
+                    }
+                }
+                return result;
+            };
+            // Build a tree from a preorder serialization
+            // The tree is built from t[i] to t[j] where t[j] <= p
+            function<TreeNode *(const vector<int> &, int &, int)> build = [&](const vector<int> &t, int &i, int p) -> TreeNode * {
+                if (i < 0 || i >= (int)t.size() || p < t[i])
+                    return nullptr;
+                TreeNode *node = new TreeNode(t[i++]);
+                if (i < (int)t.size() && node->val > t[i])
+                    node->left = build(t, i, node->val); // use node->val to indicate the end of left tree
+                if (i < (int)t.size() && p > t[i])
+                    node->right = build(t, i, p); // use the parent value p to indicate the end of right tree
+                return node;
+            };
+            vector<vector<int>> preorders = generate(1, n);
+            vector<TreeNode *> trees;
+            for (const auto &t : preorders)
+            {
+                int i = 0;
+                trees.push_back(build(t, i, n + 1));
+            }
+            return trees;
+        }
 
         // 96. Unique Binary Search Trees
         // Given n, how many structurally unique BST's (binary search trees)
@@ -11586,9 +11656,9 @@ namespace Test
         // Given n = 3, there are a total of 5 unique BST's:
         //    1         3     3      2      1
         //     \       /     /      / \      \
-//      3     2     1      1   3      2
+        //      3     2     1      1   3      2
         //     /     /       \                 \
-//    2     1         2                 3
+        //    2     1         2                 3
         // Let S_n be the number of trees given n, then
         // S_n = S_0 * S_(n-1) + S_1 * S_(n-2) + ... + S_(n-2) * S_1 + S_(n-1) * S_0
         // where
