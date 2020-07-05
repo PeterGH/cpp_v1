@@ -8505,6 +8505,68 @@ namespace Test
             return false;
         }
 
+        // Search a 2D Matrix II
+        // Write an efficient algorithm that searches for a value in an m x n matrix.
+        // This matrix has the following properties:
+        // Integers in each row are sorted in ascending from left to right.
+        // Integers in each column are sorted in ascending from top to bottom.
+        // Example:
+        // Consider the following matrix:
+        // [
+        //   [1,   4,  7, 11, 15],
+        //   [2,   5,  8, 12, 19],
+        //   [3,   6,  9, 16, 22],
+        //   [10, 13, 14, 17, 24],
+        //   [18, 21, 23, 26, 30]
+        // ]
+        // Given target = 5, return true.
+        // Given target = 20, return false.
+        bool searchMatrixII(vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return false;
+            function<bool(int, int, int, int)> search = [&](int r0, int r1, int c0, int c1) -> bool {
+                if (r0 > r1 || c0 > c1)
+                    return false;
+                if (r1 - r0 <= 1 && c1 - c0 <= 1)
+                {
+                    for (int i = r0; i <= r1; i++)
+                    {
+                        for (int j = c0; j <= c1; j++)
+                        {
+                            if (matrix[i][j] == target)
+                                return true;
+                        }
+                    }
+                    return false;
+                }
+                int i = r0 + ((r1 - r0) >> 1);
+                int j = c0 + ((c1 - c0) >> 1);
+                if (matrix[i][j] < target)
+                {
+                    if (search(i + 1, r1, j + 1, c1))
+                        return true;
+                }
+                else if (matrix[i][j] > target)
+                {
+                    if (search(r0, i - 1, c0, j - 1))
+                        return true;
+                }
+                else
+                {
+                    return true;
+                }
+                if (search(r0, i, j, c1))
+                    return true;
+                if (search(i, r1, c0, j))
+                    return true;
+                return false;
+            };
+            int m = matrix.size();
+            int n = matrix[0].size();
+            return search(0, m - 1, 0, n - 1);
+        }
+
         // 75. Sort Colors
         // Given an array with n objects colored red, white or blue, sort them in-place
         // so that objects of the same color are adjacent, with the colors in the order
@@ -11786,15 +11848,15 @@ namespace Test
         // Example 1:
         //     2
         //    / \
-//   1   3
+        //   1   3
         // Input: [2,1,3]
         // Output: true
         // Example 2:
         //     5
         //    / \
-//   1   4
+        //   1   4
         //      / \
-//     3   6
+        //     3   6
         // Input: [5,1,4,null,null,3,6]
         // Output: false
         // Explanation: The root node's value is 5 but its right child's value is 4.
@@ -11818,18 +11880,18 @@ namespace Test
                     // node is null and is the left child of the top of stack
                     //   top
                     //   / \
-            // null ...
+                    // null ...
                     // == case 2 ========
                     // node is null and is the right child of the last visited node
                     //     top
                     //     /
                     //    o
                     //   / \
-            // null ...
+                    // null ...
                     //       \
-            //        o <-- last visited (prev)
+                    //        o <-- last visited (prev)
                     //       / \
-            //    null null
+                    //    null null
                     // In both cases, left subtree is done, the top is the one to visit
                     node = path.top();
                     // Pop the top because no need to visit it again
@@ -11925,6 +11987,39 @@ namespace Test
             int min;
             int max;
             return verify(root, min, max);
+        }
+        bool isValidBST4(TreeNode *root)
+        {
+            function<bool(TreeNode *, int &, int &)> isValid = [&](TreeNode *node, int &min, int &max) -> bool {
+                if (node == nullptr)
+                    return true;
+                min = node->val;
+                max = node->val;
+                if (node->left != nullptr)
+                {
+                    int lmin;
+                    int lmax;
+                    if (!isValid(node->left, lmin, lmax))
+                        return false;
+                    if (lmax >= node->val)
+                        return false;
+                    min = lmin;
+                }
+                if (node->right != nullptr)
+                {
+                    int rmin;
+                    int rmax;
+                    if (!isValid(node->right, rmin, rmax))
+                        return false;
+                    if (rmin <= node->val)
+                        return false;
+                    max = rmax;
+                }
+                return true;
+            };
+            int tmin;
+            int tmax;
+            return isValid(root, tmin, tmax);
         }
 
         // 99. Recover Binary Search Tree
@@ -25391,6 +25486,89 @@ namespace Test
                 return ((k & 0x1) == 1) ? b : 1 - b;
             };
             return g(N, K);
+        }
+
+        // Sort an Array
+        // Given an array of integers nums, sort the array in ascending order.
+        // Example 1:
+        // Input: nums = [5,2,3,1]
+        // Output: [1,2,3,5]
+        // Example 2:
+        // Input: nums = [5,1,1,2,0,0]
+        // Output: [0,0,1,1,2,5]
+        // Constraints:
+        // 1 <= nums.length <= 50000
+        // -50000 <= nums[i] <= 50000
+        // Bottom-up merge sort
+        vector<int> sortArray(vector<int> &nums)
+        {
+            int n = (int)nums.size();
+            int l = 1;
+            while (l < n)
+            {
+                for (int i = 0; i + l < n; i += (l + l))
+                {
+                    int j = i;
+                    int k = i + l;
+                    while (j < k && k < i + l + l && k < n)
+                    {
+                        if (nums[j] <= nums[k])
+                        {
+                            j++;
+                        }
+                        else
+                        {
+                            int t = nums[k];
+                            for (int p = k; p > j; p--)
+                            {
+                                nums[p] = nums[p - 1];
+                            }
+                            nums[j] = t;
+                            j++;
+                            k++;
+                        }
+                    }
+                }
+                l = l << 1;
+            }
+            return nums;
+        }
+        // Bottom-up merge sort
+        vector<int> sortArray2(vector<int> &nums)
+        {
+            int n = (int)nums.size();
+            int l = 1;
+            while (l < n)
+            {
+                // make a copy of nums. If some elements at the end of nums are
+                // not participating the sorting in the for-loop, they are kept
+                // in temp and thus not lost.
+                vector<int> temp(nums);
+                for (int i = 0; i + l < n; i += (l + l))
+                {
+                    int j = i;
+                    int k = i + l;
+                    int q = i;
+                    while (j < i + l && k < i + l + l && k < n)
+                    {
+                        if (nums[j] <= nums[k])
+                        {
+                            temp[q++] = nums[j++];
+                        }
+                        else
+                        {
+                            temp[q++] = nums[k++];
+                        }
+                    }
+                    while (j < i + l)
+                        temp[q++] = nums[j++];
+                    while (k < i + l + l && k < n)
+                        temp[q++] = nums[k++];
+                }
+                l = l << 1;
+                temp.swap(nums);
+            }
+            return nums;
         }
 
     } // namespace LeetCode
