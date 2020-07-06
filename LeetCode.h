@@ -67,13 +67,68 @@ namespace Test
             // 2. i == index, p != nullptr, p is at (i - 1)
             // 3. i == index, p == nullptr, p is at (i - 1)
             // 4. i < index, p == nullptr, p is at(i - 1)
-            if (index == 0)
-                return head;
-            if (p != nullptr)
+            if (index > 0 && p != nullptr)
             {
                 // If need to get the prev of the node at index, then just return p
                 p = p->next;
             }
+            return p;
+        }
+
+        static ListNode *GetLowerMedian(ListNode *head)
+        {
+            // p and q are at the 1st node
+            ListNode *p = head;
+            ListNode *q = head;
+            while (q != nullptr && q->next != nullptr && q->next->next != nullptr)
+            {
+                // p is (1 + k)-th node
+                // q is (1 + 2k)-th node
+                p = p->next;
+                q = q->next->next;
+            }
+            // 1. q == nullptr, i.e., p == head == nullptr
+            // 2. q->next == nullptr, p is the median
+            // 3. q->next->next == nullptr, p is the lower median
+            return p;
+        }
+
+        // Assume the list has at least 3 nodes
+        static ListNode *GetLowerMedianPrev(ListNode *head)
+        {
+            if (head == nullptr || head->next == nullptr || head->next->next == nullptr)
+                return nullptr;
+            // p is the 1st node
+            ListNode *p = head;
+            // q is the 3rd node
+            ListNode *q = head->next->next;
+            while (q->next != nullptr && q->next->next != nullptr)
+            {
+                // p is (1 + k)-th node
+                // q is (3 + 2k)-th node
+                p = p->next;
+                q = q->next->next;
+            }
+            // 1. q->next == nullptr, p is the prev to the median at (2 + k)-th node
+            // 2. q->next->next == nullptr, p is the prev to the lower median at (2 + k)-th node
+            return p;
+        }
+
+        static ListNode *GetHigherMedian(ListNode *head)
+        {
+            // p and q are at the 1st node
+            ListNode *p = head;
+            ListNode *q = head;
+            while (q != nullptr && q->next != nullptr)
+            {
+                // p is (1 + k)-th node
+                // q is (1 + 2k)-th node
+                p = p->next;
+                q = q->next->next;
+            }
+            // 1. head == nullptr
+            // 2. q == nullptr, i.e, the list has 2k nodes and p is at (1 + k)-th node
+            // 3. q->next == nullptr, i.e., the list has (1 + 2k) nodes and p is at (1 + k)-th node
             return p;
         }
 
