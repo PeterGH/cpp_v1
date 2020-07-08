@@ -75,21 +75,23 @@ namespace Test
             return p;
         }
 
+        // Assume the list has at least one node
         static ListNode *GetLowerMedian(ListNode *head)
         {
+            if (head == nullptr)
+                return nullptr;
             // p and q are at the 1st node
             ListNode *p = head;
             ListNode *q = head;
-            while (q != nullptr && q->next != nullptr && q->next->next != nullptr)
+            while (q->next != nullptr && q->next->next != nullptr)
             {
                 // p is (1 + k)-th node
                 // q is (1 + 2k)-th node
                 p = p->next;
                 q = q->next->next;
             }
-            // 1. q == nullptr, i.e., p == head == nullptr
-            // 2. q->next == nullptr, p is the median
-            // 3. q->next->next == nullptr, p is the lower median
+            // 1. q->next == nullptr, p is the median
+            // 2. q->next->next == nullptr, p is the lower median
             return p;
         }
 
@@ -114,8 +116,11 @@ namespace Test
             return p;
         }
 
+        // Assume the list has at least one node
         static ListNode *GetHigherMedian(ListNode *head)
         {
+            if (head == nullptr)
+                return nullptr;
             // p and q are at the 1st node
             ListNode *p = head;
             ListNode *q = head;
@@ -126,9 +131,27 @@ namespace Test
                 p = p->next;
                 q = q->next->next;
             }
-            // 1. head == nullptr
-            // 2. q == nullptr, i.e, the list has 2k nodes and p is at (1 + k)-th node
-            // 3. q->next == nullptr, i.e., the list has (1 + 2k) nodes and p is at (1 + k)-th node
+            // 1. q == nullptr, i.e, the list has 2k nodes and p is at (1 + k)-th node
+            // 2. q->next == nullptr, i.e., the list has (1 + 2k) nodes and p is at (1 + k)-th node
+            return p;
+        }
+
+        // Assume the list has at least 2 nodes
+        static ListNode *GetHigherMedianPrev(ListNode *head)
+        {
+            if (head == nullptr || head->next == nullptr)
+                return nullptr;
+            ListNode *p = head;
+            ListNode *q = head->next;
+            while (q->next != nullptr && q->next->next != nullptr)
+            {
+                // p is (1 + k)-th node
+                // q is (2 + 2k)-th node
+                p = p->next;
+                q = q->next->next;
+            }
+            // q->next == nullptr, p is the prev to the higher median at (2 + k)-th node
+            // q->next->next == nullptr, p is the prev to the median at (2 + k)-th node
             return p;
         }
 
@@ -139,7 +162,6 @@ namespace Test
         // do not contain leading zero, except the number 0 itself.
         // Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
         // Output: (7 -> 0 -> 8)
-        // @list
         static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
         {
             if (l1 == nullptr)
@@ -283,14 +305,11 @@ namespace Test
         }
         int lengthOfLongestSubstring3(const string &s)
         {
-            if (s.empty())
-                return 0;
             bitset<256> m;
             int i = 0;
-            m.set(s[0]);
-            int l = 1;
-            int j;
-            for (j = 1; j < (int)s.size(); j++)
+            int l = 0;
+            int j = 0;
+            for (j = 0; j < (int)s.size(); j++)
             {
                 if (m.test(s[j]))
                 {

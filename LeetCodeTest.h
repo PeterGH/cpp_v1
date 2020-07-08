@@ -6150,6 +6150,44 @@ void LeetCodeTest::Init(void)
         }
     });
 
+    Add("GetMedian", [&]() {
+        auto check = [&](const vector<int> &v) {
+            int lowerMedian = -1;
+            int lowerMedianPrev = -1;
+            int higherMedian = -1;
+            int higherMedianPrev = -1;
+            Logger() << v;
+            ListNode *h = ToList(v);
+            Print(h);
+            ListNode *p = GetLowerMedian(h);
+            if (p != nullptr)
+                lowerMedian = p->val;
+            p = GetLowerMedianPrev(h);
+            if (p != nullptr)
+                lowerMedianPrev = p->val;
+            p = GetHigherMedian(h);
+            if (p != nullptr)
+                higherMedian = p->val;
+            p = GetHigherMedianPrev(h);
+            if (p != nullptr)
+                higherMedianPrev = p->val;
+            DeleteList(h);
+            h = nullptr;
+            int n = (int)v.size();
+            Logger() << lowerMedianPrev << ", " << lowerMedian << ", " << higherMedianPrev << ", " << higherMedian << ", " << n << endl;
+            ASSERT1(lowerMedianPrev == (n >= 3 ? ((n - 1) >> 1) - 1 : -1));
+            ASSERT1(lowerMedian == ((n + 1) >> 1) - 1);
+            ASSERT1(higherMedianPrev == (n >= 2 ? (n >> 1) - 1 : -1));
+            ASSERT1(higherMedian == (n >> 1));
+        };
+        vector<int> v;
+        for (int i = 0; i <= 50; i++)
+        {
+            v.push_back(i);
+            check(v);
+        }
+    });
+
     Add("Open the Lock", [&]() {
         auto check = [&](const vector<string> &deadends, const string &target) {
             Logger() << deadends;
