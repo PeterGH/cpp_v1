@@ -361,12 +361,7 @@ namespace Test
                 // index of the upper median is n/2 whether n is odd or even
                 int m = (n - 1) / 2;
                 if (s.empty())
-                {
-                    if (odd)
-                        return l[m];
-                    else
-                        return (l[m] + l[m + 1]) / 2.0;
-                }
+                    return odd ? l[m] : (l[m] + l[m + 1]) / 2.0;
                 while (bs <= es)
                 {
                     // index of the lower median
@@ -939,7 +934,7 @@ namespace Test
             if (x < 0)
                 return false;
             int d = 1;
-            // 10 * d will overflow if d is too large, e.g. when x = 1000000001
+            // d is int, so 10 * d will overflow if d is too large, e.g. when x = 1000000001
             // while (10 * d <= x)
             //     d *= 10;
             int y = x;
@@ -964,7 +959,7 @@ namespace Test
             if (x < 0)
                 return false;
             long long y = x;
-            long long d = 1;
+            long long d = 1; // use long long to avoid overflow
             while (y >= 10 * d)
                 d *= 10;
             int l = 0;
@@ -1011,7 +1006,8 @@ namespace Test
         // Note: You may not slant the container and n is at least 2.
         // Example:
         // Input: [1,8,6,2,5,4,8,3,7]
-        // Output: 49 (between a[1] and a[8])
+        // Output: 49 (between a[1] and a[8]), note that a[6] does not divide the container
+        // formed by a[1] and a[8].
         int maxArea(const vector<int> &height)
         {
             size_t i = 0;
@@ -1022,6 +1018,8 @@ namespace Test
                 int a = 0;
                 if (height[i] <= height[j])
                 {
+                    // Increasing i is the only way we may find a larger container.
+                    // Cannot decrease j, because container [h[i], h[j-1]] is guaranteed to be smaller.
                     a = height[i] * (j - i);
                     i++;
                 }
@@ -1419,26 +1417,6 @@ namespace Test
         }
         string longestCommonPrefix2(const vector<string> &strs)
         {
-            string p;
-            int n = strs.size();
-            if (n == 0)
-                return p;
-            int i = 0;
-            while (i < (int)strs[0].size())
-            {
-                char c = strs[0][i];
-                for (int j = 1; j < n; j++)
-                {
-                    if (i == (int)strs[j].length() || strs[j][i] != c)
-                        return p;
-                }
-                p.append(1, c);
-                i++;
-            }
-            return p;
-        }
-        string longestCommonPrefix3(const vector<string> &strs)
-        {
             if (strs.empty())
                 return "";
             if (strs.size() == 1)
@@ -1459,7 +1437,7 @@ namespace Test
             }
             return strs[0].substr(0, k);
         }
-        string longestCommonPrefix4(const vector<string> &strs)
+        string longestCommonPrefix3(const vector<string> &strs)
         {
             if (strs.empty())
                 return "";
