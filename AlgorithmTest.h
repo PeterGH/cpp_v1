@@ -60,6 +60,30 @@ void AlgorithmTest::Init(void)
         }
     });
 
+    Add("FindClosest", [&]() {
+        auto check = [&](const vector<int> &v, int t) {
+            Logger() << "Search " << t << " in " << v;
+            int i = FindClosest(v, t);
+            int i2 = FindClosest2(v, t);
+            Logger() << "at " << i << ", " << i2 << endl;
+            if (i == -1)
+                ASSERT1(i == i2);
+            else
+                ASSERT1(v[i] == v[i2]);
+        };
+        for (int i = 0; i < 100; i++)
+        {
+            int n = Random::Int(100);
+            vector<int> v = Random::Vector(n, 5000, -5000);
+            sort(v.begin(), v.end());
+            for (int i = 0; i < 1000; i++)
+            {
+                int t = Random::Int(5000, -5000);
+                check(v, t);
+            }
+        }
+    });
+
     Add("KMP", [&]() {
         for (int i = 0; i < 50; i++)
         {

@@ -4,6 +4,7 @@
 #include "String.h"
 #include <algorithm>
 #include <iostream>
+#include <limits.h>
 #include <map>
 #include <memory>
 #include <stack>
@@ -105,6 +106,48 @@ namespace Test
         if (input[e] == target)
             return e;
         return -1;
+    }
+
+    // Find a number closest to a target from a sorted array
+    int FindClosest(const vector<int> &input, int target)
+    {
+        if (input.empty())
+            return -1;
+        int b = 0;
+        int e = (int)input.size() - 1;
+        while (b + 1 < e)
+        {
+            int m = b + ((e - b) >> 1);
+            if (input[m] < target)
+                b = m;
+            else if (input[m] > target)
+                e = m;
+            else
+                return m;
+        }
+        if (target <= input[b])
+            return b;
+        else if (input[e] <= target)
+            return e;
+        else if (target - input[b] <= input[e] - target)
+            return b;
+        else
+            return e;
+    }
+    int FindClosest2(const vector<int> &input, int target)
+    {
+        int index = -1;
+        long long delta = LLONG_MAX;
+        for (int i = 0; i < (int)input.size(); i++)
+        {
+            long long d = abs(input[i] - target);
+            if (d < delta)
+            {
+                delta = d;
+                index = i;
+            }
+        }
+        return index;
     }
 
     class KMP

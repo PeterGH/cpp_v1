@@ -16,7 +16,7 @@ namespace Random
 static int Int(int max = RAND_MAX, int min = 0)
 {
     return min +
-           (rand() % (max - min + 1)); // may overflow if INT_MAX or INT_MIN
+           (rand() % ((long long)max - (long long)min + 1)); // may overflow if INT_MAX or INT_MIN
 }
 
 static void Array(int *array, int length, int max = RAND_MAX, int min = 0)
