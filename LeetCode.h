@@ -754,7 +754,7 @@ namespace Test
         }
         int reverse2(int x)
         {
-            int minh = -214748364; // INT_MIN / 10 = 18284266;
+            int minh = -214748364; // INT_MIN / 10 = -214748364;
             int mind = -8;         // INT_MIN % 10 = -8;
             int maxh = 214748364;  // INT_MAX / 10 = 214748364;
             int maxd = 7;          // INT_MAX % 10 = 7;
@@ -934,7 +934,8 @@ namespace Test
             if (x < 0)
                 return false;
             int d = 1;
-            // d is int, so 10 * d will overflow if d is too large, e.g. when x = 1000000001
+            // d is int, so 10 * d will overflow if d is too large,
+            // e.g. when x = 1000000001
             // while (10 * d <= x)
             //     d *= 10;
             int y = x;
@@ -1019,7 +1020,8 @@ namespace Test
                 if (height[i] <= height[j])
                 {
                     // Increasing i is the only way we may find a larger container.
-                    // Cannot decrease j, because container [h[i], h[j-1]] is guaranteed to be smaller.
+                    // Cannot decrease j, because container [h[i], h[j-1]] is guaranteed
+                    // to be smaller.
                     a = height[i] * (j - i);
                     i++;
                 }
@@ -1678,7 +1680,14 @@ namespace Test
         vector<string> letterCombinations(const string &digits)
         {
             map<char, vector<char>> m = {
-                {'2', {'a', 'b', 'c'}}, {'3', {'d', 'e', 'f'}}, {'4', {'g', 'h', 'i'}}, {'5', {'j', 'k', 'l'}}, {'6', {'m', 'n', 'o'}}, {'7', {'p', 'q', 'r', 's'}}, {'8', {'t', 'u', 'v'}}, {'9', {'w', 'x', 'y', 'z'}}};
+                {'2', {'a', 'b', 'c'}},
+                {'3', {'d', 'e', 'f'}},
+                {'4', {'g', 'h', 'i'}},
+                {'5', {'j', 'k', 'l'}},
+                {'6', {'m', 'n', 'o'}},
+                {'7', {'p', 'q', 'r', 's'}},
+                {'8', {'t', 'u', 'v'}},
+                {'9', {'w', 'x', 'y', 'z'}}};
             vector<string> result;
             function<void(const string &, size_t)> combine = [&](const string &s,
                                                                  size_t i) {
@@ -1704,6 +1713,55 @@ namespace Test
             return result;
         }
         vector<string> letterCombinations2(const string &digits)
+        {
+            vector<string> result;
+            if (digits.empty())
+                return result;
+            map<char, vector<char>> m = {
+                {'2', {'a', 'b', 'c'}},
+                {'3', {'d', 'e', 'f'}},
+                {'4', {'g', 'h', 'i'}},
+                {'5', {'j', 'k', 'l'}},
+                {'6', {'m', 'n', 'o'}},
+                {'7', {'p', 'q', 'r', 's'}},
+                {'8', {'t', 'u', 'v'}},
+                {'9', {'w', 'x', 'y', 'z'}}};
+            vector<pair<char, size_t>> c;
+            for (size_t i = 0; i < digits.size(); i++)
+            {
+                pair<char, size_t> p = make_pair(digits[i], 0);
+                c.push_back(p);
+            }
+            bool allZeros;
+            do
+            {
+                string s;
+                for (vector<pair<char, size_t>>::iterator it = c.begin();
+                     it != c.end();
+                     it++)
+                    s.append(1, m[it->first][it->second]);
+                result.push_back(s);
+                allZeros = true;
+                bool carry = true;
+                for (vector<pair<char, size_t>>::reverse_iterator it = c.rbegin();
+                     it != c.rend();
+                     it++)
+                {
+                    if (carry)
+                    {
+                        it->second++;
+                        if (it->second >= m[it->first].size())
+                            it->second = 0;
+                        else
+                            carry = false;
+                    }
+                    if (it->second > 0)
+                        allZeros = false;
+                }
+            } while (!allZeros);
+            return result;
+        }
+        vector<string> letterCombinations3(const string &digits)
         {
             if (digits.length() == 0)
                 return vector<string>{};
@@ -1843,8 +1901,11 @@ namespace Test
                           vector<vector<int>> &)>
                 solve = [&](vector<int> &n, int i, int t, const vector<int> &s,
                             vector<vector<int>> &o) {
+                    // Search n[i..] for target sum t, where s contains candidates
+                    // found so far and o is the output collection.
                     if (s.size() == 3)
                     {
+                        // Already have 3 numbers, just need one more
                         int l = i;
                         int h = n.size() - 1;
                         int m;
@@ -1876,11 +1937,13 @@ namespace Test
                     // while (i <= (int)n.size() - 4 + (int)s.size() && n[i] <= t) {
                     while (i <= (int)n.size() - 4 + (int)s.size())
                     {
+                        // Skip all the duplicates of n[i]
                         int j = i;
                         while (j + 1 < (int)n.size() && n[j + 1] == n[j])
                             j++;
-                        int k = i;
-                        int u = n[k];
+                        // Now all n[i..j] are the same
+                        int k = i; // k iterates from i to j
+                        int u = n[k]; // partial sum n[i..k]
                         vector<int> v(s);
                         while (k <= j)
                         {
@@ -1898,7 +1961,7 @@ namespace Test
                             k++;
                             u += n[k];
                         }
-                        i = j + 1;
+                        i = j + 1; // Move to next number, i.e., skip n[i..j]
                     }
                 };
             vector<vector<int>> o;
