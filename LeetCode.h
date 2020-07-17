@@ -1942,7 +1942,7 @@ namespace Test
                         while (j + 1 < (int)n.size() && n[j + 1] == n[j])
                             j++;
                         // Now all n[i..j] are the same
-                        int k = i; // k iterates from i to j
+                        int k = i;    // k iterates from i to j
                         int u = n[k]; // partial sum n[i..k]
                         vector<int> v(s);
                         while (k <= j)
@@ -2016,6 +2016,42 @@ namespace Test
             vector<vector<int>> o;
             solve(num, 0, 4, target, vector<int>{}, o);
             return o;
+        }
+        vector<vector<int>> fourSum5(vector<int> &nums, int target)
+        {
+            vector<vector<int>> result;
+            sort(nums.begin(), nums.end());
+            vector<vector<int>> tuple(1, vector<int>{});
+            size_t i = 0;
+            while (i < nums.size())
+            {
+                size_t j = i;
+                while (j + 1 < nums.size() && nums[j + 1] == nums[j])
+                    j++;
+                size_t m = tuple.size();
+                vector<int> c;
+                for (size_t k = i; k <= j && k < i + 4; k++)
+                {
+                    c.push_back(nums[k]);
+                    for (size_t l = 0; l < m; l++)
+                    {
+                        vector<int> v = tuple[l];
+                        v.insert(v.end(), c.begin(), c.end());
+                        if (v.size() < 4)
+                        {
+                            tuple.push_back(v);
+                        }
+                        else if (v.size() == 4)
+                        {
+                            int s = accumulate(v.begin(), v.end(), 0);
+                            if (s == target)
+                                result.push_back(v);
+                        }
+                    }
+                }
+                i = j + 1;
+            }
+            return result;
         }
 
         // 4Sum II
