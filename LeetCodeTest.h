@@ -487,7 +487,7 @@ void LeetCodeTest::Init(void)
             ListNode *l2 = DuplicateList(l);
             Print(l2);
             l = removeNthFromEnd(l, n);
-            l2 = removeNthFromEnd(l2, n);
+            l2 = removeNthFromEnd2(l2, n);
             Print(l);
             Print(l2);
             ASSERT1(0 == CompareLists(l, l2));
@@ -6279,8 +6279,10 @@ void LeetCodeTest::Init(void)
             Logger() << a << b << c << d;
             int n = fourSumCount(a, b, c, d);
             int n2 = fourSumCount2(a, b, c, d);
-            Logger() << "fourSumCount: " << n << ", " << n2 << endl;
+            int n3 = fourSumCount3(a, b, c, d);
+            Logger() << "fourSumCount: " << n << ", " << n2 << ", " << n3 << endl;
             ASSERT1(n == n2);
+            ASSERT1(n == n3);
         };
         check({1, 2}, {-2, -1}, {-1, 2}, {0, 2});
         check({-1, -1}, {-1, 1}, {-1, 1}, {1, -1});

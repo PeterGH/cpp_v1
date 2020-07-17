@@ -2106,7 +2106,8 @@ namespace Test
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int)> solve =
                 [&](int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                    if (a < 0 || a >= nA || b < 0 || b >= nB
+                        || c < 0 || c >= nC || d < 0 || d >= nD)
                         return;
                     int t = A[a] + B[b] + C[c] + D[d];
                     auto i = make_tuple(a, b, c, d);
@@ -2127,6 +2128,29 @@ namespace Test
             return count;
         }
         // This is wrong
+        // Given
+        // {-1, -1}
+        // {-1, 1}
+        // {-1, 1}
+        // {-1, 1}
+        // Output is
+        // count(0, 0, 1, 1) = 2
+        //  count(1, 1, 1, 1) = 2
+        //   count(1, 1, 0, 1) = 3
+        //    count(1, 1, 0, 0) = 3
+        //   count(1, 1, 1, 0) = 4
+        //    count(1, 1, 0, 0) = 4
+        //  count(1, 0, 0, 1) = 4
+        //   count(1, 1, 0, 1) = 4
+        //    count(1, 1, 0, 0) = 4
+        //   count(1, 0, 0, 0) = 4
+        //    count(1, 1, 0, 0) = 4
+        //  count(1, 0, 1, 0) = 4
+        //   count(1, 1, 1, 0) = 4
+        //    count(1, 1, 0, 0) = 4
+        //   count(1, 0, 0, 0) = 4
+        //    count(1, 1, 0, 0) = 4
+        // Two are missing: (0, 1, 0, 1) and (0, 1, 1, 0)
         int fourSumCount3(vector<int> &A, vector<int> &B, vector<int> &C, vector<int> &D)
         {
             function<int(const vector<int> &, int &)> increase =
@@ -2161,9 +2185,11 @@ namespace Test
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int, int)> solve =
                 [&](int k, int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                    if (a < 0 || a >= nA || b < 0 || b >= nB
+                        || c < 0 || c >= nC || d < 0 || d >= nD)
                         return;
-                    cout << string(k, ' ') << "count(" << a << ", " << b << ", " << c << ", " << d << ") = ";
+                    cout << string(k, ' ') << "count(" << a << ", " << b
+                         << ", " << c << ", " << d << ") = ";
                     int t = A[a] + B[b] + C[c] + D[d];
                     auto i = make_tuple(a, b, c, d);
                     int cA = increase(A, a);
@@ -2300,15 +2326,18 @@ namespace Test
             int i;
             for (i = 0; i < n && q != nullptr; i++)
                 q = q->next;
+            // q is at index i
             if (i < n)
-                return head;
+                return head; // q == nullptr. List[0..(i-1)] contain less than n nodes.
             if (q == nullptr)
             {
+                // List[n] == nullptr. List[0..(n-1)] contains n nodes.
                 q = head;
                 head = head->next;
                 delete q;
                 return head;
             }
+            // List[0..n] contain (1 + n) nodes
             ListNode *p = head;
             while (q->next != nullptr)
             {
@@ -2321,31 +2350,6 @@ namespace Test
             return head;
         }
         ListNode *removeNthFromEnd2(ListNode *head, int n)
-        {
-            ListNode *q = head;
-            for (int i = 0; i < n - 1; i++)
-                q = q->next;
-            ListNode *p = head;
-            if (q->next == nullptr)
-            {
-                head = p->next;
-                p->next = nullptr;
-                delete p;
-                return head;
-            }
-            q = q->next;
-            while (q->next != nullptr)
-            {
-                q = q->next;
-                p = p->next;
-            }
-            q = p->next;
-            p->next = q->next;
-            q->next = nullptr;
-            delete q;
-            return head;
-        }
-        ListNode *removeNthFromEnd3(ListNode *head, int n)
         {
             if (head == nullptr || n <= 0)
                 return head;
