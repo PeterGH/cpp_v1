@@ -559,6 +559,7 @@ void LeetCodeTest::Init(void)
             vector<string> pa = generateParenthesis(n);
             vector<string> pa2 = generateParenthesis2(n);
             vector<string> pa3 = generateParenthesis3(n);
+            vector<string> pa4 = generateParenthesis4(n);
             vector<string> pa5 = generateParenthesis5(n);
             sort(pa.begin(), pa.end());
             Logger() << pa;
@@ -566,10 +567,13 @@ void LeetCodeTest::Init(void)
             Logger() << pa2;
             sort(pa3.begin(), pa3.end());
             Logger() << pa3;
+            sort(pa4.begin(), pa4.end());
+            Logger() << pa4;
             sort(pa5.begin(), pa5.end());
             Logger() << pa5;
             ASSERT1(0 == Util::Compare(pa, pa2));
             ASSERT1(0 == Util::Compare(pa, pa3));
+            // ASSERT1(0 == Util::Compare(pa, pa4));
             ASSERT1(0 == Util::Compare(pa, pa5));
         };
         check(1);

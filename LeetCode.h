@@ -2621,7 +2621,6 @@ namespace Test
                 return vector<string>{};
             if (n == 1)
                 return vector<string>{"()"};
-
             function<void(string, int, int, int, vector<string> &)> solve =
                 [&](string s,
                     int l, // count '(' in s
@@ -2661,11 +2660,13 @@ namespace Test
                 int j = result.size();
                 for (int k = 0; k < j; k++)
                 {
+                    // Given s = X containing i - 1 pairs of ()
+                    // extend it with one more pair
                     string s = result.front();
                     result.erase(result.begin());
                     string o = s;
                     o.append("()");
-                    result.push_back(o);
+                    result.push_back(o); // X()
                     bool symmetric = true;
                     int a = 0;
                     int b = o.length() - 1;
@@ -2683,12 +2684,12 @@ namespace Test
                     {
                         o = "()";
                         o.append(s);
-                        result.push_back(o);
+                        result.push_back(o); // ()X
                     }
                     o = "(";
                     o.append(s);
                     o.append(")");
-                    result.push_back(o);
+                    result.push_back(o); // (X)
                 }
             }
             return result;
@@ -2699,7 +2700,6 @@ namespace Test
                 return vector<string>{};
             if (n == 1)
                 return vector<string>{"()"};
-
             function<void(string, int, int, int, vector<string> &)> solve =
                 [&](string s,
                     int l, // count '(' in s
@@ -2711,7 +2711,6 @@ namespace Test
                         o.push_back(s);
                         return;
                     }
-
                     string tl(s);
                     tl.append(1, '(');
                     solve(tl, l + 1, r, n, o);
@@ -2722,7 +2721,6 @@ namespace Test
                         solve(tr, l, r + 1, n, o);
                     }
                 };
-
             vector<string> result;
             string s;
             solve(s, 0, 0, n, result);
