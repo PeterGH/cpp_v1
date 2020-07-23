@@ -2748,33 +2748,6 @@ namespace Test
         }
         ListNode *swapPairs2(ListNode *head)
         {
-            if (head == nullptr || head->next == nullptr)
-                return head;
-            // swap f->s
-            ListNode *f = head;
-            ListNode *s = f->next;
-            f->next = s->next;
-            s->next = f;
-            head = s;
-            ListNode *p = f;
-            f = f->next;
-            // two nodes after p
-            // p->f->s
-            while (f != nullptr)
-            {
-                s = f->next;
-                if (s == nullptr)
-                    break;
-                f->next = s->next;
-                s->next = f;
-                p->next = s;
-                p = f;
-                f = f->next;
-            }
-            return head;
-        }
-        ListNode *swapPairs3(ListNode *head)
-        {
             function<ListNode *(ListNode *)> solve = [&](ListNode *node) -> ListNode * {
                 if (node == nullptr || node->next == nullptr)
                     return node;
@@ -2881,22 +2854,6 @@ namespace Test
                     i++;
             }
             return n;
-        }
-        int removeElement4(vector<int> &nums, int val)
-        {
-            int i = 0;
-            for (int j = 0; j < (int)nums.size(); j++)
-            {
-                if (nums[j] != val)
-                {
-                    if (i < j)
-                    {
-                        nums[i] = nums[j];
-                    }
-                    i++;
-                }
-            }
-            return i;
         }
 
         // 28. Implement strStr()
@@ -3091,14 +3048,14 @@ namespace Test
                 {
                     if (divisor < dividend)
                         return 0;
-                    dividend -= divisor;
+                    dividend -= divisor; // Minus one to ensure dividend != INT_MIN
                     dividend = -dividend;
                 }
                 else
                 {
                     if (dividend < -divisor)
                         return 0;
-                    dividend += divisor;
+                    dividend += divisor; // Minus one to be consistent with the negative case
                     negative = true;
                 }
                 divisor = -divisor;
@@ -3109,7 +3066,7 @@ namespace Test
                 {
                     if (-divisor < dividend)
                         return 0;
-                    dividend += divisor;
+                    dividend += divisor; // Minus one to ensure dividend != INT_MIN
                     negative = true;
                     dividend = -dividend;
                 }
@@ -3117,7 +3074,7 @@ namespace Test
                 {
                     if (dividend < divisor)
                         return 0;
-                    dividend -= divisor;
+                    dividend -= divisor; // Minus one to be consistent with the negative case
                 }
             }
             int q = 1; // already subtract one divisor from dividend
