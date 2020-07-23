@@ -2106,8 +2106,7 @@ namespace Test
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int)> solve =
                 [&](int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB
-                        || c < 0 || c >= nC || d < 0 || d >= nD)
+                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
                         return;
                     int t = A[a] + B[b] + C[c] + D[d];
                     auto i = make_tuple(a, b, c, d);
@@ -2185,8 +2184,7 @@ namespace Test
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int, int)> solve =
                 [&](int k, int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB
-                        || c < 0 || c >= nC || d < 0 || d >= nD)
+                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
                         return;
                     cout << string(k, ' ') << "count(" << a << ", " << b
                          << ", " << c << ", " << d << ") = ";
@@ -2547,6 +2545,13 @@ namespace Test
         //   "()(())",
         //   "()()()"
         // ]
+        // Let [l,r] represent a string of l '('s and r ')'s, then
+        // ''[0,0] -> '('[1,0] -> '(('[2,0] -> '((('[3,0] -> '(((('[4,0]
+        //                                                -> '((()'[3,1]
+        //                                  -> '(()'[2,1] -> '(()('[3,1]
+        //                                                -> '(())'[2,2]
+        //                     -> '()'[1,1] -> '()('[2,1] -> '()(('[3,1]
+        //                                                -> '()()'[2,2]
         vector<string> generateParenthesis(int n)
         {
             vector<string> result;
@@ -2575,15 +2580,34 @@ namespace Test
         }
         vector<string> generateParenthesis2(int n)
         {
+            vector<string> result;
+            queue<tuple<string, int, int>> q;
+            q.push(make_tuple("", 0, 0));
+            while (!q.empty())
+            {
+                auto t = q.front();
+                q.pop();
+                string s = get<0>(t);
+                int l = get<1>(t);
+                int r = get<2>(t);
+                if (l == n && r == n)
+                    result.push_back(s);
+                if (l < n)
+                    q.push(make_tuple(string(s).append(1, '('), l + 1, r));
+                if (r < n && l > r)
+                    q.push(make_tuple(string(s).append(1, ')'), l, r + 1));
+            }
+            return result;
+        }
+        vector<string> generateParenthesis3(int n)
+        {
             if (n <= 0)
                 return vector<string>{};
-
-            function<void(int, int, map<pair<int, int>, vector<string>> &)> solve =
-                [&](
-                    // l <= r
-                    int l, // count '(' needed
-                    int r, // count ')' needed
-                    map<pair<int, int>, vector<string>> &m) {
+            function<void(int, int, map<pair<int, int>, vector<string>> &)>
+                solve = [&](       // l <= r
+                            int l, // count '(' needed
+                            int r, // count ')' needed
+                            map<pair<int, int>, vector<string>> &m) {
                     pair<int, int> p = make_pair(l, r);
                     m[p] = vector<string>{};
                     string s;
@@ -2609,23 +2633,22 @@ namespace Test
                     s.append(r, ')');
                     m[p].push_back(s);
                 };
-
             map<pair<int, int>, vector<string>> m;
             solve(n, n, m);
             pair<int, int> p = make_pair(n, n);
             return m[p];
         }
-        vector<string> generateParenthesis3(int n)
+        vector<string> generateParenthesis4(int n)
         {
             if (n <= 0)
                 return vector<string>{};
             if (n == 1)
                 return vector<string>{"()"};
-            function<void(string, int, int, int, vector<string> &)> solve =
-                [&](string s,
-                    int l, // count '(' in s
-                    int r, // count ')' in s
-                    int n, vector<string> &o) {
+            function<void(string, int, int, int, vector<string> &)>
+                solve = [&](string s,
+                            int l, // count '(' in s
+                            int r, // count ')' in s
+                            int n, vector<string> &o) {
                     for (int i = 1; i < n - l; i++)
                     {
                         s.append(1, '(');
@@ -2647,7 +2670,9 @@ namespace Test
             return result;
         }
         // This algorithm is wrong
-        vector<string> generateParenthesis4(int n)
+        // Given X = (()), it generates (())(), ()(()), ((()))
+        // but misses (()())
+        vector<string> generateParenthesis5(int n)
         {
             vector<string> result;
             if (n <= 0)
@@ -2692,38 +2717,6 @@ namespace Test
                     result.push_back(o); // (X)
                 }
             }
-            return result;
-        }
-        vector<string> generateParenthesis5(int n)
-        {
-            if (n <= 0)
-                return vector<string>{};
-            if (n == 1)
-                return vector<string>{"()"};
-            function<void(string, int, int, int, vector<string> &)> solve =
-                [&](string s,
-                    int l, // count '(' in s
-                    int r, // count ')' in s
-                    int n, vector<string> &o) {
-                    if (l == n)
-                    {
-                        s.append(n - r, ')');
-                        o.push_back(s);
-                        return;
-                    }
-                    string tl(s);
-                    tl.append(1, '(');
-                    solve(tl, l + 1, r, n, o);
-                    if (l > r)
-                    {
-                        string tr(s);
-                        tr.append(1, ')');
-                        solve(tr, l, r + 1, n, o);
-                    }
-                };
-            vector<string> result;
-            string s;
-            solve(s, 0, 0, n, result);
             return result;
         }
 
