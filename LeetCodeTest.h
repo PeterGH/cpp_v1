@@ -922,9 +922,11 @@ void LeetCodeTest::Init(void)
             int l = longestValidParentheses(s);
             int l2 = longestValidParentheses2(s);
             int l3 = longestValidParentheses3(s);
-            Logger().WriteInformation("%s: %d, %d, %d\n", s.c_str(), l, l2, l3);
+            int l4 = longestValidParentheses4(s);
+            Logger().WriteInformation("%s: %d, %d, %d, %d\n", s.c_str(), l, l2, l3, l4);
             ASSERT1(l == l2);
             ASSERT1(l == l3);
+            ASSERT1(l == l4);
         };
         check("()");
         check("()()");

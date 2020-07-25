@@ -3569,6 +3569,26 @@ namespace Test
         }
         int longestValidParentheses2(const string &s)
         {
+            stack<int> p;
+            int m = 0;
+            int i = 0;
+            for (; i < (int)s.size(); i++)
+            {
+                if (s[i] == ')' && !p.empty() && s[p.top()] == '(')
+                {
+                    p.pop();
+                }
+                else
+                {
+                    m = max(m, p.empty() ? i : i - p.top() - 1);
+                    p.push(i);
+                }
+            }
+            m = max(m, p.empty() ? i : i - p.top() - 1);
+            return m;
+        }
+        int longestValidParentheses3(const string &s)
+        {
             int len = s.length();
             if (len == 0)
                 return 0;
@@ -3648,7 +3668,7 @@ namespace Test
             }
             return m;
         }
-        int longestValidParentheses3(const string &s)
+        int longestValidParentheses4(const string &s)
         {
             int len = s.length();
             if (len == 0)
@@ -3694,7 +3714,7 @@ namespace Test
             return m;
         }
         // This is wrong. e.g. "((()())((" return 0 but the answer should be 6
-        int longestValidParentheses4(const string &s)
+        int longestValidParentheses5(const string &s)
         {
             int len = s.length();
             if (len == 0)
@@ -3732,7 +3752,7 @@ namespace Test
             return m;
         }
         // This is wrong. e.g. "()()" return 2 but the answer should be 4
-        int longestValidParentheses5(const string &s)
+        int longestValidParentheses6(const string &s)
         {
             int m = 0;
             stack<int> p;
