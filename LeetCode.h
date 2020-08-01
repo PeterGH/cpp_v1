@@ -4937,7 +4937,8 @@ namespace Test
         // The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1].
         // In this case, 6 units of rain water (blue section) are being trapped.
         // Example:
-        // Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+        // Input:  [0,1,0,2,1,0,1,3,2,1,2,1]
+        // Trapped:[0,0,1,0,1,2,1,0,0,1,0,0]
         // Output: 6
         int trap(const vector<int> &height)
         {
@@ -4946,10 +4947,13 @@ namespace Test
             while (i < (int)height.size())
             {
                 int j = i;
+                // Find j such that h[i] <= h[j + 1]
                 while (j + 1 < (int)height.size() && height[i] > height[j + 1])
                     j++;
                 if (j + 1 == (int)height.size())
                     break;
+                // Now h[i] <= h[j + 1]
+                // Count volume h[(i+1)..j]
                 for (int k = i + 1; k <= j; k++)
                 {
                     v += (height[i] - height[k]);
@@ -4963,6 +4967,7 @@ namespace Test
                 while (h <= i)
                 {
                     int j = i;
+                    // Find j such that h[j - 1] >= h[i]
                     while (h <= j - 1 && height[j - 1] < height[i])
                         j--;
                     if (j == h)
@@ -5231,8 +5236,11 @@ namespace Test
                     return false;
                 if (i < s.size() && (s[i] == p[j] || p[j] == '?'))
                     return match(i + 1, j + 1);
+                // i == s.size()
+                // s[i] != p[j] && p[j] != '?'
                 if (p[j] == '*')
                 {
+                    // Skip all '*'
                     while (j < p.size() && p[j] == '*')
                         j++;
                     size_t k = i;
@@ -5289,7 +5297,7 @@ namespace Test
         // http://yucoding.blogspot.com/2013/02/leetcode-question-123-wildcard-matching.html
         bool isMatch3(string s, string p)
         {
-            int lastStartIndex = -1;
+            int lastStarIndex = -1;
             int currentIndex = 0;
             int i = 0;
             int j = 0;
@@ -5303,13 +5311,13 @@ namespace Test
                 }
                 if (j < (int)p.size() && p[j] == '*')
                 {
-                    lastStartIndex = j++;
+                    lastStarIndex = j++;
                     currentIndex = i;
                     continue;
                 }
-                if (lastStartIndex != -1)
+                if (lastStarIndex != -1)
                 {
-                    j = lastStartIndex + 1;
+                    j = lastStarIndex + 1;
                     i = ++currentIndex;
                     continue;
                 }
