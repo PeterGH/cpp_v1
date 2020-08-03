@@ -5747,7 +5747,7 @@ namespace Test
         }
 
         // 50. Pow(x, n)
-        // Implement pow(x, n), which calculates x raised to the power n (xn).
+        // Implement pow(x, n), which calculates x raised to the power n (x^n).
         // Example 1:
         // Input: 2.00000, 10
         // Output: 1024.00000
@@ -6059,7 +6059,7 @@ namespace Test
             if (n <= 0)
                 return 0;
             int count = 0;
-            vector<int> b(n, 0);
+            vector<int> b(n, 0); // b[i] = j if (i,j) is a valid position
             function<void(int)> solve = [&](int i) {
                 if (i == n)
                 {
