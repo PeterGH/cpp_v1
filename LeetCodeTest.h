@@ -1741,8 +1741,10 @@ void LeetCodeTest::Init(void)
                      << endl;
             vector<vector<int>> m = generateMatrix(n);
             vector<vector<int>> m2 = generateMatrix2(n);
-            Logger() << m << m2;
+            vector<vector<int>> m3 = generateMatrix3(n);
+            Logger() << m << m2 << m3;
             ASSERT1(0 == Util::Compare(m, m2));
+            ASSERT1(0 == Util::Compare(m, m3));
             vector<int> v = Util::IncreasingVector(n * n, 1);
             vector<int> o = spiralOrder(m);
             vector<int> o2 = spiralOrder2(m);

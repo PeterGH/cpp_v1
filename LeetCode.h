@@ -6763,7 +6763,7 @@ namespace Test
 
         // 59. Spiral Matrix II
         // Given a positive integer n, generate a square matrix filled with elements
-        // from 1 to n2 in spiral order.
+        // from 1 to n^2 in spiral order.
         // Example:
         // Input: 3
         // Output:
@@ -6866,6 +6866,43 @@ namespace Test
                 }
             }
             return o;
+        }
+        vector<vector<int>> generateMatrix3(int n)
+        {
+            vector<vector<int>> m(n, vector<int>(n, 0));
+            function<int(int, int, int, int, int)> generate =
+                [&](int v, int i, int j, int r, int c) -> int {
+                for (int k = 0; k < c; k++)
+                    m[i][j + k] = v++;
+                r--;
+                if (r == 0)
+                    return v;
+                for (int k = 1; k <= r; k++)
+                    m[i + k][j + c - 1] = v++;
+                c--;
+                if (c == 0)
+                    return v;
+                for (int k = c - 1; k >= 0; k--)
+                    m[i + r][j + k] = v++;
+                r--;
+                for (int k = r; k >= 1; k--)
+                    m[i + k][j] = v++;
+                return v;
+            };
+            int r = n;
+            int c = n;
+            int i = 0;
+            int j = 0;
+            int v = 1;
+            while (r > 0 && c > 0)
+            {
+                v = generate(v, i, j, r, c);
+                i++;
+                j++;
+                r -= 2;
+                c -= 2;
+            }
+            return m;
         }
 
         // 60. Permutation Sequence
