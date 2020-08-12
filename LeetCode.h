@@ -8693,7 +8693,8 @@ namespace Test
         {
             if (matrix.empty() || matrix[0].empty())
                 return false;
-            function<bool(int, int, int, int)> search = [&](int r0, int r1, int c0, int c1) -> bool {
+            function<bool(int, int, int, int)> search =
+                [&](int r0, int r1, int c0, int c1) -> bool {
                 if (r0 > r1 || c0 > c1)
                     return false;
                 if (r1 - r0 <= 1 && c1 - c0 <= 1)
@@ -9155,24 +9156,25 @@ namespace Test
         // then we need s(n, k).
         // s(n, k) = s(n-1, k-1) + s(n-1, k)
         //
-        // s(1,1)
-        // s(2,1)     s(2,2)
-        // s(3,1)     s(3,2)     s(3,3)
-        // s(4,1)     s(4,2)     s(4,3)     s(4,4)
-        // ......     ......     ......     ......
-        // ......     ......     ......     ......  ......
-        // ......     ......     ......     ......  ...... ......
-        // ......     ......     ......     ......  ...... s(k,k-1)   s(k,k)
-        // ......     ......     ......     ......  ...... s(k+1,k-1) s(k+1,k)
-        // ......     ......     ......     ......  ...... ......     ......
-        // ......     ......     ......     ......  ...... ......     ......
-        // s(n-k+1,1) s(n-k+1,2) ......     ......  ...... ......     ......
-        //            s(n-k+2,2) ......     ......  ...... ......     ......
-        //                       s(n-k+2,3) ......  ...... ......     ......
-        //                                  ......  ...... ......     ......
-        //                                          ...... ......     ......
-        //                                                 s(n-1,k-1) s(n-1,k)
-        //                                                            s(n,k)
+        // j       1          2          3          4 ......      k-1         k
+        // i 0 s(1,1)   
+        //   1 s(2,1)     s(2,2)
+        //   2 s(3,1)     s(3,2)     s(3,3)
+        //   3 s(4,1)     s(4,2)     s(4,3)     s(4,4)
+        //     ......     ......     ......     ......
+        //     ......     ......     ......     ......  ......
+        //     ......     ......     ......     ......  ...... ......
+        //     ......     ......     ......     ......  ...... s(k,k-1)   s(k,k)
+        //     ......     ......     ......     ......  ...... s(k+1,k-1) s(k+1,k)
+        //     ......     ......     ......     ......  ...... ......     ......
+        //     ......     ......     ......     ......  ...... ......     ......
+        // n-k s(n-k+1,1) s(n-k+1,2) ......     ......  ...... ......     ......
+        //                s(n-k+2,2) ......     ......  ...... ......     ......
+        //                           s(n-k+2,3) ......  ...... ......     ......
+        //                                      ......  ...... ......     ......
+        //                                              ...... ......     ......
+        //                                                     s(n-1,k-1) s(n-1,k)
+        //                                                                s(n,k)
         //
         // [TODO] Use subset algorithm to solve this problem
         vector<vector<int>> combine4(int n, int k)
@@ -9183,14 +9185,15 @@ namespace Test
             vector<vector<vector<int>>> s(n - k + 1, vector<vector<int>>{{}});
             for (int j = 1; j <= k; j++)
             {
-                // s(j,j) = {{1,2,...,j}}
+                // s[0] = s(0+j, j) = {{1,2,...,j}}
                 s[0][0].push_back(j);
                 for (int i = 1; i <= n - k; i++)
                 {
-                    // Extend s(i,j) by adding i+j to each of s(i-1,j-1)
+                    // s[i] = s(i+j, j)
+                    // Extend s[i] by adding i+j to each of s(i-1+j,j-1)
                     for_each(s[i].begin(), s[i].end(),
                              [&](vector<int> &v) { v.push_back(i + j); });
-                    // Extend s(i,j) by adding s(i-1,j)
+                    // Extend s[i] = s(i+j,j) by adding s(i-1+j,j)
                     for_each(s[i - 1].begin(), s[i - 1].end(),
                              [&](vector<int> &v) { s[i].push_back(v); });
                 }
@@ -9815,14 +9818,18 @@ namespace Test
                 int j;
                 while (!s.empty() && s.top().second > heights[i])
                 {
+                    // compute area in [top.first, i-1]
                     m = max(m, (i - s.top().first) * s.top().second);
                     j = s.top().first;
                     s.pop();
                 }
+                // Candidate height at j is heights[i] rather than heights[j]
+                // because heights[j] > heights[i]
                 s.push(make_pair(j, heights[i]));
             }
             while (!s.empty())
             {
+                // compute area in [top.first, n-1]
                 m = max(m, ((int)heights.size() - s.top().first) * s.top().second);
                 s.pop();
             }
@@ -9832,7 +9839,7 @@ namespace Test
         {
             if (height.size() == 0)
                 return 0;
-            // Track rectangle [i, j] with area a such that rec[i] = <j, a>;
+            // Track rectangle [i, j] with height h such that rec[i] = <j, h>;
             map<int, pair<int, int>> rec = {{0, make_pair(0, height[0])}};
             int maxArea = height[0];
             for (int i = 1; i < (int)height.size(); i++)
@@ -9845,6 +9852,8 @@ namespace Test
                 for (map<int, pair<int, int>>::iterator it = rec.begin();
                      it != rec.end(); it++)
                 {
+                    // height of [it->first, it->second.first] is
+                    // min(it->second.second, height[i])
                     if (height[i] < it->second.second)
                     {
                         it->second.second = height[i];
@@ -9857,6 +9866,7 @@ namespace Test
                 }
                 if (height[i] > height[i - 1])
                 {
+                    // A new candidate starting at i
                     rec[i] = make_pair(i, height[i]);
                     if (height[i] > maxArea)
                         maxArea = height[i];
@@ -9876,7 +9886,7 @@ namespace Test
                 {
                     int t = rec.top();
                     rec.pop();
-                    // A candidate rectangle upto i-1 and the min height is at t
+                    // A candidate rectangle [t, i-1] and the min height is at t
                     int area = height[t] * (i - 1 - (rec.empty() ? -1 : rec.top()));
                     if (area > maxArea)
                         maxArea = area;
@@ -9889,7 +9899,7 @@ namespace Test
             {
                 int t = rec.top();
                 rec.pop();
-                // A candidate rectangle upto n-1 and the min height is at t
+                // A candidate rectangle (rec.top(), n-1] and the min height is at t
                 int area = height[t] *
                            ((int)height.size() - 1 - (rec.empty() ? -1 : rec.top()));
                 if (area > maxArea)
@@ -9993,6 +10003,7 @@ namespace Test
         {
             if (matrix.empty() || matrix[0].empty())
                 return 0;
+            // Compute max rectangle whose top-left point is at (pi, pj)
             function<int(int, int)> solve = [&](int pi, int pj) {
                 if (pi < 0 || pi >= (int)matrix.size() || pj < 0 ||
                     pj >= (int)matrix[0].size())
@@ -10001,7 +10012,7 @@ namespace Test
                     return 0;
                 int i = pi;
                 int j = pj;
-                while (j + 1 < (int)matrix[0].size() && matrix[i][j + 1] == '1')
+                while (j + 1 < (int)matrix[i].size() && matrix[i][j + 1] == '1')
                     j++;
                 int maxj = j;
                 int maxArea = j - pj + 1;
@@ -10182,31 +10193,31 @@ namespace Test
         // Below is one possible representation of s1 = "great":
         //     great
         //    /    \
-//   gr    eat
+        //   gr    eat
         //  / \    /  \
-// g   r  e   at
+        // g   r  e   at
         //            / \
-//           a   t
+        //           a   t
         // To scramble the string, we may choose any non-leaf node and swap its two
         // children. For example, if we choose the node "gr" and swap its two children,
         // it produces a scrambled string "rgeat".
         //     rgeat
         //    /    \
-//   rg    eat
+        //   rg    eat
         //  / \    /  \
-// r   g  e   at
+        // r   g  e   at
         //            / \
-//           a   t
+        //           a   t
         // We say that "rgeat" is a scrambled string of "great".
         // Similarly, if we continue to swap the children of nodes "eat" and "at",
         // it produces a scrambled string "rgtae".
         //     rgtae
         //    /    \
-//   rg    tae
+        //   rg    tae
         //  / \    /  \
-// r   g  ta  e
+        // r   g  ta  e
         //        / \
-//       t   a
+        //       t   a
         // We say that "rgtae" is a scrambled string of "great".
         // Given two strings s1 and s2 of the same length, determine if s2 is a
         // scrambled string of s1.
