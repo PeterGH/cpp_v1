@@ -9157,7 +9157,7 @@ namespace Test
         // s(n, k) = s(n-1, k-1) + s(n-1, k)
         //
         // j       1          2          3          4 ......      k-1         k
-        // i 0 s(1,1)   
+        // i 0 s(1,1)
         //   1 s(2,1)     s(2,2)
         //   2 s(3,1)     s(3,2)     s(3,3)
         //   3 s(4,1)     s(4,2)     s(4,3)     s(4,4)
@@ -10244,6 +10244,7 @@ namespace Test
                 }
                 return true;
             };
+            // Check if s1[i1..j1] is scramble of s2[i2..j2]
             function<bool(int, int, int, int)> solve = [&](int i1, int j1, int i2,
                                                            int j2) -> bool {
                 if (j1 - i1 != j2 - i2)
@@ -10863,6 +10864,40 @@ namespace Test
         // Output: 1->4->3->2->5->NULL
         ListNode *reverseBetween(ListNode *head, int m, int n)
         {
+            if (head == nullptr || m < 1 || n < m)
+                return head;
+            ListNode *p = nullptr;
+            ListNode *q = head;
+            int i = 1;
+            while (i < m && q->next != nullptr)
+            {
+                if (i == m - 1)
+                    p = q;
+                i++;
+                q = q->next;
+            }
+            if (i < m)
+                return head;
+            while (i < n && q->next != nullptr)
+            {
+                ListNode *t = q->next;
+                q->next = t->next;
+                if (p == nullptr)
+                {
+                    t->next = head;
+                    head = t;
+                }
+                else
+                {
+                    t->next = p->next;
+                    p->next = t;
+                }
+                i++;
+            }
+            return head;
+        }
+        ListNode *reverseBetween2(ListNode *head, int m, int n)
+        {
             ListNode *p = nullptr;
             int i = 1;
             ListNode *q = head;
@@ -10898,7 +10933,7 @@ namespace Test
             }
             return head;
         }
-        ListNode *reverseBetween2(ListNode *head, int m, int n)
+        ListNode *reverseBetween3(ListNode *head, int m, int n)
         {
             if (head == nullptr)
                 return nullptr;
@@ -10947,7 +10982,7 @@ namespace Test
                 pm_prev->next = pn;
             return head;
         }
-        ListNode *reverseBetween3(ListNode *head, int m, int n)
+        ListNode *reverseBetween4(ListNode *head, int m, int n)
         {
             if (head == nullptr || m <= 0 || n <= 0 || m >= n)
                 return head;
