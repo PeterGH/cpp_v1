@@ -11370,7 +11370,7 @@ namespace Test
         // Input: [1,null,2,3]
         //    1
         //     \
-//      2
+        //      2
         //     /
         //    3
         // Output: [1,2,3]
@@ -11473,7 +11473,7 @@ namespace Test
         // Input: [1,null,2,3]
         //    1
         //     \
-//      2
+        //      2
         //     /
         //    3
         // Output: [1,3,2]
@@ -11578,7 +11578,7 @@ namespace Test
         // Input: [1,null,2,3]
         //    1
         //     \
-//      2
+        //      2
         //     /
         //    3
         // Output: [3,2,1]
@@ -11800,6 +11800,7 @@ namespace Test
                 vector<vector<int>> serializations;
                 if (i > j)
                 {
+                    // Empty tree
                     serializations.push_back(vector<int>{0});
                 }
                 else
@@ -11810,6 +11811,7 @@ namespace Test
                             generateSerializations(i, k - 1);
                         vector<vector<int>> rightSerializations =
                             generateSerializations(k + 1, j);
+                        // left and right vectors are guaranteed not empty
                         for (size_t l = 0; l < leftSerializations.size(); l++)
                         {
                             for (size_t r = 0; r < rightSerializations.size(); r++)
@@ -11854,7 +11856,8 @@ namespace Test
         vector<TreeNode *> generateTrees3(int n)
         {
             // Generate all the preorder serializations
-            function<vector<vector<int>>(int, int)> generate = [&](int i, int j) -> vector<vector<int>> {
+            function<vector<vector<int>>(int, int)> generate =
+                [&](int i, int j) -> vector<vector<int>> {
                 if (i > j)
                     return vector<vector<int>>();
                 vector<vector<int>> result;
@@ -11902,7 +11905,8 @@ namespace Test
             };
             // Build a tree from a preorder serialization
             // The tree is built from t[i] to t[j] where t[j] <= p
-            function<TreeNode *(const vector<int> &, int &, int)> build = [&](const vector<int> &t, int &i, int p) -> TreeNode * {
+            function<TreeNode *(const vector<int> &, int &, int)> build =
+                [&](const vector<int> &t, int &i, int p) -> TreeNode * {
                 if (i < 0 || i >= (int)t.size() || p < t[i])
                     return nullptr;
                 TreeNode *node = new TreeNode(t[i++]);
@@ -12009,6 +12013,7 @@ namespace Test
         // Output: false
         bool isInterleave(const string &s1, const string &s2, const string &s3)
         {
+            // Check if s3[0..k] is interleaved of s1[0..i] and s2[0..j]
             function<bool(int, int, int)> solve = [&](int i, int j, int k) -> bool {
                 if (i + j != k - 1)
                     return false;
@@ -12204,7 +12209,8 @@ namespace Test
         }
         bool isValidBST4(TreeNode *root)
         {
-            function<bool(TreeNode *, int &, int &)> isValid = [&](TreeNode *node, int &min, int &max) -> bool {
+            function<bool(TreeNode *, int &, int &)> isValid =
+                [&](TreeNode *node, int &min, int &max) -> bool {
                 if (node == nullptr)
                     return true;
                 min = node->val;
@@ -12245,24 +12251,24 @@ namespace Test
         //   /
         //  3
         //   \
-//    2
+        //    2
         // Output: [3,1,null,null,2]
         //    3
         //   /
         //  1
         //   \
-//    2
+        //    2
         // Example 2:
         // Input: [3,1,4,null,null,2]
         //   3
         //  / \
-// 1   4
+        // 1   4
         //    /
         //   2
         // Output: [2,1,4,null,null,3]
         //   2
         //  / \
-// 1   4
+        // 1   4
         //    /
         //   3
         // Follow up:
@@ -12291,11 +12297,17 @@ namespace Test
                     {
                         if (a == nullptr)
                         {
+                            // First inverse
+                            // This will be the only inverse if the swapped
+                            // nodes are neighbors
                             a = p;
                             b = n;
                         }
                         else
                         {
+                            // Second inverse
+                            // This may happen if the swapped nodes are
+                            // not neighbors
                             b = n;
                             break;
                         }
@@ -12363,7 +12375,8 @@ namespace Test
         // 100. Same Tree
         // Given two binary trees, write a function to check if they are the same or
         // not. Two binary trees are considered the same if they are structurally
-        // identical and the nodes have the same value. Example 1: Input:     1 1
+        // identical and the nodes have the same value. Example 1:
+        // Input:     1         1
         //           / \       / \
         //          2   3     2   3
         //         [1,2,3],   [1,2,3]
@@ -12393,6 +12406,88 @@ namespace Test
                 return same(a->left, b->left) && same(a->right, b->right);
             };
             return same(p, q);
+        }
+        bool isSameTree2(TreeNode *p, TreeNode *q)
+        {
+            stack<TreeNode *> sp;
+            stack<TreeNode *> sq;
+            while (!sp.empty() || p != nullptr || !sq.empty() || q != nullptr)
+            {
+                if (sp.size() != sq.size())
+                    return false;
+                if ((p == nullptr) != (q == nullptr))
+                    return false;
+                if (p != nullptr)
+                {
+                    if (p->val != q->val)
+                        return false;
+                    sp.push(p);
+                    p = p->left;
+                    sq.push(q);
+                    q = q->left;
+                }
+                else
+                {
+                    p = sp.top()->right;
+                    sp.pop();
+                    q = sq.top()->right;
+                    sq.pop();
+                }
+            }
+            return true;
+        }
+        bool isSameTree3(TreeNode *p, TreeNode *q)
+        {
+            function<vector<TreeNode *>(TreeNode *)> serialize =
+                [&](TreeNode *n) -> vector<TreeNode *> {
+                vector<TreeNode *> v;
+                stack<TreeNode *> s;
+                while (!s.empty() || n != nullptr)
+                {
+                    // Need to include nullptr to make sure
+                    // the serialization is unique
+                    v.push_back(n);
+                    if (n != nullptr)
+                    {
+                        s.push(n);
+                        n = n->left;
+                    }
+                    else
+                    {
+                        n = s.top()->right;
+                        s.pop();
+                    }
+                }
+                return v;
+            };
+            function<void(const vector<TreeNode *> &)> print =
+                [&](const vector<TreeNode *> &v) {
+                    cout << "{";
+                    for (size_t i = 0; i < v.size(); i++)
+                    {
+                        if (i > 0)
+                            cout << ", ";
+                        if (v[i] == nullptr)
+                            cout << "null";
+                        else
+                            cout << v[i]->val;
+                    }
+                    cout << "}" << endl;
+                };
+            vector<TreeNode *> vp = serialize(p);
+            vector<TreeNode *> vq = serialize(q);
+            print(vp);
+            print(vq);
+            if (vp.size() != vq.size())
+                return false;
+            for (size_t i = 0; i < vp.size(); i++)
+            {
+                if ((vp[i] == nullptr) != (vq[i] == nullptr))
+                    return false;
+                if (vp[i] != nullptr && vp[i]->val != vq[i]->val)
+                    return false;
+            }
+            return true;
         }
 
         // 101. Symmetric Tree

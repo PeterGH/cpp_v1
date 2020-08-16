@@ -4217,17 +4217,36 @@ void LeetCodeTest::Init(void)
     });
 
     Add("100. Same Tree", [&]() {
+        auto checkTree = [&](TreeNode *t, TreeNode *t2) {
+            Print(t);
+            Print(t2);
+            bool r = isSameTree(t, t2);
+            bool r2 = isSameTree2(t, t2);
+            bool r3 = isSameTree3(t, t2);
+            Logger() << "isSameTree " << r << ", " << r2 << ", " << r3 << endl;
+            DeleteTree(t);
+            DeleteTree(t2);
+            ASSERT1(r == r2);
+            ASSERT1(r == r3);
+        };
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             TreeNode *t = RandomTree(v);
             TreeNode *t2 = RandomTree(v);
-            Print(t);
-            Print(t2);
-            bool r = isSameTree(t, t2);
-            Logger() << "isSameTree " << r << endl;
-            DeleteTree(t);
-            DeleteTree(t2);
+            TreeNode *t3 = Clone(t);
+            TreeNode *t4 = Clone(t);
+            checkTree(t, t2);
+            checkTree(t3, t4);
         };
+        {
+            TreeNode *t = new TreeNode(10);
+            t->left = new TreeNode(5);
+            t->left->left = new TreeNode(15);
+            TreeNode *t2 = new TreeNode(10);
+            t2->left = new TreeNode(5);
+            t2->left->right = new TreeNode(15);
+            checkTree(t, t2);
+        }
         for (int i = 0; i < 100; i++)
         {
             int n = Random::Int(40, 1);
