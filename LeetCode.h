@@ -13774,7 +13774,8 @@ namespace Test
         // Input: S = "rabbbit", T = "rabbit"
         // Output: 3
         // Explanation: As shown below, there are 3 ways you can generate "rabbit" from
-        // S. (The caret symbol ^ means the chosen letters) rabbbit
+        // S. (The caret symbol ^ means the chosen letters)
+        // rabbbit
         // ^^^^ ^^
         // rabbbit
         // ^^ ^^^^
@@ -13925,8 +13926,8 @@ namespace Test
                 root->left->next = root->right;
                 if (root->next != nullptr)
                     root->right->next = root->next->left;
-                connect(root->left);
-                connect(root->right);
+                connect3(root->left);
+                connect3(root->right);
             }
             return root;
         }
@@ -14011,6 +14012,33 @@ namespace Test
                 }
                 connectII2(root->left);
                 connectII2(root->right);
+            }
+            return root;
+        }
+        NodeWithNextLink *connectII3(NodeWithNextLink *root)
+        {
+            if (root != nullptr)
+            {
+                NodeWithNextLink *prev = nullptr;
+                NodeWithNextLink *n = root;
+                while (n != nullptr)
+                {
+                    if (n->left != nullptr)
+                    {
+                        if (prev != nullptr)
+                            prev->next = n->left;
+                        prev = n->left;
+                    }
+                    if (n->right != nullptr)
+                    {
+                        if (prev != nullptr)
+                            prev->next = n->right;
+                        prev = n->right;
+                    }
+                    n = n->next;
+                }
+                connectII3(root->left);
+                connectII3(root->right);
             }
             return root;
         }
