@@ -12582,9 +12582,9 @@ namespace Test
         // For example: Given binary tree [3,9,20,null,null,15,7],
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // return its level order traversal as:
         // [
         //   [3],
@@ -12669,9 +12669,9 @@ namespace Test
         // Given binary tree [3,9,20,null,null,15,7],
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // return its zigzag level order traversal as:
         // [
         //   [3],
@@ -12865,9 +12865,9 @@ namespace Test
         // Return the following binary tree:
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         TreeNode *buildTree(const vector<int> &preorder, const vector<int> &inorder)
         {
             map<int, int> m;
@@ -12960,9 +12960,9 @@ namespace Test
         // Return the following binary tree:
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         TreeNode *buildTreeInOrderPostOrder(const vector<int> &inorder,
                                             const vector<int> &postorder)
         {
@@ -13056,9 +13056,9 @@ namespace Test
         // Given binary tree [3,9,20,null,null,15,7],
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // return its bottom-up level order traversal as:
         // [
         //   [15,7],
@@ -13137,7 +13137,7 @@ namespace Test
         // height balanced BST:
         //       0
         //      / \
-//    -3   9
+        //    -3   9
         //    /   /
         //  -10  5
         TreeNode *sortedArrayToBST(const vector<int> &nums)
@@ -13184,6 +13184,7 @@ namespace Test
                             f = 0;
                         }
                     }
+                    // Record the right range and then move to the left
                     s.push(make_pair(n, make_pair(k, j)));
                     j = k - 1;
                     k = middle(i, j);
@@ -13203,7 +13204,7 @@ namespace Test
                     }
                     else
                     {
-                        last = ti - 1;
+                        last = ti - 1; // == p.second.first
                         s.pop();
                     }
                 }
@@ -13222,7 +13223,7 @@ namespace Test
         // height balanced BST:
         //       0
         //      / \
-//    -3   9
+        //    -3   9
         //    /   /
         //  -10  5
         TreeNode *sortedListToBST(ListNode *head)
@@ -13334,19 +13335,19 @@ namespace Test
         // Given the following tree [3,9,20,null,null,15,7]:
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // Return true.
         // Example 2:
         // Given the following tree [1,2,2,3,3,null,null,4,4]:
         //        1
         //       / \
-//      2   2
+        //      2   2
         //     / \
-//    3   3
+        //    3   3
         //   / \
-//  4   4
+        //  4   4
         // Return false.
         bool isBalanced(TreeNode *root)
         {
@@ -13387,7 +13388,7 @@ namespace Test
                 {
                     TreeNode *t = s.top();
                     if (t->left != nullptr && t->left == last)
-                        m[t] = m[t->left];
+                        m[t] = m[t->left]; // Record the left height temporarily
                     if (t->right != nullptr && t->right != last)
                     {
                         node = t->right;
@@ -13398,7 +13399,7 @@ namespace Test
                         int rightHeight = t->right == nullptr ? 0 : m[t->right];
                         if (abs(m[t] - rightHeight) > 1)
                             return false;
-                        m[t] = 1 + max(m[t], rightHeight);
+                        m[t] = 1 + max(m[t], rightHeight); // Record the real height
                     }
                     last = t;
                 }
@@ -13415,9 +13416,9 @@ namespace Test
         // Given binary tree [3,9,20,null,null,15,7],
         //     3
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // return its minimum depth = 2.
         int minDepth(TreeNode *root)
         {
@@ -13490,11 +13491,11 @@ namespace Test
         // Given the below binary tree and sum = 22,
         //       5
         //      / \
-//     4   8
+        //     4   8
         //    /   / \
-//   11  13  4
+        //   11  13  4
         //  /  \      \
-// 7    2      1
+        // 7    2      1
         // return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
         bool hasPathSum(TreeNode *root, int sum)
         {
@@ -13559,11 +13560,11 @@ namespace Test
         // Example: Given the below binary tree and sum = 22,
         //       5
         //      / \
-//     4   8
+        //     4   8
         //    /   / \
-//   11  13  4
+        //   11  13  4
         //  /  \    / \
-// 7    2  5   1
+        // 7    2  5   1
         // Return:
         // [
         //    [5,4,11,2],
@@ -13655,21 +13656,21 @@ namespace Test
         // For example, given the following tree:
         //     1
         //    / \
-//   2   5
+        //   2   5
         //  / \   \
-// 3   4   6
+        // 3   4   6
         // The flattened tree should look like:
         // 1
         //  \
-//   2
+        //   2
         //    \
-//     3
+        //     3
         //      \
-//       4
+        //       4
         //        \
-//         5
+        //         5
         //          \
-//           6
+        //           6
         void flatten(TreeNode *root)
         {
             function<void(TreeNode *, TreeNode *&, TreeNode *&)> flat =
@@ -13704,7 +13705,8 @@ namespace Test
         }
         void flatten2(TreeNode *root)
         {
-            function<TreeNode *(TreeNode *)> solve = [&](TreeNode *node) -> TreeNode * {
+            function<TreeNode *(TreeNode *)> solve =
+                [&](TreeNode *node) -> TreeNode * {
                 if (node == nullptr)
                     return nullptr;
                 if (node->left == nullptr && node->right == nullptr)
@@ -13722,6 +13724,44 @@ namespace Test
                 return rightTail == nullptr ? leftTail : rightTail;
             };
             solve(root);
+        }
+        void flatten3(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            map<TreeNode *, TreeNode *> m;
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    m[n] = n;
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        TreeNode *l = t->left;
+                        TreeNode *r = t->right;
+                        if (l != nullptr)
+                        {
+                            m[l]->right = r;
+                            t->right = l;
+                            t->left = nullptr;
+                        }
+                        m[t] = (r == nullptr ? (l == nullptr ? m[t] : m[l]) : m[r]);
+                        s.pop();
+                    }
+                    last = t;
+                }
+            }
         }
 
         // 115. Distinct Subsequences

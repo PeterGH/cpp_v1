@@ -4579,17 +4579,24 @@ void LeetCodeTest::Init(void)
             TreeNode *t = RandomTree(n);
             Print(t);
             TreeNode *t2 = Clone(t);
+            TreeNode *t3 = Clone(t);
             flatten(t);
             Print(t);
             flatten(t2);
             Print(t2);
+            flatten(t3);
+            Print(t3);
             vector<int> v = preorderTraversal(t);
             vector<int> v2 = preorderTraversal(t2);
+            vector<int> v3 = preorderTraversal(t3);
             DeleteTree(t);
             DeleteTree(t2);
+            DeleteTree(t3);
             ASSERT1(Util::IsIncreasing(v));
             ASSERT1(Util::IsIncreasing(v2));
+            ASSERT1(Util::IsIncreasing(v3));
             ASSERT1(0 == Util::Compare(v, v2));
+            ASSERT1(0 == Util::Compare(v, v3));
         };
         for (int i = 0; i < 100; i++)
         {
