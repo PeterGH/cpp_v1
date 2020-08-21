@@ -14262,14 +14262,11 @@ namespace Test
         //                   p[j - 1] - p[1] + p[0, 0])
         //                   p[j - 1] - p[0] + p[0, -1])
         //   j 0
-        //       p[0]   p[1]   p[2]         p[3]         p[4]      ......   p[j-2]
-        //       p[j-1]          p[j]
-        // max{ -p[0]  -p[1]  -p[2]        -p[3]        -p[4]      ......  -p[j-2]
-        // -p[j-1]         -p[j] } k 1        p[1,1] p[1,2]       p[1,3]       p[1,4]
-        // ...... p[1,(j-2)]        p[1,(j-1)]        p[1,j] max{ p[1,1]-p[2]
-        // p[1,2]-p[3]  p[1,3]-p[4] ...... p[1,(j-3)]-p[j-2] p[1,(j-2)]-p[j-1] }
-        //   2                            p[2,3]       p[2,4]      ...... p[2,(j-2)]
-        //   p[2,(j-1)]        p[2,j]
+        //       p[0]   p[1]   p[2]         p[3]         p[4]      ......    p[j-2]          p[j-1]          p[j]
+        // max{ -p[0]  -p[1]  -p[2]        -p[3]        -p[4]      ......   -p[j-2]         -p[j-1]         -p[j] }
+        // k 1        p[1,1] p[1,2]       p[1,3]       p[1,4]      ...... p[1,(j-2)]      p[1,(j-1)]       p[1,j]
+        //              max{ p[1,1]-p[2]  p[1,2]-p[3]  p[1,3]-p[4] ...... p[1,(j-3)]-p[j-2] p[1,(j-2)]-p[j-1] }
+        //   2                            p[2,3]       p[2,4]      ...... p[2,(j-2)]      p[2,(j-1)]        p[2,j]
         int maxProfitIII(const vector<int> &prices)
         {
             if (prices.size() < 2)
@@ -14541,15 +14538,15 @@ namespace Test
         // Input: [1,2,3]
         //        1
         //       / \
-//      2   3
+        //      2   3
         // Output: 6
         // Example 2:
         // Input: [-10,9,20,null,null,15,7]
         //    -10
         //    / \
-//   9  20
+        //   9  20
         //     /  \
-//    15   7
+        //    15   7
         // Output: 42
         int maxPathSum(TreeNode *root)
         {
@@ -14563,14 +14560,14 @@ namespace Test
                         maxSum = n->val;
                         return;
                     }
-                    int leftPathSum;
-                    int leftMaxSum;
+                    int leftPathSum = INT_MIN;
+                    int leftMaxSum = INT_MIN;
                     if (n->left != nullptr)
                         solve(n->left, leftPathSum, leftMaxSum);
                     if (leftPathSum < 0)
                         leftPathSum = 0; // Ignore left path
-                    int rightPathSum;
-                    int rightMaxSum;
+                    int rightPathSum = INT_MIN;
+                    int rightMaxSum = INT_MIN;
                     if (n->right != nullptr)
                         solve(n->right, rightPathSum, rightMaxSum);
                     if (rightPathSum < 0)
