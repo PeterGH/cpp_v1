@@ -15303,7 +15303,7 @@ namespace Test
         // Input: [1,2,3]
         //     1
         //    / \
-//   2   3
+        //   2   3
         // Output: 25
         // Explanation:
         // The root-to-leaf path 1->2 represents the number 12.
@@ -15313,9 +15313,9 @@ namespace Test
         // Input: [4,9,0,5,1]
         //     4
         //    / \
-//   9   0
+        //   9   0
         //  / \
-// 5   1
+        // 5   1
         // Output: 1026
         // Explanation:
         // The root-to-leaf path 4->9->5 represents the number 495.
@@ -15724,7 +15724,8 @@ namespace Test
         // a palindrome. Return the minimum cuts needed for a palindrome partitioning of
         // s. Example: Input: "aab" Output: 1 Explanation: The palindrome partitioning
         // ["aa","b"] could be produced using 1 cut. Let p[i] be the solution for
-        // s[0..i], then p[i] = min{p[i-1] + 1, since s[i..i] is a palindrome
+        // s[0..i], then
+        // p[i] = min{p[i-1] + 1, since s[i..i] is a palindrome
         //            p[i-2] + 1, if s[(i-1)..i] is a palindrome
         //            p[i-3] + 1, if s[(i-2)..i] is a palindrome
         //            ......
@@ -18187,7 +18188,7 @@ namespace Test
         // (max - min) / (n - 1) (as described above). Since the gaps (between elements)
         // within the same bucket would only be <=t, we could deduce that the maximal
         // gap would indeed occur only between two adjacent buckets. Hence by setting
-        // bucket size bbb to be 1 < b <= (max − min) / (n − 1), we can ensure that at
+        // bucket size b to be 1 < b <= (max − min) / (n − 1), we can ensure that at
         // least one of the gaps between adjacent buckets would serve as the maximal
         // gap. Clarifications A few clarifications are in order: Would the buckets be
         // of uniform size? Yes. Each of them would be of the same size b. But, then
@@ -18214,13 +18215,13 @@ namespace Test
         // maximum elements of each bucket). If you followed the above, you would
         // realize that this amount is certainly less than the actual number of elements
         // in the array, given a suitable bucket size was chosen. Algorithm We choose a
-        // bucket size bbb such that 1 < b <= (max − min) / (n − 1). Let's just choose b
-        // = floor((max − min) / (n − 1)). Thus all the nnn elements would be divided
+        // bucket size b such that 1 < b <= (max − min) / (n − 1). Let's just choose b
+        // = floor((max − min) / (n − 1)). Thus all the n elements would be divided
         // among k = ceil((max − min) / b) buckets. Hence the i-th bucket would hold the
         // range of values: [min + (i − 1) ∗ b, min + i ∗ b) (1-based indexing). It is
         // trivial to calculate the index of the bucket to which a particular element
         // belongs. That is given by floor((num - min) / b) (0-based indexing) where
-        // numnumnum is the element in question. Once all nnn elements have been
+        // num is the element in question. Once all n elements have been
         // distributed, we compare k − 1 adjacent bucket pairs to find the maximum gap.
         // Complexity Analysis
         // Time complexity: O(n + b) ~= O(n).
@@ -18277,7 +18278,7 @@ namespace Test
 
         // 165. Compare Version Numbers
         // Compare two version numbers version1 and version2. If version1 > version2
-        // return 1; if version1 < version2 return -1;otherwise return 0. You may assume
+        // return 1; if version1 < version2 return -1; otherwise return 0. You may assume
         // that the version strings are non-empty and contain only digits and the .
         // character. The . character does not represent a decimal point and is used to
         // separate number sequences. For instance, 2.5 is not "two and a half" or "half
@@ -19297,7 +19298,9 @@ namespace Test
         // (money = 3). Total amount you can rob = 1 + 3 = 4. Example 2: Input:
         // [2,7,9,3,1] Output: 12 Explanation: Rob house 1 (money = 2), rob house 3
         // (money = 9) and rob house 5 (money = 1). Total amount you can rob = 2 + 9 + 1
-        // = 12. Let m[i] be the max amount for p[0..i] m[i] = max{m[i - 1],
+        // = 12.
+        // Let m[i] be the max amount for p[0..i]
+        // m[i] = max{m[i - 1],
         //            p[i] + max{m[i - 2],
         //                       m[i - 1],
         //                       ......
@@ -19310,12 +19313,12 @@ namespace Test
                 return 0;
             if (nums.size() == 1)
                 return nums[0];
-            int s = nums[0];
-            int m = max(nums[0], nums[1]);
+            int s = nums[0]; // i = 0
+            int m = max(nums[0], nums[1]); // i = 1
             for (size_t i = 2; i < nums.size(); i++)
             {
-                int t = m;
-                m = max(m, nums[i] + s);
+                int t = m; // m[i-1]
+                m = max(m, nums[i] + s); // m[i] = max(m[i-1], n[i] + m[i-2])
                 s = max(s, t);
             }
             return m;
@@ -19343,9 +19346,9 @@ namespace Test
         // Explanation:
         //    1            <---
         //  /   \
-// 2     3         <---
+        // 2     3         <---
         //  \     \
-//   5     4       <---
+        //   5     4       <---
         vector<int> rightSideView(TreeNode *root)
         {
             vector<int> v;
@@ -19406,11 +19409,13 @@ namespace Test
         // Given a 2d grid map of '1's (land) and '0's (water), count the number of
         // islands. An island is surrounded by water and is formed by connecting
         // adjacent lands horizontally or vertically. You may assume all four edges of
-        // the grid are all surrounded by water. Example 1: Input: 11110 11010 11000
+        // the grid are all surrounded by water. Example 1: Input: 
+        // 11110
+        // 11010
+        // 11000
         // 00000
         // Output: 1
-        // Example 2:
-        // Input:
+        // Example 2: Input:
         // 11000
         // 11000
         // 00100
@@ -20267,7 +20272,6 @@ namespace Test
                     next.clear();
                 }
             } * root;
-
             void search(string key, Node *&node, size_t &i)
             {
                 while (i < key.size())
@@ -20277,20 +20281,16 @@ namespace Test
                     node = node->next[key[i++]];
                 }
             }
-
         public:
-            /** Initialize your data structure here. */
             MapSum()
                 : root(new Node('\0', 0, true))
             {
             }
-
             ~MapSum()
             {
                 delete root;
                 root = nullptr;
             }
-
             void insert(string key, int val)
             {
                 Node *node = root;
@@ -20304,7 +20304,6 @@ namespace Test
                 node->val = val;
                 node->complete = true;
             }
-
             int sum(string prefix)
             {
                 Node *node = root;
@@ -20325,6 +20324,71 @@ namespace Test
                         s.push(it->second);
                 }
                 return a;
+            }
+        };
+        class MapSum2
+        {
+        private:
+            struct Node
+            {
+                char key;
+                int val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char k, int v, bool c)
+                    : key(k), val(v), complete(c)
+                {
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+            void search(const string& key, int val, Node *&node, size_t &i, bool insert)
+            {
+                while (i < key.size())
+                {
+                    if (insert)
+                        node->val += val;
+                    if (node->next.find(key[i]) == node->next.end())
+                        return;
+                    node = node->next[key[i++]];
+                }
+                if (insert)
+                    node->val += val;
+            }
+        public:
+            MapSum2()
+                : root(new Node('\0', 0, true))
+            {
+            }
+            ~MapSum2()
+            {
+                delete root;
+                root = nullptr;
+            }
+            void insert(const string& key, int val)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(key, val, node, i, true);
+                while (i < key.size())
+                {
+                    node->next[key[i]] = new Node(key[i], val, false);
+                    node = node->next[key[i++]];
+                }
+                node->complete = true;
+            }
+            int sum(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(prefix, 0, node, i, false);
+                if (i < prefix.size())
+                    return 0;
+                return node->val;
             }
         };
 
@@ -20465,7 +20529,6 @@ namespace Test
             } * root;
 
         public:
-            /** Initialize your data structure here. */
             WordDictionary2()
             {
                 root = new Node('\0', true);
@@ -20487,7 +20550,6 @@ namespace Test
                 print(0, root);
             }
 
-            /** Adds a word into the data structure. */
             void addWord(const string &word)
             {
                 cout << "addWord(" << word << ")" << endl;
@@ -20508,7 +20570,6 @@ namespace Test
                 Print();
             }
 
-            /** Returns if the word is in the data structure. A word could contain the dot character '.' to represent any one letter. */
             bool search(const string &word)
             {
                 function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool {

@@ -6355,5 +6355,43 @@ void LeetCodeTest::Init(void)
             ASSERT1(dict.search(".") == dict.search2("."));
         }
     });
+
+    Add("Map Sum Pairs", [&]() {
+        auto check = [&](const map<string, int>& m) {
+            MapSum ms;
+            MapSum2 ms2;
+            for (const auto& p : m)
+            {
+                ms.insert(p.first, p.second);
+                ms2.insert(p.first, p.second);
+                for (size_t i = 0; i <= p.first.size(); i++)
+                {
+                    string t = p.first.substr(0, i);
+                    int s = ms.sum(t);
+                    int s2 = ms2.sum(t);
+                    Logger() << t << ": " << s << ", " << s2 << endl;
+                    ASSERT1(s == s2);
+                }
+            }
+        };
+        {
+            map<string, int> m = {
+                { "abc", 1 },
+                { "ab", 2 },
+                { "a", 3 },
+            };
+            check(m);
+        }
+        {
+            map<string, int> m;
+            for (int i = 0; i < 100; i++)
+            {
+                size_t n = Random::Int(1, 10);
+                string key = Random::String<char>(n, "abcde");
+                m[key] = n;
+                check(m);
+            }
+        }
+    });
 }
 #endif
