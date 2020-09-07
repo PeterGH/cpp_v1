@@ -21715,6 +21715,28 @@ namespace Test
                 solve(nums2, nums1);
             return o;
         }
+        vector<int> intersectII4(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> o;
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            size_t i = 0;
+            size_t j = 0;
+            while (i < nums1.size() && j < nums2.size())
+            {
+                if (nums1[i] < nums2[j])
+                    i++;
+                else if (nums1[i] > nums2[j])
+                    j++;
+                else
+                {
+                    o.push_back(nums1[i]);
+                    i++;
+                    j++;
+                }
+            }
+            return o;
+        }
 
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
