@@ -6357,10 +6357,10 @@ void LeetCodeTest::Init(void)
     });
 
     Add("Map Sum Pairs", [&]() {
-        auto check = [&](const map<string, int>& m) {
+        auto check = [&](const map<string, int> &m) {
             MapSum ms;
             MapSum2 ms2;
-            for (const auto& p : m)
+            for (const auto &p : m)
             {
                 ms.insert(p.first, p.second);
                 ms2.insert(p.first, p.second);
@@ -6376,9 +6376,9 @@ void LeetCodeTest::Init(void)
         };
         {
             map<string, int> m = {
-                { "abc", 1 },
-                { "ab", 2 },
-                { "a", 3 },
+                {"abc", 1},
+                {"ab", 2},
+                {"a", 3},
             };
             check(m);
         }
@@ -6391,6 +6391,37 @@ void LeetCodeTest::Init(void)
                 m[key] = n;
                 check(m);
             }
+        }
+    });
+
+    Add("287. Find the Duplicate Number", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            int d = findDuplicate(v);
+            Logger() << d;
+            vector<int> v2(v);
+            int d2 = findDuplicate2(v2);
+            Logger() << ", " << d2;
+            vector<int> v3(v);
+            int d3 = findDuplicate3(v3);
+            Logger() << ", " << d3;
+            int d4 = findDuplicate4(v);
+            Logger() << ", " << d4;
+            int d5 = findDuplicate5(v);
+            Logger() << ", " << d5 << endl;
+            ASSERT1(d == d2);
+            ASSERT1(d == d3);
+            ASSERT1(d == d4);
+            ASSERT1(d == d5);
+        };
+        for (int i = 0; i < 100; i++)
+        {
+            int n = Random::Int(2, 100);
+            vector<int> v = Util::IncreasingVector(n, 1);
+            int d = Random::Int(n, 1);
+            v.push_back(d);
+            random_shuffle(v.begin(), v.end());
+            check(v);
         }
     });
 }

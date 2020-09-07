@@ -19313,11 +19313,11 @@ namespace Test
                 return 0;
             if (nums.size() == 1)
                 return nums[0];
-            int s = nums[0]; // i = 0
+            int s = nums[0];               // i = 0
             int m = max(nums[0], nums[1]); // i = 1
             for (size_t i = 2; i < nums.size(); i++)
             {
-                int t = m; // m[i-1]
+                int t = m;               // m[i-1]
                 m = max(m, nums[i] + s); // m[i] = max(m[i-1], n[i] + m[i-2])
                 s = max(s, t);
             }
@@ -19409,7 +19409,7 @@ namespace Test
         // Given a 2d grid map of '1's (land) and '0's (water), count the number of
         // islands. An island is surrounded by water and is formed by connecting
         // adjacent lands horizontally or vertically. You may assume all four edges of
-        // the grid are all surrounded by water. Example 1: Input: 
+        // the grid are all surrounded by water. Example 1: Input:
         // 11110
         // 11010
         // 11000
@@ -20281,6 +20281,7 @@ namespace Test
                     node = node->next[key[i++]];
                 }
             }
+
         public:
             MapSum()
                 : root(new Node('\0', 0, true))
@@ -20346,7 +20347,7 @@ namespace Test
                     next.clear();
                 }
             } * root;
-            void search(const string& key, int val, Node *&node, size_t &i, bool insert)
+            void search(const string &key, int val, Node *&node, size_t &i, bool insert)
             {
                 while (i < key.size())
                 {
@@ -20359,6 +20360,7 @@ namespace Test
                 if (insert)
                     node->val += val;
             }
+
         public:
             MapSum2()
                 : root(new Node('\0', 0, true))
@@ -20369,7 +20371,7 @@ namespace Test
                 delete root;
                 root = nullptr;
             }
-            void insert(const string& key, int val)
+            void insert(const string &key, int val)
             {
                 Node *node = root;
                 size_t i = 0;
@@ -21483,6 +21485,49 @@ namespace Test
             }
             return i;
         }
+        int findDuplicate2(vector<int> &nums)
+        {
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                while (nums[i] != i + 1)
+                {
+                    int j = nums[i] - 1;
+                    if (nums[i] == nums[j])
+                        return nums[i];
+                    swap(nums[i], nums[j]);
+                }
+            }
+            throw runtime_error("Duplicate not found");
+        }
+        int findDuplicate3(vector<int> &nums)
+        {
+            while (nums[0] != nums[nums[0]])
+                swap(nums[0], nums[nums[0]]);
+            return nums[0];
+        }
+        int findDuplicate4(const vector<int> &nums)
+        {
+            set<int> s;
+            int i = 0;
+            while (s.find(nums[i]) == s.end())
+            {
+                s.insert(nums[i]);
+                i = nums[i];
+            }
+            return nums[i];
+        }
+        int findDuplicate5(const vector<int> &nums)
+        {
+            set<int> s;
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                if (s.find(nums[i]) == s.end())
+                    s.insert(nums[i]);
+                else
+                    return nums[i];
+            }
+            throw runtime_error("Duplicate not found");
+        }
 
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
@@ -21559,6 +21604,32 @@ namespace Test
                 solve(nums1, nums2);
             else
                 solve(nums2, nums1);
+            return o;
+        }
+        vector<int> intersection4(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> o;
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            size_t i = 0;
+            size_t j = 0;
+            while (i < nums1.size() && j < nums2.size())
+            {
+                if (nums1[i] < nums2[j])
+                    i++;
+                else if (nums1[i] > nums2[j])
+                    j--;
+                else
+                {
+                    o.push_back(nums1[i]);
+                    while (i + 1 < nums1.size() && nums1[i] == nums1[i + 1])
+                        i++;
+                    i++;
+                    while (j + 1 < nums2.size() && nums2[j] == nums2[j + 1])
+                        j++;
+                    j++;
+                }
+            }
             return o;
         }
 
