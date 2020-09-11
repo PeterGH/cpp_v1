@@ -22439,9 +22439,9 @@ namespace Test
             // following tree:
             //     1
             //    / \
-    //   2   3
+            //   2   3
             //      / \
-    //     4   5
+            //     4   5
             // as "[1,2,3,null,null,4,5]"
             // Clarification: The above format is the same as how LeetCode serializes a
             // binary tree. You do not necessarily need to follow this format, so please be
@@ -22649,24 +22649,24 @@ namespace Test
         // For example, Given the tree:
         //         4
         //        / \
-//       2   7
+        //       2   7
         //      / \
-//     1   3
+        //     1   3
         // And the value to insert: 5
         // You can return this binary search tree:
         //          4
         //        /   \
-//       2     7
+        //       2     7
         //      / \   /
         //     1   3 5
         // This tree is also valid:
         //          5
         //        /   \
-//       2     7
+        //       2     7
         //      / \   
-//     1   3
+        //     1   3
         //          \
-//           4
+        //           4
         TreeNode *insertIntoBST(TreeNode *root, int val)
         {
             TreeNode *p = nullptr;
@@ -22706,22 +22706,22 @@ namespace Test
         // key = 3
         //     5
         //    / \
-//   3   6
+        //   3   6
         //  / \   \
-// 2   4   7
+        // 2   4   7
         // Given key to delete is 3. So we find the node with value 3 and delete it.
         // One valid answer is [5,4,6,2,null,null,7], shown in the following BST.
         //     5
         //    / \
-//   4   6
+        //   4   6
         //  /     \
-// 2       7
+        // 2       7
         // Another valid answer is [5,2,6,null,4,null,7].
         //     5
         //    / \
-//   2   6
+        //   2   6
         //    \   \
-//     4   7
+        //     4   7
         TreeNode *deleteNode(TreeNode *root, int key)
         {
             function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool {
@@ -23891,6 +23891,21 @@ namespace Test
                 p = p->next;
             }
             p->next = h2;
+            return head;
+        }
+        ListNode *oddEvenList2(ListNode *head)
+        {
+            ListNode *t1 = head; // tail of odds
+            ListNode *t2 = (head == nullptr ? nullptr : head->next); // tail of evens
+            while (t2 != nullptr && t2->next != nullptr)
+            {
+                ListNode *p = t2->next;
+                t2->next = p->next;
+                t2 = t2->next;
+                p->next = t1->next;
+                t1->next = p;
+                t1 = p;
+            }
             return head;
         }
 
