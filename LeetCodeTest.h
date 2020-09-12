@@ -6424,11 +6424,28 @@ void LeetCodeTest::Init(void)
         };
         for (int i = 0; i < 100; i++)
         {
-            int n = Random::Int(2, 100);
+            int n = Random::Int(100, 2);
             vector<int> v = Util::IncreasingVector(n, 1);
             int d = Random::Int(n, 1);
             v.push_back(d);
             random_shuffle(v.begin(), v.end());
+            check(v);
+        }
+    });
+
+    Add("Daily Temperatures", [&]() {
+        auto check = [&](const vector<int> &v) {
+            Logger() << v;
+            vector<int> o = dailyTemperatures(v);
+            Logger() << o;
+            vector<int> o2 = dailyTemperatures2(v);
+            Logger() << o2;
+            ASSERT1(Util::Compare(o, o2) == 0);
+        };
+        for (int i = 0; i < 100; i++)
+        {
+            int n = Random::Int(100, 1);
+            vector<int> v = Random::Vector(n, 100, 0);
             check(v);
         }
     });

@@ -24556,6 +24556,22 @@ namespace Test
             }
             return o;
         }
+        vector<int> dailyTemperatures2(const vector<int> &T)
+        {
+            vector<int> o (T.size(), 0);
+            stack<int> s;
+            for (int i = (int)T.size() - 1; i >= 0; i--)
+            {
+                while (!s.empty() && T[i] >= T[s.top()])
+                    s.pop();
+                if (s.empty())
+                    o[i] = 0;
+                else
+                    o[i] = s.top() - i;
+                s.push(i);
+            }
+            return o;
+        }
 
         // Target Sum
         // You are given a list of non-negative integers, a1, a2, ..., an, and a
@@ -24816,7 +24832,7 @@ namespace Test
                     int k = 0;
                     while (i < s.size() && '0' <= s[i] && s[i] <= '9')
                         k = (k * 10) + s[i++] - '0';
-                    i++;
+                    i++; // skip '['
                     string c = decode(i);
                     for (; k > 0; k--)
                         oss << c;
@@ -24851,7 +24867,7 @@ namespace Test
                     int k = 0;
                     while (i < s.size() && '0' <= s[i] && s[i] <= '9')
                         k = k * 10 + s[i++] - '0';
-                    i++;
+                    i++; // skip '['
                     stk.push(make_pair(o, k));
                     o = "";
                 }
