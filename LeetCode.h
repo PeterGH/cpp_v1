@@ -26111,13 +26111,9 @@ namespace Test
                     while (j < i + l && k < i + l + l && k < n)
                     {
                         if (nums[j] <= nums[k])
-                        {
                             temp[q++] = nums[j++];
-                        }
                         else
-                        {
                             temp[q++] = nums[k++];
-                        }
                     }
                     while (j < i + l)
                         temp[q++] = nums[j++];
