@@ -712,6 +712,40 @@ void CppTest::Init(void) {
         v2.push_back(7);
         Logger() << m;
     });
+
+    Add("Erase Iterator", [&](){
+        vector<int> v = { 0, 1, 2, 3 };
+        vector<int>::iterator it = v.begin();
+        ++it;
+        ++it;
+        Logger() << "it (at index 2): " << *it << endl;
+        vector<int>::iterator it2 = v.begin();
+        ++it2;
+        ++it2;
+        Logger() << "it2: " << *it2 << endl;
+        Logger() << "it (at index 2): " << *it << endl;
+        ASSERT1(it2 == it);
+        ++it2;
+        Logger() << "it2: " << *it2 << endl;
+        Logger() << "it (at index 2): " << *it << endl;
+        ASSERT1(it2 != it);
+        vector<int>::iterator it3 = v.begin();
+        ++it3;
+        Logger() << "it3: " << *it3 << endl;
+        Logger() << "it (at index 2): " << *it << endl;
+        ASSERT1(it3 != it);
+        // Errase makes v shorter. it still at index 2 but now points to a different element.
+        it3 = v.erase(it3);
+        Logger() << "it3: " << *it3 << endl;
+        Logger() << "it (at index 2): " << *it << endl;
+        ASSERT1(*it3 != *it);
+        ASSERT1(it3 != it);
+        ++it3;
+        Logger() << "it3: " << *it3 << endl;
+        Logger() << "it (at index 2): " << *it << endl;
+        ASSERT1(*it3 == *it);
+        ASSERT1(it3 == it);
+    });
 }
 
 #endif
