@@ -26272,6 +26272,64 @@ namespace Test
             }
             return skyline;
         }
+        vector<vector<int>> getSkyline2(const vector<vector<int>> &buildings)
+        {
+            function<vector<vector<int>>(const vector<vector<int>>&, const vector<vector<int>>&)>
+            merge = [&](const vector<vector<int>>& a, const vector<vector<int>>& b)->vector<vector<int>>{
+                if (a.empty())
+                    return b;
+                if (b.empty())
+                    return a;
+                vector<vector<int>> c;
+                int ha = 0;
+                int hb = 0;
+                size_t i = 0;
+                size_t j = 0;
+                int h;
+                while (i < a.size() || j < b.size()) {
+                    if (i < a.size() && j < b.size()) {
+                        if (a[i][0] < b[j][0]) {
+                            h = max(a[i][1], hb);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{a[i][0], h});
+                            ha = a[i++][1];
+                        } else if (a[i][0] > b[j][0]) {
+                            h = max(ha, b[j][1]);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{b[j][0], h});
+                            hb = b[j++][1];
+                        } else {
+                            h = max(a[i][1], b[j][1]);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{a[i][0], h});
+                            ha = a[i++][1];
+                            hb = b[j++][1];
+                        }
+                    } else if (i < a.size()) {
+                        c.push_back(a[i++]);
+                    } else {
+                        c.push_back(b[j++]);
+                    }
+                };
+                return c;
+            };
+            function<vector<vector<int>>(int, int)> solve =
+            [&](int b, int e)->vector<vector<int>>{
+                if (b > e)
+                    return {};
+                if (b == e)
+                    return vector<vector<int>>{
+                        {buildings[b][0], buildings[b][2]},
+                        {buildings[b][1], 0}
+                    };
+                int m = b + ((e - b) >> 1);
+                vector<vector<int>> v1 = solve(b, m);
+                vector<vector<int>> v2 = solve(m + 1, e);
+                vector<vector<int>> v = merge(v1, v2);
+                return v;
+            };
+            return solve(0, (int)buildings.size() - 1);
+        }
 
     } // namespace LeetCode
 } // namespace Test

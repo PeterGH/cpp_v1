@@ -6455,6 +6455,9 @@ void LeetCodeTest::Init(void)
             Logger() << v;
             vector<vector<int>> s = getSkyline(v);
             Logger() << s;
+            vector<vector<int>> s2 = getSkyline2(v);
+            Logger() << s2;
+            ASSERT1(Util::Compare(s, s2) == 0);
         };
         check({{2, 9, 10}, {3, 7, 15}, {5, 12, 12}, {15, 20, 10}, {19, 24, 8}});
     });
