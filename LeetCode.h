@@ -2759,6 +2759,120 @@ namespace Test
             return solve(head);
         }
 
+        // 25. Reverse Nodes in k-Group
+        // Given a linked list, reverse the nodes of a linked list k at a time
+        // and return its modified list. k is a positive integer and is less than
+        // or equal to the length of the linked list. If the number of nodes is
+        // not a multiple of k then left-out nodes in the end should remain as it is.
+        // Example:
+        // Given this linked list: 1->2->3->4->5
+        // For k = 2, you should return: 2->1->4->3->5
+        // For k = 3, you should return: 3->2->1->4->5
+        // Note: Only constant extra memory is allowed.
+        // You may not alter the values in the list's nodes, only nodes itself may be changed.
+        ListNode *reverseKGroup(ListNode *head, int k)
+        {
+            if (head == nullptr || k <= 1)
+                return head;
+            ListNode *h = nullptr; // h->next is the beginning of a k segament
+            ListNode *t = head;    // t is the next of the ending of a k segament
+            while (t != nullptr)
+            {
+                int i = 0;
+                while (i < k && t != nullptr)
+                {
+                    i++;
+                    t = t->next;
+                }
+                if (i < k)
+                    break; // i-th node is nullptr, less than k nodes in total
+                ListNode *p = (h == nullptr ? head : h->next);
+                // Move p->next to be after h until p->next hits t
+                while (p->next != t)
+                {
+                    ListNode *q = p->next;
+                    p->next = q->next;
+                    if (h == nullptr)
+                    {
+                        q->next = head;
+                        head = q;
+                    }
+                    else
+                    {
+                        q->next = h->next;
+                        h->next = q;
+                    }
+                }
+                h = p;
+            }
+            return head;
+        }
+        ListNode *reverseKGroup2(ListNode *head, int k)
+        {
+            if (head == nullptr || k <= 1)
+                return head;
+            ListNode *begin = head;
+            ListNode *prev = begin;
+            while (begin != nullptr)
+            {
+                ListNode *end = begin;
+                int i = 1;
+                while (i < k && end != nullptr)
+                {
+                    end = end->next;
+                    i++;
+                }
+                if (end == nullptr)
+                    return head;
+                // Reverse every node between begin and end
+                ListNode *f = begin;
+                ListNode *s = f->next;
+                ListNode *t = nullptr;
+                begin->next = end->next;
+                while (f != end)
+                {
+                    t = s->next;
+                    s->next = f;
+                    f = s;
+                    s = t;
+                }
+                if (head == begin)
+                    head = end;
+                else
+                    prev->next = end;
+                // Now begin->next starts the next segament
+                prev = begin;
+                begin = begin->next;
+            }
+            return head;
+        }
+        ListNode *reverseKGroup3(ListNode *head, int k)
+        {
+            function<ListNode *(ListNode *)> reverse =
+                [&](ListNode *h) -> ListNode * {
+                int i = 0;
+                ListNode *t = h;
+                while (i < k - 1 && t != nullptr)
+                {
+                    i++;
+                    t = t->next;
+                }
+                if (t == nullptr)
+                    return h;
+                ListNode *h2 = reverse(t->next);
+                while (h != t)
+                {
+                    ListNode *p = h->next;
+                    h->next = h2;
+                    h2 = h;
+                    h = p;
+                }
+                h->next = h2;
+                return h;
+            };
+            return reverse(head);
+        }
+
         // 26. Remove Duplicates from Sorted Array
         // Given a sorted array nums, remove the duplicates in-place such that each
         // element appear only once and return the new length. Do not allocate extra
@@ -9710,6 +9824,36 @@ namespace Test
             return head;
         }
         ListNode *deleteDuplicatesII3(ListNode *head)
+        {
+            function<ListNode *(ListNode *)> del =
+                [&](ListNode *h) -> ListNode * {
+                if (h == nullptr)
+                    return h;
+                bool delete_h = false;
+                ListNode *p;
+                while (h->next != nullptr && h->val == h->next->val)
+                {
+                    delete_h = true;
+                    p = h;
+                    h = h->next;
+                    delete p;
+                }
+                if (delete_h)
+                {
+                    p = h;
+                    h = h->next;
+                    delete p;
+                    h = del(h);
+                }
+                else
+                {
+                    h->next = del(h->next);
+                }
+                return h;
+            };
+            return del(head);
+        }
+        ListNode *deleteDuplicatesII4(ListNode *head)
         {
             if (head == nullptr)
                 return nullptr;
@@ -26182,8 +26326,7 @@ namespace Test
                     }
                     else
                     {
-                        if (it->operator[](2) > h
-                        || (it->operator[](0) < b && it->operator[](2) == h))
+                        if (it->operator[](2) > h || (it->operator[](0) < b && it->operator[](2) == h))
                         {
                             // Current up boundary not valid since a previous range
                             // is higher
@@ -26274,8 +26417,8 @@ namespace Test
         }
         vector<vector<int>> getSkyline2(const vector<vector<int>> &buildings)
         {
-            function<vector<vector<int>>(const vector<vector<int>>&, const vector<vector<int>>&)>
-            merge = [&](const vector<vector<int>>& a, const vector<vector<int>>& b)->vector<vector<int>>{
+            function<vector<vector<int>>(const vector<vector<int>> &, const vector<vector<int>> &)>
+                merge = [&](const vector<vector<int>> &a, const vector<vector<int>> &b) -> vector<vector<int>> {
                 if (a.empty())
                     return b;
                 if (b.empty())
@@ -26286,42 +26429,52 @@ namespace Test
                 size_t i = 0;
                 size_t j = 0;
                 int h;
-                while (i < a.size() || j < b.size()) {
-                    if (i < a.size() && j < b.size()) {
-                        if (a[i][0] < b[j][0]) {
+                while (i < a.size() || j < b.size())
+                {
+                    if (i < a.size() && j < b.size())
+                    {
+                        if (a[i][0] < b[j][0])
+                        {
                             h = max(a[i][1], hb);
                             if (c.empty() || c.back()[1] != h)
                                 c.push_back(vector<int>{a[i][0], h});
                             ha = a[i++][1];
-                        } else if (a[i][0] > b[j][0]) {
+                        }
+                        else if (a[i][0] > b[j][0])
+                        {
                             h = max(ha, b[j][1]);
                             if (c.empty() || c.back()[1] != h)
                                 c.push_back(vector<int>{b[j][0], h});
                             hb = b[j++][1];
-                        } else {
+                        }
+                        else
+                        {
                             h = max(a[i][1], b[j][1]);
                             if (c.empty() || c.back()[1] != h)
                                 c.push_back(vector<int>{a[i][0], h});
                             ha = a[i++][1];
                             hb = b[j++][1];
                         }
-                    } else if (i < a.size()) {
+                    }
+                    else if (i < a.size())
+                    {
                         c.push_back(a[i++]);
-                    } else {
+                    }
+                    else
+                    {
                         c.push_back(b[j++]);
                     }
                 };
                 return c;
             };
             function<vector<vector<int>>(int, int)> solve =
-            [&](int b, int e)->vector<vector<int>>{
+                [&](int b, int e) -> vector<vector<int>> {
                 if (b > e)
                     return {};
                 if (b == e)
                     return vector<vector<int>>{
                         {buildings[b][0], buildings[b][2]},
-                        {buildings[b][1], 0}
-                    };
+                        {buildings[b][1], 0}};
                 int m = b + ((e - b) >> 1);
                 vector<vector<int>> v1 = solve(b, m);
                 vector<vector<int>> v2 = solve(m + 1, e);
