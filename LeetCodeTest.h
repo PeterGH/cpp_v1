@@ -861,6 +861,20 @@ void LeetCodeTest::Init(void)
         }
     });
 
+    Add("30. Substring with Concatenation of All Words", [&]() {
+        auto check = [&](const string &s, const vector<string> &words) {
+            Logger() << words;
+            Logger() << s << endl;
+            vector<int> r = findSubstring(s, words);
+            Logger() << r;
+            vector<int> r2 = findSubstring2(s, words);
+            Logger() << r2;
+            ASSERT1(Util::Compare(r, r2) == 0);
+        };
+        check("lingmindraboofooowingdingbarrwingmonkeypoundcake",
+              {"fooo", "barr", "wing", "ding", "wing"});
+    });
+
     Add("31. Next Permutation", [&]() {
         auto check = [&](vector<int> &v) {
             sort(v.begin(), v.end());

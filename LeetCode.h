@@ -3586,6 +3586,151 @@ namespace Test
             return negative ? -q : q;
         }
 
+        // 30. Substring with Concatenation of All Words
+        // You are given a string s and an array of strings words of the same length.
+        // Return all starting indices of substring(s) in s that is a concatenation
+        // of each word in words exactly once, in any order, and without any intervening
+        // characters. You can return the answer in any order.
+        // Example 1:
+        // Input: s = "barfoothefoobarman", words = ["foo","bar"]
+        // Output: [0,9]
+        // Explanation: Substrings starting at index 0 and 9 are "barfoo" and "foobar"
+        // respectively. The output order does not matter, returning [9,0] is fine too.
+        // Example 2:
+        // Input: s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+        // Output: []
+        // Example 3:
+        // Input: s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+        // Output: [6,9,12]
+        // Constraints:
+        // 1 <= s.length <= 104
+        // s consists of lower-case English letters.
+        // 1 <= words.length <= 5000
+        // 1 <= words[i].length <= 30
+        // words[i] consists of lower-case English letters.
+        vector<int> findSubstring(const string &s, const vector<string> &words)
+        {
+            map<string, int> wordCount;
+            for (const string &w : words)
+            {
+                if (wordCount.find(w) == wordCount.end())
+                    wordCount[w] = 1;
+                else
+                    wordCount[w]++;
+            }
+            // cout << "{" << endl;
+            // for (const auto& p : wordCount)
+            // {
+            //     cout << "  " << p.first << ": " << p.second << endl;
+            // }
+            // cout << "}" << endl;
+            int wordLen = (int)words[0].size();
+            int i = 0;
+            vector<int> result;
+            while (i < (int)s.size())
+            {
+                string e = s.substr(i, wordLen);
+                if (wordCount.find(e) != wordCount.end())
+                {
+                    int j = i;
+                    map<string, int> m(wordCount);
+                    int count = (int)words.size();
+                    // cout << "j = ";
+                    while (j < (int)s.size() && count > 0)
+                    {
+                        // cout << j;
+                        e = s.substr(j, wordLen);
+                        if (m.find(e) == m.end() || m[e] == 0)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            m[e]--;
+                            count--;
+                            j += wordLen;
+                        }
+                    }
+                    // cout << endl;
+                    // cout << "count = " << count << endl;
+                    if (count == 0)
+                        result.push_back(i);
+                }
+                i++;
+            }
+            return result;
+        }
+        vector<int> findSubstring2(const string &s, const vector<string> &words)
+        {
+            function<bool(const map<char, int> &, const map<char, int> &)> equal =
+                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool {
+                if (m1.size() != m2.size())
+                    return false;
+                for (const auto &p : m1)
+                {
+                    if (m2.find(p.first) == m2.end())
+                        return false;
+                    if (m2.at(p.first) != p.second)
+                        return false;
+                }
+                return true;
+            };
+            map<string, int> wc;
+            map<char, int> cc;
+            for (const string &w : words)
+            {
+                if (wc.find(w) == wc.end())
+                    wc[w] = 1;
+                else
+                    wc[w]++;
+                for (size_t i = 0; i < w.size(); i++)
+                {
+                    if (cc.find(w[i]) == cc.end())
+                        cc[w[i]] = 1;
+                    else
+                        cc[w[i]]++;
+                }
+            }
+            int w = words[0].size();
+            int n = (int)words.size() * w;
+            vector<int> result;
+            map<char, int> c;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (c.find(s[i]) == c.end())
+                    c[s[i]] = 1;
+                else
+                    c[s[i]]++;
+                if (i >= n)
+                {
+                    c[s[i - n]]--;
+                    if (c[s[i - n]] == 0)
+                        c.erase(s[i - n]);
+                }
+                if (equal(c, cc))
+                {
+                    map<string, int> wc2(wc);
+                    int j = i - n + 1;
+                    int count = words.size();
+                    while (j < (int)s.size() && count > 0)
+                    {
+                        string e = s.substr(j, w);
+                        if (wc2.find(e) == wc2.end() || wc2[e] == 0)
+                            break;
+                        else
+                        {
+                            wc2[e]--;
+                            count--;
+                            j += w;
+                        }
+                    }
+                    if (count == 0)
+                        result.push_back(i - n + 1);
+                }
+            }
+            return result;
+        }
+
         // 31. Next Permutation
         // Implement next permutation, which rearranges numbers into the
         // lexicographically next greater permutation of numbers. If such arrangement is
