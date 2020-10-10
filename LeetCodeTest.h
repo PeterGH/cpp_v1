@@ -4940,10 +4940,13 @@ void LeetCodeTest::Init(void)
             Logger() << "Search path: " << begin << " -> " << end << endl;
             vector<vector<string>> results = findLadders(begin, end, dic);
             vector<vector<string>> results2 = findLadders2(begin, end, dic);
+            vector<vector<string>> results3 = findLadders3(begin, end, dic);
             Util::Sort(results);
             Util::Sort(results2);
+            Util::Sort(results3);
             Logger() << "Results = " << results;
             ASSERT1(0 == Util::Compare(results, results2));
+            ASSERT1(0 == Util::Compare(results, results3));
         };
         check("hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"});
     });

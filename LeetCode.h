@@ -15164,6 +15164,53 @@ namespace Test
             }
             return ladders;
         }
+        vector<vector<string>> findLadders3(const string &beginWord, const string &endWord, const vector<string> &wordList)
+        {
+            set<string> wordSet(wordList.begin(), wordList.end());
+            vector<vector<string>> ladders;
+            function<void(string &, vector<string> &)> solve =
+                [&](string &word, vector<string> &ladder) {
+                    for (size_t i = 0; i < word.size(); i++)
+                    {
+                        char c = word[i];
+                        for (char j = 1; j < 26; j++)
+                        {
+                            word[i] = 'a' + ((c - 'a' + j) % 26);
+                            if (wordSet.find(word) == wordSet.end())
+                                continue;
+                            if (word.compare(endWord) == 0)
+                            {
+                                vector<string> v(ladder.begin(), ladder.end());
+                                v.push_back(word);
+                                if (ladders.empty())
+                                    ladders.push_back(v);
+                                else if (v.size() < ladders.begin()->size())
+                                {
+                                    ladders.clear();
+                                    ladders.push_back(v);
+                                }
+                                else if (v.size() == ladders.begin()->size())
+                                {
+                                    ladders.push_back(v);
+                                }
+                                break;
+                            }
+                            else if (std::find(ladder.begin(), ladder.end(), word) == ladder.end())
+                            {
+                                ladder.push_back(word);
+                                solve(word, ladder);
+                                ladder.pop_back();
+                            }
+                        }
+                        word[i] = c;
+                    }
+                };
+            vector<string> l;
+            l.push_back(beginWord);
+            string begin(beginWord);
+            solve(begin, l);
+            return ladders;
+        }
 
         // 127. Word Ladder
         // Given two words (beginWord and endWord), and a dictionary's word list,
