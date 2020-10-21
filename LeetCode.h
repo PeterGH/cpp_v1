@@ -1679,6 +1679,42 @@ namespace Test
         // lexicographical order, your answer could be in any order you want.
         vector<string> letterCombinations(const string &digits)
         {
+            vector<string> result;
+            if (digits.empty())
+                return result;
+            map<char, vector<char>> m = {
+                {'2', {'a', 'b', 'c'}},
+                {'3', {'d', 'e', 'f'}},
+                {'4', {'g', 'h', 'i'}},
+                {'5', {'j', 'k', 'l'}},
+                {'6', {'m', 'n', 'o'}},
+                {'7', {'p', 'q', 'r', 's'}},
+                {'8', {'t', 'u', 'v'}},
+                {'9', {'w', 'x', 'y', 'z'}}};
+            queue<string> q;
+            for (char c : m[digits[0]])
+                q.push(string(1, c));
+            while (!q.empty())
+            {
+                string s = q.front();
+                q.pop();
+                if (s.size() == digits.size())
+                    result.push_back(s);
+                else // if (s.size() < digits.size())
+                {
+                    string t(s);
+                    t.resize(s.size() + 1);
+                    for (char c : m[digits[s.size()]])
+                    {
+                        t[s.size()] = c;
+                        q.push(t);
+                    }
+                }
+            }
+            return result;
+        }
+        vector<string> letterCombinations2(const string &digits)
+        {
             map<char, vector<char>> m = {
                 {'2', {'a', 'b', 'c'}},
                 {'3', {'d', 'e', 'f'}},
@@ -1712,7 +1748,7 @@ namespace Test
             combine("", 0);
             return result;
         }
-        vector<string> letterCombinations2(const string &digits)
+        vector<string> letterCombinations3(const string &digits)
         {
             vector<string> result;
             if (digits.empty())
@@ -1761,7 +1797,7 @@ namespace Test
             } while (!allZeros);
             return result;
         }
-        vector<string> letterCombinations3(const string &digits)
+        vector<string> letterCombinations4(const string &digits)
         {
             if (digits.length() == 0)
                 return vector<string>{};
