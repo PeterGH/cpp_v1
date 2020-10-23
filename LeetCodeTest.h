@@ -5373,6 +5373,7 @@ void LeetCodeTest::Init(void)
                 ASSERT1(r3 == expect);
             }
         };
+        check({2, 2, 3, 2}, 3);
         check({0, 1, 0, 0}, 1);
         check({(int)0xFFFFFFFF, 3, (int)0xFFFFFFFF, (int)0xFFFFFFFF}, 3);
         check({1, 2, 3, 1, 2, 3, 4, 1, 2, 3}, 4);

@@ -25,7 +25,6 @@ namespace Test
 {
     namespace LeetCode
     {
-
         struct ListNode
         {
             int val;
@@ -66,7 +65,7 @@ namespace Test
             // 1. index == 0, p == head
             // 2. i == index, p != nullptr, p is at (i - 1)
             // 3. i == index, p == nullptr, p is at (i - 1)
-            // 4. i < index, p == nullptr, p is at(i - 1)
+            // 4. i < index, p == nullptr, p is at (i - 1)
             if (index > 0 && p != nullptr)
             {
                 // If need to get the prev of the node at index, then just return p
@@ -26713,5 +26712,29 @@ namespace Test
         }
 
     } // namespace LeetCode
+
+    namespace sql
+    {
+
+        // 176. Second Highest Salary
+        // SQL Schema
+        // Write a SQL query to get the second highest salary from the Employee table.
+        // +----+--------+
+        // | Id | Salary |
+        // +----+--------+
+        // | 1  | 100    |
+        // | 2  | 200    |
+        // | 3  | 300    |
+        // +----+--------+
+        // For example, given the above Employee table, the query should return 200 as the second highest salary. If there is no second highest salary, then the query should return null.
+        // +---------------------+
+        // | SecondHighestSalary |
+        // +---------------------+
+        // | 200                 |
+        // +---------------------+
+        //
+        // SELECT IFNULL((SELECT DISTINCT Salary FROM Employee ORDER BY Salary DESC LIMIT 1, 1), NULL) AS SecondHighestSalary;
+    } // namespace sql
 } // namespace Test
+
 #endif
