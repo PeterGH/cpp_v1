@@ -26864,6 +26864,24 @@ namespace Test
 // select e.Name as Employee from Employee e
 // join Employee m on e.ManagerId = m.Id
 // where e.Salary > m.Salary
+
+// 182. Duplicate Emails
+// Write a SQL query to find all duplicate emails in a table named Person.
+// +----+---------+
+// | Id | Email   |
+// +----+---------+
+// | 1  | a@b.com |
+// | 2  | c@d.com |
+// | 3  | a@b.com |
+// +----+---------+
+// For example, your query should return the following for the above table:
+// +---------+
+// | Email   |
+// +---------+
+// | a@b.com |
+// +---------+
+// Note: All emails are in lowercase.
+// select Email from (select Email, count(Id) as Count from Person group by Email) e where Count > 1;
     } // namespace sql
 } // namespace Test
 
