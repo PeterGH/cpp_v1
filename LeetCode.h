@@ -27036,6 +27036,27 @@ namespace Test
 // 987-123-4567
 // (123) 456-7890
 // grep -E "^([0-9]{3}-|\([0-9]{3}\)\ )[0-9]{3}-[0-9]{4}$" file.txt
+
+// 194. Transpose File
+// Given a text file file.txt, transpose its content.
+// You may assume that each row has the same number of columns and each field is
+// separated by the ' ' character.
+// Example:
+// If file.txt has the following content:
+// name age
+// alice 21
+// ryan 30
+// Output the following:
+// name alice ryan
+// age 21 30
+// for i in $(seq 1 1 $(head -1 file.txt | wc -w)); do cut -d ' ' -f $i file.txt | tr '\n' ' ' | awk {print} | sed 's/ \n/\n/g'; done
+// Wrong Answer
+// Input
+// 'a'
+// Output
+// 'a '
+// Expected
+// 'a'
     } // namespace sql
 } // namespace Test
 
