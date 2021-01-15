@@ -27079,6 +27079,34 @@ namespace Test
 // 2. There's at least three different solutions. Try to explore all possibilities.
 // if [ $(cat file.txt | wc -l) -ge 10 ]; then head -10 file.txt | tail -1; fi
 // sed -n '10p' file.txt
+
+// 196. Delete Duplicate Emails
+// Write a SQL query to delete all duplicate email entries in a table named Person,
+// keeping only unique emails based on its smallest Id.
+// +----+------------------+
+// | Id | Email            |
+// +----+------------------+
+// | 1  | john@example.com |
+// | 2  | bob@example.com  |
+// | 3  | john@example.com |
+// +----+------------------+
+// Id is the primary key column for this table.
+// For example, after running your query, the above Person table should have the
+// following rows:
+// +----+------------------+
+// | Id | Email            |
+// +----+------------------+
+// | 1  | john@example.com |
+// | 2  | bob@example.com  |
+// +----+------------------+
+// Note:
+// Your output is the whole Person table after executing your sql. Use delete statement.
+// Solution:
+// with minIds as (select min(Id)as Id from Person group by Email)
+// delete from Person where Id not in (select Id from minIds);
+// Wrong solution: You can't specify target table 'Person' for update in FROM clause
+// delete from Person where Id not in (select mind(Id) from Person group by Email);
+
     } // namespace sql
 } // namespace Test
 
