@@ -23273,7 +23273,7 @@ namespace Test
             }
         };
 
-        // Contains Duplicate III
+        // 220. Contains Duplicate III
         // Given an array of integers, find out whether there are two distinct indices i
         // and j in the array such that the absolute difference between nums[i] and nums[j]
         // is at most t and the absolute difference between i and j is at most k.
@@ -25684,7 +25684,7 @@ namespace Test
             }
         };
 
-        // Contains Duplicate
+        // 217. Contains Duplicate
         // Given an array of integers, find if the array contains any duplicates.
         // Your function should return true if any value appears at least twice
         // in the array, and it should return false if every element is distinct.
@@ -25793,7 +25793,7 @@ namespace Test
             return -1;
         }
 
-        // Contains Duplicate II
+        // 219. Contains Duplicate II
         // Given an array of integers and an integer k, find out whether there are two
         // distinct indices i and j in the array such that nums[i] = nums[j] and the
         // absolute difference between i and j is at most k.
@@ -26514,7 +26514,7 @@ namespace Test
             return nums;
         }
 
-        // The Skyline Problem
+        // 218. The Skyline Problem
         // A city's skyline is the outer contour of the silhouette formed by all the
         // buildings in that city when viewed from a distance. Now suppose you are
         // given the locations and height of all the buildings as shown on a cityscape
