@@ -23471,6 +23471,72 @@ namespace Test
             }
         };
 
+// 221. Maximal Square
+// Given an m x n binary matrix filled with 0's and 1's, find the largest square
+// containing only 1's and return its area.
+// Example 1:
+// Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+// Output: 4
+// Example 2:
+// Input: matrix = [["0","1"],["1","0"]]
+// Output: 1
+// Example 3:
+// Input: matrix = [["0"]]
+// Output: 0
+// Constraints:
+// m == matrix.length
+// n == matrix[i].length
+// 1 <= m, n <= 300
+// matrix[i][j] is '0' or '1'.
+    int maximalSquare(vector<vector<char>>& matrix) {
+        if (matrix.empty() || matrix[0].empty())
+            return 0;
+        int m = 0;
+        vector<int> c(matrix[0].size(), 0); // Height of 1s at current row
+        for (size_t j = 0; j < matrix[0].size(); j++) {
+            if (matrix[0][j] == '1') {
+                c[j] = 1;
+                m = 1;
+            } else {
+                c[j] = 0;
+            }
+        }
+        for (int i = 1; i < (int)matrix.size(); i++) {
+            vector<pair<int, int>> v;
+            int x = 0;
+            int h = 0;
+            if (matrix[i][0] == '0') {
+                c[0] = 0;
+            } else {
+                c[0]++;
+                x = 0;
+                h = c[0];
+                v.push_back(make_pair(x, h));
+                m = max(m, 1);
+            }
+            for (int j = 1; j < (int)matrix[i].size(); j++) {
+                if (matrix[i][j] == '0') {
+                    c[j] = 0;
+                    v.clear();
+                } else {
+                    c[j]++;
+                    x = j;
+                    h = c[j];
+                    while (!v.empty() && v.back().second >= h) {
+                        x = v.back().first;
+                        v.pop_back();
+                    }
+                    v.push_back(make_pair(x, h));
+                    for (const auto& p : v) {
+                        int n = min(j - p.first + 1, p.second);
+                        m = max(m, n * n);
+                    }
+                }
+            }
+        }
+        return m;
+    }
+
         // Max Consecutive Ones
         // Given a binary array, find the maximum number of consecutive 1s in this array.
         // Example 1:
