@@ -25,19 +25,22 @@ namespace Test
 {
     namespace LeetCode
     {
-        static void GetMedianIndex(int i, int j, int& lowMedianIndex, int& highMedianIndex)
+        static void GetMedianIndex(int i, int j, int &lowMedianIndex, int &highMedianIndex)
         {
             lowMedianIndex = -1;
             highMedianIndex = -1;
             if (i > j)
                 return;
-            if (((j - i) & 0x1) == 0) {
+            if (((j - i) & 0x1) == 0)
+            {
                 // odd numbers [i..j]
                 lowMedianIndex = (i + j) / 2; // = i + ((j - i) / 2)
                 highMedianIndex = lowMedianIndex;
-            } else {
+            }
+            else
+            {
                 // even numbers [i..j]
-                lowMedianIndex = (i + j - 1) / 2; // i + ((j - i - 1) / 2)
+                lowMedianIndex = (i + j - 1) / 2;  // i + ((j - i - 1) / 2)
                 highMedianIndex = (i + j + 1) / 2; // i + ((j - i + 1) / 2)
             }
         }
@@ -23471,71 +23474,222 @@ namespace Test
             }
         };
 
-// 221. Maximal Square
-// Given an m x n binary matrix filled with 0's and 1's, find the largest square
-// containing only 1's and return its area.
-// Example 1:
-// Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
-// Output: 4
-// Example 2:
-// Input: matrix = [["0","1"],["1","0"]]
-// Output: 1
-// Example 3:
-// Input: matrix = [["0"]]
-// Output: 0
-// Constraints:
-// m == matrix.length
-// n == matrix[i].length
-// 1 <= m, n <= 300
-// matrix[i][j] is '0' or '1'.
-    int maximalSquare(vector<vector<char>>& matrix) {
-        if (matrix.empty() || matrix[0].empty())
-            return 0;
-        int m = 0;
-        vector<int> c(matrix[0].size(), 0); // Height of 1s at current row
-        for (size_t j = 0; j < matrix[0].size(); j++) {
-            if (matrix[0][j] == '1') {
-                c[j] = 1;
-                m = 1;
-            } else {
-                c[j] = 0;
-            }
-        }
-        for (int i = 1; i < (int)matrix.size(); i++) {
-            vector<pair<int, int>> v;
-            int x = 0;
-            int h = 0;
-            if (matrix[i][0] == '0') {
-                c[0] = 0;
-            } else {
-                c[0]++;
-                x = 0;
-                h = c[0];
-                v.push_back(make_pair(x, h));
-                m = max(m, 1);
-            }
-            for (int j = 1; j < (int)matrix[i].size(); j++) {
-                if (matrix[i][j] == '0') {
+        // 221. Maximal Square
+        // Given an m x n binary matrix filled with 0's and 1's, find the largest square
+        // containing only 1's and return its area.
+        // Example 1:
+        // Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+        // Output: 4
+        // Example 2:
+        // Input: matrix = [["0","1"],["1","0"]]
+        // Output: 1
+        // Example 3:
+        // Input: matrix = [["0"]]
+        // Output: 0
+        // Constraints:
+        // m == matrix.length
+        // n == matrix[i].length
+        // 1 <= m, n <= 300
+        // matrix[i][j] is '0' or '1'.
+        int maximalSquare(vector<vector<char>> &matrix)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return 0;
+            int m = 0;
+            vector<int> c(matrix[0].size(), 0); // Height of 1s at current row
+            for (size_t j = 0; j < matrix[0].size(); j++)
+            {
+                if (matrix[0][j] == '1')
+                {
+                    c[j] = 1;
+                    m = 1;
+                }
+                else
+                {
                     c[j] = 0;
-                    v.clear();
-                } else {
-                    c[j]++;
-                    x = j;
-                    h = c[j];
-                    while (!v.empty() && v.back().second >= h) {
-                        x = v.back().first;
-                        v.pop_back();
-                    }
+                }
+            }
+            for (int i = 1; i < (int)matrix.size(); i++)
+            {
+                vector<pair<int, int>> v;
+                int x = 0;
+                int h = 0;
+                if (matrix[i][0] == '0')
+                {
+                    c[0] = 0;
+                }
+                else
+                {
+                    c[0]++;
+                    x = 0;
+                    h = c[0];
                     v.push_back(make_pair(x, h));
-                    for (const auto& p : v) {
-                        int n = min(j - p.first + 1, p.second);
-                        m = max(m, n * n);
+                    m = max(m, 1);
+                }
+                for (int j = 1; j < (int)matrix[i].size(); j++)
+                {
+                    if (matrix[i][j] == '0')
+                    {
+                        c[j] = 0;
+                        v.clear();
+                    }
+                    else
+                    {
+                        c[j]++;
+                        x = j;
+                        h = c[j];
+                        while (!v.empty() && v.back().second >= h)
+                        {
+                            x = v.back().first;
+                            v.pop_back();
+                        }
+                        v.push_back(make_pair(x, h));
+                        for (const auto &p : v)
+                        {
+                            int n = min(j - p.first + 1, p.second);
+                            m = max(m, n * n);
+                        }
                     }
                 }
             }
+            return m;
         }
-        return m;
-    }
+
+        // 222. Count Complete Tree Nodes
+        // Given the root of a complete binary tree, return the number of the nodes in the tree.
+        // According to Wikipedia, every level, except possibly the last, is completely filled in
+        // a complete binary tree, and all nodes in the last level are as far left as possible.
+        // It can have between 1 and 2h nodes inclusive at the last level h.
+        // Example 1:
+        //    1
+        //  2   3
+        // 4 5 6
+        // Input: root = [1,2,3,4,5,6]
+        // Output: 6
+        // Example 2:
+        // Input: root = []
+        // Output: 0
+        // Example 3:
+        // Input: root = [1]
+        // Output: 1
+        // Constraints:
+        // The number of nodes in the tree is in the range [0, 5 * 104].
+        // 0 <= Node.val <= 5 * 104
+        // The tree is guaranteed to be complete.
+        // Follow up: Traversing the tree to count the number of nodes in the tree is an easy
+        // solution but with O(n) complexity. Could you find a faster algorithm?
+        int countNodes(TreeNode *root)
+        {
+            int c = 0;
+            stack<pair<TreeNode *, int>> s;
+            TreeNode *n = root;
+            int h = 0;
+            int lastLevelHeight = -1;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left != nullptr && lastLevelHeight == -1)
+                    {
+                        c += (1 << h);
+                    }
+                    s.push(make_pair(n, h));
+                    n = n->left;
+                    h++;
+                }
+                else
+                {
+                    pair<TreeNode *, int> p = s.top();
+                    s.pop();
+                    if (p.first->right == nullptr)
+                    {
+                        if (lastLevelHeight == -1)
+                        {
+                            lastLevelHeight = p.second;
+                            c++;
+                        }
+                        else if (p.second == lastLevelHeight)
+                        {
+                            c++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        n = p.first->right;
+                        h = p.second + 1;
+                    }
+                }
+            }
+            return c;
+        }
+        int countNodes2(TreeNode *root)
+        {
+            int c = 0;
+            stack<TreeNode *> s;
+            TreeNode *n = root;
+            int h = 0;
+            int lastLevelHeight = -1;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left != nullptr && lastLevelHeight == -1)
+                    {
+                        c += (1 << h);
+                    }
+                    s.push(n);
+                    n = n->left;
+                    h++;
+                }
+                else
+                {
+                    TreeNode *p = s.top();
+                    h--;
+                    if (p->right == nullptr)
+                    {
+                        if (lastLevelHeight == -1)
+                        {
+                            lastLevelHeight = h;
+                            c++;
+                        }
+                        else if (h == lastLevelHeight)
+                        {
+                            c++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                        s.pop();
+                    }
+                    else if (p->right == last)
+                    {
+                        s.pop();
+                    }
+                    else
+                    {
+                        n = p->right;
+                        h++;
+                    }
+                    last = p;
+                }
+            }
+            return c;
+        }
+        int countNodes3(TreeNode *root)
+        {
+            function<int(TreeNode *)> count = [&](TreeNode *n) -> int {
+                if (n == nullptr)
+                    return 0;
+                return 1 + count(n->left) + count(n->right);
+            };
+            return count(root);
+        }
 
         // Max Consecutive Ones
         // Given a binary array, find the maximum number of consecutive 1s in this array.
@@ -26872,343 +27026,343 @@ namespace Test
         // GROUP BY s.Id, s.Score
         // ORDER BY s.Score DESC;
 
-// 180. Consecutive Numbers
-// Table: Logs
-// +-------------+---------+
-// | Column Name | Type    |
-// +-------------+---------+
-// | id          | int     |
-// | num         | varchar |
-// +-------------+---------+
-// id is the primary key for this table.
-// Write an SQL query to find all numbers that appear at least three times consecutively.
-// Return the result table in any order.
-// The query result format is in the following example:
-// Logs table:
-// +----+-----+
-// | Id | Num |
-// +----+-----+
-// | 1  | 1   |
-// | 2  | 1   |
-// | 3  | 1   |
-// | 4  | 2   |
-// | 5  | 1   |
-// | 6  | 2   |
-// | 7  | 2   |
-// +----+-----+
-// Result table:
-// +-----------------+
-// | ConsecutiveNums |
-// +-----------------+
-// | 1               |
-// +-----------------+
-// 1 is the only number that appears consecutively for at least three times.
-// select distinct l1.num as ConsecutiveNums from logs l1
-// join logs l2 on l1.id = l2.id - 1
-// join logs l3 on l2.id = l3.id - 1
-// where l1.num = l2.num and l2.num = l3.num;
+        // 180. Consecutive Numbers
+        // Table: Logs
+        // +-------------+---------+
+        // | Column Name | Type    |
+        // +-------------+---------+
+        // | id          | int     |
+        // | num         | varchar |
+        // +-------------+---------+
+        // id is the primary key for this table.
+        // Write an SQL query to find all numbers that appear at least three times consecutively.
+        // Return the result table in any order.
+        // The query result format is in the following example:
+        // Logs table:
+        // +----+-----+
+        // | Id | Num |
+        // +----+-----+
+        // | 1  | 1   |
+        // | 2  | 1   |
+        // | 3  | 1   |
+        // | 4  | 2   |
+        // | 5  | 1   |
+        // | 6  | 2   |
+        // | 7  | 2   |
+        // +----+-----+
+        // Result table:
+        // +-----------------+
+        // | ConsecutiveNums |
+        // +-----------------+
+        // | 1               |
+        // +-----------------+
+        // 1 is the only number that appears consecutively for at least three times.
+        // select distinct l1.num as ConsecutiveNums from logs l1
+        // join logs l2 on l1.id = l2.id - 1
+        // join logs l3 on l2.id = l3.id - 1
+        // where l1.num = l2.num and l2.num = l3.num;
 
-// 181. Employees Earning More Than Their Managers
-// The Employee table holds all employees including their managers.
-// Every employee has an Id, and there is also a column for the manager Id.
-// +----+-------+--------+-----------+
-// | Id | Name  | Salary | ManagerId |
-// +----+-------+--------+-----------+
-// | 1  | Joe   | 70000  | 3         |
-// | 2  | Henry | 80000  | 4         |
-// | 3  | Sam   | 60000  | NULL      |
-// | 4  | Max   | 90000  | NULL      |
-// +----+-------+--------+-----------+
-// Given the Employee table, write a SQL query that finds out employees
-// who earn more than their managers. For the above table, Joe is the only employee
-// who earns more than his manager.
-// +----------+
-// | Employee |
-// +----------+
-// | Joe      |
-// +----------+
-// select e.Name as Employee from Employee e
-// join Employee m on e.ManagerId = m.Id
-// where e.Salary > m.Salary
+        // 181. Employees Earning More Than Their Managers
+        // The Employee table holds all employees including their managers.
+        // Every employee has an Id, and there is also a column for the manager Id.
+        // +----+-------+--------+-----------+
+        // | Id | Name  | Salary | ManagerId |
+        // +----+-------+--------+-----------+
+        // | 1  | Joe   | 70000  | 3         |
+        // | 2  | Henry | 80000  | 4         |
+        // | 3  | Sam   | 60000  | NULL      |
+        // | 4  | Max   | 90000  | NULL      |
+        // +----+-------+--------+-----------+
+        // Given the Employee table, write a SQL query that finds out employees
+        // who earn more than their managers. For the above table, Joe is the only employee
+        // who earns more than his manager.
+        // +----------+
+        // | Employee |
+        // +----------+
+        // | Joe      |
+        // +----------+
+        // select e.Name as Employee from Employee e
+        // join Employee m on e.ManagerId = m.Id
+        // where e.Salary > m.Salary
 
-// 182. Duplicate Emails
-// Write a SQL query to find all duplicate emails in a table named Person.
-// +----+---------+
-// | Id | Email   |
-// +----+---------+
-// | 1  | a@b.com |
-// | 2  | c@d.com |
-// | 3  | a@b.com |
-// +----+---------+
-// For example, your query should return the following for the above table:
-// +---------+
-// | Email   |
-// +---------+
-// | a@b.com |
-// +---------+
-// Note: All emails are in lowercase.
-// select Email from (select Email, count(Id) as Count from Person group by Email) e where Count > 1;
+        // 182. Duplicate Emails
+        // Write a SQL query to find all duplicate emails in a table named Person.
+        // +----+---------+
+        // | Id | Email   |
+        // +----+---------+
+        // | 1  | a@b.com |
+        // | 2  | c@d.com |
+        // | 3  | a@b.com |
+        // +----+---------+
+        // For example, your query should return the following for the above table:
+        // +---------+
+        // | Email   |
+        // +---------+
+        // | a@b.com |
+        // +---------+
+        // Note: All emails are in lowercase.
+        // select Email from (select Email, count(Id) as Count from Person group by Email) e where Count > 1;
 
-// 183. Customers Who Never Order
-// Suppose that a website contains two tables, the Customers table and the Orders table.
-// Write a SQL query to find all customers who never order anything.
-// Table: Customers.
-// +----+-------+
-// | Id | Name  |
-// +----+-------+
-// | 1  | Joe   |
-// | 2  | Henry |
-// | 3  | Sam   |
-// | 4  | Max   |
-// +----+-------+
-// Table: Orders.
-// +----+------------+
-// | Id | CustomerId |
-// +----+------------+
-// | 1  | 3          |
-// | 2  | 1          |
-// +----+------------+
-// Using the above tables as example, return the following:
-// +-----------+
-// | Customers |
-// +-----------+
-// | Henry     |
-// | Max       |
-// +-----------+
-// select Name as Customers from Customers where Id not in (select CustomerId from Orders);
+        // 183. Customers Who Never Order
+        // Suppose that a website contains two tables, the Customers table and the Orders table.
+        // Write a SQL query to find all customers who never order anything.
+        // Table: Customers.
+        // +----+-------+
+        // | Id | Name  |
+        // +----+-------+
+        // | 1  | Joe   |
+        // | 2  | Henry |
+        // | 3  | Sam   |
+        // | 4  | Max   |
+        // +----+-------+
+        // Table: Orders.
+        // +----+------------+
+        // | Id | CustomerId |
+        // +----+------------+
+        // | 1  | 3          |
+        // | 2  | 1          |
+        // +----+------------+
+        // Using the above tables as example, return the following:
+        // +-----------+
+        // | Customers |
+        // +-----------+
+        // | Henry     |
+        // | Max       |
+        // +-----------+
+        // select Name as Customers from Customers where Id not in (select CustomerId from Orders);
 
-// 184. Department Highest Salary
-// The Employee table holds all employees. Every employee has an Id, a salary,
-// and there is also a column for the department Id.
-// +----+-------+--------+--------------+
-// | Id | Name  | Salary | DepartmentId |
-// +----+-------+--------+--------------+
-// | 1  | Joe   | 70000  | 1            |
-// | 2  | Jim   | 90000  | 1            |
-// | 3  | Henry | 80000  | 2            |
-// | 4  | Sam   | 60000  | 2            |
-// | 5  | Max   | 90000  | 1            |
-// +----+-------+--------+--------------+
-// The Department table holds all departments of the company.
-// +----+----------+
-// | Id | Name     |
-// +----+----------+
-// | 1  | IT       |
-// | 2  | Sales    |
-// +----+----------+
-// Write a SQL query to find employees who have the highest salary in each of
-// the departments. For the above tables, your SQL query should return the following
-// rows (order of rows does not matter).
-// +------------+----------+--------+
-// | Department | Employee | Salary |
-// +------------+----------+--------+
-// | IT         | Max      | 90000  |
-// | IT         | Jim      | 90000  |
-// | Sales      | Henry    | 80000  |
-// +------------+----------+--------+
-// Explanation:
-// Max and Jim both have the highest salary in the IT department and Henry has the highest salary in the Sales department.
-// select d.Name as Department, e.Name as Employee, e.Salary
-// from Employee e
-// join (
-//     select DepartmentId, max(Salary) as MaxSalary
-//     from Employee group by DepartmentId
-// ) m on e.DepartmentId = m.DepartmentId and e.Salary = m.MaxSalary
-// join Department d on e.DepartmentId = d.Id;
+        // 184. Department Highest Salary
+        // The Employee table holds all employees. Every employee has an Id, a salary,
+        // and there is also a column for the department Id.
+        // +----+-------+--------+--------------+
+        // | Id | Name  | Salary | DepartmentId |
+        // +----+-------+--------+--------------+
+        // | 1  | Joe   | 70000  | 1            |
+        // | 2  | Jim   | 90000  | 1            |
+        // | 3  | Henry | 80000  | 2            |
+        // | 4  | Sam   | 60000  | 2            |
+        // | 5  | Max   | 90000  | 1            |
+        // +----+-------+--------+--------------+
+        // The Department table holds all departments of the company.
+        // +----+----------+
+        // | Id | Name     |
+        // +----+----------+
+        // | 1  | IT       |
+        // | 2  | Sales    |
+        // +----+----------+
+        // Write a SQL query to find employees who have the highest salary in each of
+        // the departments. For the above tables, your SQL query should return the following
+        // rows (order of rows does not matter).
+        // +------------+----------+--------+
+        // | Department | Employee | Salary |
+        // +------------+----------+--------+
+        // | IT         | Max      | 90000  |
+        // | IT         | Jim      | 90000  |
+        // | Sales      | Henry    | 80000  |
+        // +------------+----------+--------+
+        // Explanation:
+        // Max and Jim both have the highest salary in the IT department and Henry has the highest salary in the Sales department.
+        // select d.Name as Department, e.Name as Employee, e.Salary
+        // from Employee e
+        // join (
+        //     select DepartmentId, max(Salary) as MaxSalary
+        //     from Employee group by DepartmentId
+        // ) m on e.DepartmentId = m.DepartmentId and e.Salary = m.MaxSalary
+        // join Department d on e.DepartmentId = d.Id;
 
-// 185. Department Top Three Salaries
-// The Employee table holds all employees. Every employee has an Id, and there
-// is also a column for the department Id.
-// +----+-------+--------+--------------+
-// | Id | Name  | Salary | DepartmentId |
-// +----+-------+--------+--------------+
-// | 1  | Joe   | 85000  | 1            |
-// | 2  | Henry | 80000  | 2            |
-// | 3  | Sam   | 60000  | 2            |
-// | 4  | Max   | 90000  | 1            |
-// | 5  | Janet | 69000  | 1            |
-// | 6  | Randy | 85000  | 1            |
-// | 7  | Will  | 70000  | 1            |
-// +----+-------+--------+--------------+
-// The Department table holds all departments of the company.
-// +----+----------+
-// | Id | Name     |
-// +----+----------+
-// | 1  | IT       |
-// | 2  | Sales    |
-// +----+----------+
-// Write a SQL query to find employees who earn the top three salaries in each of
-// the department. For the above tables, your SQL query should return the following
-// rows (order of rows does not matter).
-// +------------+----------+--------+
-// | Department | Employee | Salary |
-// +------------+----------+--------+
-// | IT         | Max      | 90000  |
-// | IT         | Randy    | 85000  |
-// | IT         | Joe      | 85000  |
-// | IT         | Will     | 70000  |
-// | Sales      | Henry    | 80000  |
-// | Sales      | Sam      | 60000  |
-// +------------+----------+--------+
-// Explanation:
-// In IT department, Max earns the highest salary, both Randy and Joe earn the second
-// highest salary, and Will earns the third highest salary. There are only two employees
-// in the Sales department, Henry earns the highest salary while Sam earns the second
-// highest salary.
-// select d.Name as Department, f.Name as Employee, f.Salary
-// from (
-//     select DepartmentId, Name, Salary
-//     from (
-//         select Name, Salary, DepartmentId, dense_rank() over (partition by DepartmentId order by Salary desc) R
-//         from employee
-//     ) e
-//     where e.R <= 3
-// ) f
-// join Department d on f.DepartmentId = d.Id;
+        // 185. Department Top Three Salaries
+        // The Employee table holds all employees. Every employee has an Id, and there
+        // is also a column for the department Id.
+        // +----+-------+--------+--------------+
+        // | Id | Name  | Salary | DepartmentId |
+        // +----+-------+--------+--------------+
+        // | 1  | Joe   | 85000  | 1            |
+        // | 2  | Henry | 80000  | 2            |
+        // | 3  | Sam   | 60000  | 2            |
+        // | 4  | Max   | 90000  | 1            |
+        // | 5  | Janet | 69000  | 1            |
+        // | 6  | Randy | 85000  | 1            |
+        // | 7  | Will  | 70000  | 1            |
+        // +----+-------+--------+--------------+
+        // The Department table holds all departments of the company.
+        // +----+----------+
+        // | Id | Name     |
+        // +----+----------+
+        // | 1  | IT       |
+        // | 2  | Sales    |
+        // +----+----------+
+        // Write a SQL query to find employees who earn the top three salaries in each of
+        // the department. For the above tables, your SQL query should return the following
+        // rows (order of rows does not matter).
+        // +------------+----------+--------+
+        // | Department | Employee | Salary |
+        // +------------+----------+--------+
+        // | IT         | Max      | 90000  |
+        // | IT         | Randy    | 85000  |
+        // | IT         | Joe      | 85000  |
+        // | IT         | Will     | 70000  |
+        // | Sales      | Henry    | 80000  |
+        // | Sales      | Sam      | 60000  |
+        // +------------+----------+--------+
+        // Explanation:
+        // In IT department, Max earns the highest salary, both Randy and Joe earn the second
+        // highest salary, and Will earns the third highest salary. There are only two employees
+        // in the Sales department, Henry earns the highest salary while Sam earns the second
+        // highest salary.
+        // select d.Name as Department, f.Name as Employee, f.Salary
+        // from (
+        //     select DepartmentId, Name, Salary
+        //     from (
+        //         select Name, Salary, DepartmentId, dense_rank() over (partition by DepartmentId order by Salary desc) R
+        //         from employee
+        //     ) e
+        //     where e.R <= 3
+        // ) f
+        // join Department d on f.DepartmentId = d.Id;
 
-// 192. Word Frequency
-// Write a bash script to calculate the frequency of each word in a text file words.txt.
-// For simplicity sake, you may assume:
-// words.txt contains only lowercase characters and space ' ' characters.
-// Each word must consist of lowercase characters only.
-// Words are separated by one or more whitespace characters.
-// Example:
-// Assume that words.txt has the following content:
-// the day is sunny the the
-// the sunny is is
-// Your script should output the following, sorted by descending frequency:
-// the 4
-// is 3
-// sunny 2
-// day 1
-// Note:
-// Don't worry about handling ties, it is guaranteed that each word's frequency count is unique.
-// Could you write it in one-line using Unix pipes?
-// for w in $(cat words.txt | cut -d ' ' -f1-); do echo $w; done | sort | uniq -c | sort -r | awk '{print $2" "$1}'
+        // 192. Word Frequency
+        // Write a bash script to calculate the frequency of each word in a text file words.txt.
+        // For simplicity sake, you may assume:
+        // words.txt contains only lowercase characters and space ' ' characters.
+        // Each word must consist of lowercase characters only.
+        // Words are separated by one or more whitespace characters.
+        // Example:
+        // Assume that words.txt has the following content:
+        // the day is sunny the the
+        // the sunny is is
+        // Your script should output the following, sorted by descending frequency:
+        // the 4
+        // is 3
+        // sunny 2
+        // day 1
+        // Note:
+        // Don't worry about handling ties, it is guaranteed that each word's frequency count is unique.
+        // Could you write it in one-line using Unix pipes?
+        // for w in $(cat words.txt | cut -d ' ' -f1-); do echo $w; done | sort | uniq -c | sort -r | awk '{print $2" "$1}'
 
-// 193. Valid Phone Numbers
-// Given a text file file.txt that contains list of phone numbers (one per line),
-// write a one liner bash script to print all valid phone numbers.
-// You may assume that a valid phone number must appear in one of the following two
-// formats: (xxx) xxx-xxxx or xxx-xxx-xxxx. (x means a digit)
-// You may also assume each line in the text file must not contain leading or
-// trailing white spaces.
-// Example:
-// Assume that file.txt has the following content:
-// 987-123-4567
-// 123 456 7890
-// (123) 456-7890
-// Your script should output the following valid phone numbers:
-// 987-123-4567
-// (123) 456-7890
-// grep -E "^([0-9]{3}-|\([0-9]{3}\)\ )[0-9]{3}-[0-9]{4}$" file.txt
+        // 193. Valid Phone Numbers
+        // Given a text file file.txt that contains list of phone numbers (one per line),
+        // write a one liner bash script to print all valid phone numbers.
+        // You may assume that a valid phone number must appear in one of the following two
+        // formats: (xxx) xxx-xxxx or xxx-xxx-xxxx. (x means a digit)
+        // You may also assume each line in the text file must not contain leading or
+        // trailing white spaces.
+        // Example:
+        // Assume that file.txt has the following content:
+        // 987-123-4567
+        // 123 456 7890
+        // (123) 456-7890
+        // Your script should output the following valid phone numbers:
+        // 987-123-4567
+        // (123) 456-7890
+        // grep -E "^([0-9]{3}-|\([0-9]{3}\)\ )[0-9]{3}-[0-9]{4}$" file.txt
 
-// 194. Transpose File
-// Given a text file file.txt, transpose its content.
-// You may assume that each row has the same number of columns and each field is
-// separated by the ' ' character.
-// Example:
-// If file.txt has the following content:
-// name age
-// alice 21
-// ryan 30
-// Output the following:
-// name alice ryan
-// age 21 30
-// for i in $(seq 1 1 $(head -1 file.txt | wc -w)); do cut -d ' ' -f $i file.txt | tr '\n' ' ' | awk {print} | sed 's/ \n/\n/g'; done
-// Wrong Answer
-// Input
-// 'a'
-// Output
-// 'a '
-// Expected
-// 'a'
+        // 194. Transpose File
+        // Given a text file file.txt, transpose its content.
+        // You may assume that each row has the same number of columns and each field is
+        // separated by the ' ' character.
+        // Example:
+        // If file.txt has the following content:
+        // name age
+        // alice 21
+        // ryan 30
+        // Output the following:
+        // name alice ryan
+        // age 21 30
+        // for i in $(seq 1 1 $(head -1 file.txt | wc -w)); do cut -d ' ' -f $i file.txt | tr '\n' ' ' | awk {print} | sed 's/ \n/\n/g'; done
+        // Wrong Answer
+        // Input
+        // 'a'
+        // Output
+        // 'a '
+        // Expected
+        // 'a'
 
-// 195. Tenth Line
-// Given a text file file.txt, print just the 10th line of the file.
-// Example:
-// Assume that file.txt has the following content:
-// Line 1
-// Line 2
-// Line 3
-// Line 4
-// Line 5
-// Line 6
-// Line 7
-// Line 8
-// Line 9
-// Line 10
-// Your script should output the tenth line, which is:
-// Line 10
-// Note:
-// 1. If the file contains less than 10 lines, what should you output?
-// 2. There's at least three different solutions. Try to explore all possibilities.
-// if [ $(cat file.txt | wc -l) -ge 10 ]; then head -10 file.txt | tail -1; fi
-// sed -n '10p' file.txt
+        // 195. Tenth Line
+        // Given a text file file.txt, print just the 10th line of the file.
+        // Example:
+        // Assume that file.txt has the following content:
+        // Line 1
+        // Line 2
+        // Line 3
+        // Line 4
+        // Line 5
+        // Line 6
+        // Line 7
+        // Line 8
+        // Line 9
+        // Line 10
+        // Your script should output the tenth line, which is:
+        // Line 10
+        // Note:
+        // 1. If the file contains less than 10 lines, what should you output?
+        // 2. There's at least three different solutions. Try to explore all possibilities.
+        // if [ $(cat file.txt | wc -l) -ge 10 ]; then head -10 file.txt | tail -1; fi
+        // sed -n '10p' file.txt
 
-// 196. Delete Duplicate Emails
-// Write a SQL query to delete all duplicate email entries in a table named Person,
-// keeping only unique emails based on its smallest Id.
-// +----+------------------+
-// | Id | Email            |
-// +----+------------------+
-// | 1  | john@example.com |
-// | 2  | bob@example.com  |
-// | 3  | john@example.com |
-// +----+------------------+
-// Id is the primary key column for this table.
-// For example, after running your query, the above Person table should have the
-// following rows:
-// +----+------------------+
-// | Id | Email            |
-// +----+------------------+
-// | 1  | john@example.com |
-// | 2  | bob@example.com  |
-// +----+------------------+
-// Note:
-// Your output is the whole Person table after executing your sql. Use delete statement.
-// Solution:
-// with minIds as (select min(Id)as Id from Person group by Email)
-// delete from Person where Id not in (select Id from minIds);
-// Wrong solution: You can't specify target table 'Person' for update in FROM clause
-// delete from Person where Id not in (select mind(Id) from Person group by Email);
+        // 196. Delete Duplicate Emails
+        // Write a SQL query to delete all duplicate email entries in a table named Person,
+        // keeping only unique emails based on its smallest Id.
+        // +----+------------------+
+        // | Id | Email            |
+        // +----+------------------+
+        // | 1  | john@example.com |
+        // | 2  | bob@example.com  |
+        // | 3  | john@example.com |
+        // +----+------------------+
+        // Id is the primary key column for this table.
+        // For example, after running your query, the above Person table should have the
+        // following rows:
+        // +----+------------------+
+        // | Id | Email            |
+        // +----+------------------+
+        // | 1  | john@example.com |
+        // | 2  | bob@example.com  |
+        // +----+------------------+
+        // Note:
+        // Your output is the whole Person table after executing your sql. Use delete statement.
+        // Solution:
+        // with minIds as (select min(Id)as Id from Person group by Email)
+        // delete from Person where Id not in (select Id from minIds);
+        // Wrong solution: You can't specify target table 'Person' for update in FROM clause
+        // delete from Person where Id not in (select mind(Id) from Person group by Email);
 
-// 197. Rising Temperature
-// Table: Weather
-// +---------------+---------+
-// | Column Name   | Type    |
-// +---------------+---------+
-// | id            | int     |
-// | recordDate    | date    |
-// | temperature   | int     |
-// +---------------+---------+
-// id is the primary key for this table.
-// This table contains information about the temperature in a certain day.
-// Write an SQL query to find all dates' id with higher temperature compared to
-// its previous dates (yesterday).
-// Return the result table in any order.
-// The query result format is in the following example:
-// Weather
-// +----+------------+-------------+
-// | id | recordDate | Temperature |
-// +----+------------+-------------+
-// | 1  | 2015-01-01 | 10          |
-// | 2  | 2015-01-02 | 25          |
-// | 3  | 2015-01-03 | 20          |
-// | 4  | 2015-01-04 | 30          |
-// +----+------------+-------------+
-// Result table:
-// +----+
-// | id |
-// +----+
-// | 2  |
-// | 4  |
-// +----+
-// In 2015-01-02, temperature was higher than the previous day (10 -> 25).
-// In 2015-01-04, temperature was higher than the previous day (20 -> 30).
-// select w1.id from Weather w1
-// join Weather w2 on w1.recordDate = date_add(w2.recordDate, interval 1 day)
-// where w1.Temperature > w2.Temperature;
+        // 197. Rising Temperature
+        // Table: Weather
+        // +---------------+---------+
+        // | Column Name   | Type    |
+        // +---------------+---------+
+        // | id            | int     |
+        // | recordDate    | date    |
+        // | temperature   | int     |
+        // +---------------+---------+
+        // id is the primary key for this table.
+        // This table contains information about the temperature in a certain day.
+        // Write an SQL query to find all dates' id with higher temperature compared to
+        // its previous dates (yesterday).
+        // Return the result table in any order.
+        // The query result format is in the following example:
+        // Weather
+        // +----+------------+-------------+
+        // | id | recordDate | Temperature |
+        // +----+------------+-------------+
+        // | 1  | 2015-01-01 | 10          |
+        // | 2  | 2015-01-02 | 25          |
+        // | 3  | 2015-01-03 | 20          |
+        // | 4  | 2015-01-04 | 30          |
+        // +----+------------+-------------+
+        // Result table:
+        // +----+
+        // | id |
+        // +----+
+        // | 2  |
+        // | 4  |
+        // +----+
+        // In 2015-01-02, temperature was higher than the previous day (10 -> 25).
+        // In 2015-01-04, temperature was higher than the previous day (20 -> 30).
+        // select w1.id from Weather w1
+        // join Weather w2 on w1.recordDate = date_add(w2.recordDate, interval 1 day)
+        // where w1.Temperature > w2.Temperature;
 
     } // namespace sql
 } // namespace Test
