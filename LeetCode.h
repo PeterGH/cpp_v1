@@ -23720,6 +23720,76 @@ namespace Test
             return a;
         }
 
+        // 224. Basic Calculator
+        // Given a string s representing an expression, implement a basic calculator to evaluate it.
+        // Example 1:
+        // Input: s = "1 + 1"
+        // Output: 2
+        // Example 2:
+        // Input: s = " 2-1 + 2 "
+        // Output: 3
+        // Example 3:
+        // Input: s = "(1+(4+5+2)-3)+(6+8)"
+        // Output: 23
+        // Constraints:
+        // 1 <= s.length <= 3 * 105
+        // s consists of digits, '+', '-', '(', ')', and ' '.
+        // s represents a valid expression.
+        int calculate(string s)
+        {
+            stack<pair<char, long long>> e;
+            long long a = 0;
+            function<long long(long long)> op = [&](long long v) -> int {
+                if (!e.empty() && e.top().first != '(')
+                {
+                    char o = e.top().first;
+                    e.pop();
+                    long long t = 0;
+                    if (!e.empty())
+                    {
+                        t = e.top().second;
+                        e.pop();
+                    }
+                    if (o == '+')
+                    {
+                        v = t + v;
+                    }
+                    else
+                    {
+                        v = t - v;
+                    }
+                }
+                return v;
+            };
+            for (const char &c : s)
+            {
+                if ('0' <= c && c <= '9')
+                {
+                    a = 10 * a + c - '0';
+                }
+                else if (c == '(')
+                {
+                    e.push(make_pair(c, 0));
+                }
+                else if (c == '+' || c == '-' || c == ')')
+                {
+                    a = op(a);
+                    if (c == ')')
+                    {
+                        e.pop(); // pop '('
+                    }
+                    else
+                    {
+                        e.push(make_pair('0', a));
+                        e.push(make_pair(c, 0));
+                        a = 0; // reset to start scanning next number
+                    }
+                }
+            }
+            a = op(a);
+            return a;
+        }
+
         // Max Consecutive Ones
         // Given a binary array, find the maximum number of consecutive 1s in this array.
         // Example 1:
