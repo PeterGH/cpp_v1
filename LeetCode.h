@@ -25418,7 +25418,7 @@ namespace Test
             }
         };
 
-        // Implement Stack using Queues
+        // 225. Implement Stack using Queues
         // Implement the following operations of a stack using queues.
         // push(x) -- Push element x onto stack.
         // pop() -- Removes the element on top of the stack.
@@ -25506,6 +25506,67 @@ namespace Test
                 return q0.empty() && q1.empty();
             }
         };
+
+        // 226. Invert Binary Tree
+        // Invert a binary tree.
+        // Example:
+        // Input:
+        //      4
+        //    /   \
+        //   2     7
+        //  / \   / \
+        // 1   3 6   9
+        // Output:
+        //      4
+        //    /   \
+        //   7     2
+        //  / \   / \
+        // 9   6 3   1
+        // Trivia:
+        // This problem was inspired by this original tweet by Max Howell:
+        // Google: 90% of our engineers use the software you wrote (Homebrew),
+        // but you can’t invert a binary tree on a whiteboard so f*** off.
+        TreeNode *invertTree(TreeNode *root)
+        {
+            function<void(TreeNode *)> invert = [&](TreeNode *node) {
+                if (node == nullptr)
+                    return;
+                invert(node->left);
+                invert(node->right);
+                swap(node->left, node->right);
+            };
+            invert(root);
+            return root;
+        }
+        TreeNode *invertTree2(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            TreeNode *last = nullptr;
+            TreeNode *n = root;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        swap(t->left, t->right);
+                        s.pop();
+                    }
+                    last = t;
+                }
+            }
+            return root;
+        }
 
         // Decode String
         // Given an encoded string, return its decoded string.
