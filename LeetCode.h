@@ -23789,6 +23789,54 @@ namespace Test
             a = op(a);
             return a;
         }
+        int calculate2(string s)
+        {
+            stack<pair<char, long long>> e;
+            long long a = 0;
+            function<long long(long long)> op = [&](long long v) -> int {
+                if (!e.empty() && e.top().first != '(')
+                {
+                    char o = e.top().first;
+                    long long t = e.top().second;
+                    e.pop();
+                    if (o == '+')
+                    {
+                        v = t + v;
+                    }
+                    else
+                    {
+                        v = t - v;
+                    }
+                }
+                return v;
+            };
+            for (const char &c : s)
+            {
+                if ('0' <= c && c <= '9')
+                {
+                    a = 10 * a + c - '0';
+                }
+                else if (c == '(')
+                {
+                    e.push(make_pair(c, 0));
+                }
+                else if (c == '+' || c == '-' || c == ')')
+                {
+                    a = op(a);
+                    if (c == ')')
+                    {
+                        e.pop();
+                    }
+                    else
+                    {
+                        e.push(make_pair(c, a));
+                        a = 0;
+                    }
+                }
+            }
+            a = op(a);
+            return a;
+        }
 
         // Max Consecutive Ones
         // Given a binary array, find the maximum number of consecutive 1s in this array.
