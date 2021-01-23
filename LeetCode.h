@@ -25568,6 +25568,89 @@ namespace Test
             return root;
         }
 
+        // 227. Basic Calculator II
+        // Given a string s which represents an expression, evaluate this expression and return its value.
+        // The integer division should truncate toward zero.
+        // Example 1:
+        // Input: s = "3+2*2"
+        // Output: 7
+        // Example 2:
+        // Input: s = " 3/2 "
+        // Output: 1
+        // Example 3:
+        // Input: s = " 3+5 / 2 "
+        // Output: 5
+        // Constraints:
+        // 1 <= s.length <= 3 * 105
+        // s consists of integers and operators ('+', '-', '*', '/') separated by some number of spaces.
+        // s represents a valid expression.
+        // All the integers in the expression are non-negative integers in the range [0, 231 - 1].
+        // The answer is guaranteed to fit in a 32-bit integer.
+        int calculateII(string s)
+        {
+            stack<pair<char, long long>> e;
+            long long a = 0;
+            function<long long(long long, bool)> op =
+                [&](long long v, bool doAddSub) -> long long {
+                char o;
+                long long t;
+                if (!e.empty() && (e.top().first == '*' || e.top().first == '/'))
+                {
+                    o = e.top().first;
+                    e.pop();
+                    t = e.top().second;
+                    e.pop();
+                    if (o == '*')
+                    {
+                        v = t * v;
+                    }
+                    else
+                    {
+                        v = t / v;
+                    }
+                }
+                if (doAddSub)
+                {
+                    if (!e.empty())
+                    {
+                        o = e.top().first;
+                        e.pop();
+                        t = 0;
+                        if (!e.empty())
+                        {
+                            t = e.top().second;
+                            e.pop();
+                        }
+                        if (o == '+')
+                        {
+                            v = t + v;
+                        }
+                        else
+                        {
+                            v = t - v;
+                        }
+                    }
+                }
+                return v;
+            };
+            for (const char &c : s)
+            {
+                if ('0' <= c && c <= '9')
+                {
+                    a = 10 * a + c - '0';
+                }
+                else if (c == '*' || c == '/' || c == '+' || c == '-')
+                {
+                    a = op(a, (c == '+' || c == '-'));
+                    e.push(make_pair('0', a));
+                    e.push(make_pair(c, 0));
+                    a = 0;
+                }
+            }
+            a = op(a, true);
+            return a;
+        }
+
         // Decode String
         // Given an encoded string, return its decoded string.
         // The encoding rule is: k[encoded_string], where the encoded_string inside the
