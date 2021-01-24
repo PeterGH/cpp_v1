@@ -25826,6 +25826,99 @@ namespace Test
             return ranges;
         }
 
+        // 229. Majority Element II
+        // Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times.
+        // Follow-up: Could you solve the problem in linear time and in O(1) space?
+        // Example 1:
+        // Input: nums = [3,2,3]
+        // Output: [3]
+        // Example 2:
+        // Input: nums = [1]
+        // Output: [1]
+        // Example 3:
+        // Input: nums = [1,2]
+        // Output: [1,2]
+        // Constraints:
+        // 1 <= nums.length <= 5 * 104
+        // -109 <= nums[i] <= 109
+        // Generalised Boyer Moore Voting.
+        // Majority Element Problem. Floor(N/k) < Frequency(Majority Element)
+        vector<int> majorityElement(vector<int> &nums)
+        {
+            vector<int> r;
+            int n1 = 0;
+            int c1 = 0;
+            int n2 = 0;
+            int c2 = 0;
+            int t = nums.size() / 3;
+            for (const int &n : nums)
+            {
+                if (c1 == 0 && c2 == 0)
+                {
+                    n1 = n;
+                    c1 = 1;
+                }
+                else if (c1 == 0)
+                {
+                    if (n == n2)
+                    {
+                        c2++;
+                    }
+                    else
+                    {
+                        n1 = n;
+                        c1 = 1;
+                    }
+                }
+                else if (c2 == 0)
+                {
+                    if (n == n1)
+                    {
+                        c1++;
+                    }
+                    else
+                    {
+                        n2 = n;
+                        c2 = 1;
+                    }
+                }
+                else if (n == n1)
+                {
+                    c1++;
+                }
+                else if (n == n2)
+                {
+                    c2++;
+                }
+                else
+                {
+                    c1--;
+                    c2--;
+                }
+                if (c1 > t && c2 > t)
+                {
+                    break;
+                }
+            }
+            if (c1 <= t || c2 <= t)
+            {
+                c1 = 0;
+                c2 = 0;
+                for (const int &n : nums)
+                {
+                    if (n == n1)
+                        c1++;
+                    else if (n == n2)
+                        c2++;
+                }
+            }
+            if (c1 > t)
+                r.push_back(n1);
+            if (c2 > t)
+                r.push_back(n2);
+            return r;
+        }
+
         // Decode String
         // Given an encoded string, return its decoded string.
         // The encoding rule is: k[encoded_string], where the encoded_string inside the
