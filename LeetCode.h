@@ -25401,7 +25401,7 @@ namespace Test
             return c;
         }
 
-        // Implement Queue using Stacks
+        // 232. Implement Queue using Stacks
         // Implement the following operations of a queue using stacks.
         // push(x) -- Push element x to the back of queue.
         // pop() -- Removes the element from in front of queue.
@@ -25997,6 +25997,50 @@ namespace Test
         bool isPowerOfTwo(int n)
         {
             return n > 0 && (n & (n - 1)) == 0;
+        }
+
+        // 233. Number of Digit One
+        // Given an integer n, count the total number of digit 1 appearing in
+        // all non-negative integers less than or equal to n.
+        // Example 1:
+        // Input: n = 13
+        // Output: 6
+        // Example 2:
+        // Input: n = 0
+        // Output: 0
+        // Constraints:
+        // 0 <= n <= 2 * 10^9
+        // Given a number CBA:
+        // F(CBA) = F(C00 - 1) + F(BA) + C == 1 ? (BA + 1) : 0
+        // i.e., the total count is count over range [0, C00) + count over range [C00, CBA]
+        int countDigitOne(int n)
+        {
+            map<int, int> m;
+            function<int(int)> count = [&](int x) -> int {
+                if (x <= 0)
+                    return 0;
+                if (x < 10)
+                    return 1;
+                if (m.find(x) != m.end())
+                    return m[x];
+                int y = 1;
+                int h = x;
+                while (h >= 10)
+                {
+                    h /= 10;
+                    y *= 10;
+                }
+                // h is the highest digit
+                y *= h;
+                int z = x - y;
+                int c = count(y - 1);
+                c += count(z);
+                if (h == 1)
+                    c += (z + 1);
+                m[x] = c;
+                return c;
+            };
+            return count(n);
         }
 
         // Decode String
