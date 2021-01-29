@@ -22704,7 +22704,7 @@ namespace Test
             return letters[0];
         }
 
-        // Lowest Common Ancestor of a Binary Tree
+        // 236. Lowest Common Ancestor of a Binary Tree
         // Given a binary tree, find the lowest common ancestor (LCA) of two given nodes
         // in the tree. According to the definition of LCA on Wikipedia: “The lowest
         // common ancestor is defined between two nodes p and q as the lowest node in T
@@ -22784,7 +22784,7 @@ namespace Test
             return nullptr;
         }
 
-        // Lowest Common Ancestor of a Binary Search Tree
+        // 235. Lowest Common Ancestor of a Binary Search Tree
         // Given a binary search tree (BST), find the lowest common ancestor (LCA) of
         // two given nodes in the BST. According to the definition of LCA on Wikipedia:
         // "The lowest common ancestor is defined between two nodes p and q as the lowest
@@ -24664,7 +24664,7 @@ namespace Test
             return head;
         }
 
-        // Palindrome Linked List
+        // 234. Palindrome Linked List
         // Given a singly linked list, determine if it is a palindrome.
         // Example 1:
         // Input: 1->2
@@ -26041,6 +26041,63 @@ namespace Test
                 return c;
             };
             return count(n);
+        }
+
+        // 237. Delete Node in a Linked List
+        // Write a function to delete a node in a singly-linked list.
+        // You will not be given access to the head of the list, instead
+        // you will be given access to the node to be deleted directly.
+        // It is guaranteed that the node to be deleted is not a tail node in the list.
+        // Example 1:
+        // Input: head = [4,5,1,9], node = 5
+        // Output: [4,1,9]
+        // Explanation: You are given the second node with value 5, the linked
+        // list should become 4 -> 1 -> 9 after calling your function.
+        // Example 2:
+        // Input: head = [4,5,1,9], node = 1
+        // Output: [4,5,9]
+        // Explanation: You are given the third node with value 1, the linked
+        // list should become 4 -> 5 -> 9 after calling your function.
+        // Example 3:
+        // Input: head = [1,2,3,4], node = 3
+        // Output: [1,2,4]
+        // Example 4:
+        // Input: head = [0,1], node = 0
+        // Output: [1]
+        // Example 5:
+        // Input: head = [-3,5,-99], node = -3
+        // Output: [5,-99]
+        // Constraints:
+        // The number of the nodes in the given list is in the range [2, 1000].
+        // -1000 <= Node.val <= 1000
+        // The value of each node in the list is unique.
+        // The node to be deleted is in the list and is not a tail node
+        void deleteNode(ListNode *node)
+        {
+            if (node == nullptr || node->next == nullptr)
+                return;
+            node->val = node->next->val;
+            ListNode *n = node->next;
+            node->next = n->next;
+            delete n;
+        }
+        void deleteNode2(ListNode *node)
+        {
+            if (node == nullptr)
+                return;
+            while (node->next != nullptr)
+            {
+                node->val = node->next->val;
+                if (node->next->next == nullptr)
+                {
+                    delete node->next;
+                    node->next = nullptr;
+                }
+                else
+                {
+                    node = node->next;
+                }
+            }
         }
 
         // Decode String
