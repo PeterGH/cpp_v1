@@ -26100,6 +26100,61 @@ namespace Test
             }
         }
 
+        // 238. Product of Array Except Self
+        // Given an array nums of n integers where n > 1,  return an array output such
+        // that output[i] is equal to the product of all the elements of nums except nums[i].
+        // Example:
+        // Input:  [1,2,3,4]
+        // Output: [24,12,8,6]
+        // Constraint: It is guaranteed that the product of the elements of any prefix
+        // or suffix of the array (including the whole array) fits in a 32 bit integer.
+        // Note: Please solve it without division and in O(n).
+        // Follow up:
+        // Could you solve it with constant space complexity?
+        // (The output array does not count as extra space for the purpose of space complexity analysis.)
+        vector<int> productExceptSelf(vector<int> &nums)
+        {
+            vector<int> output(nums);
+
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (i == 0)
+                    output[0] = 1;
+                else
+                    output[i] = output[i - 1] * nums[i - 1];
+            }
+            int a = 1;
+            for (int i = (int)nums.size() - 2; i >= 0; i--)
+            {
+                a *= nums[i + 1];
+                output[i] *= a;
+            }
+            return output;
+        }
+        // Let M[i..j] = I[i] * I[i+1] * ... * I[j]
+        // I[i]  I[0]      I[1]      I[2]      ...... I[i]        ...... I[n-1]
+        // L[i]  1         M[0..0]   M[0..1]   ...... M[0..i-1]   ...... M[0..n-2]
+        // R[i]  M[1..n-1] M[2..n-1] M[3..n-1] ...... M[i+1..n-1] ...... 1
+        // O[i] = L[i] * R[i]
+        vector<int> productExceptSelf2(vector<int> &nums)
+        {
+            vector<int> output(nums.size(), 1);
+            int l = 1;
+            int r = 1;
+            int n = nums.size();
+            for (int i = 0; i < n; i++)
+            {
+                // At loop i, output[i] *= left (= multiplication of input[0..i-1])
+                // At loop length - 1 - i, output[i] *= right (= multiplication of
+                // input[i+1..length-1])
+                output[i] *= l;
+                output[n - 1 - i] *= r;
+                l *= nums[i];
+                r *= nums[n - 1 - i];
+            }
+            return output;
+        }
+
         // Decode String
         // Given an encoded string, return its decoded string.
         // The encoding rule is: k[encoded_string], where the encoded_string inside the
