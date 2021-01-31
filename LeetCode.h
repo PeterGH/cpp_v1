@@ -26155,6 +26155,187 @@ namespace Test
             return output;
         }
 
+        // 239. Sliding Window Maximum
+        // You are given an array of integers nums, there is a sliding window of size k
+        // which is moving from the very left of the array to the very right. You can
+        // only see the k numbers in the window. Each time the sliding window moves right
+        // by one position. Return the max sliding window.
+        // Example 1:
+        // Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+        // Output: [3,3,5,5,6,7]
+        // Explanation:
+        // Window position                Max
+        // ---------------               -----
+        // [1  3  -1] -3  5  3  6  7       3
+        //  1 [3  -1  -3] 5  3  6  7       3
+        //  1  3 [-1  -3  5] 3  6  7       5
+        //  1  3  -1 [-3  5  3] 6  7       5
+        //  1  3  -1  -3 [5  3  6] 7       6
+        //  1  3  -1  -3  5 [3  6  7]      7
+        // Example 2:
+        // Input: nums = [1], k = 1
+        // Output: [1]
+        // Example 3:
+        // Input: nums = [1,-1], k = 1
+        // Output: [1,-1]
+        // Example 4:
+        // Input: nums = [9,11], k = 2
+        // Output: [11]
+        // Example 5:
+        // Input: nums = [4,-2], k = 2
+        // Output: [4]
+        // Constraints:
+        // 1 <= nums.length <= 10^5
+        // -10^4 <= nums[i] <= 10^4
+        // 1 <= k <= nums.length
+        vector<int> maxSlidingWindow(vector<int> &nums, int k)
+        {
+            vector<int> output;
+            deque<int> q;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                while (!q.empty() && nums[q.back()] <= nums[i])
+                    q.pop_back();
+                q.push_back(i);
+                while (q.front() + k <= i)
+                    q.pop_front();
+                if (k - 1 <= (int)i)
+                    output.push_back(nums[q.front()]);
+            }
+            return output;
+        }
+        vector<int> maxSlidingWindow2(vector<int> &nums, int k)
+        {
+            vector<int> output;
+            int m = 0;
+            // Start from 0 so it covers the input with only one element
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (k <= i && m + k <= i)
+                {
+                    m = i - k + 1;
+                    for (int j = i - k + 2; j <= i; j++)
+                    {
+                        if (nums[m] <= nums[j])
+                            m = j;
+                    }
+                }
+                else if (nums[m] <= nums[i])
+                {
+                    m = i;
+                }
+                if (k - 1 <= i)
+                    output.push_back(nums[m]);
+            }
+            return output;
+        }
+        vector<int> maxSlidingWindow3(vector<int> &nums, int k)
+        {
+            struct Node
+            {
+                int val;
+                struct Node *left;
+                struct Node *right;
+                Node(int v) : val(v), left(nullptr), right(nullptr) {}
+            } *root = nullptr;
+            function<void(int)> insert = [&](int v) {
+                struct Node *parent = nullptr;
+                struct Node *node = root;
+                while (node != nullptr)
+                {
+                    parent = node;
+                    if (v < node->val)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                node = new Node(v);
+                if (parent == nullptr)
+                    root = node;
+                else if (v < parent->val)
+                    parent->left = node;
+                else
+                    parent->right = node;
+            };
+            function<int()> get_max = [&]() -> int {
+                struct Node *node = root;
+                if (node == nullptr)
+                    return INT_MIN;
+                while (node->right != nullptr)
+                    node = node->right;
+                return node->val;
+            };
+            function<void(int)> delete_val = [&](int v) {
+                struct Node *parent = nullptr;
+                struct Node *node = root;
+                while (node != nullptr && node->val != v)
+                {
+                    parent = node;
+                    if (v < node->val)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                if (node == nullptr)
+                    return;
+                if (node->right == nullptr)
+                {
+                    if (parent == nullptr)
+                        root = node->left;
+                    else if (parent->left == node)
+                        parent->left = node->left;
+                    else
+                        parent->right = node->left;
+                    node->left = nullptr;
+                    delete node;
+                    return;
+                }
+                struct Node *next = node->right;
+                if (next->left == nullptr)
+                {
+                    next->left = node->left;
+                    if (parent == nullptr)
+                        root = next;
+                    else if (parent->left == node)
+                        parent->left = next;
+                    else
+                        parent->right = next;
+                    node->left = nullptr;
+                    node->right = nullptr;
+                    delete node;
+                    return;
+                }
+                struct Node *next_parent = nullptr;
+                while (next->left != nullptr)
+                {
+                    next_parent = next;
+                    next = next->left;
+                }
+                next_parent->left = next->right;
+                next->left = node->left;
+                next->right = node->right;
+                if (parent == nullptr)
+                    root = next;
+                else if (parent->left == node)
+                    parent->left = next;
+                else
+                    parent->right = next;
+                node->left = nullptr;
+                node->right = nullptr;
+                delete node;
+            };
+            vector<int> output;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (k <= i)
+                    delete_val(nums[i - k]);
+                insert(nums[i]);
+                if (k - 1 <= i)
+                    output.push_back(get_max());
+            }
+            return output;
+        }
+
         // Decode String
         // Given an encoded string, return its decoded string.
         // The encoding rule is: k[encoded_string], where the encoded_string inside the
