@@ -8987,7 +8987,7 @@ namespace Test
             return false;
         }
 
-        // Search a 2D Matrix II
+        // 240. Search a 2D Matrix II
         // Write an efficient algorithm that searches for a value in an m x n matrix.
         // This matrix has the following properties:
         // Integers in each row are sorted in ascending from left to right.
@@ -9004,6 +9004,25 @@ namespace Test
         // Given target = 5, return true.
         // Given target = 20, return false.
         bool searchMatrixII(vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return false;
+            int m = matrix.size();
+            int n = matrix[0].size();
+            int i = 0;
+            int j = n - 1;
+            while (i < m && j >= 0)
+            {
+                if (matrix[i][j] < target)
+                    i++;
+                else if (matrix[i][j] > target)
+                    j--;
+                else
+                    return true;
+            }
+            return false;
+        }
+        bool searchMatrixII2(vector<vector<int>> &matrix, int target)
         {
             if (matrix.empty() || matrix[0].empty())
                 return false;
