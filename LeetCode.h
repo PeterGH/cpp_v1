@@ -26355,6 +26355,146 @@ namespace Test
             return output;
         }
 
+        // 241. Different Ways to Add Parentheses
+        // Given a string of numbers and operators, return all possible results
+        // from computing all the different possible ways to group numbers and
+        // operators. The valid operators are +, - and *.
+        // Example 1:
+        // Input: "2-1-1"
+        // Output: [0, 2]
+        // Explanation:
+        // ((2-1)-1) = 0
+        // (2-(1-1)) = 2
+        // Example 2:
+        // Input: "2*3-4*5"
+        // Output: [-34, -14, -10, -10, 10]
+        // Explanation:
+        // (2*(3-(4*5))) = -34
+        // ((2*3)-(4*5)) = -14
+        // ((2*(3-4))*5) = -10
+        // (2*((3-4)*5)) = -10
+        // (((2*3)-4)*5) = 10
+        vector<int> diffWaysToCompute(string input)
+        {
+            function<int(vector<pair<char, int>> &)> scan =
+                [&](vector<pair<char, int>> &tokens) -> int {
+                int a = 0;
+                int countNums = 0;
+                for (const char &c : input)
+                {
+                    if ('0' <= c && c <= '9')
+                    {
+                        a = 10 * a + c - '0';
+                    }
+                    else if (c == '+' || c == '-' || c == '*')
+                    {
+                        countNums++;
+                        tokens.push_back(make_pair('0', a));
+                        tokens.push_back(make_pair(c, 0));
+                        a = 0;
+                    }
+                }
+                countNums++;
+                tokens.push_back(make_pair('0', a));
+                return countNums;
+            };
+            vector<pair<char, int>> inputTokens;
+            int maxParenthesesCount = scan(inputTokens) - 1;
+            function<int(const vector<pair<char, int>> &)> compute =
+                [&](const vector<pair<char, int>> &tokens) -> int {
+                stack<pair<char, int>> s;
+                int currentNum = 0;
+                for (const auto &p : tokens)
+                {
+                    if (p.first == '(')
+                    {
+                        s.push(p);
+                    }
+                    else if (p.first == '0')
+                    {
+                        currentNum = p.second;
+                    }
+                    else
+                    {
+                        while (!s.empty() && s.top().first == '*')
+                        {
+                            s.pop();
+                            currentNum *= s.top().second;
+                            s.pop();
+                        }
+                        if (p.first == '+' || p.first == '-')
+                        {
+                            while (!s.empty() && s.top().first != '(')
+                            {
+                                char op = s.top().first;
+                                s.pop();
+                                if (op == '+')
+                                    currentNum = s.top().second + currentNum;
+                                else
+                                    currentNum = s.top().second - currentNum;
+                                s.pop();
+                            }
+                        }
+                        if (p.first == ')')
+                        {
+                            s.pop();
+                        }
+                        else
+                        {
+                            s.push(make_pair('0', currentNum));
+                            s.push(p);
+                        }
+                    }
+                }
+                return currentNum;
+            };
+            vector<int> output;
+            function<void(size_t, int, int, const vector<pair<char, int>> &)> add =
+                [&](size_t i, int l, int r, const vector<pair<char, int>> &ctokens) {
+                    if (i == inputTokens.size())
+                    {
+                        output.push_back(compute(ctokens));
+                        return;
+                    }
+                    if (inputTokens[i].first == '0')
+                    {
+                        vector<pair<char, int>> tokens1(ctokens);
+                        tokens1.push_back(inputTokens[i]);
+                        add(i + 1, l, r, tokens1);
+                        if (i + 1 < inputTokens.size() && l < maxParenthesesCount)
+                        {
+                            vector<pair<char, int>> tokens2(ctokens);
+                            for (int k = 1; l + k <= maxParenthesesCount; k++)
+                            {
+                                tokens2.push_back(make_pair('(', 0));
+                                tokens2.push_back(inputTokens[i]);
+                                add(i + 1, l + k, r, tokens2);
+                                tokens2.pop_back();
+                            }
+                        }
+                        if (0 < i)
+                        {
+                            vector<pair<char, int>> tokens3(ctokens);
+                            tokens3.push_back(inputTokens[i]);
+                            for (int k = 1; r + k <= l; k++)
+                            {
+                                tokens3.push_back(make_pair(')', 0));
+                                add(i + 1, l, r + k, tokens3);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        vector<pair<char, int>> tokens(ctokens);
+                        tokens.push_back(inputTokens[i]);
+                        add(i + 1, l, r, tokens);
+                    }
+                };
+            vector<pair<char, int>> t;
+            add(0, 0, 0, t);
+            return output;
+        }
+
         // Decode String
         // Given an encoded string, return its decoded string.
         // The encoding rule is: k[encoded_string], where the encoded_string inside the
