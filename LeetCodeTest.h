@@ -6479,5 +6479,14 @@ void LeetCodeTest::Init(void)
         };
         check({{2, 9, 10}, {3, 7, 15}, {5, 12, 12}, {15, 20, 10}, {19, 24, 8}});
     });
+
+    Add("241. Different Ways to Add Parentheses", [&]() {
+        auto check = [&](const string& s) {
+            Logger() << s << endl;
+            vector<int> r = diffWaysToCompute(s);
+            Logger() << r;
+        };
+        check("2-1-1");
+    });
 }
 #endif
