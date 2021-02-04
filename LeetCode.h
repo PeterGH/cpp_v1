@@ -26374,13 +26374,86 @@ namespace Test
         // ((2*(3-4))*5) = -10
         // (2*((3-4)*5)) = -10
         // (((2*3)-4)*5) = 10
+        // Adding parentheses is equivalent to building an AST.
+        // (2-1)-1
+        //      -
+        //     / \
+        //    -   1
+        //   / \
+        //  2   1
+        // 2-(1-1)
+        //   -
+        //  / \
+        // 2   -
+        //    / \
+        //   1   1
+        vector<int> diffWaysToCompute(string input)
+        {
+            vector<int> output;
+            map<pair<int, int>, vector<int>> m;
+            function<void(int, int)> compute = [&](int i, int j) {
+                if (i > j)
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (m.find(p) != m.end())
+                    return;
+                int a = 0;
+                bool isNum = true;
+                vector<int> o;
+                for (int k = i; k <= j; k++)
+                {
+                    if ('0' <= input[k] && input[k] <= '9')
+                    {
+                        a = 10 * a + input[k] - '0';
+                    }
+                    else
+                    {
+                        isNum = false;
+                        compute(i, k - 1);
+                        compute(k + 1, j);
+                        pair<int, int> p1 = make_pair(i, k - 1);
+                        pair<int, int> p2 = make_pair(k + 1, j);
+                        if (m.find(p1) != m.end() && m.find(p2) != m.end())
+                        {
+                            for (int x : m[p1])
+                            {
+                                for (int y : m[p2])
+                                {
+                                    switch (input[k])
+                                    {
+                                    case '+':
+                                        o.push_back(x + y);
+                                        break;
+                                    case '-':
+                                        o.push_back(x - y);
+                                        break;
+                                    case '*':
+                                        o.push_back(x * y);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isNum)
+                    m[p].push_back(a);
+                else
+                    m[p] = o;
+            };
+            int n = (int)input.size();
+            compute(0, n - 1);
+            return m[make_pair(0, n - 1)];
+        }
         // This method is wrong.
         // Input "2*3-4*5"
         // Output
         // [-34,-14,-10,10]
         // Expected
         // [-34,-14,-10,-10,10]
-        vector<int> diffWaysToCompute(string input)
+        vector<int> diffWaysToCompute2(string input)
         {
             function<void(const string &, const vector<pair<char, int>> &)> print =
                 [&](const string &message, const vector<pair<char, int>> &tokens) {
