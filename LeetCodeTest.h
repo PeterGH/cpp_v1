@@ -6481,12 +6481,18 @@ void LeetCodeTest::Init(void)
     });
 
     Add("241. Different Ways to Add Parentheses", [&]() {
-        auto check = [&](const string& s) {
+        auto check = [&](const string &s) {
             Logger() << s << endl;
             vector<int> r = diffWaysToCompute(s);
-            Logger() << r;
+            vector<int> r2 = diffWaysToCompute2(s);
+            Logger() << r << r2;
+            sort(r.begin(), r.end());
+            sort(r2.begin(), r2.end());
+            ASSERT1(Util::Compare(r, r2) == 0);
         };
         check("2-1-1");
+        check("1-2+3*4-5*6-7+8*9");
+        check("2*3-4*5");
     });
 }
 #endif

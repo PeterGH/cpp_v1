@@ -26447,12 +26447,6 @@ namespace Test
             compute(0, n - 1);
             return m[make_pair(0, n - 1)];
         }
-        // This method is wrong.
-        // Input "2*3-4*5"
-        // Output
-        // [-34,-14,-10,10]
-        // Expected
-        // [-34,-14,-10,-10,10]
         vector<int> diffWaysToCompute2(string input)
         {
             function<void(const string &, const vector<pair<char, int>> &)> print =
@@ -26546,15 +26540,59 @@ namespace Test
                 currentNum = check(s, currentNum, true);
                 return currentNum;
             };
-            set<int> output;
+            function<bool(const vector<pair<char, int>> &)> validate =
+                [&](const vector<pair<char, int>> &tokens) -> bool {
+                stack<int> s;
+                int n = (int)tokens.size();
+                int i = 0;
+                int j;
+                while (i < n)
+                {
+                    if (tokens[i].first == '(')
+                    {
+                        j = i;
+                        while (j + 1 < n && tokens[j + 1].first == '(')
+                            j++;
+                        s.push(j - i + 1);
+                        i = j + 1;
+                    }
+                    else if (tokens[i].first == ')')
+                    {
+                        j = i;
+                        while (j + 1 < n && tokens[j + 1].first == ')')
+                            j++;
+                        int c = j - i + 1;
+                        while (!s.empty() && s.top() == 1)
+                        {
+                            s.pop();
+                            c--;
+                        }
+                        if ((s.empty() && c > 0) || (!s.empty() && s.top() > 1 && c > 1) || (!s.empty() && s.top() < c))
+                            return false;
+                        if (!s.empty())
+                        {
+                            s.top() -= c;
+                            if (s.top() == 0)
+                                s.pop();
+                        }
+                        i = j + 1;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                return true;
+            };
+            vector<int> output;
             function<void(size_t, int, int, const vector<pair<char, int>> &)> add =
                 [&](size_t i, int l, int r, const vector<pair<char, int>> &ctokens) {
                     if (i == inputTokens.size())
                     {
-                        if (l == maxParenthesesCount && r == maxParenthesesCount)
+                        if (l == maxParenthesesCount && r == maxParenthesesCount && validate(ctokens))
                         {
                             print("", ctokens);
-                            output.insert(compute(ctokens));
+                            output.push_back(compute(ctokens));
                         }
                         return;
                     }
@@ -26594,7 +26632,7 @@ namespace Test
                 };
             vector<pair<char, int>> t;
             add(0, 0, 0, t);
-            return vector<int>(output.cbegin(), output.cend());
+            return output;
         }
 
         // Decode String
