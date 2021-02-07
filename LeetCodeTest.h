@@ -2,6 +2,8 @@
 #define _LEETCODETEST_H_
 
 #include "LeetCode.h"
+#include "LeetCode0.h"
+#include "LeetCode2.h"
 #include "Test.h"
 #include "Util.h"
 #include <math.h>
