@@ -110,20 +110,24 @@ namespace Test
         // Each integer in nums will appear twice, only two integers will appear once.
         vector<int> singleNumber(vector<int> &nums)
         {
-            long long x = 0; // must be long long
+            long long x = 0; // long long to avoid overflow of -x
             for (const int &n : nums)
             {
                 x ^= n;
             }
             int n1 = 0;
             int n2 = 0;
+            // Two's complement
+            // This is to get the right most bit 1
+            //  12: 00001100
+            // -12: 11110100
             x = x & (-x);
             for (const int &n : nums)
             {
                 if (x & n)
-                    n1 ^= n; // must use xor
+                    n1 ^= n; // xor all the numbers setting the bit
                 else
-                    n2 ^= n;
+                    n2 ^= n; // xor all the numbers not setting the bit
             }
             return vector<int>{n1, n2};
         }
@@ -267,6 +271,57 @@ namespace Test
         // truncate(sum(case when status <> 'completed' then 1 else 0 end) / count(status), 2) as 'Cancellation Rate'
         // from dailystatus
         // group by Day;
+
+        // 263. Ugly Number
+        // Write a program to check whether a given number is an ugly number.
+        // Ugly numbers are positive numbers whose prime factors only include 2, 3, 5.
+        // Example 1:
+        // Input: 6
+        // Output: true
+        // Explanation: 6 = 2 x 3
+        // Example 2:
+        // Input: 8
+        // Output: true
+        // Explanation: 8 = 2 x 2 x 2
+        // Example 3:
+        // Input: 14
+        // Output: false
+        // Explanation: 14 is not ugly since it includes another prime factor 7.
+        // Note:
+        // 1 is typically treated as an ugly number.
+        // Input is within the 32-bit signed integer range: [−2^31,  2^31 − 1].
+        bool isUgly(int num)
+        {
+            if (num <= 0)
+                return false;
+            function<int(int, int)> divide = [&](int n, int d) -> int {
+                while (true)
+                {
+                    int r = n / d;
+                    if (n == r * d)
+                        n = r;
+                    else
+                        break;
+                }
+                return n;
+            };
+            num = divide(num, 2);
+            num = divide(num, 3);
+            num = divide(num, 5);
+            return num == 1;
+        }
+        bool isUgly2(int num)
+        {
+            if (num <= 0)
+                return false;
+            while (num % 2 == 0)
+                num /= 2;
+            while (num % 3 == 0)
+                num /= 3;
+            while (num % 5 == 0)
+                num /= 5;
+            return num == 1;
+        }
 
     } // namespace LeetCode
 } // namespace Test
