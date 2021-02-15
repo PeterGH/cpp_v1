@@ -323,6 +323,114 @@ namespace Test
             return num == 1;
         }
 
+        // 264. Ugly Number II
+        // Write a program to find the n-th ugly number.
+        // Ugly numbers are positive numbers whose prime factors only include 2, 3, 5.
+        // Example:
+        // Input: n = 10
+        // Output: 12
+        // Explanation: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 is the sequence of the first 10 ugly numbers.
+        // Note:
+        // 1 is typically treated as an ugly number.
+        // n does not exceed 1690.
+        int nthUglyNumber(int n)
+        {
+            vector<int> a(1, 1);
+            while ((int)a.size() < n)
+            {
+                int u = a.back();
+                // long long m = INT_MAX;
+                int m = INT_MAX;
+                for (int i = (int)a.size() - 1; i >= 0; i--)
+                {
+                    // long long x = a[i] * (long long)5;
+                    int x = a[i] * 5;
+                    if (x <= u)
+                        break;
+                    if (x > u)
+                        m = min(m, x);
+                    // x = a[i] * (long long)3;
+                    x = a[i] * 3;
+                    if (x > u)
+                        m = min(m, x);
+                    // x = a[i] * (long long)2;
+                    x = a[i] * 2;
+                    if (x > u)
+                        m = min(m, x);
+                }
+                a.push_back(m);
+            }
+            return a.back();
+        }
+        // This is wrong
+        int nthUglyNumber2(int n)
+        {
+            // cout << "nthUglyNumber(" << n << ")" << endl;
+            vector<int> f = {2, 3, 5};
+            vector<int> a(3, 1);
+            int u = 1;
+            for (; n > 1; n--)
+            {
+                // cout << a[0] << "\t" << a[1] << "\t" << a[2] << endl;
+                size_t I = 0;
+                int m = INT_MAX;
+                for (size_t i = 0; i < a.size(); i++)
+                {
+                    for (size_t j = 0; j < f.size(); j++)
+                    {
+                        int c = a[i] * f[j];
+                        if (c > u && c < m)
+                        {
+                            m = c;
+                            I = i;
+                        }
+                    }
+                }
+                // cout << "I = " << I << ", m = " << m << endl;
+                a[I] = m;
+                u = m;
+            }
+            return u;
+        }
+        int nthUglyNumber3(int n)
+        {
+            set<int> ugly;
+            set<int> pretty;
+            int a = 0;
+            vector<int> factor = {2, 3, 5};
+            while ((int)ugly.size() < n)
+            {
+                a++;
+                int b = a;
+                bool isUgly = false;
+                bool isPretty = false;
+                for (size_t i = 0; i < factor.size(); i++)
+                {
+                    while (b % factor[i] == 0)
+                    {
+                        b /= factor[i];
+                        if (ugly.find(b) != ugly.end() || b == 1)
+                        {
+                            isUgly = true;
+                            break;
+                        }
+                        if (pretty.find(b) != pretty.end())
+                        {
+                            isPretty = true;
+                            break;
+                        }
+                    }
+                    if (isUgly || isPretty)
+                        break;
+                }
+                if (isUgly || b == 1)
+                    ugly.insert(a);
+                if (isPretty)
+                    pretty.insert(a);
+            }
+            return *ugly.rbegin(); // set is sorted
+        }
+
     } // namespace LeetCode
 } // namespace Test
 

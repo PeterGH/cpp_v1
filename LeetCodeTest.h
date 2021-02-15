@@ -6496,5 +6496,18 @@ void LeetCodeTest::Init(void)
         check("1-2+3*4-5*6-7+8*9");
         check("2*3-4*5");
     });
+
+    Add("264. Ugly Number II", [&]() {
+        auto check = [&](int n) {
+            int x = nthUglyNumber(n);
+            int y = nthUglyNumber2(n);
+            int z = nthUglyNumber3(n);
+            Logger() << n << "-th ugly number: " << x << ", " << y << ", " << z << endl;
+            ASSERT1(x == z);
+        };
+        for (int i = 1; i < 21; i++)
+            check(i);
+    });
+
 }
 #endif
