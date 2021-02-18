@@ -480,6 +480,112 @@ namespace Test
             return nums.size();
         }
 
+        // 273. Integer to English Words
+        // Convert a non-negative integer num to its English words representation.
+        // Example 1:
+        // Input: num = 123
+        // Output: "One Hundred Twenty Three"
+        // Example 2:
+        // Input: num = 12345
+        // Output: "Twelve Thousand Three Hundred Forty Five"
+        // Example 3:
+        // Input: num = 1234567
+        // Output: "One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+        // Example 4:
+        // Input: num = 1234567891
+        // Output: "One Billion Two Hundred Thirty Four Million Five Hundred Sixty Seven Thousand Eight Hundred Ninety One"
+        // Constraints:
+        // 0 <= num <= 2^31 - 1
+        string numberToWords(int num)
+        {
+            if (num == 0)
+                return "Zero";
+            int n1 = num % 1000;
+            num /= 1000;
+            int n2 = num % 1000;
+            num /= 1000;
+            int n3 = num % 1000;
+            num /= 1000;
+            int n4 = num % 1000;
+            ostringstream oss;
+            vector<string> lt20 = {
+                "One",
+                "Two",
+                "Three",
+                "Four",
+                "Five",
+                "Six",
+                "Seven",
+                "Eight",
+                "Nine",
+                "Ten",
+                "Eleven",
+                "Twelve",
+                "Thirteen",
+                "Fourteen",
+                "Fifteen",
+                "Sixteen",
+                "Seventeen",
+                "Eighteen",
+                "Nineteen"};
+            vector<string> tens = {
+                "Twenty",
+                "Thirty",
+                "Forty",
+                "Fifty",
+                "Sixty",
+                "Seventy",
+                "Eighty",
+                "Ninety"};
+            function<void(int)> convert = [&](int n) {
+                int h = n / 100;
+                if (h > 0)
+                    oss << lt20[h - 1] << " Hundred";
+                n %= 100;
+                if (n == 0)
+                    return;
+                if (h > 0)
+                    oss << " ";
+                if (n < 20)
+                {
+                    oss << lt20[n - 1];
+                }
+                else
+                {
+                    oss << tens[n / 10 - 2];
+                    n %= 10;
+                    if (n > 0)
+                        oss << " " << lt20[n - 1];
+                }
+            };
+            if (n4 > 0)
+            {
+                convert(n4);
+                oss << " Billion";
+            }
+            if (n3 > 0)
+            {
+                if (n4 > 0)
+                    oss << " ";
+                convert(n3);
+                oss << " Million";
+            }
+            if (n2 > 0)
+            {
+                if (n4 > 0 || n3 > 0)
+                    oss << " ";
+                convert(n2);
+                oss << " Thousand";
+            }
+            if (n1 > 0)
+            {
+                if (n4 > 0 || n3 > 0 || n2 > 0)
+                    oss << " ";
+                convert(n1);
+            }
+            return oss.str();
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
