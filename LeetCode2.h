@@ -829,8 +829,10 @@ namespace Test
         vector<string> addOperators(string num, int target)
         {
             vector<string> output;
-            function<void(int, const string &, int, int)> solve =
-                [&](int i, const string &expression, int total, int prev) {
+            // use long long instead of int to handle case 2147483648
+            // (long long)2147483648 = (int)-2147483648
+            function<void(int, const string &, long long, long long)> solve =
+                [&](int i, const string &expression, long long total, long long prev) {
                     cout << string(i, ' ') << "solve(" << i << ", " << expression << ", " << total << ", " << prev << ")" << endl;
                     if (i >= (int)num.size())
                     {
@@ -840,9 +842,10 @@ namespace Test
                         }
                         return;
                     }
-                    int c = 0;
+                    long long c = 0;
                     for (int j = i; j < (int)num.size(); j++)
                     {
+                        cout << string(i, ' ') << i << ".." << j << endl;
                         c = 10 * c + num[j] - '0';
                         string s = to_string(c);
                         if (i == 0)
@@ -853,9 +856,11 @@ namespace Test
                         {
                             solve(j + 1, expression + "+" + s, total + c, c);
                             solve(j + 1, expression + "-" + s, total - c, -c);
-                            int c1 = prev * c;
+                            long long c1 = prev * c;
                             solve(j + 1, expression + "*" + s, total - prev + c1, c1);
                         }
+                        if (num[i] == '0')
+                            break;
                     }
                 };
             solve(0, "", 0, 0);

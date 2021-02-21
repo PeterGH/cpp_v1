@@ -6516,6 +6516,7 @@ void LeetCodeTest::Init(void)
         };
         check("123", 6);
         check("105", 5);
+        check("2147483648", -2147483648);
     });
 }
 #endif
