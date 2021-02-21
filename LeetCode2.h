@@ -798,6 +798,70 @@ namespace Test
             throw runtime_error("not found");
         }
 
+        // 282. Expression Add Operators
+        // Given a string that contains only digits 0-9 and a target value,
+        // return all possibilities to add binary operators (not unary) +, -,
+        // or * between the digits so they evaluate to the target value.
+        // Example 1:
+        // Input: num = "123", target = 6
+        // Output: ["1+2+3", "1*2*3"]
+        // Example 2:
+        // Input: num = "232", target = 8
+        // Output: ["2*3+2", "2+3*2"]
+        // Example 3:
+        // Input: num = "105", target = 5
+        // Output: ["1*0+5","10-5"]
+        // Example 4:
+        // Input: num = "00", target = 0
+        // Output: ["0+0", "0-0", "0*0"]
+        // Example 5:
+        // Input: num = "3456237490", target = 9191
+        // Output: []
+        // Constraints:
+        // 0 <= num.length <= 10
+        // num only contain digits.
+        // Think carefully about the multiply operator. It has a higher precedence
+        // than the addition and subtraction operators.
+        // 1 + 2 = 3
+        // 1 + 2 - 4 --> 3 - 4 --> -1
+        // 1 + 2 - 4 * 12 --> -1 * 12 --> -12 (WRONG!)
+        // 1 + 2 - 4 * 12 --> -1 - (-4) + (-4 * 12) --> 3 + (-48) --> -45 (CORRECT!)
+        vector<string> addOperators(string num, int target)
+        {
+            vector<string> output;
+            function<void(int, const string &, int, int)> solve =
+                [&](int i, const string &expression, int total, int prev) {
+                    cout << string(i, ' ') << "solve(" << i << ", " << expression << ", " << total << ", " << prev << ")" << endl;
+                    if (i >= (int)num.size())
+                    {
+                        if (total == target) {
+                            cout << string(i, ' ') << "output '" << expression << "'" << endl;
+                            output.push_back(expression);
+                        }
+                        return;
+                    }
+                    int c = 0;
+                    for (int j = i; j < (int)num.size(); j++)
+                    {
+                        c = 10 * c + num[j] - '0';
+                        string s = to_string(c);
+                        if (i == 0)
+                        {
+                            solve(j + 1, s, c, c);
+                        }
+                        else
+                        {
+                            solve(j + 1, expression + "+" + s, total + c, c);
+                            solve(j + 1, expression + "-" + s, total - c, -c);
+                            int c1 = prev * c;
+                            solve(j + 1, expression + "*" + s, total - prev + c1, c1);
+                        }
+                    }
+                };
+            solve(0, "", 0, 0);
+            return output;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 

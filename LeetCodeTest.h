@@ -6509,5 +6509,13 @@ void LeetCodeTest::Init(void)
             check(i);
     });
 
+    Add("282. Expression Add Operators", [&]() {
+        auto check = [&](const string& num, int target) {
+            vector<string> v = addOperators(num, target);
+            Logger() << v;
+        };
+        check("123", 6);
+        check("105", 5);
+    });
 }
 #endif
