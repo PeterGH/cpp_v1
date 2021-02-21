@@ -836,7 +836,8 @@ namespace Test
                     cout << string(i, ' ') << "solve(" << i << ", " << expression << ", " << total << ", " << prev << ")" << endl;
                     if (i >= (int)num.size())
                     {
-                        if (total == target) {
+                        if (total == target)
+                        {
                             cout << string(i, ' ') << "output '" << expression << "'" << endl;
                             output.push_back(expression);
                         }
@@ -865,6 +866,129 @@ namespace Test
                 };
             solve(0, "", 0, 0);
             return output;
+        }
+
+        // 283. Move Zeroes
+        // Given an array nums, write a function to move all 0's to the end of it while
+        // maintaining the relative order of the non-zero elements. Example:
+        // Input: [0,1,0,3,12]
+        // Output: [1,3,12,0,0]
+        // Note: You must do this in-place without making a copy of the array.
+        // Minimize the total number of operations.
+        void moveZeroes(vector<int> &nums)
+        {
+            int i = -1;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                if (nums[j] != 0)
+                {
+                    if (++i < j)
+                        swap(nums[i], nums[j]);
+                }
+            }
+        }
+        void moveZeroes2(vector<int> &nums)
+        {
+            int i = -1;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                if (nums[j] != 0)
+                {
+                    i++;
+                    if (i < j)
+                        nums[i] = nums[j];
+                }
+            }
+            for (i++; i < (int)nums.size(); i++)
+                nums[i] = 0;
+        }
+
+        namespace Problem284
+        {
+            // 284. Peeking Iterator
+            // Design an iterator that supports the peek operation on a list in addition
+            // to the hasNext and the next operations.
+            // Implement the PeekingIterator class:
+            // PeekingIterator(int[] nums) Initializes the object with the given integer array nums.
+            // int next() Returns the next element in the array and moves the pointer to thenext element.
+            // bool hasNext() Returns true if there are still elements in the array.
+            // int peek() Returns the next element in the array without moving the pointer.
+            // Example 1:
+            // Input
+            // ["PeekingIterator", "next", "peek", "next", "next", "hasNext"]
+            // [[[1, 2, 3]], [], [], [], [], []]
+            // Output
+            // [null, 1, 2, 2, 3, false]
+            // Explanation
+            // PeekingIterator peekingIterator = new PeekingIterator([1, 2, 3]); // [1,2,3]
+            // peekingIterator.next();    // return 1, the pointer moves to the next element [1,2,3].
+            // peekingIterator.peek();    // return 2, the pointer does not move [1,2,3].
+            // peekingIterator.next();    // return 2, the pointer moves to the next element [1,2,3]
+            // peekingIterator.next();    // return 3, the pointer moves to the next element [1,2,3]
+            // peekingIterator.hasNext(); // return False
+            // Constraints:
+            // 1 <= nums.length <= 1000
+            // 1 <= nums[i] <= 1000
+            // All the calls to next and peek are valid.
+            // At most 1000 calls will be made to next, hasNext, and peek.
+            // Follow up: How would you extend your design to be generic and work with all types,
+            // not just integer?
+            // Below is the interface for Iterator, which is already defined for you.
+            // **DO NOT** modify the interface for Iterator.
+            class Iterator
+            {
+                struct Data;
+                Data *data;
+            public:
+                Iterator(const vector<int> &nums);
+                Iterator(const Iterator &iter);
+                // Returns the next element in the iteration.
+                int next();
+                // Returns true if the iteration has more elements.
+                bool hasNext() const;
+            };
+            class PeekingIterator : public Iterator
+            {
+            private:
+                bool peeked;
+                int pnext;
+            public:
+                PeekingIterator(const vector<int> &nums) : Iterator(nums)
+                {
+                    // Initialize any member here.
+                    // **DO NOT** save a copy of nums and manipulate it directly.
+                    // You should only use the Iterator interface methods.
+                    peeked = false;
+                }
+                // Returns the next element in the iteration without advancing the iterator.
+                int peek()
+                {
+                    if (!peeked)
+                    {
+                        pnext = Iterator::next();
+                        peeked = true;
+                    }
+                    return pnext;
+                }
+                // hasNext() and next() should behave the same as in the Iterator interface.
+                // Override them if needed.
+                int next()
+                {
+                    if (!peeked)
+                    {
+                        return Iterator::next();
+                    }
+                    else
+                    {
+                        peeked = false;
+                        return pnext;
+                    }
+                }
+                bool hasNext() const
+                {
+                    return peeked || Iterator::hasNext();
+                }
+            };
         }
 
     } // namespace LeetCode

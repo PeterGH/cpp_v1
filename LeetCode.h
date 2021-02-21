@@ -23464,41 +23464,6 @@ namespace Test
             return arr;
         }
 
-        // Move Zeroes
-        // Given an array nums, write a function to move all 0's to the end of it while
-        // maintaining the relative order of the non-zero elements. Example:
-        // Input: [0,1,0,3,12]
-        // Output: [1,3,12,0,0]
-        // Note: You must do this in-place without making a copy of the array.
-        // Minimize the total number of operations.
-        void moveZeroes(vector<int> &nums)
-        {
-            int i = -1;
-            for (int j = 0; j < (int)nums.size(); j++)
-            {
-                if (nums[j] != 0)
-                {
-                    if (++i < j)
-                        swap(nums[i], nums[j]);
-                }
-            }
-        }
-        void moveZeroes2(vector<int> &nums)
-        {
-            int i = -1;
-            for (int j = 0; j < (int)nums.size(); j++)
-            {
-                if (nums[j] != 0)
-                {
-                    i++;
-                    if (i < j)
-                        nums[i] = nums[j];
-                }
-            }
-            for (i++; i < (int)nums.size(); i++)
-                nums[i] = 0;
-        }
-
         // Sort Array By Parity
         // Given an array A of non-negative integers, return an array consisting of all
         // the even elements of A, followed by all the odd elements of A.
