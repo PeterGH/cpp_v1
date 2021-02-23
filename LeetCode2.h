@@ -939,6 +939,7 @@ namespace Test
             {
                 struct Data;
                 Data *data;
+
             public:
                 Iterator(const vector<int> &nums);
                 Iterator(const Iterator &iter);
@@ -952,6 +953,7 @@ namespace Test
             private:
                 bool peeked;
                 int pnext;
+
             public:
                 PeekingIterator(const vector<int> &nums) : Iterator(nums)
                 {
@@ -989,6 +991,239 @@ namespace Test
                     return peeked || Iterator::hasNext();
                 }
             };
+        } // Problem284
+
+        // 287. Find the Duplicate Number
+        // Given an array nums containing n + 1 integers where each integer is between 1
+        // and n (inclusive), prove that at least one duplicate number must exist.
+        // Assume that there is only one duplicate number, find the duplicate one.
+        // Example 1:
+        // Input: [1,3,4,2,2]
+        // Output: 2
+        // Example 2:
+        // Input: [3,1,3,4,2]
+        // Output: 3
+        // Note:
+        // You must not modify the array (assume the array is read only).
+        // You must use only constant, O(1) extra space.
+        // Your runtime complexity should be less than O(n2).
+        // There is only one duplicate number in the array, but it could be repeated
+        // more than once. The first two approaches mentioned do not satisfy the
+        // constraints given in the prompt, but they are solutions that you might be
+        // likely to come up with during a technical interview. As an interviewer, I
+        // personally would not expect someone to come up with the cycle detection
+        // solution unless they have heard it before. Proof Proving that at least one
+        // duplicate must exist in nums is simple application of the pigeonhole
+        // principle. Here, each number in nums is a "pigeon" and each distinct number
+        // that can appear in nums is a "pigeonhole". Because there are n+1 numbers are
+        // nnn distinct possible numbers, the pigeonhole principle implies that at least
+        // one of the numbers is duplicated. Approach #3 Floyd's Tortoise and Hare
+        // (Cycle Detection) [Accepted] Intuition If we interpret nums such that for
+        // each pair of index i and value v_i, the "next" value v_j​ is at index
+        // v_i​, we can reduce this problem to cycle detection. See the solution to
+        // Linked List Cycle II for more details. Algorithm First off, we can easily
+        // show that the constraints of the problem imply that a cycle must exist.
+        // Because each number in nums is between 1 and n, it will necessarily point to
+        // an index that exists. Therefore, the list can be traversed infinitely, which
+        // implies that there is a cycle. Additionally, because 0 cannot appear as a
+        // value in nums, nums[0] cannot be part of the cycle. Therefore, traversing the
+        // array in this manner from nums[0] is equivalent to traversing a cyclic linked
+        // list. Given this, the problem can be solved just like Linked List Cycle II.
+        int findDuplicate(const vector<int> &nums)
+        {
+            int i = nums[0];
+            int j = nums[0];
+            do
+            {
+                i = nums[i];
+                j = nums[nums[j]];
+            } while (i != j);
+            i = nums[0];
+            while (i != j)
+            {
+                i = nums[i];
+                j = nums[j];
+            }
+            return i;
+        }
+        int findDuplicate2(vector<int> &nums)
+        {
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                while (nums[i] != i + 1)
+                {
+                    int j = nums[i] - 1;
+                    if (nums[i] == nums[j])
+                        return nums[i];
+                    swap(nums[i], nums[j]);
+                }
+            }
+            throw runtime_error("Duplicate not found");
+        }
+        int findDuplicate3(vector<int> &nums)
+        {
+            while (nums[0] != nums[nums[0]])
+                swap(nums[0], nums[nums[0]]);
+            return nums[0];
+        }
+        int findDuplicate4(const vector<int> &nums)
+        {
+            set<int> s;
+            int i = 0;
+            while (s.find(nums[i]) == s.end())
+            {
+                s.insert(nums[i]);
+                i = nums[i];
+            }
+            return nums[i];
+        }
+        int findDuplicate5(const vector<int> &nums)
+        {
+            set<int> s;
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                if (s.find(nums[i]) == s.end())
+                    s.insert(nums[i]);
+                else
+                    return nums[i];
+            }
+            throw runtime_error("Duplicate not found");
+        }
+
+        // 289. Game of Life
+        // According to Wikipedia's article: "The Game of Life, also known simply as Life,
+        // is a cellular automaton devised by the British mathematician John Horton Conway in 1970."
+        // The board is made up of an m x n grid of cells, where each cell has an initial
+        // state: live (represented by a 1) or dead (represented by a 0). Each cell interacts
+        // with its eight neighbors (horizontal, vertical, diagonal) using the following four
+        // rules (taken from the above Wikipedia article):
+        // Any live cell with fewer than two live neighbors dies as if caused by under-population.
+        // Any live cell with two or three live neighbors lives on to the next generation.
+        // Any live cell with more than three live neighbors dies, as if by over-population.
+        // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
+        // The next state is created by applying the above rules simultaneously to every cell in the current state, where births and deaths occur simultaneously. Given the current state of the m x n grid board, return the next state.
+        // Example 1:
+        // Input: board = [[0,1,0],[0,0,1],[1,1,1],[0,0,0]]
+        // Output: [[0,0,0],[1,0,1],[0,1,1],[0,1,0]]
+        // Example 2:
+        // Input: board = [[1,1],[1,0]]
+        // Output: [[1,1],[1,1]]
+        // Constraints:
+        // m == board.length
+        // n == board[i].length
+        // 1 <= m, n <= 25
+        // board[i][j] is 0 or 1.
+        // Follow up:
+        // Could you solve it in-place? Remember that the board needs to be updated simultaneously:
+        // You cannot update some cells first and then use their updated values to update other cells.
+        // In this question, we represent the board using a 2D array. In principle, the board is
+        // infinite, which would cause problems when the active area encroaches upon the border of
+        // the array (i.e., live cells reach the border). How would you address these problems?
+        void gameOfLife(vector<vector<int>> &board)
+        {
+            if (board.empty() || board[0].empty())
+                return;
+            int m = board.size();
+            int n = board[0].size();
+            set<pair<int, int>> updated;
+            function<int(int, int)> isLive = [&](int i, int j) -> int {
+                if (0 <= i && i < m && 0 <= j && j < n)
+                {
+                    auto p = make_pair(i, j);
+                    if (updated.find(p) == updated.end())
+                        return board[i][j];
+                    else
+                        return 1 - board[i][j];
+                }
+                return 0;
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    int c = 0;
+                    c += isLive(i - 1, j - 1);
+                    c += isLive(i - 1, j);
+                    c += isLive(i - 1, j + 1);
+                    c += isLive(i, j - 1);
+                    c += isLive(i, j + 1);
+                    c += isLive(i + 1, j - 1);
+                    c += isLive(i + 1, j);
+                    c += isLive(i + 1, j + 1);
+                    if (board[i][j] == 1)
+                    {
+                        if (c < 2 || c > 3)
+                        {
+                            board[i][j] = 0;
+                            updated.insert(make_pair(i, j));
+                        }
+                    }
+                    else
+                    {
+                        if (c == 3)
+                        {
+                            board[i][j] = 1;
+                            updated.insert(make_pair(i, j));
+                        }
+                    }
+                }
+            }
+        }
+        void gameOfLife2(vector<vector<int>> &board)
+        {
+            if (board.empty() || board[0].empty())
+                return;
+            int m = board.size();
+            int n = board[0].size();
+            function<int(int, int)> isLive = [&](int i, int j) -> int {
+                if (0 <= i && i < m && 0 <= j && j < n)
+                {
+                    if (board[i][j] == 1 || board[i][j] == -1)
+                        return 1;
+                    else if (board[i][j] == 0 || board[i][j] == 2)
+                        return 0;
+                }
+                return 0;
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    int c = 0;
+                    c += isLive(i - 1, j - 1);
+                    c += isLive(i - 1, j);
+                    c += isLive(i - 1, j + 1);
+                    c += isLive(i, j - 1);
+                    c += isLive(i, j + 1);
+                    c += isLive(i + 1, j - 1);
+                    c += isLive(i + 1, j);
+                    c += isLive(i + 1, j + 1);
+                    if (board[i][j] == 1)
+                    {
+                        if (c < 2 || c > 3)
+                        {
+                            board[i][j] = -1;
+                        }
+                    }
+                    else
+                    {
+                        if (c == 3)
+                        {
+                            board[i][j] = 2;
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (board[i][j] == -1)
+                        board[i][j] = 0;
+                    else if (board[i][j] == 2)
+                        board[i][j] = 1;
+                }
+            }
         }
 
     } // namespace LeetCode
