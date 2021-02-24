@@ -6518,5 +6518,14 @@ void LeetCodeTest::Init(void)
         check("105", 5);
         check("2147483648", -2147483648);
     });
+
+    Add("290. Word Pattern", [&]() {
+        auto check = [&](const string& pattern, const string& s, bool e) {
+            bool r = wordPattern(pattern, s);
+            ASSERT1(r == e);
+        };
+        check("abba", "dog cat cat dog", true);
+        check("abba", "dog dog dog dog", false);
+    });
 }
 #endif
