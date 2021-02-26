@@ -1326,6 +1326,93 @@ namespace Test
             return (n & 3) != 0;
         }
 
+        // 295. Find Median from Data Stream
+        // Median is the middle value in an ordered integer list.
+        // If the size of the list is even, there is no middle value.
+        // So the median is the mean of the two middle value.
+        // For example,
+        // [2,3,4], the median is 3
+        // [2,3], the median is (2 + 3) / 2 = 2.5
+        // Design a data structure that supports the following two operations:
+        // void addNum(int num) - Add a integer number from the data stream to the data structure.
+        // double findMedian() - Return the median of all elements so far.
+        // Example:
+        // addNum(1)
+        // addNum(2)
+        // findMedian() -> 1.5
+        // addNum(3)
+        // findMedian() -> 2
+        // Follow up:
+        // If all integer numbers from the stream are between 0 and 100, how would you optimize it?
+        // If 99% of all integer numbers from the stream are between 0 and 100, how would you optimize it?
+        class MedianFinder
+        {
+        private:
+            unsigned long long count;
+            int median;
+            vector<int> low;
+            vector<int> high;
+            function<bool(int, int)> less;
+        public:
+            MedianFinder()
+            {
+                count = 0;
+                less = [&](int x, int y) -> bool { return x > y; };
+            }
+            void addNum(int num)
+            {
+                if ((count & 1) == 0)
+                {
+                    if (!low.empty() && num < low.front())
+                    {
+                        pop_heap(low.begin(), low.end());
+                        median = low.back();
+                        low.pop_back();
+                        low.push_back(num);
+                        push_heap(low.begin(), low.end());
+                    }
+                    else if (!high.empty() && num > high.front())
+                    {
+                        pop_heap(high.begin(), high.end(), less);
+                        median = high.back();
+                        high.pop_back();
+                        high.push_back(num);
+                        push_heap(high.begin(), high.end(), less);
+                    }
+                    else
+                    {
+                        median = num;
+                    }
+                }
+                else
+                {
+                    if (num < median)
+                    {
+                        low.push_back(num);
+                        push_heap(low.begin(), low.end());
+                        high.push_back(median);
+                        push_heap(high.begin(), high.end(), less);
+                    }
+                    else
+                    {
+                        low.push_back(median);
+                        push_heap(low.begin(), low.end());
+                        high.push_back(num);
+                        push_heap(high.begin(), high.end(), less);
+                    }
+                    median = 0;
+                }
+                count++;
+            }
+            double findMedian()
+            {
+                if ((count & 1) == 0)
+                    return (low.front() + high.front()) / 2.0;
+                else
+                    return median;
+            }
+        };
+
     } // namespace LeetCode
 } // namespace Test
 
