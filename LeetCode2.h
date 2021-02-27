@@ -1703,6 +1703,79 @@ namespace Test
             }
             return m;
         }
+        int lengthOfLIS2(vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            vector<int> m(1, 0);
+            for (int i = 1; i < (int)nums.size(); i++)
+            {
+                int l = 0;
+                int h = m.size();
+                // loop invariant nums[m[l]] < nums[i] <= nums[m[h]]
+                while (l < h)
+                {
+                    int t = l + ((h - l) >> 1);
+                    if (nums[m[t]] < nums[i])
+                        l = t + 1;
+                    else
+                        h = t;
+                }
+                if (l == m.size())
+                {
+                    m.push_back(i);
+                }
+                else // nums[i] <= nums[m[l]]
+                {
+                    m[l] = i;
+                }
+            }
+            return m.size();
+        }
+        int lengthOfLIS3(vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
+                if (i >= nums.size())
+                    return l;
+                int l1 = 0;
+                if (p < 0 || nums[p] < nums[i])
+                    l1 = lis(i + 1, i, l + 1);
+                int l2 = lis(i + 1, p, l);
+                return max(l1, l2);
+            };
+            return lis(0, -1, 0);
+        }
+        // Wrong
+        // Input [10,9,2,5,3,7,101,18]
+        // Output 3
+        // Expected 4
+        int lengthOfLIS4(vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            map<pair<int, int>, int> m;
+            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
+                pair<int, int> t = make_pair(i, p);
+                if (m.find(t) != m.end())
+                    return m[t];
+                if (i >= nums.size())
+                {
+                    m[t] = l;
+                }
+                else
+                {
+                    int l1 = 0;
+                    if (p < 0 || nums[p] < nums[i])
+                        l1 = lis(i + 1, i, l + 1);
+                    int l2 = lis(i + 1, p, l);
+                    m[t] = max(l1, l2);
+                }
+                return m[t];
+            };
+            return lis(0, -1, 0);
+        }
         // https://en.wikipedia.org/wiki/Longest_increasing_subsequence
         // For each i, compute M[j], j = 0, 1, 2, 3, ......, i
         // which traks the indices of the minimum ending elements of all increasing subsequences of length j+1.
