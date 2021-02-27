@@ -1684,7 +1684,7 @@ namespace Test
         // Follow up:
         // Could you come up with the O(n2) solution?
         // Could you improve it to O(n log(n)) time complexity?
-        int lengthOfLIS(vector<int> &nums)
+        int lengthOfLIS(const vector<int> &nums)
         {
             if (nums.empty())
                 return 0;
@@ -1703,7 +1703,7 @@ namespace Test
             }
             return m;
         }
-        int lengthOfLIS2(vector<int> &nums)
+        int lengthOfLIS2(const vector<int> &nums)
         {
             if (nums.empty())
                 return 0;
@@ -1721,7 +1721,7 @@ namespace Test
                     else
                         h = t;
                 }
-                if (l == m.size())
+                if (l == (int)m.size())
                 {
                     m.push_back(i);
                 }
@@ -1732,12 +1732,12 @@ namespace Test
             }
             return m.size();
         }
-        int lengthOfLIS3(vector<int> &nums)
+        int lengthOfLIS3(const vector<int> &nums)
         {
             if (nums.empty())
                 return 0;
             function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
-                if (i >= nums.size())
+                if (i >= (int)nums.size())
                     return l;
                 int l1 = 0;
                 if (p < 0 || nums[p] < nums[i])
@@ -1747,20 +1747,36 @@ namespace Test
             };
             return lis(0, -1, 0);
         }
+        int lengthOfLIS4(const vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            function<int(int, int)> lis = [&](int i, int p) -> int {
+                if (i >= (int)nums.size())
+                    return 0;
+                int l1 = 0;
+                if (p < 0 || nums[p] < nums[i])
+                    l1 = 1 + lis(i + 1, i);
+                int l2 = lis(i + 1, p);
+                return max(l1, l2);
+            };
+            return lis(0, -1);
+        }
         // Wrong
         // Input [10,9,2,5,3,7,101,18]
         // Output 3
         // Expected 4
-        int lengthOfLIS4(vector<int> &nums)
+        int lengthOfLIS5(const vector<int> &nums)
         {
             if (nums.empty())
                 return 0;
             map<pair<int, int>, int> m;
             function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
+                // cout << string(i, ' ') << "(" << i << "," << p << "," << l << ")" << endl;
                 pair<int, int> t = make_pair(i, p);
                 if (m.find(t) != m.end())
                     return m[t];
-                if (i >= nums.size())
+                if (i >= (int)nums.size())
                 {
                     m[t] = l;
                 }
@@ -1768,7 +1784,13 @@ namespace Test
                 {
                     int l1 = 0;
                     if (p < 0 || nums[p] < nums[i])
+                    {
+                        cout << string(i, ' ') << "(" << i << "," << p << "," << l << ")";
+                        cout << " => (" << i + 1 << "," << i << "," << l + 1 << ")" << endl;
                         l1 = lis(i + 1, i, l + 1);
+                    }
+                    cout << string(i, ' ') << "(" << i << "," << p << "," << l << ")";
+                    cout << " => (" << i + 1 << "," << p << "," << l << ")" << endl;
                     int l2 = lis(i + 1, p, l);
                     m[t] = max(l1, l2);
                 }

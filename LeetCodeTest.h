@@ -6527,5 +6527,21 @@ void LeetCodeTest::Init(void)
         check("abba", "dog cat cat dog", true);
         check("abba", "dog dog dog dog", false);
     });
+
+    Add("300. Longest Increasing Subsequence", [&]() {
+        auto check = [&](const vector<int>& v, int e) {
+            int l = lengthOfLIS(v);
+            int l2 = lengthOfLIS2(v);
+            int l3 = lengthOfLIS3(v);
+            int l4 = lengthOfLIS4(v);
+            int l5 = lengthOfLIS5(v);
+            ASSERT1(l == e);
+            ASSERT1(l2 == e);
+            ASSERT1(l3 == e);
+            ASSERT1(l4 == e);
+            ASSERT1(l5 == e);
+        };
+        check({10, 9, 2, 5, 3, 7, 101, 18}, 4);
+    });
 }
 #endif
