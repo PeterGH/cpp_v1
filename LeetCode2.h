@@ -1353,6 +1353,7 @@ namespace Test
             vector<int> low;
             vector<int> high;
             function<bool(int, int)> less;
+
         public:
             MedianFinder()
             {
@@ -1412,6 +1413,254 @@ namespace Test
                     return median;
             }
         };
+
+        class Codec
+        {
+        public:
+            // 297. Serialize and Deserialize Binary Tree
+            // Serialization is the process of converting a data structure or object into a
+            // sequence of bits so that it can be stored in a file or memory buffer, or
+            // transmitted across a network connection link to be reconstructed later in the
+            // same or another computer environment. Design an algorithm to serialize and
+            // deserialize a binary tree. There is no restriction on how your
+            // serialization/deserialization algorithm should work. You just need to ensure
+            // that a binary tree can be serialized to a string and this string can be
+            // deserialized to the original tree structure. Example: You may serialize the
+            // following tree:
+            //     1
+            //    / \
+            //   2   3
+            //      / \
+            //     4   5
+            // as "[1,2,3,null,null,4,5]"
+            // Clarification: The above format is the same as how LeetCode serializes a
+            // binary tree. You do not necessarily need to follow this format, so please be
+            // creative and come up with different approaches yourself. Note: Do not use
+            // class member/global/static variables to store states. Your serialize and
+            // deserialize algorithms should be stateless. Encodes a tree to a single
+            // string.
+            static string serialize(TreeNode *root)
+            {
+                ostringstream oss;
+                function<void(TreeNode *)> solve = [&](TreeNode *n) {
+                    if (n == nullptr)
+                    {
+                        oss << "#";
+                        return;
+                    }
+                    oss << n->val << ",";
+                    solve(n->left);
+                    oss << ",";
+                    solve(n->right);
+                };
+                solve(root);
+                return oss.str();
+            }
+            // Decodes your encoded data to tree.
+            static TreeNode *deserialize(string data)
+            {
+                size_t i = 0;
+                function<TreeNode *()> solve = [&]() -> TreeNode * {
+                    size_t j = data.find(',', i);
+                    string s = data.substr(i, j - i);
+                    i = j + 1;
+                    if (s.compare("#") == 0)
+                        return nullptr;
+                    int v = stoi(s);
+                    TreeNode *n = new TreeNode(v);
+                    n->left = solve();
+                    n->right = solve();
+                    return n;
+                };
+                return solve();
+            }
+        };
+        class Codec2
+        {
+        public:
+            // Encodes a tree to a single string.
+            static string serialize(TreeNode *root)
+            {
+                ostringstream oss;
+                if (root == nullptr)
+                    return oss.str();
+                queue<TreeNode *> q[2];
+                q[0].push(root);
+                int l = 0;
+                bool first = true;
+                while (!q[0].empty() || !q[1].empty())
+                {
+                    queue<TreeNode *> &current = q[l % 2];
+                    queue<TreeNode *> &next = q[(l + 1) % 2];
+                    bool nextAllNulls = true;
+                    while (!current.empty())
+                    {
+                        TreeNode *n = current.front();
+                        current.pop();
+                        if (!first)
+                            oss << ",";
+                        if (n == nullptr)
+                            oss << "#";
+                        else
+                            oss << n->val;
+                        if (first)
+                            first = false;
+                        if (n != nullptr)
+                        {
+                            next.push(n->left);
+                            next.push(n->right);
+                            nextAllNulls &= (n->left == nullptr && n->right == nullptr);
+                        }
+                    }
+                    if (nextAllNulls)
+                        break;
+                    else
+                        l++;
+                }
+                return oss.str();
+            }
+            // Decodes your encoded data to tree.
+            static TreeNode *deserialize(string data)
+            {
+                if (data.empty())
+                    return nullptr;
+                size_t i = 0;
+                size_t j = data.find(",", i);
+                TreeNode *root;
+                if (j == string::npos)
+                {
+                    root = new TreeNode(stoi(data.substr(i)));
+                    i = data.size();
+                }
+                else
+                {
+                    root = new TreeNode(stoi(data.substr(i, j - i)));
+                    i = j + 1;
+                }
+                queue<TreeNode *> q;
+                q.push(root);
+                while (!q.empty() && i < data.size())
+                {
+                    TreeNode *n = q.front();
+                    q.pop();
+                    if (data[i] == '#')
+                    {
+                        n->left = nullptr;
+                        i += 2;
+                    }
+                    else
+                    {
+                        j = data.find(",", i);
+                        if (j == string::npos)
+                        {
+                            n->left = new TreeNode(stoi(data.substr(i)));
+                            i = data.size();
+                        }
+                        else
+                        {
+                            n->left = new TreeNode(stoi(data.substr(i, j - i)));
+                            i = j + 1;
+                        }
+                        q.push(n->left);
+                    }
+                    if (i >= data.size())
+                        break;
+                    if (data[i] == '#')
+                    {
+                        n->right = nullptr;
+                        i += 2;
+                    }
+                    else
+                    {
+                        j = data.find(",", i);
+                        if (j == string::npos)
+                        {
+                            n->right = new TreeNode(stoi(data.substr(i)));
+                            i = data.size();
+                        }
+                        else
+                        {
+                            n->right = new TreeNode(stoi(data.substr(i, j - i)));
+                            i = j + 1;
+                        }
+                        q.push(n->right);
+                    }
+                }
+                return root;
+            }
+        };
+
+        // 299. Bulls and Cows
+        // You are playing the Bulls and Cows game with your friend.
+        // You write down a secret number and ask your friend to guess what the number is.
+        // When your friend makes a guess, you provide a hint with the following info:
+        // The number of "bulls", which are digits in the guess that are in the correct position.
+        // The number of "cows", which are digits in the guess that are in your secret number
+        // but are located in the wrong position. Specifically, the non-bull digits in the guess
+        // that could be rearranged such that they become bulls.
+        // Given the secret number secret and your friend's guess guess, return the hint for
+        // your friend's guess.
+        // The hint should be formatted as "xAyB", where x is the number of bulls and y is
+        // the number of cows. Note that both secret and guess may contain duplicate digits.
+        // Example 1:
+        // Input: secret = "1807", guess = "7810"
+        // Output: "1A3B"
+        // Explanation: Bulls are connected with a '|' and cows are underlined:
+        // "1807"
+        //   |
+        // "7810"
+        // Example 2:
+        // Input: secret = "1123", guess = "0111"
+        // Output: "1A1B"
+        // Explanation: Bulls are connected with a '|' and cows are underlined:
+        // "1123"        "1123"
+        //   |      or     |
+        // "0111"        "0111"
+        // Note that only one of the two unmatched 1s is counted as a cow since the non-bull digits
+        // can only be rearranged to allow one 1 to be a bull.
+        // Example 3:
+        // Input: secret = "1", guess = "0"
+        // Output: "0A0B"
+        // Example 4:
+        // Input: secret = "1", guess = "1"
+        // Output: "1A0B"
+        // Constraints:
+        // 1 <= secret.length, guess.length <= 1000
+        // secret.length == guess.length
+        // secret and guess consist of digits only.
+        string getHint(string secret, string guess)
+        {
+            map<char, int> s;
+            map<char, int> g;
+            int a = 0;
+            for (size_t i = 0; i < guess.size(); i++)
+            {
+                if (guess[i] == secret[i])
+                {
+                    a++;
+                }
+                else
+                {
+                    if (s.find(secret[i]) == s.end())
+                        s[secret[i]] = 1;
+                    else
+                        s[secret[i]]++;
+                    if (g.find(guess[i]) == g.end())
+                        g[guess[i]] = 1;
+                    else
+                        g[guess[i]]++;
+                }
+            }
+            int b = 0;
+            for (const auto &p : g)
+            {
+                if (s.find(p.first) != s.end())
+                    b += min(s[p.first], p.second);
+            }
+            ostringstream oss;
+            oss << a << "A" << b << "B";
+            return oss.str();
+        }
 
     } // namespace LeetCode
 } // namespace Test
