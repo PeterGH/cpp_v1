@@ -1662,6 +1662,137 @@ namespace Test
             return oss.str();
         }
 
+        // 300. Longest Increasing Subsequence
+        // Given an integer array nums, return the length of the longest strictly
+        // increasing subsequence. A subsequence is a sequence that can be derived
+        // from an array by deleting some or no elements without changing the order
+        // of the remaining elements. For example, [3,6,2,7] is a subsequence of
+        // the array [0,3,1,6,2,2,7].
+        // Example 1:
+        // Input: nums = [10,9,2,5,3,7,101,18]
+        // Output: 4
+        // Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
+        // Example 2:
+        // Input: nums = [0,1,0,3,2,3]
+        // Output: 4
+        // Example 3:
+        // Input: nums = [7,7,7,7,7,7,7]
+        // Output: 1
+        // Constraints:
+        // 1 <= nums.length <= 2500
+        // -10^4 <= nums[i] <= 10^4
+        // Follow up:
+        // Could you come up with the O(n2) solution?
+        // Could you improve it to O(n log(n)) time complexity?
+        int lengthOfLIS(vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            vector<int> l(nums.size(), 0);
+            int m = 0;
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                int t = 0;
+                for (size_t j = 0; j < i; j++)
+                {
+                    if (nums[j] < nums[i])
+                        t = max(t, l[j]);
+                }
+                l[i] = t + 1;
+                m = max(m, l[i]);
+            }
+            return m;
+        }
+        // https://en.wikipedia.org/wiki/Longest_increasing_subsequence
+        // For each i, compute M[j], j = 0, 1, 2, 3, ......, i
+        // which traks the indices of the minimum ending elements of all increasing subsequences of length j+1.
+        // So M[j] tracks the increasing subsequence of length j+1 that is most likely to be extended
+        // when scanning the rest of elements in I.
+        // At i, there may be multiple longest subsequenes of the same length L, e.g.,
+        // Given sequence {1, 0, 3, 2, 5, 4, 7, 6}, there are multiple longest subsequences at each i > 0
+        // i = 3,
+        // {1, 3}
+        // {0, 3}
+        // {1, 2}
+        // {0, 2}
+        // so 3 and 2 are the ending elements of length 2 at i = 3. We want to track 2 because it will be
+        // easier to extend the subsequences ending with 2 than those ending with 3.
+        // At i = 3, the longest length is 2, so set M[1] = 3 (the index of 2).
+        // If L is the length of longest increasing subsequence up to I[i] (0 <= L-1 <= i),
+        // then M[0] < M[1] < M[2] < ...... < M[L-1] <= i
+        static void LongestIncreasingSubsequence(int *input, int length)
+        {
+            if (input == nullptr || length <= 0)
+                return;
+            cout << "Input:";
+            for (int i = 0; i < length; i++)
+            {
+                cout << " " << input[i];
+            }
+            cout << endl;
+            unique_ptr<int[]> m(new int[length]);
+            unique_ptr<int[]> p(new int[length]);
+            int L = 1; // The length of longest increasing subsequence so far
+            m[0] = 0;  // Longest length 1 is achieved at index 0
+            p[0] = -1; // Previous element in the increasing subsequence
+            for (int i = 1; i < length; i++)
+            {
+                // Out of {m[0], m[1], ..., m[L-1]}, find the longest m[j-1] which can be extended by input[i]
+                // Should have used binary search.
+                int j = L;
+                while (j > 0 && input[i] <= input[m[j - 1]])
+                    j--;
+
+                if (j > 0)
+                {
+                    // input[m[j-1]] < input[i]
+                    // So input[i] extends the increasing subsequence ending at m[j-1]
+                    // and previous element is at m[j-1]
+                    p[i] = m[j - 1];
+                }
+                else // j == 0
+                {
+                    // input[i] does not extend any increasing subsequence so far
+                    // no previous element
+                    p[i] = -1;
+                }
+
+                if (j == L)
+                {
+                    // If j == L, then input[m[L-1]] < input[i]
+                    // input[i] is the first element to end an increasing subsequence of
+                    // length L + 1
+                    m[j] = i;
+                    L++;
+                }
+                else if (input[i] < input[m[j]])
+                {
+                    // (1). 0 < j < L, and input[m[j-1]] < input[i] < input[m[j]]
+                    // (2). j == 0, input[i] < input[m[0]]
+                    // input[i] extends the increasing subsequence of length j ending at
+                    // m[j-1], and it is smaller than existing ending element at m[j].
+                    m[j] = i;
+                }
+            }
+
+            stack<int> e;
+            int i = m[L - 1];
+            while (i >= 0)
+            {
+                e.push(input[i]);
+                i = p[i];
+            }
+
+            cout << "Longest increasing subsequence:";
+            while (!e.empty())
+            {
+                cout << " " << e.top();
+                e.pop();
+            }
+
+            cout << endl;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 

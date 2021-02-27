@@ -1566,6 +1566,7 @@ namespace LongestIncreasingSubsequence {
 //                                                    M[n-2] M[n-2]
 //                                                           M[n-1]
 //
+//  https://en.wikipedia.org/wiki/Longest_increasing_subsequence
 //  For each i, compute M[j]
 //  j = 0, 1, 2, 3, ......, i
 //  Compute the ending elements of all increasing subsequences of length j+1,
