@@ -4,6 +4,7 @@
 #include "LeetCode.h"
 #include "LeetCode0.h"
 #include "LeetCode2.h"
+#include "LeetCode3.h"
 #include "Test.h"
 #include "Util.h"
 #include <math.h>
