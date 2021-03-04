@@ -6544,5 +6544,14 @@ void LeetCodeTest::Init(void)
         };
         check({10, 9, 2, 5, 3, 7, 101, 18}, 4);
     });
+
+    Add("306. Additive Number", [&]() {
+        auto check = [&](const string& n, bool e){
+            bool r = isAdditiveNumber(n);
+            ASSERT1(r == e);
+        };
+        check("199100199", true);
+        check("11111111111011111111111", true);
+    });
 }
 #endif
