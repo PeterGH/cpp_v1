@@ -341,6 +341,96 @@ namespace Test
             }
             return false;
         }
+
+        // 307. Range Sum Query - Mutable
+        // Given an array nums and two types of queries where you should update the value
+        // of an index in the array, and retrieve the sum of a range in the array.
+        // Implement the NumArray class:
+        // NumArray(int[] nums) Initializes the object with the integer array nums.
+        // void update(int index, int val) Updates the value of nums[index] to be val.
+        // int sumRange(int left, int right) Returns the sum of the subarray nums[left, right]
+        // (i.e., nums[left] + nums[left + 1], ..., nums[right]).
+        // Example 1:
+        // Input
+        // ["NumArray", "sumRange", "update", "sumRange"]
+        // [[[1, 3, 5]], [0, 2], [1, 2], [0, 2]]
+        // Output
+        // [null, 9, null, 8]
+        // Explanation
+        // NumArray numArray = new NumArray([1, 3, 5]);
+        // numArray.sumRange(0, 2); // return 9 = sum([1,3,5])
+        // numArray.update(1, 2);   // nums = [1,2,5]
+        // numArray.sumRange(0, 2); // return 8 = sum([1,2,5])
+        // Constraints:
+        // 1 <= nums.length <= 3 * 10^4
+        // -100 <= nums[i] <= 100
+        // 0 <= index < nums.length
+        // -100 <= val <= 100
+        // 0 <= left <= right < nums.length
+        // At most 3 * 10^4 calls will be made to update and sumRange.
+        class NumArrayMutable
+        {
+        private:
+            vector<int> acc;
+
+        public:
+            NumArrayMutable(vector<int> &nums)
+            {
+                acc.resize(nums.size());
+                int a = 0;
+                for (size_t i = 0; i < nums.size(); i++)
+                {
+                    a += nums[i];
+                    acc[i] = a;
+                }
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < (int)acc.size())
+                {
+                    int x = acc[index];
+                    if (index > 0)
+                        x -= acc[index - 1];
+                    int d = val - x;
+                    for (size_t i = index; i < acc.size(); i++)
+                        acc[i] += d;
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                int r = acc[right];
+                if (left > 0)
+                    r -= acc[left - 1];
+                return r;
+            }
+        };
+        class NumArrayMutable2
+        {
+        private:
+            vector<int> acc;
+
+        public:
+            NumArrayMutable2(vector<int> &nums)
+            {
+                acc.insert(acc.begin(), nums.begin(), nums.end());
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < (int)acc.size())
+                {
+                    acc[index] = val;
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                return accumulate(acc.begin() + left, acc.begin() + right + 1, 0);
+            }
+        };
+
     }
 }
 
