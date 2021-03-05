@@ -430,6 +430,64 @@ namespace Test
                 return accumulate(acc.begin() + left, acc.begin() + right + 1, 0);
             }
         };
+        class NumArrayMutable3
+        {
+        private:
+            vector<int> num;
+            vector<int> block;
+            int blockLen;
+
+        public:
+            NumArrayMutable3(vector<int> &nums)
+            {
+                num.insert(num.begin(), nums.begin(), nums.end());
+                blockLen = sqrt(num.size());
+                int a = 0;
+                for (int i = 0; i < (int)num.size(); i++)
+                {
+                    a += num[i];
+                    if ((i + 1) % blockLen == 0)
+                    {
+                        block.push_back(a);
+                        a = 0;
+                    }
+                }
+                if (blockLen * block.size() < num.size())
+                    block.push_back(a);
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < (int)num.size())
+                {
+                    int blockIndex = index / blockLen;
+                    block[blockIndex] += val - num[index];
+                    num[index] = val;
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                int blockLeft = left / blockLen;
+                int blockRight = right / blockLen;
+                int a = 0;
+                if (blockLeft == blockRight)
+                {
+                    for (int i = left; i <= right; i++)
+                        a += num[i];
+                }
+                else
+                {
+                    for (int i = blockLeft + 1; i < blockRight; i++)
+                        a += block[i];
+                    for (int i = left; i < (blockLeft + 1) * blockLen; i++)
+                        a += num[i];
+                    for (int i = blockRight * blockLen; i <= right; i++)
+                        a += num[i];
+                }
+                return a;
+            }
+        };
 
     }
 }
