@@ -488,6 +488,129 @@ namespace Test
                 return a;
             }
         };
+        class NumArrayMutable4
+        {
+        private:
+            // Given n numbers [0..(n-1)]
+            // The tree array has 2n-1 entries
+            // index 0 1 ... (n-2) (n-1) n ... (2n-2)
+            //       ~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~
+            //       internal nodes   leaf nodes
+            // The leaf nodes at indices [(n-1)..(2n-2)] will be the n numbers.
+            // The internal nodes at indices [0..(n-2)] will be aggregates.
+            // An internal node at index i has left node 2i+1 and right node 2i+2.
+            // For example, given 10 numbers [0..9], the leaf indices are [9..18]
+            // 1. Build tree bottom up until index 2.
+            //             2           3
+            //           /   \       /   \
+            //    4     5     6     7     8
+            //   / \   / \   / \   / \   / \
+            //  9  10 11 12 13 14 15 16 17 18
+            // 2. Build tree at index 1
+            //                           -- 1 --
+            //                          /      \
+            //             2           3        4
+            //           /   \       /   \     / \
+            //          5     6     7     8   9  10
+            //         / \   / \   / \   / \
+            //        11 12 13 14 15 16 17 18
+            // 3. Build tree at index 0
+            //                               ---- 0 ----
+            //                              /           \
+            //                           --1 --          2
+            //                          /      \       /   \
+            //                         3        4     5     6
+            //                       /   \     / \   / \   / \
+            //                      7     8   9  10 11 12 13 14
+            //                     / \   / \
+            //                    15 16 17 18
+            // Another example, given 11 numbers [0..10], the leaf indices are [10..20]
+            // 1. Build tree bottom up until index 5.
+            //       5     6     7     8     9
+            //      / \   / \   / \   / \   / \
+            //  10 11 12 13 14 15 16 17 18 19 20
+            // 2. Build tree from index 4 to 1
+            //                        --- 1 ---
+            //                       /         \
+            //          2           3           4
+            //        /   \       /   \       /   \
+            //       5     6     7     8     9    10
+            //      / \   / \   / \   / \   / \
+            //     11 12 13 14 15 16 17 18 19 20
+            // 3. Build tree at index 0
+            //                              ----- 0 -----
+            //                             /             \
+            //                        --- 1 ---           2
+            //                       /         \        /   \
+            //                      3           4      5     6
+            //                    /   \       /   \   / \   / \
+            //                   7     8     9    10 11 12 13 14
+            //                  / \   / \   / \
+            //                 15 16 17 18 19 20
+            void buildTree(const vector<int> &num, vector<int> &tree)
+            {
+                if (num.empty())
+                    return;
+                int n = num.size();
+                tree.resize(2 * n - 1);
+                for (int i = n - 1, j = 0; i < 2 * n - 1; i++, j++)
+                {
+                    tree[i] = num[j];
+                }
+                for (int i = n - 2; i >= 0; i--)
+                {
+                    tree[i] = tree[2 * i + 1] + tree[2 * i + 2];
+                }
+            }
+
+            vector<int> tree;
+            int n;
+
+        public:
+            NumArrayMutable4(vector<int> &nums)
+            {
+                n = nums.size();
+                buildTree(nums, tree);
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < n)
+                {
+                    index += n - 1;
+                    int d = val - tree[index];
+                    while (index > 0)
+                    {
+                        tree[index] += d;
+                        index = (index - 1) >> 1;
+                    }
+                    tree[index] += d;
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                left += n - 1;
+                right += n - 1;
+                int s = 0;
+                while (left <= right)
+                {
+                    if ((left & 0x1) == 0)
+                    {
+                        s += tree[left];
+                        left++;
+                    }
+                    if ((right & 0x1) == 1)
+                    {
+                        s += tree[right];
+                        right--;
+                    }
+                    left = (left - 1) >> 1;
+                    right = (right - 1) >> 1;
+                }
+                return s;
+            }
+        };
 
     }
 }
