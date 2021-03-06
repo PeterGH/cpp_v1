@@ -611,6 +611,61 @@ namespace Test
                 return s;
             }
         };
+        class NumArrayMutable5
+        {
+            // https://www.topcoder.com/community/competitive-programming/tutorials/binary-indexed-trees/
+            // https://en.wikipedia.org/wiki/Fenwick_tree
+            // Given an array of 16 numbers, construct a binary-indexed-tree (BIT) of 17 numbers
+            //                index       Value       Parent
+            // |------------- 16 [10000]  sum[0..16]   0
+            // |           |- 15 [01111]  sum[15]     14
+            // |        |---- 14 [01110]  sum[13..14] 12
+            // |        |  |- 13 [01101]  sum[13]     12
+            // |     |------- 12 [01100]  sum[9..12]   8
+            // |     |     |- 11 [01011]  sum[11]     10
+            // |     |  |---- 10 [01010]  sum[9..10]   8
+            // |     |  |  |-  9 [01001]  sum[9]       8
+            // |  |----------  8 [01000]  sum[0..8]    0
+            // |  |        |-  7 [00111]  sum[7]       6
+            // |  |     |----  6 [00110]  sum[5..6]    4
+            // |  |     |  |-  5 [00101]  sum[5]       4
+            // |  |  |-------  4 [00100]  sum[0..4]    0
+            // |  |  |     |-  3 [00011]  sum[3]       2
+            // |  |  |  |----  2 [00010]  sum[0..2]    0
+            // |  |  |  |  |-  1 [00001]  sum[1]       0
+            // ----------------0 [00000]  0            0
+            // Given an index i in the BIT, its parent index is (i - lsb1(i)).
+            // Least Significant Bit One
+            // Given a binary 10110000, we want to get the binary represented by
+            // the least significant bit one, i.e., 10000, then we can compute
+            // the bitwise-and between the binary number and its two's complement:
+            //   10110000 & (~10110000)
+            // = 10110000 & ( 01001111 + 1)
+            // = 10110000 &   01010000
+            // = 00010000
+            int lsb1(int b)
+            {
+                return b & (~b);
+            }
+
+        private:
+            int count;
+            vector<int> bit;
+        public:
+            NumArrayMutable5(vector<int> &nums)
+            {
+                count = nums.size();
+                bit.resize(count + 1);
+            }
+
+            void update(int index, int val)
+            {
+            }
+
+            int sumRange(int left, int right)
+            {
+            }
+        };
 
     }
 }
