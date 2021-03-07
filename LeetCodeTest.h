@@ -6553,5 +6553,34 @@ void LeetCodeTest::Init(void)
         check("199100199", true);
         check("11111111111011111111111", true);
     });
+
+    Add("307. Range Sum Query - Mutable", [&]() {
+        {
+            NumArrayMutable6 a6({1, 3, 5});
+            int v = a6.sumRange(0, 2);
+            Logger() << "sumRange(0, 2) = " << v << endl;
+            Logger() << "update(1, 2)" << endl;
+            a6.update(1, 2);
+            v = a6.sumRange(0, 2);
+            Logger() << "sumRange(0, 2) = " << v << endl;
+        }
+        {
+            NumArrayMutable6 a6({0,1,2,3,4,5,6,7,8,9});
+            a6.print();
+        }
+        {
+            NumArrayMutable6 a6({-28,-39,53,65,11,-56,-65,-39,-43,97});
+            a6.sumRange(5,6);
+            a6.update(9,27);
+            a6.sumRange(2,3);
+            a6.sumRange(6,7);
+            a6.update(1,-82);
+            a6.update(3,-72);
+            a6.sumRange(3,7);
+            a6.sumRange(1,8);
+            a6.update(5,13);
+            a6.update(4,-67);
+        }
+    });
 }
 #endif

@@ -746,6 +746,27 @@ void CppTest::Init(void) {
         ASSERT1(*it3 == *it);
         ASSERT1(it3 == it);
     });
+
+    Add("LeastSignificantBitValue", [&]() {
+        auto check = [&](int b, int e) {
+            int c = ~b + 1;
+            Logger() << std::hex << "~" << b << " + 1 = " << c << endl;
+            int d = b & c;
+            Logger() << std::hex << b << " & ~" << b << " + 1 = " << d << ", expect " << e << endl;
+            ASSERT1(d == e);
+        };
+        check(1, 1);
+        check(2, 2);
+        check(3, 1);
+        check(4, 4);
+        check(5, 1);
+        check(6, 2);
+        check(7, 1);
+        check(8, 8);
+        check(9, 1);
+        check(10, 2);
+        check(0x10100000, 0x00100000);
+    });
 }
 
 #endif

@@ -647,23 +647,186 @@ namespace Test
             {
                 return b & (~b);
             }
+            // Build a BIT tree from nums
+            void buildbit(const vector<int> &nums)
+            {
+                count = nums.size();
+                bit = vector<int>(1, 0);
+                for (int i = 1; i <= count; i++)
+                {
+                    int s = nums[i - 1];
+                    if ((i & 0x1) == 0)
+                    {
+                        int k = i - lsb1(i);
+                        int j = i - 1;
+                        while (j > k)
+                        {
+                            s += bit[j];
+                            j -= lsb1(j);
+                        }
+                    }
+                    bit.push_back(s);
+                }
+            }
+            // Read the original nums[i]
+            int getOriginalNumber(int i)
+            {
+                i++;
+                int n = bit[i];
+                int j = i - lsb1(i); // index of parent bit[i]
+                i--;
+                while (i != j)
+                {
+                    n -= bit[i];
+                    i -= lsb1(i);
+                }
+                return n;
+            }
 
         private:
             int count;
-            vector<int> bit;
+            vector<int> bit; // [0..count]
+            // Add val to nums[i] (i.e., bit[i+1]) and update all the affected entries
+            void add(int i, int val)
+            {
+                i++;
+                while (i <= count)
+                {
+                    bit[i] += val;
+                    i += lsb1(i);
+                }
+            }
+            // sum of nums[0..i]
+            int sumUpTo(int i)
+            {
+                i++;
+                int s = 0;
+                while (i > 0)
+                {
+                    s += bit[i];
+                    i -= lsb1(i);
+                }
+                return s;
+            }
+
         public:
             NumArrayMutable5(vector<int> &nums)
             {
                 count = nums.size();
-                bit.resize(count + 1);
+                // Build bit with all zeros, which is a valid BIT tree
+                bit = vector<int>(count + 1, 0);
+                // Update bit with nums, which will be the actual BIT tree for nums
+                for (int i = 0; i < count; i++)
+                {
+                    add(i, nums[i]);
+                }
             }
 
             void update(int index, int val)
             {
+                int v = getOriginalNumber(index);
+                int d = val - v;
+                add(index, d);
             }
 
             int sumRange(int left, int right)
             {
+                return sumUpTo(right) - sumUpTo(left - 1);
+            }
+        };
+        // Idea of NumArrayMutable5 and validated
+        class NumArrayMutable6
+        {
+        private:
+            int count;
+            vector<int> bit;
+
+            int lsb1(int b)
+            {
+                return b & (~b + 1);
+            }
+
+            int getOriginalNumber(int i)
+            {
+                i++;
+                int n = bit[i];
+                int j = i - lsb1(i);
+                i--;
+                while (i != j)
+                {
+                    n -= bit[i];
+                    i -= lsb1(i);
+                }
+                return n;
+            }
+
+            int sumUpTo(int i)
+            {
+                i++;
+                int s = 0;
+                while (i > 0)
+                {
+                    s += bit[i];
+                    i -= lsb1(i);
+                }
+                return s;
+            }
+
+        public:
+            NumArrayMutable6(const vector<int> &nums)
+            {
+                count = nums.size();
+                bit.push_back(0);
+                for (int i = 1; i <= count; i++)
+                {
+                    int s = nums[i - 1];
+                    if ((i & 0x1) == 0)
+                    {
+                        int k = i - lsb1(i);
+                        int j = i - 1;
+                        while (j > k)
+                        {
+                            s += bit[j];
+                            j -= lsb1(j);
+                        }
+                    }
+                    bit.push_back(s);
+                }
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < count)
+                {
+                    int n = getOriginalNumber(index);
+                    int d = val - n;
+                    index++;
+                    while (index <= count)
+                    {
+                        bit[index] += d;
+                        index += lsb1(index);
+                    }
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                int s = sumUpTo(right);
+                if (left > 0)
+                    s -= sumUpTo(left - 1);
+                return s;
+            }
+
+            void print()
+            {
+                cout << "{";
+                for (size_t i = 0; i < bit.size(); i++)
+                {
+                    if (i > 0)
+                        cout << ", ";
+                    cout << bit[i];
+                }
+                cout << "}" << endl;
             }
         };
 
