@@ -829,6 +829,89 @@ namespace Test
                 cout << "}" << endl;
             }
         };
+        class NumArrayMutable7
+        {
+            // Same as NumArrayMutable6 except the bit array has the same length as the input
+        private:
+            int count;
+            vector<int> bit;
+
+            int lsb1(int b)
+            {
+                return b & (~b + 1);
+            }
+
+            int getOriginalNumber(int i)
+            {
+                int n = bit[i];
+                i++; // convert to BIT index
+                int j = i - lsb1(i);
+                i--;
+                while (i != j)
+                {
+                    n -= bit[i - 1]; // bit array is biased from BIT index
+                    i -= lsb1(i);
+                }
+                return n;
+            }
+
+            int sumUpTo(int i)
+            {
+                i++; // convert to BIT index
+                int s = 0;
+                while (i > 0)
+                {
+                    s += bit[i - 1]; // bit array is biased from BIT index
+                    i -= lsb1(i);
+                }
+                return s;
+            }
+
+        public:
+            NumArrayMutable7(vector<int> &nums)
+            {
+                count = nums.size();
+                for (int i = 0; i < count; i++)
+                {
+                    int s = nums[i];
+                    int j = i + 1; // convert to BIT index
+                    if ((j & 0x1) == 0)
+                    {
+                        int k = j - lsb1(j);
+                        int l = j - 1;
+                        while (l > k)
+                        {
+                            s += bit[l - 1];  // bit array is biased from BIT index
+                            l -= lsb1(l);
+                        }
+                    }
+                    bit.push_back(s);
+                }
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < count)
+                {
+                    int n = getOriginalNumber(index);
+                    int d = val - n;
+                    index++;
+                    while (index <= count)
+                    {
+                        bit[index - 1] += d; // bit array is biased from BIT index
+                        index += lsb1(index);
+                    }
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                int s = sumUpTo(right);
+                if (left > 0)
+                    s -= sumUpTo(left - 1);
+                return s;
+            }
+        };
 
     }
 }
