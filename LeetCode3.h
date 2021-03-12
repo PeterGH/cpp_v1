@@ -881,7 +881,7 @@ namespace Test
                         int l = j - 1;
                         while (l > k)
                         {
-                            s += bit[l - 1];  // bit array is biased from BIT index
+                            s += bit[l - 1]; // bit array is biased from BIT index
                             l -= lsb1(l);
                         }
                     }
@@ -901,6 +901,82 @@ namespace Test
                         bit[index - 1] += d; // bit array is biased from BIT index
                         index += lsb1(index);
                     }
+                }
+            }
+
+            int sumRange(int left, int right)
+            {
+                int s = sumUpTo(right);
+                if (left > 0)
+                    s -= sumUpTo(left - 1);
+                return s;
+            }
+        };
+        class NumArrayMutable8
+        {
+        private:
+            int count;
+            vector<int> bit;
+
+            int lsb1(int b)
+            {
+                return b & (~b + 1);
+            }
+
+            void add(int i, int val)
+            {
+                i++;
+                while (i <= count)
+                {
+                    bit[i - 1] += val;
+                    i += lsb1(i);
+                }
+            }
+
+            int getOriginalNumber(int i)
+            {
+                int n = bit[i];
+                i++;
+                int j = i - lsb1(i);
+                i--;
+                while (i != j)
+                {
+                    n -= bit[i - 1];
+                    i -= lsb1(i);
+                }
+                return n;
+            }
+
+            int sumUpTo(int i)
+            {
+                i++;
+                int s = 0;
+                while (i > 0)
+                {
+                    s += bit[i - 1];
+                    i -= lsb1(i);
+                }
+                return s;
+            }
+
+        public:
+            NumArrayMutable8(vector<int> &nums)
+            {
+                count = nums.size();
+                bit.resize(count, 0); // init a valid BIT
+                for (int i = 0; i < count; i++)
+                {
+                    add(i, nums[i]); // update bit while maintaining it as a valid BIT
+                }
+            }
+
+            void update(int index, int val)
+            {
+                if (0 <= index && index < count)
+                {
+                    int v = getOriginalNumber(index);
+                    int d = val - v;
+                    add(index, d);
                 }
             }
 
