@@ -6582,5 +6582,12 @@ void LeetCodeTest::Init(void)
             a6.update(4,-67);
         }
     });
+
+    Add("310. Minimum Height Trees", [&](){
+        auto check = [&](int n, const vector<vector<int>> &edges) {
+            vector<int> roots = findMinHeightTrees(n, edges);
+        };
+        check(4, {{1,0}, {1,2}, {1,3}});
+    });
 }
 #endif
