@@ -1083,7 +1083,81 @@ namespace Test
         // ai != bi
         // All the pairs (ai, bi) are distinct.
         // The given input is guaranteed to be a tree and there will be no repeated edges.
+        // The roots to look for are centroids who are close to all the other nodes.
+        // For the tree-alike graph, the number of centroids is no more than 2.
+        // If the nodes form a chain, it is intuitive to see that the above statement holds,
+        // which can be broken into the following two cases:
+        // If the number of nodes is even, then there would be two centroids.
+        // If the number of nodes is odd, then there would be only one centroid.
+        // For the rest of cases, we could prove by contradiction. Suppose that we have 3 centroids
+        // in the graph, if we remove all the non-centroid nodes in the graph, then the 3 centroids
+        // nodes must form a triangle shape.
+        // Because these centroids are equally important to each other, and they should equally
+        // close to each other as well. If any of the edges that is missing from the triangle,
+        // then the 3 centroids would be reduced down to a single centroid.
+        // However, the triangle shape forms a cycle which is contradicted to the condition
+        // that there is no cycle in our tree-alike graph. Similarly, for any of the cases that
+        // have more than 2 centroids, they must form a cycle among the centroids, which is
+        // contradicted to our condition. Therefore, there cannot be more than 2 centroids
+        // in a tree-alike graph.
+        // The idea is that we trim out the leaf nodes layer by layer, until we reach the core
+        // of the graph, which are the centroids nodes. We could implement it via the Breadth
+        // First Search (BFS) strategy, to trim the leaf nodes layer by layer (i.e. level by level).
+        // Initially, we would build a graph with the adjacency list from the input.
+        // We then create a queue which would be used to hold the leaf nodes.
+        // At the beginning, we put all the current leaf nodes into the queue.
+        // We then run a loop until there is only two nodes left in the graph.
+        // At each iteration, we remove the current leaf nodes from the queue. While removing the
+        // nodes, we also remove the edges that are linked to the nodes. As a consequence, some
+        // of the non-leaf nodes would become leaf nodes. And these are the nodes that would be
+        // trimmed out in the next iteration.
+        // The iteration terminates when there are no more than two nodes left in the graph, which
+        // are the desired centroids nodes.
         vector<int> findMinHeightTrees(int n, const vector<vector<int>> &edges)
+        {
+            if (edges.empty())
+                return vector<int>{0};
+            unordered_map<int, unordered_set<int>> g;
+            for (const auto &e : edges)
+            {
+                if (g.find(e[0]) == g.end())
+                    g[e[0]] = unordered_set<int>{};
+                g[e[0]].insert(e[1]);
+                if (g.find(e[1]) == g.end())
+                    g[e[1]] = unordered_set<int>{};
+                g[e[1]].insert(e[0]);
+            }
+            queue<int> current;
+            queue<int> next;
+            for (const auto &p : g)
+            {
+                if (p.second.size() <= 1)
+                    current.push(p.first);
+            }
+            while (g.size() > 2)
+            {
+                while (!current.empty())
+                {
+                    int l = current.front();
+                    current.pop();
+                    for (const int &t : g[l])
+                    {
+                        g[t].erase(l);
+                        if (g[t].size() == 1)
+                            next.push(t);
+                    }
+                    g.erase(l);
+                }
+                current.swap(next);
+            }
+            vector<int> roots;
+            for (const auto &p : g)
+            {
+                roots.push_back(p.first);
+            }
+            return roots;
+        }
+        vector<int> findMinHeightTrees2(int n, const vector<vector<int>> &edges)
         {
             multimap<int, int> g;
             for (const auto &e : edges)
