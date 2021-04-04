@@ -1303,6 +1303,37 @@ namespace Test
             };
             return solve(0, n - 1);
         }
+        int maxCoins3(vector<int> &nums)
+        {
+            int n = nums.size();
+            vector<vector<int>> m(n, vector<int>(n, -1));
+            function<int(int)> getN = [&](int i) -> int {
+                if (i < 0 || i >= n)
+                    return 1;
+                return nums[i];
+            };
+            function<int(int, int)> getM = [&](int i, int j) -> int {
+                if (i > j)
+                    return 0;
+                return m[i][j];
+            };
+            for (int r = n - 1; r >= 0; r--)
+            {
+                for (int s = 0; s <= r; s++)
+                {
+                    int i = r - s;
+                    int j = n - 1 - s;
+                    int t = 0;
+                    int c = getN(i - 1) * getN(j + 1);
+                    for (int k = i; k <= j; k++)
+                    {
+                        t = max(t, getM(i, k - 1) + c * getN(k) + getM(k + 1, j));
+                    }
+                    m[i][j] = t;
+                }
+            }
+            return m[0][n - 1];
+        }
 
     }
 }
