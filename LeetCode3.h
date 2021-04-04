@@ -1218,6 +1218,92 @@ namespace Test
             return roots;
         }
 
+        // 312. Burst Balloons
+        // You are given n balloons, indexed from 0 to n - 1. Each balloon is painted with a number
+        // on it represented by an array nums. You are asked to burst all the balloons.
+        // If you burst the ith balloon, you will get nums[i - 1] * nums[i] * nums[i + 1] coins.
+        // If i - 1 or i + 1 goes out of bounds of the array, then treat it as if there is a balloon with a 1 painted on it.
+        // Return the maximum coins you can collect by bursting the balloons wisely.
+        // Example 1:
+        // Input: nums = [3,1,5,8]
+        // Output: 167
+        // Explanation:
+        // nums = [3,1,5,8] --> [3,5,8] --> [3,8] --> [8] --> []
+        // coins =  3*1*5    +   3*5*8   +  1*3*8  + 1*8*1 = 167
+        // Example 2:
+        // Input: nums = [1,5]
+        // Output: 10
+        // Constraints:
+        // n == nums.length
+        // 1 <= n <= 500
+        // 0 <= nums[i] <= 100
+        // m[i..j] be the max collected from n[i..j]
+        // m[i..j] = max{              n[i-1]*n[i]*n[j+1]   + m[(i+1)..j],
+        //               m[i..i]     + n[i-1]*n[i+1]*n[j+1] + m[(i+2)..j],
+        //               m[i..(i+1)] + n[i-1]*n[i+2]*n[j+1] + m[(i+3)..j],
+        //               ......
+        //               m[i..(j-2)] + n[i-1]*n[j-1]*n[j+1] + m[j..j],
+        //               m[i..(j-1)] + n[i-1]*n[j]*n[j+1]}
+        //     0       1       2              i              j
+        // 0   m[0][0] m[0][1] m[0][2] ...... m[0][i] ...... m[0][j]
+        // 1           m[1][1] m[1][2] ...... m[1][i] ...... m[1][j]
+        // 2                   m[2][2] ...... m[2][i] ...... m[2][j]
+        //                             ......
+        // i                                  m[i][i] ...... m[i][j]
+        //                                            ......
+        // j                                                 m[j][j]
+        int maxCoins(vector<int> &nums)
+        {
+            map<pair<int, int>, int> m;
+            int n = nums.size();
+            function<int(int)> get = [&](int i) -> int {
+                if (i < 0 || i >= n)
+                    return 1;
+                return nums[i];
+            };
+            function<int(int, int)> solve = [&](int i, int j) -> int {
+                if (i > j)
+                    return 0;
+                pair<int, int> p = make_pair(i, j);
+                if (m.find(p) == m.end())
+                {
+                    int s = 0;
+                    for (int k = i; k <= j; k++)
+                    {
+                        s = max(s, solve(i, k - 1) + get(i - 1) * get(k) * get(j + 1) + solve(k + 1, j));
+                    }
+                    m[p] = s;
+                }
+                return m[p];
+            };
+            return solve(0, n - 1);
+        }
+        int maxCoins2(vector<int> &nums)
+        {
+            int n = nums.size();
+            vector<vector<int>> m(n, vector<int>(n, -1)); // faster than using a map
+            function<int(int)> get = [&](int i) -> int {
+                if (i < 0 || i >= n)
+                    return 1;
+                return nums[i];
+            };
+            function<int(int, int)> solve = [&](int i, int j) -> int {
+                if (i > j)
+                    return 0;
+                if (m[i][j] < 0)
+                {
+                    int s = 0;
+                    for (int k = i; k <= j; k++)
+                    {
+                        s = max(s, solve(i, k - 1) + get(i - 1) * get(k) * get(j + 1) + solve(k + 1, j));
+                    }
+                    m[i][j] = s;
+                }
+                return m[i][j];
+            };
+            return solve(0, n - 1);
+        }
+
     }
 }
 
