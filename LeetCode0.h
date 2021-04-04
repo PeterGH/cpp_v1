@@ -458,7 +458,6 @@ namespace Test
             solve(num, 0, target, vector<int>{}, o);
             return o;
         }
-        // [TODO] Generalize to X-Sum
         vector<vector<int>> fourSum4(vector<int> &num, int target)
         {
             if (num.size() < 4)
@@ -518,6 +517,7 @@ namespace Test
                 size_t j = i;
                 while (j + 1 < nums.size() && nums[j + 1] == nums[j])
                     j++;
+                // nums[i..j] are the same
                 size_t m = tuple.size();
                 vector<int> c;
                 for (size_t k = i; k <= j && k < i + 4; k++)
@@ -700,6 +700,183 @@ namespace Test
                 };
             solve(0, 0, 0, nC - 1, nD - 1);
             return count;
+        }
+
+        // 2. Add Two Numbers
+        // Given two non-empty linked lists representing two non-negative integers. The
+        // digits are stored in reverse order (LSB is the head) and each node contain a
+        // single digit. Add the two numbers and return a linked list. The two numbers
+        // do not contain leading zero, except the number 0 itself.
+        // Input: (2 -> 4 -> 3) + (5 -> 6 -> 4)
+        // Output: (7 -> 0 -> 8)
+        static ListNode *addTwoNumbers(ListNode *l1, ListNode *l2)
+        {
+            if (l1 == nullptr)
+                return l2;
+            if (l2 == nullptr)
+                return l1;
+            ListNode *l = nullptr;
+            ListNode *n = nullptr;
+            int c = 0;
+            while (l1 != nullptr || l2 != nullptr || c == 1)
+            {
+                int v = c;
+                if (l1 != nullptr)
+                {
+                    v += l1->val;
+                    l1 = l1->next;
+                }
+                if (l2 != nullptr)
+                {
+                    v += l2->val;
+                    l2 = l2->next;
+                }
+                if (v >= 10)
+                {
+                    v -= 10;
+                    c = 1;
+                }
+                else
+                    c = 0;
+                if (l == nullptr)
+                {
+                    l = new ListNode(v);
+                    n = l;
+                }
+                else
+                {
+                    n->next = new ListNode(v);
+                    n = n->next;
+                }
+            }
+            return l;
+        }
+        static ListNode *addTwoNumbers2(ListNode *l1, ListNode *l2)
+        {
+            ListNode *h = nullptr;
+            ListNode *t = nullptr;
+            int c = 0;
+            while (l1 != nullptr || l2 != nullptr || c > 0)
+            {
+                ListNode *n = new ListNode(c);
+                if (l1 != nullptr)
+                {
+                    n->val += l1->val;
+                    l1 = l1->next;
+                }
+                if (l2 != nullptr)
+                {
+                    n->val += l2->val;
+                    l2 = l2->next;
+                }
+                if (n->val >= 10)
+                {
+                    n->val -= 10;
+                    c = 1;
+                }
+                else
+                {
+                    c = 0;
+                }
+                if (h == nullptr)
+                    h = n;
+                else
+                    t->next = n;
+                t = n;
+            }
+            return h;
+        }
+
+        // 3. Longest Substring Without Repeating Characters
+        // Given a string, find the length of the longest substring
+        // without repeating characters.
+        // Example 1:
+        // Input: "abcabcbb"
+        // Output: 3
+        // Explanation: The answer is "abc", with the length of 3.
+        // Example 2:
+        // Input: "bbbbb"
+        // Output: 1
+        // Explanation: The answer is "b", with the length of 1.
+        // Example 3:
+        // Input: "pwwkew"
+        // Output: 3
+        // Explanation: The answer is "wke", with the length of 3.
+        // Note that the answer must be a substring, "pwke" is a subsequence and not a
+        // substring.
+        int lengthOfLongestSubstring(const string &s)
+        {
+            map<char, int> m;
+            int l = 0;
+            int i = 0;
+            int j = 0;
+            for (j = 0; j < (int)s.size(); j++)
+            {
+                if (m.find(s[j]) != m.end())
+                {
+                    l = max(l, j - i);
+                    while (i <= m[s[j]])
+                    {
+                        m.erase(s[i]);
+                        i++;
+                    }
+                }
+                m[s[j]] = j;
+            }
+            l = max(l, j - i);
+            return l;
+        }
+        int lengthOfLongestSubstring2(const string &s)
+        {
+            set<char> chars;
+            int i = 0;
+            int l = 0;
+            int j = 0;
+            for (j = 0; j < (int)s.size(); j++)
+            {
+                if (chars.find(s[j]) == chars.end())
+                    chars.insert(s[j]);
+                else
+                {
+                    l = max(l, j - i);
+                    while (s[i] != s[j])
+                    {
+                        chars.erase(s[i]);
+                        i++;
+                    }
+                    i++;
+                }
+            }
+            l = max(l, j - i);
+            return l;
+        }
+        int lengthOfLongestSubstring3(const string &s)
+        {
+            bitset<256> m;
+            int i = 0;
+            int l = 0;
+            int j = 0;
+            for (j = 0; j < (int)s.size(); j++)
+            {
+                if (m.test(s[j]))
+                {
+                    if (j - i > l)
+                        l = j - i;
+                    while (s[i] != s[j])
+                    {
+                        m.reset(s[i]);
+                        i++;
+                    }
+                    i++;
+                }
+                else
+                {
+                    m.set(s[j]);
+                }
+            }
+            if (j - i > l)
+                l = j - i;
+            return l;
         }
 
     } // namespace LeetCode
