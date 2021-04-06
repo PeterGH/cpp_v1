@@ -1335,6 +1335,92 @@ namespace Test
             return m[0][n - 1];
         }
 
+        // 313. Super Ugly Number
+        // Given an integer n and an array of integers primes, return the nth super ugly number.
+        // Super ugly number is a positive number whose all prime factors are in the array primes.
+        // The nth super ugly number is guaranteed to fit in a 32-bit signed integer.
+        // Example 1:
+        // Input: n = 12, primes = [2,7,13,19]
+        // Output: 32
+        // Explanation: [1,2,4,7,8,13,14,16,19,26,28,32] is the sequence of the first 12 super ugly
+        // numbers given primes == [2,7,13,19].
+        // Example 2:
+        // Input: n = 1, primes = [2,3,5]
+        // Output: 1
+        // Explanation: 1 is a super ugly number for any given primes.
+        // Constraints:
+        // 1 <= n <= 10^6
+        // 1 <= primes.length <= 100
+        // 2 <= primes[i] <= 1000
+        // primes[i] is guaranteed to be a prime number.
+        // All the values of primes are unique and sorted in ascending order.
+        // Let (a,b) be the node where a is the accumulative product and b is the multiplier to get to a from the parent.
+        // So given primes {2, 3, 5} we can generate following tree.
+        // (1,1)
+        //  |------------------------------------------------------------------------|------------------------------|
+        // (2,2)                                                                    (3,3)                          (5,5)
+        //  |------------------------------------------|---------------------|       |----------------------|       |
+        // (4,2)                                      (6,3)                 (10,5)  (9,3)                  (15,5)  (25,5)
+        //  |--------------------|-------------|       |-------------|       |       |--------------|       |       |
+        // (8,2)                (12,3)        (20,5)  (18,3)        (30,5)  (50,5)  (27,3)         (45,5)  (75,5)  (125,5)
+        //  |------|------|      |------|      |       |------|      |       |       |------|       |       |       |
+        // (16,2) (24,3) (40,5) (36,3) (60,5) (100,5) (54,3) (90,5) (150,5) (250,5) (81,3) (135,5) (225,5) (375,5) (625,5)
+        int nthSuperUglyNumber(int n, vector<int> &primes)
+        {
+            unordered_map<int, size_t> index;
+            index[1] = 0;
+            for (size_t i = 0; i < primes.size(); i++)
+                index[primes[i]] = i;
+            function<bool(const pair<long long, long long> &, const pair<long long, long long> &)>
+                greater = [&](const pair<long long, long long> &x, const pair<long long, long long> &y) -> bool {
+                return x.first > y.first;
+            };
+            vector<pair<long long, long long>> v;
+            v.push_back(make_pair(1, 1));
+            int i = 0;
+            pair<long long, long long> r = v.front();
+            while (true)
+            {
+                pop_heap(v.begin(), v.end(), greater); // min-heap
+                r = v.back();
+                v.pop_back();
+                i++;
+                if (i == n)
+                    break;
+                for (size_t j = index[r.second]; j < primes.size(); j++)
+                {
+                    v.push_back(make_pair(r.first * primes[j], primes[j]));
+                    push_heap(v.begin(), v.end(), greater); // min-heap
+                }
+            }
+            return r.first;
+        }
+        // primes  {2, 3, 5}   v
+        // cnt      0  0  0   {1}
+        //          1  0  0   {1,2}
+        //          1  1  0   {1,2,3}
+        //          2  1  0   {1,2,3,4}
+        //          2  1  1   {1,2,3,4,5}
+        //          3  1  1   {1,2,3,4,5,6}
+        int nthSuperUglyNumber2(int n, vector<int> &primes)
+        {
+            vector<int> v;
+            v.push_back(1);
+            int m = primes.size();
+            vector<int> cnt(m, 0);
+            while ((int)v.size() < n)
+            {
+                int mn = INT_MAX;
+                for (int i = 0; i < m; i++)
+                    mn = min(mn, v[cnt[i]] * primes[i]);
+                v.push_back(mn);
+                for (int i = 0; i < m; i++)
+                    if (mn == v[cnt[i]] * primes[i])
+                        cnt[i]++;
+            }
+            return v.back();
+        }
+
     }
 }
 
