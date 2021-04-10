@@ -1421,6 +1421,87 @@ namespace Test
             return v.back();
         }
 
+        // 315. Count of Smaller Numbers After Self
+        // You are given an integer array nums and you have to return a new counts array.
+        // The counts array has the property where counts[i] is the number of smaller elements to the right of nums[i].
+        // Example 1:
+        // Input: nums = [5,2,6,1]
+        // Output: [2,1,1,0]
+        // Explanation:
+        // To the right of 5 there are 2 smaller elements (2 and 1).
+        // To the right of 2 there is only 1 smaller element (1).
+        // To the right of 6 there is 1 smaller element (1).
+        // To the right of 1 there is 0 smaller element.
+        // Example 2:
+        // Input: nums = [-1]
+        // Output: [0]
+        // Example 3:
+        // Input: nums = [-1,-1]
+        // Output: [0,0]
+        // Constraints:
+        // 1 <= nums.length <= 10^5
+        // -10^4 <= nums[i] <= 10^4
+        vector<int> countSmaller(const vector<int> &nums)
+        {
+            function<void(const string &, const vector<int> &)>
+                pv = [&](const string &s, const vector<int> &v) {
+                    cout << s << ": {";
+                    for (size_t i = 0; i < v.size(); i++)
+                    {
+                        if (i > 0)
+                            cout << ",";
+                        cout << v[i];
+                    }
+                    cout << "}" << endl;
+                };
+            vector<int> counts(nums.size(), 0);
+            vector<int> index(nums.size(), 0);
+            for (int i = 0; i < (int)nums.size(); i++)
+                index[i] = i;
+            function<void(int, int, int)> mergeRange = [&](int low, int median, int high) {
+                cout << "merge(" << low << "," << median << "," << high << ")" << endl;
+                if (low >= high)
+                    return;
+                vector<int> left(index.begin() + low, index.begin() + median + 1);
+                vector<int> right(index.begin() + median + 1, index.begin() + high + 1);
+                pv("left", left);
+                pv("right", right);
+                int leftSize = left.size();
+                int rightSize = right.size();
+                int i = 0;
+                int j = 0;
+                int k = low;
+                while (i < leftSize || j < rightSize)
+                {
+                    if (i < leftSize && (j >= rightSize || nums[left[i]] <= nums[right[j]]))
+                    {
+                        index[k] = left[i];
+                        counts[left[i]] += j;
+                        i++;
+                    }
+                    else
+                    {
+                        index[k] = right[j];
+                        j++;
+                    }
+                    k++;
+                }
+                pv("index", index);
+                pv("counts", counts);
+            };
+            function<void(int, int)> sortRange = [&](int low, int high) {
+                cout << "sort(" << low << "," << high << ")" << endl;
+                if (low >= high)
+                    return;
+                int median = low + ((high - low) >> 1);
+                sortRange(low, median);
+                sortRange(median + 1, high);
+                mergeRange(low, median, high);
+            };
+            sortRange(0, nums.size() - 1);
+            return counts;
+        }
+
     }
 }
 

@@ -6589,5 +6589,14 @@ void LeetCodeTest::Init(void)
         };
         check(4, {{1,0}, {1,2}, {1,3}});
     });
+
+    Add("315. Count of Smaller Numbers After Self", [&](){
+        auto check = [&](const vector<int> &v) {
+            vector<int> c = countSmaller(v);
+            Logger() << "Input: " << v << endl;
+            Logger() << "Output: " << c << endl;
+        };
+        check({5, 2, 6, 1});
+    });
 }
 #endif
