@@ -2289,6 +2289,547 @@ namespace Test
             return a.empty();
         }
 
+        // 21. Merge Two Sorted Lists
+        // Merge two sorted linked lists and return it as a new list.
+        // The new list should be made by splicing together the nodes
+        // of the first two lists. Example:
+        // Input: 1->2->4, 1->3->4
+        // Output: 1->1->2->3->4->4
+        ListNode *mergeTwoLists(ListNode *l1, ListNode *l2)
+        {
+            if (l1 == nullptr)
+                return l2;
+            if (l2 == nullptr)
+                return l1;
+            ListNode *l = nullptr;
+            if (l1->val < l2->val)
+            {
+                l = l1;
+                l1 = l1->next;
+            }
+            else
+            {
+                l = l2;
+                l2 = l2->next;
+            }
+            ListNode *n = l;
+            while (l1 != nullptr && l2 != nullptr)
+            {
+                if (l1->val < l2->val)
+                {
+                    n->next = l1;
+                    n = n->next;
+                    l1 = l1->next;
+                }
+                else
+                {
+                    n->next = l2;
+                    n = n->next;
+                    l2 = l2->next;
+                }
+            }
+            if (l1 == nullptr)
+                n->next = l2;
+            else
+                n->next = l1;
+            return l;
+        }
+        ListNode *mergeTwoLists2(ListNode *l1, ListNode *l2)
+        {
+            ListNode *h = nullptr;
+            ListNode *t = nullptr;
+            while (l1 != nullptr && l2 != nullptr)
+            {
+                if (l1->val <= l2->val)
+                {
+                    if (t != nullptr)
+                        t->next = l1;
+                    t = l1;
+                    l1 = l1->next;
+                }
+                else
+                {
+                    if (t != nullptr)
+                        t->next = l2;
+                    t = l2;
+                    l2 = l2->next;
+                }
+                t->next = nullptr;
+                if (h == nullptr)
+                    h = t;
+            }
+            if (l1 != nullptr)
+            {
+                if (h == nullptr)
+                    h = l1;
+                else
+                    t->next = l1;
+            }
+            else if (l2 != nullptr)
+            {
+                if (h == nullptr)
+                    h = l2;
+                else
+                    t->next = l2;
+            }
+            return h;
+        }
+        ListNode *mergeTwoLists3(ListNode *l1, ListNode *l2)
+        {
+            function<ListNode *(ListNode *, ListNode *)> merge = [&](ListNode *n1, ListNode *n2) -> ListNode * {
+                if (n1 == nullptr)
+                    return n2;
+                if (n2 == nullptr)
+                    return n1;
+                if (n1->val < n2->val)
+                {
+                    n1->next = merge(n1->next, n2);
+                    return n1;
+                }
+                else
+                {
+                    n2->next = merge(n1, n2->next);
+                    return n2;
+                }
+            };
+            return merge(l1, l2);
+        }
+
+        // 22. Generate Parentheses
+        // Given n pairs of parentheses, write a function to generate all combinations
+        // of well-formed parentheses. For example, given n = 3, a solution set is:
+        // [
+        //   "((()))",
+        //   "(()())",
+        //   "(())()",
+        //   "()(())",
+        //   "()()()"
+        // ]
+        // Let [l,r] represent a string of l '('s and r ')'s, then
+        // ''[0,0] -> '('[1,0] -> '(('[2,0] -> '((('[3,0] -> '(((('[4,0]
+        //                                                -> '((()'[3,1]
+        //                                  -> '(()'[2,1] -> '(()('[3,1]
+        //                                                -> '(())'[2,2]
+        //                     -> '()'[1,1] -> '()('[2,1] -> '()(('[3,1]
+        //                                                -> '()()'[2,2]
+        vector<string> generateParenthesis(int n)
+        {
+            vector<string> result;
+            function<void(int, int, const string &)> gen = [&](int l, int r,
+                                                               const string &s) {
+                if (l == n && r == n)
+                {
+                    result.push_back(s);
+                    return;
+                }
+                if (l < n)
+                {
+                    string s1(s);
+                    s1.append(1, '(');
+                    gen(l + 1, r, s1);
+                }
+                if (r < n && l > r)
+                {
+                    string s2(s);
+                    s2.append(1, ')');
+                    gen(l, r + 1, s2);
+                }
+            };
+            gen(0, 0, "");
+            return result;
+        }
+        vector<string> generateParenthesis2(int n)
+        {
+            vector<string> result;
+            queue<tuple<string, int, int>> q;
+            q.push(make_tuple("", 0, 0));
+            while (!q.empty())
+            {
+                auto t = q.front();
+                q.pop();
+                string s = get<0>(t);
+                int l = get<1>(t);
+                int r = get<2>(t);
+                if (l == n && r == n)
+                    result.push_back(s);
+                if (l < n)
+                    q.push(make_tuple(string(s).append(1, '('), l + 1, r));
+                if (r < n && l > r)
+                    q.push(make_tuple(string(s).append(1, ')'), l, r + 1));
+            }
+            return result;
+        }
+        vector<string> generateParenthesis3(int n)
+        {
+            if (n <= 0)
+                return vector<string>{};
+            function<void(int, int, map<pair<int, int>, vector<string>> &)>
+                solve = [&](       // l <= r
+                            int l, // count '(' needed
+                            int r, // count ')' needed
+                            map<pair<int, int>, vector<string>> &m) {
+                    pair<int, int> p = make_pair(l, r);
+                    m[p] = vector<string>{};
+                    string s;
+                    for (int i = 1; i < l; i++)
+                    {
+                        s.append(1, '(');
+                        string t(s);
+                        for (int j = 1; j <= r - l + i; j++)
+                        {
+                            t.append(1, ')');
+                            // l - i <= r - j
+                            pair<int, int> q = make_pair(l - i, r - j);
+                            if (m.find(q) == m.end())
+                                solve(l - i, r - j, m);
+                            for_each(m[q].begin(), m[q].end(), [&](string &u) {
+                                string v(t);
+                                v.append(u);
+                                m[p].push_back(v);
+                            });
+                        }
+                    }
+                    s.append(1, '(');
+                    s.append(r, ')');
+                    m[p].push_back(s);
+                };
+            map<pair<int, int>, vector<string>> m;
+            solve(n, n, m);
+            pair<int, int> p = make_pair(n, n);
+            return m[p];
+        }
+        vector<string> generateParenthesis4(int n)
+        {
+            if (n <= 0)
+                return vector<string>{};
+            if (n == 1)
+                return vector<string>{"()"};
+            function<void(string, int, int, int, vector<string> &)>
+                solve = [&](string s,
+                            int l, // count '(' in s
+                            int r, // count ')' in s
+                            int n, vector<string> &o) {
+                    for (int i = 1; i < n - l; i++)
+                    {
+                        s.append(1, '(');
+                        string t(s);
+                        for (int j = 1; j <= l - r + i; j++)
+                        {
+                            t.append(1, ')');
+                            solve(t, l + i, r + j, n, o);
+                        }
+                    }
+                    s.append(1, '(');
+                    s.append(n - r, ')');
+                    o.push_back(s);
+                };
+
+            vector<string> result;
+            string s;
+            solve(s, 0, 0, n, result);
+            return result;
+        }
+        // This algorithm is wrong
+        // Given X = (()), it generates (())(), ()(()), ((()))
+        // but misses (()())
+        vector<string> generateParenthesis5(int n)
+        {
+            vector<string> result;
+            if (n <= 0)
+                return result;
+            result.push_back("()");
+            if (n == 1)
+                return result;
+            for (int i = 2; i <= n; i++)
+            {
+                int j = result.size();
+                for (int k = 0; k < j; k++)
+                {
+                    // Given s = X containing i - 1 pairs of ()
+                    // extend it with one more pair
+                    string s = result.front();
+                    result.erase(result.begin());
+                    string o = s;
+                    o.append("()");
+                    result.push_back(o); // X()
+                    bool symmetric = true;
+                    int a = 0;
+                    int b = o.length() - 1;
+                    while (a < b)
+                    {
+                        if (o[a] == o[b])
+                        {
+                            symmetric = false;
+                            break;
+                        }
+                        a++;
+                        b--;
+                    }
+                    if (!symmetric)
+                    {
+                        o = "()";
+                        o.append(s);
+                        result.push_back(o); // ()X
+                    }
+                    o = "(";
+                    o.append(s);
+                    o.append(")");
+                    result.push_back(o); // (X)
+                }
+            }
+            return result;
+        }
+
+        // 24. Swap Nodes in Pairs
+        // Given a linked list, swap every two adjacent nodes and return its head.
+        // You may not modify the values in the list's nodes, only nodes itself may
+        // be changed. Example:
+        // Given 1->2->3->4, you should return the list as 2->1->4->3.
+        ListNode *swapPairs(ListNode *head)
+        {
+            if (head == nullptr || head->next == nullptr)
+                return head;
+            // swap first two nodes
+            ListNode *p = head;
+            head = p->next;
+            p->next = head->next;
+            head->next = p;
+            // Swap the two nodes after p
+            // i.e. p->next->next
+            while (p->next != nullptr && p->next->next != nullptr)
+            {
+                ListNode *q = p->next->next;
+                p->next->next = q->next;
+                q->next = p->next;
+                p->next = q;
+                p = p->next->next;
+            }
+            return head;
+        }
+        ListNode *swapPairs2(ListNode *head)
+        {
+            function<ListNode *(ListNode *)> solve = [&](ListNode *node) -> ListNode * {
+                if (node == nullptr || node->next == nullptr)
+                    return node;
+                ListNode *next = node->next;
+                node->next = solve(next->next);
+                next->next = node;
+                return next;
+            };
+            return solve(head);
+        }
+
+        // 25. Reverse Nodes in k-Group
+        // Given a linked list, reverse the nodes of a linked list k at a time
+        // and return its modified list. k is a positive integer and is less than
+        // or equal to the length of the linked list. If the number of nodes is
+        // not a multiple of k then left-out nodes in the end should remain as it is.
+        // Example:
+        // Given this linked list: 1->2->3->4->5
+        // For k = 2, you should return: 2->1->4->3->5
+        // For k = 3, you should return: 3->2->1->4->5
+        // Note: Only constant extra memory is allowed.
+        // You may not alter the values in the list's nodes, only nodes itself may be changed.
+        ListNode *reverseKGroup(ListNode *head, int k)
+        {
+            if (head == nullptr || k <= 1)
+                return head;
+            ListNode *h = nullptr; // h->next is the beginning of a k segament
+            ListNode *t = head;    // t is the next of the ending of a k segament
+            while (t != nullptr)
+            {
+                int i = 0;
+                while (i < k && t != nullptr)
+                {
+                    i++;
+                    t = t->next;
+                }
+                if (i < k)
+                    break; // i-th node is nullptr, less than k nodes in total
+                ListNode *p = (h == nullptr ? head : h->next);
+                // Move p->next to be after h until p->next hits t
+                while (p->next != t)
+                {
+                    ListNode *q = p->next;
+                    p->next = q->next;
+                    if (h == nullptr)
+                    {
+                        q->next = head;
+                        head = q;
+                    }
+                    else
+                    {
+                        q->next = h->next;
+                        h->next = q;
+                    }
+                }
+                h = p;
+            }
+            return head;
+        }
+        ListNode *reverseKGroup2(ListNode *head, int k)
+        {
+            if (head == nullptr || k <= 1)
+                return head;
+            ListNode *begin = head;
+            ListNode *prev = begin;
+            while (begin != nullptr)
+            {
+                ListNode *end = begin;
+                int i = 1;
+                while (i < k && end != nullptr)
+                {
+                    end = end->next;
+                    i++;
+                }
+                if (end == nullptr)
+                    return head;
+                // Reverse every node between begin and end
+                ListNode *f = begin;
+                ListNode *s = f->next;
+                ListNode *t = nullptr;
+                begin->next = end->next;
+                while (f != end)
+                {
+                    t = s->next;
+                    s->next = f;
+                    f = s;
+                    s = t;
+                }
+                if (head == begin)
+                    head = end;
+                else
+                    prev->next = end;
+                // Now begin->next starts the next segament
+                prev = begin;
+                begin = begin->next;
+            }
+            return head;
+        }
+        ListNode *reverseKGroup3(ListNode *head, int k)
+        {
+            function<ListNode *(ListNode *)> reverse =
+                [&](ListNode *h) -> ListNode * {
+                int i = 0;
+                ListNode *t = h;
+                while (i < k - 1 && t != nullptr)
+                {
+                    i++;
+                    t = t->next;
+                }
+                if (t == nullptr)
+                    return h;
+                ListNode *h2 = reverse(t->next);
+                while (h != t)
+                {
+                    ListNode *p = h->next;
+                    h->next = h2;
+                    h2 = h;
+                    h = p;
+                }
+                h->next = h2;
+                return h;
+            };
+            return reverse(head);
+        }
+
+        // 26. Remove Duplicates from Sorted Array
+        // Given a sorted array nums, remove the duplicates in-place such that each
+        // element appear only once and return the new length. Do not allocate extra
+        // space for another array, you must do this by modifying the input array
+        // in-place with O(1) extra memory.
+        // Example 1:
+        // Given nums = [1,1,2], Your function should return length = 2, with the first
+        // two elements of nums being 1 and 2 respectively.
+        // It doesn't matter what you leave beyond the returned length.
+        // Example 2:
+        // Given nums = [0,0,1,1,1,2,2,3,3,4], Your function should return length = 5,
+        // with the first five elements of nums being modified to 0, 1, 2, 3, and 4
+        // respectively. It doesn't matter what values are set beyond the returned
+        // length.
+        int removeDuplicates(vector<int> &nums)
+        {
+            if (nums.empty())
+                return 0;
+            size_t i = 0;
+            for (size_t j = 1; j < nums.size(); j++)
+            {
+                // i increases only when j should be kept
+                if (nums[j - 1] != nums[j] && (++i) != j)
+                    nums[i] = nums[j];
+            }
+            return i + 1;
+        }
+        int removeDuplicates2(vector<int> &nums)
+        {
+            int i = nums.empty() ? -1 : 0;
+            for (int j = 1; j < (int)nums.size(); j++)
+            {
+                if (nums[j] != nums[j - 1])
+                {
+                    i++;
+                    if (i < j)
+                        nums[i] = nums[j];
+                }
+            }
+            return i + 1;
+        }
+
+        // 27. Remove Element
+        // Given an array nums and a value val, remove all instances of that value
+        // in-place and return the new length. Do not allocate extra space for another
+        // array, you must do this by modifying the input array in-place with O(1)
+        // extra memory. The order of elements can be changed. It doesn't matter what
+        // you leave beyond the new length.
+        // Example 1:
+        // Given nums = [3,2,2,3], val = 3, Your function should return length = 2,
+        // with the first two elements of nums being 2.
+        // It doesn't matter what you leave beyond the returned length.
+        // Example 2:
+        // Given nums = [0,1,2,2,3,0,4,2], val = 2, Your function should return length =
+        // 5, with the first five elements of nums containing 0, 1, 3, 0, and 4. Note
+        // that the order of those five elements can be arbitrary. It doesn't matter
+        // what values are set beyond the returned length.
+        int removeElement(vector<int> &nums, int val)
+        {
+            int i = -1;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                if (nums[j] != val)
+                {
+                    if (i + 1 != j)
+                        nums[i + 1] = nums[j];
+                    i++;
+                }
+            }
+            return i + 1;
+        }
+        int removeElement2(vector<int> &nums, int val)
+        {
+            int i = -1;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                // i increases only when j should be kept
+                if (nums[j] != val && (++i) != j)
+                    nums[i] = nums[j];
+            }
+            return i + 1;
+        }
+        // Remove by swaping to end, not stable
+        int removeElement3(vector<int> &nums, int val)
+        {
+            int i = 0;
+            int n = nums.size();
+            while (i < n)
+            {
+                if (nums[i] == val)
+                    swap(nums[i], nums[--n]);
+                else
+                    i++;
+            }
+            return n;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
