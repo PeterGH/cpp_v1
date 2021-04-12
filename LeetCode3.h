@@ -1541,6 +1541,59 @@ namespace Test
             return r;
         }
 
+        // 318. Maximum Product of Word Lengths
+        // Given a string array words, return the maximum value of length(word[i]) * length(word[j])
+        // where the two words do not share common letters. If no such two words exist, return 0.
+        // Example 1:
+        // Input: words = ["abcw","baz","foo","bar","xtfn","abcdef"]
+        // Output: 16
+        // Explanation: The two words can be "abcw", "xtfn".
+        // Example 2:
+        // Input: words = ["a","ab","abc","d","cd","bcd","abcd"]
+        // Output: 4
+        // Explanation: The two words can be "ab", "cd".
+        // Example 3:
+        // Input: words = ["a","aa","aaa","aaaa"]
+        // Output: 0
+        // Explanation: No such pair of words.
+        // Constraints:
+        // 2 <= words.length <= 1000
+        // 1 <= words[i].length <= 1000
+        // words[i] consists only of lowercase English letters.
+        int maxProduct(vector<string> &words)
+        {
+            function<bool(const set<char> &, const set<char> &)>
+                hasCommonLetter = [&](const set<char> &a, const set<char> &b) -> bool {
+                auto i = a.begin();
+                auto j = b.begin();
+                while (i != a.end() && j != b.end())
+                {
+                    if (*i < *j)
+                        ++i;
+                    else if (*i > *j)
+                        ++j;
+                    else
+                        return true;
+                }
+                return false;
+            };
+            vector<set<char>> n;
+            for (const string &w : words)
+            {
+                n.push_back(set<char>(w.begin(), w.end()));
+            }
+            int l = 0;
+            for (size_t i = 0; i + 1 < n.size(); i++)
+            {
+                for (size_t j = i + 1; j < n.size(); j++)
+                {
+                    if (!hasCommonLetter(n[i], n[j]))
+                        l = max(l, (int)words[i].size() * (int)words[j].size());
+                }
+            }
+            return l;
+        }
+
     }
 }
 
