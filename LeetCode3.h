@@ -1593,6 +1593,28 @@ namespace Test
             }
             return l;
         }
+        int maxProduct2(vector<string> &words)
+        {
+            size_t l = 0;
+            vector<unsigned int> v(words.size(), 0);
+            for (size_t j = 0; j < words.size(); j++)
+            {
+                unsigned int b = 0;
+                for (const char &c : words[j])
+                {
+                    b |= (0x1 << (c - 'a'));
+                }
+                for (size_t i = 0; i < j; i++)
+                {
+                    if ((v[i] & b) == 0)
+                    {
+                        l = max(l, words[i].size() * words[j].size());
+                    }
+                }
+                v[j] = b;
+            }
+            return l;
+        }
 
     }
 }
