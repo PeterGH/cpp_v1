@@ -300,7 +300,76 @@ namespace Test
         // 1 <= words.length <= 5000
         // 1 <= words[i].length <= 30
         // words[i] consists of lower-case English letters.
+        // This is wrong:
         vector<int> findSubstring(const string &s, const vector<string> &words)
+        {
+            function<void(const string &, const map<string, int> &)>
+                pmap = [&](const string &msg, const map<string, int> &m) {
+                cout << msg << ": {";
+                for (const auto &p : m)
+                {
+                    cout << "{" << p.first << ": " << p.second << "}, ";
+                }
+                cout << "}" << endl;
+            };
+            function<bool(const map<string, int> &, const map<string, int> &)>
+                match = [&](const map<string, int> &a, const map<string, int> &b) -> bool {
+                if (a.size() != b.size())
+                    return false;
+                for (const auto &p : a)
+                {
+                    if (b.find(p.first) == b.end())
+                        return false;
+                    if (b.at(p.first) != p.second)
+                        return false;
+                }
+                return true;
+            };
+            map<string, int> wordsMap;
+            for (const string &w : words)
+            {
+                if (wordsMap.find(w) == wordsMap.end())
+                    wordsMap[w] = 1;
+                else
+                    wordsMap[w]++;
+            }
+            pmap("input", wordsMap);
+            const int wordLen = words[0].size();
+            const int wordCount = words.size();
+            const int wordLenTotal = wordCount * wordLen;
+            map<string, int> m;
+            int c = 0;
+            int i = 0;
+            vector<int> output;
+            const int sl = s.size();
+            while (i + wordLen <= sl)
+            {
+                string w = s.substr(i, wordLen);
+                if (m.find(w) == m.end())
+                    m[w] = 1;
+                else
+                    m[w]++;
+                ostringstream o;
+                o << i;
+                pmap(o.str(), m);
+                c++;
+                i += wordLen;
+                if (c < wordCount)
+                    continue;
+                int begin = i - wordLenTotal;
+                if (match(m, wordsMap)) {
+                    cout << "matched at " << begin << endl;
+                    output.push_back(begin);
+                }
+                string beginWord = s.substr(begin, wordLen);
+                m[beginWord]--;
+                if (m[beginWord] == 0)
+                    m.erase(beginWord);
+                c--;
+            }
+            return output;
+        }
+        vector<int> findSubstring2(const string &s, const vector<string> &words)
         {
             map<string, int> wordCount;
             for (const string &w : words)
@@ -352,7 +421,7 @@ namespace Test
             }
             return result;
         }
-        vector<int> findSubstring2(const string &s, const vector<string> &words)
+        vector<int> findSubstring3(const string &s, const vector<string> &words)
         {
             function<bool(const map<char, int> &, const map<char, int> &)> equal =
                 [&](const map<char, int> &m1, const map<char, int> &m2) -> bool {
