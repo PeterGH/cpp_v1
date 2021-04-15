@@ -1641,14 +1641,12 @@ namespace Test
         // The n-th bulb toggles at the i-th round if i divides n.
         int bulbSwitch(int n)
         {
-            int c = 0;
             int i = 1;
             while (i * i <= n)
             {
-                c++;
                 i++;
             }
-            return c;
+            return i - 1;
         }
 
     }
