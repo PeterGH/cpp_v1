@@ -1717,6 +1717,16 @@ namespace Test
                         }
                         return;
                     }
+                    if (!m.empty())
+                    {
+                        for (size_t l = 0; l < v.size(); l++)
+                        {
+                            if (v[l] < m[l])
+                                return;
+                            else if (v[l] > m[l])
+                                break;
+                        }
+                    }
                     if (i >= n1 && j >= n2)
                         return;
                     if (i >= n1)
