@@ -27,6 +27,19 @@ namespace Test
 {
     namespace LeetCode
     {
+        template <class T>
+        static void print(const string &s, const vector<T> &v)
+        {
+            cout << s << ": {";
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                if (i > 0)
+                    cout << ", ";
+                cout << v[i];
+            }
+            cout << "}" << endl;
+        }
+
         static void GetMedianIndex(int i, int j, int &lowMedianIndex, int &highMedianIndex)
         {
             lowMedianIndex = -1;
@@ -305,13 +318,13 @@ namespace Test
         {
             function<void(const string &, const map<string, int> &)>
                 pmap = [&](const string &msg, const map<string, int> &m) {
-                cout << msg << ": {";
-                for (const auto &p : m)
-                {
-                    cout << "{" << p.first << ": " << p.second << "}, ";
-                }
-                cout << "}" << endl;
-            };
+                    cout << msg << ": {";
+                    for (const auto &p : m)
+                    {
+                        cout << "{" << p.first << ": " << p.second << "}, ";
+                    }
+                    cout << "}" << endl;
+                };
             function<bool(const map<string, int> &, const map<string, int> &)>
                 match = [&](const map<string, int> &a, const map<string, int> &b) -> bool {
                 if (a.size() != b.size())
@@ -357,7 +370,8 @@ namespace Test
                 if (c < wordCount)
                     continue;
                 int begin = i - wordLenTotal;
-                if (match(m, wordsMap)) {
+                if (match(m, wordsMap))
+                {
                     cout << "matched at " << begin << endl;
                     output.push_back(begin);
                 }

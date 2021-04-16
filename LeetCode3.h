@@ -1649,6 +1649,107 @@ namespace Test
             return i - 1;
         }
 
+        // 321. Create Maximum Number
+        // You are given two integer arrays nums1 and nums2 of lengths m and n respectively.
+        // nums1 and nums2 represent the digits of two numbers. You are also given an integer k.
+        // Create the maximum number of length k <= m + n from digits of the two numbers.
+        // The relative order of the digits from the same array must be preserved.
+        // Return an array of the k digits representing the answer.
+        // Example 1:
+        // Input: nums1 = [3,4,6,5], nums2 = [9,1,2,5,8,3], k = 5
+        // Output: [9,8,6,5,3]
+        // Example 2:
+        // Input: nums1 = [6,7], nums2 = [6,0,4], k = 5
+        // Output: [6,7,6,0,4]
+        // Example 3:
+        // Input: nums1 = [3,9], nums2 = [8,9], k = 3
+        // Output: [9,8,9]
+        // Constraints:
+        // m == nums1.length
+        // n == nums2.length
+        // 1 <= m, n <= 500
+        // 0 <= nums1[i], nums2[i] <= 9
+        // 1 <= k <= m + n
+        // Follow up: Try to optimize your time and space complexity.
+        vector<int> maxNumber(const vector<int> &nums1, const vector<int> &nums2, int k)
+        {
+            vector<int> m;
+            int n1 = nums1.size();
+            int n2 = nums2.size();
+            function<bool(const vector<int> &, const vector<int> &)>
+                greater = [&](const vector<int> &v1, const vector<int> &v2) -> bool {
+                if (v1.size() < v2.size())
+                    return false;
+                if (v1.size() > v2.size())
+                    return true;
+                for (size_t i = 0; i < v1.size(); i++)
+                {
+                    if (v1[i] > v2[i])
+                    {
+                        return true;
+                    }
+                    else if (v1[i] < v2[i])
+                    {
+                        return false;
+                    }
+                }
+                return false;
+            };
+            function<void(int, int, vector<int> &)>
+                solve = [&](int i, int j, vector<int> &v) {
+                    cout << string(i + j, ' ') << "f(" << i << ", " << j << ", {";
+                    for (size_t i = 0; i < v.size(); i++)
+                    {
+                        if (i > 0)
+                            cout << ", ";
+                        cout << v[i];
+                    }
+                    cout << "})" << endl;
+
+                    if ((int)v.size() > k)
+                        return;
+                    if ((int)v.size() == k)
+                    {
+                        if (greater(v, m))
+                        {
+                            m.assign(v.begin(), v.end());
+                            print("max", m);
+                        }
+                        return;
+                    }
+                    if (i >= n1 && j >= n2)
+                        return;
+                    if (i >= n1)
+                    {
+                        v.push_back(nums2[j]);
+                        solve(i, j + 1, v);
+                        v.pop_back();
+                        solve(i, j + 1, v);
+                    }
+                    else if (j >= n2)
+                    {
+                        v.push_back(nums1[i]);
+                        solve(i + 1, j, v);
+                        v.pop_back();
+                        solve(i + 1, j, v);
+                    }
+                    else
+                    {
+                        v.push_back(nums1[i]);
+                        solve(i + 1, j, v);
+                        v.pop_back();
+                        v.push_back(nums2[j]);
+                        solve(i, j + 1, v);
+                        v.pop_back();
+                        solve(i + 1, j, v);
+                        solve(i, j + 1, v);
+                    }
+                };
+            vector<int> t;
+            solve(0, 0, t);
+            return m;
+        }
+
     }
 }
 
