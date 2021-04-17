@@ -1727,31 +1727,18 @@ namespace Test
                                 break;
                         }
                     }
-                    if (i >= n1 && j >= n2)
-                        return;
-                    if (i >= n1)
-                    {
-                        v.push_back(nums2[j]);
-                        solve(i, j + 1, v);
-                        v.pop_back();
-                        solve(i, j + 1, v);
-                    }
-                    else if (j >= n2)
+                    if (i < n1)
                     {
                         v.push_back(nums1[i]);
                         solve(i + 1, j, v);
                         v.pop_back();
                         solve(i + 1, j, v);
                     }
-                    else
+                    if (j < n2)
                     {
-                        v.push_back(nums1[i]);
-                        solve(i + 1, j, v);
-                        v.pop_back();
                         v.push_back(nums2[j]);
                         solve(i, j + 1, v);
                         v.pop_back();
-                        solve(i + 1, j, v);
                         solve(i, j + 1, v);
                     }
                 };
