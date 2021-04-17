@@ -1746,6 +1746,74 @@ namespace Test
             solve(0, 0, t);
             return m;
         }
+        vector<int> maxNumber2(const vector<int> &nums1, const vector<int> &nums2, int k)
+        {
+            function<vector<int>(const vector<int> &, int)>
+                max1 = [&](const vector<int> &v, int l) -> vector<int> {
+                vector<int> r;
+                int n = v.size();
+                for (int i = 0; i < n; i++)
+                {
+                    while (!r.empty() && r.back() < v[i] && ((int)r.size() - 1 + n - i >= l))
+                        r.pop_back();
+                    r.push_back(v[i]);
+                }
+                if ((int)r.size() > l)
+                    r.resize(l);
+                return r;
+            };
+            function<vector<int>(const vector<int> &, const vector<int> &)>
+                max2 = [&](const vector<int> &v1, const vector<int> &v2) -> vector<int> {
+                vector<int> r;
+                auto b1 = v1.begin();
+                auto e1 = v1.end();
+                auto b2 = v2.begin();
+                auto e2 = v2.end();
+                while (b1 != e1 && b2 != e2)
+                {
+                    if (lexicographical_compare(b1, e1, b2, e2))
+                    {
+                        r.push_back(*b2);
+                        ++b2;
+                    }
+                    else
+                    {
+                        r.push_back(*b1);
+                        ++b1;
+                    }
+                }
+                if (b1 != e1)
+                    r.insert(r.end(), b1, e1);
+                if (b2 != e2)
+                    r.insert(r.end(), b2, e2);
+                return r;
+            };
+            vector<int> m;
+            function<bool(const vector<int> &, const vector<int> &)>
+                greater = [&](const vector<int> &x, const vector<int> &y) -> bool {
+                if (x.size() > y.size())
+                    return true;
+                if (x.size() < y.size())
+                    return false;
+                for (size_t i = 0; i < x.size(); i++)
+                {
+                    if (x[i] > y[i])
+                        return true;
+                    else if (x[i] < y[i])
+                        return false;
+                }
+                return false;
+            };
+            for (int l = 0; l <= k; l++)
+            {
+                vector<int> n1 = max1(nums1, l);
+                vector<int> n2 = max1(nums2, k - (int)n1.size());
+                vector<int> n = max2(n1, n2);
+                if (greater(n, m))
+                    m.assign(n.begin(), n.end());
+            }
+            return m;
+        }
 
     }
 }
