@@ -1815,6 +1815,75 @@ namespace Test
             return m;
         }
 
+        // 322. Coin Change
+        // You are given an integer array coins representing coins of different denominations
+        // and an integer amount representing a total amount of money.
+        // Return the fewest number of coins that you need to make up that amount. If that
+        // amount of money cannot be made up by any combination of the coins, return -1.
+        // You may assume that you have an infinite number of each kind of coin.
+        // Example 1:
+        // Input: coins = [1,2,5], amount = 11
+        // Output: 3
+        // Explanation: 11 = 5 + 5 + 1
+        // Example 2:
+        // Input: coins = [2], amount = 3
+        // Output: -1
+        // Example 3:
+        // Input: coins = [1], amount = 0
+        // Output: 0
+        // Example 4:
+        // Input: coins = [1], amount = 1
+        // Output: 1
+        // Example 5:
+        // Input: coins = [1], amount = 2
+        // Output: 2
+        // Constraints:
+        // 1 <= coins.length <= 12
+        // 1 <= coins[i] <= 2^31 - 1
+        // 0 <= amount <= 10^4
+        int coinChange(const vector<int> &coins, int amount)
+        {
+            map<pair<size_t, int>, int> m;
+            function<int(size_t, int)> count = [&](size_t i, int a) -> int {
+                cout << string(i, ' ') << "c(" << i << "," << a << ")" << endl;
+                pair<size_t, int> p = make_pair(i, a);
+                if (m.find(p) == m.end())
+                {
+                    if (a == 0)
+                    {
+                        m[p] = 0;
+                    }
+                    else if (i >= coins.size())
+                    {
+                        m[p] = -1;
+                    }
+                    else
+                    {
+                        int c = count(i + 1, a);
+                        if (a >= coins[i])
+                        {
+                            int d = coins[i];
+                            int c1 = 1;
+                            while (d <= a)
+                            {
+                                int c2 = count(i + 1, a - d);
+                                if (c2 != -1)
+                                {
+                                    c = (c == -1 ? c1 + c2 : min(c, c1 + c2));
+                                }
+                                d += coins[i];
+                                c1++;
+                            }
+                        }
+                        m[p] = c;
+                    }
+                }
+                cout << string(i, ' ') << "= " << m[p] << endl;
+                return m[p];
+            };
+            return count(0, amount);
+        }
+
     }
 }
 

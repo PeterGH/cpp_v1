@@ -87,6 +87,16 @@ void LeetCodeTest::Init3(void)
         };
         check({3, 4, 6, 5}, {9, 1, 2, 5, 8, 3}, 5);
     });
+
+    Add("322. Coin Change", [&]() {
+        auto check = [&](const vector<int> &coins, int amount) {
+            Logger() << "coins: " << coins;
+            Logger() << "amount: " << amount << endl;
+            int c = coinChange(coins, amount);
+            Logger() << "min count: " << c << endl;
+        };
+        check({336, 288, 378, 16, 319, 146}, 9212);
+    });
 }
 
 #endif
