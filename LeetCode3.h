@@ -1883,6 +1883,42 @@ namespace Test
             };
             return count(0, amount);
         }
+        int coinChange2(const vector<int> &coins, int amount)
+        {
+            vector<int> change(amount, 0);
+            function<int(int)> count = [&](int a) -> int {
+                if (a < 0)
+                    return -1;
+                if (a == 0)
+                    return 0;
+                if (change[a - 1] != 0)
+                    return change[a - 1];
+                int r = -1;
+                for (int c : coins)
+                {
+                    int s = count(a - c);
+                    if (s != -1)
+                        r = (r == -1 ? 1 + s : min(r, 1 + s));
+                }
+                change[a - 1] = r;
+                return r;
+            };
+            return count(amount);
+        }
+        int coinChange3(const vector<int> &coins, int amount)
+        {
+            vector<int> count(amount + 1, amount + 1);
+            count[0] = 0;
+            for (int a = 1; a <= amount; a++)
+            {
+                for (int c : coins)
+                {
+                    if (c <= a)
+                        count[a] = min(count[a], 1 + count[a - c]);
+                }
+            }
+            return count[amount] > amount ? -1 : count[amount];
+        }
 
     }
 }

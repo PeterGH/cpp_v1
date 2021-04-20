@@ -93,7 +93,11 @@ void LeetCodeTest::Init3(void)
             Logger() << "coins: " << coins;
             Logger() << "amount: " << amount << endl;
             int c = coinChange(coins, amount);
-            Logger() << "min count: " << c << endl;
+            int c2 = coinChange2(coins, amount);
+            int c3 = coinChange3(coins, amount);
+            Logger() << "min count: " << c << ", " << c2 << ", " << c3 << endl;
+            ASSERT1(c == c2);
+            ASSERT1(c == c3);
         };
         check({336, 288, 378, 16, 319, 146}, 9212);
     });
