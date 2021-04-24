@@ -1965,7 +1965,7 @@ namespace Test
             // Rearrange so that nums[m] is the m-th element
             nth_element(nums.begin(), nums.begin() + m, nums.end());
             int median = nums[m];
-            int o = 1; // odd position
+            int o = 1;                              // odd position
             int e = ((n & 1) == 0) ? n - 2 : n - 1; // even position
             for (int i = 0; i < n; i++)
             {
@@ -1984,6 +1984,42 @@ namespace Test
                     e -= 2;
                 }
             }
+        }
+
+        // 326. Power of Three
+        // Given an integer n, return true if it is a power of three. Otherwise, return false.
+        // An integer n is a power of three, if there exists an integer x such that n == 3^x.
+        // Example 1:
+        // Input: n = 27
+        // Output: true
+        // Example 2:
+        // Input: n = 0
+        // Output: false
+        // Example 3:
+        // Input: n = 9
+        // Output: true
+        // Example 4:
+        // Input: n = 45
+        // Output: false
+        // Constraints:
+        // -2^31 <= n <= 2^31 - 1
+        // Follow up: Could you solve it without loops/recursion?
+        bool isPowerOfThree(int n)
+        {
+            if (n <= 0)
+                return false;
+            if (n == 1)
+                return true;
+            int d = n % 10;
+            if (d != 1 && d != 3 && d != 7 && d != 9)
+                return false;
+            while (n > 1)
+            {
+                if (n % 3 != 0)
+                    return false;
+                n /= 3;
+            }
+            return true;
         }
 
     }
