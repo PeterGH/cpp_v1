@@ -2021,6 +2021,39 @@ namespace Test
             }
             return true;
         }
+        bool isPowerOfThree2(int n)
+        {
+            if (n <= 0)
+                return false;
+            if (n == 1)
+                return true;
+            long long d = n % 10;
+            if (d != 1 && d != 3 && d != 7 && d != 9)
+                return false;
+            d = 3;
+            while (n > 1 && d > 1)
+            {
+                if (d > n)
+                {
+                    d /= 3;
+                }
+                else
+                {
+                    if (n % d != 0)
+                        return false;
+                    long long e = d * d;
+                    if (e <= n)
+                    {
+                        d = e;
+                    }
+                    else
+                    {
+                        n /= d;
+                    }
+                }
+            }
+            return n == 1;
+        }
 
     }
 }
