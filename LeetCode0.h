@@ -4804,6 +4804,224 @@ namespace Test
             return;
         }
 
+        // 38. Count and Say
+        // The count-and-say sequence is the sequence of integers with the first five
+        // terms as following:
+        // 1.     1
+        // 2.     11
+        // 3.     21
+        // 4.     1211
+        // 5.     111221
+        // 1 is read off as "one 1" or 11.
+        // 11 is read off as "two 1s" or 21.
+        // 21 is read off as "one 2, then one 1" or 1211.
+        // Given an integer n where 1 <= n <= 30, generate the nth term of the
+        // count-and-say sequence. You can do so recursively, in other words from the
+        // previous member read off the digits, counting the number of digits in groups
+        // of the same digit. Note: Each term of the sequence of integers will be
+        // represented as a string. Example 1: Input: 1 Output: "1" Explanation: This is
+        // the base case. Example 2: Input: 4 Output: "1211" Explanation: For n = 3 the
+        // term was "21" in which we have two groups "2" and "1", "2" can be read as
+        // "12" which means frequency = 1 and value = 2, the same way "1" is read as
+        // "11", so the answer is the concatenation of "12" and "11" which is "1211".
+        string countAndSay(int n)
+        {
+            string s = "1";
+            for (int i = 2; i <= n; i++)
+            {
+                size_t j = 0;
+                stringstream ss;
+                while (j < s.size())
+                {
+                    size_t k = j;
+                    while (k + 1 < s.size() && s[k + 1] == s[k])
+                        k++;
+                    ss << (k - j + 1) << s[j];
+                    j = k + 1;
+                }
+                s = ss.str();
+            }
+            return s;
+        }
+        string countAndSay2(int n)
+        {
+            if (n <= 0)
+                return "";
+            string s = "1";
+            for (int i = 0; i < n - 1; i++)
+            {
+                int j = 0;
+                string o;
+                while (j < (int)s.length())
+                {
+                    int k = j;
+                    while (k + 1 < (int)s.length() && s[k + 1] == s[k])
+                        k++;
+                    int c = k - j + 1;
+                    int m = o.length();
+                    while (c > 0)
+                    {
+                        o.insert(m, 1, '0' + (c % 10));
+                        c = c / 10;
+                    }
+                    o.append(1, s[j]);
+                    j = k + 1;
+                }
+                s = o;
+            }
+            return s;
+        }
+
+        // 39. Combination Sum
+        // Given a set of candidate numbers (candidates) (without duplicates) and a
+        // target number (target), find all unique combinations in candidates where
+        // the candidate numbers sums to target. The same repeated number may be chosen
+        // from candidates unlimited number of times. Note: All numbers (including
+        // target) will be positive integers. The solution set must not contain
+        // duplicate combinations. Example 1: Input: candidates = [2,3,6,7], target = 7,
+        // A solution set is:
+        // [
+        //   [7],
+        //   [2,2,3]
+        // ]
+        // Example 2:
+        // Input: candidates = [2,3,5], target = 8,
+        // A solution set is:
+        // [
+        //   [2,2,2,2],
+        //   [2,3,3],
+        //   [3,5]
+        // ]
+        vector<vector<int>> combinationSum(const vector<int> &candidates, int target)
+        {
+            vector<vector<int>> result;
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &v) {
+                    if (i >= candidates.size())
+                        return;
+                    if (candidates[i] <= t)
+                    {
+                        vector<int> v1(v);
+                        v1.push_back(candidates[i]);
+                        if (candidates[i] == t)
+                            result.push_back(v1);
+                        else
+                            solve(i, t - candidates[i], v1);
+                    }
+                    vector<int> v2(v);
+                    solve(i + 1, t, v2);
+                };
+            vector<int> v;
+            solve(0, target, v);
+            return result;
+        }
+        vector<vector<int>> combinationSum_2(const vector<int> &candidates,
+                                             int target)
+        {
+            vector<vector<int>> result;
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &v) {
+                    if (i >= candidates.size())
+                        return;
+                    if (candidates[i] <= t)
+                    {
+                        v.push_back(candidates[i]);
+                        if (candidates[i] == t)
+                            result.push_back(v);
+                        else
+                            solve(i, t - candidates[i], v);
+                        v.pop_back();
+                    }
+                    solve(i + 1, t, v);
+                };
+            vector<int> v;
+            solve(0, target, v);
+            return result;
+        }
+        vector<vector<int>> combinationSum_3(vector<int> &candidates, int target)
+        {
+            vector<vector<int>> result = vector<vector<int>>{};
+            sort(candidates.begin(), candidates.end());
+            function<void(int, int, vector<int> &)>
+                solve = [&](int i, int t, vector<int> &s) {
+                    for (int j = i; j < (int)candidates.size(); j++)
+                    {
+                        if (candidates[j] > t)
+                            break;
+                        vector<int> r(s);
+                        r.push_back(candidates[j]);
+                        if (candidates[j] == t)
+                        {
+                            result.push_back(r);
+                            break;
+                        }
+                        solve(j, t - candidates[j], r);
+                    }
+                };
+            vector<int> s;
+            solve(0, target, s);
+            return result;
+        }
+        vector<vector<int>> combinationSum_4(vector<int> &candidates, int target)
+        {
+            sort(candidates.begin(), candidates.end());
+            map<pair<int, int>, vector<vector<int>>> m;
+            function<void(int, int)> solve = [&](int i, int t) {
+                pair<int, int> p = make_pair(i, t);
+                if (m.find(p) != m.end())
+                    return;
+                m[p] = vector<vector<int>>{};
+                for (int j = i; j < (int)candidates.size(); j++)
+                {
+                    if (candidates[j] > t)
+                        break;
+                    if (candidates[j] == t)
+                    {
+                        m[p].push_back(vector<int>{candidates[j]});
+                        break;
+                    }
+                    int d = t - candidates[j];
+                    solve(j, d);
+                    pair<int, int> p1 = make_pair(j, d);
+                    for_each(m[p1].begin(), m[p1].end(), [&](vector<int> &s) {
+                        vector<int> r(s);
+                        r.insert(r.begin(), candidates[j]);
+                        m[p].push_back(r);
+                    });
+                }
+            };
+            solve(0, target);
+            return m[make_pair(0, target)];
+        }
+        vector<vector<int>> combinationSum_5(vector<int> &candidates, int target)
+        {
+            vector<vector<int>> o;
+            vector<pair<vector<int>, int>> s;
+            s.push_back(make_pair(vector<int>{}, target));
+            sort(candidates.begin(), candidates.end());
+            for (const int c : candidates)
+            {
+                size_t n = s.size();
+                for (size_t i = 0; i < n; i++)
+                {
+                    // for every element in s, append it with {c}, {c,c},...
+                    // until reaching the target
+                    vector<int> v(s[i].first);
+                    int d = 0;
+                    while (d < s[i].second)
+                    {
+                        v.push_back(c);
+                        d += c;
+                        if (d < s[i].second)
+                            s.push_back(make_pair(v, s[i].second - d));
+                        else if (d == s[i].second)
+                            o.push_back(v);
+                    }
+                }
+            }
+            return o;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
