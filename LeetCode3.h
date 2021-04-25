@@ -2055,6 +2055,41 @@ namespace Test
             return n == 1;
         }
 
+        // 327. Count of Range Sum
+        // Given an integer array nums and two integers lower and upper,
+        // return the number of range sums that lie in [lower, upper] inclusive.
+        // Range sum S(i, j) is defined as the sum of the elements in nums
+        // between indices i and j inclusive, where i <= j.
+        // Example 1:
+        // Input: nums = [-2,5,-1], lower = -2, upper = 2
+        // Output: 3
+        // Explanation: The three ranges are: [0,0], [2,2], and [0,2] and
+        // their respective sums are: -2, -1, 2.
+        // Example 2:
+        // Input: nums = [0], lower = 0, upper = 0
+        // Output: 1
+        // Constraints:
+        // 1 <= nums.length <= 104
+        // -2^31 <= nums[i] <= 2^31 - 1
+        // -3 * 10^4 <= lower <= upper <= 3 * 10^4
+        // Follow up: A naive algorithm of O(n^2) is trivial, Could you do better than that?
+        int countRangeSum(vector<int> &nums, int lower, int upper)
+        {
+            vector<long long> r(nums.begin(), nums.end());
+            int c = 0;
+            for (size_t l = 1; l <= nums.size(); l++)
+            {
+                for (size_t i = 0; i + l - 1 < nums.size(); i++)
+                {
+                    if (l > 1)
+                        r[i] += nums[i + l - 1];
+                    if (lower <= r[i] && r[i] <= upper)
+                        c++;
+                }
+            }
+            return c;
+        }
+
     }
 }
 
