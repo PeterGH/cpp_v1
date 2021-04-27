@@ -2089,6 +2089,36 @@ namespace Test
             }
             return c;
         }
+        int countRangeSum2(vector<int> &nums, int lower, int upper)
+        {
+            vector<long long> r(nums.begin(), nums.end());
+            // r[i] = sum(nums[0..i]);
+            partial_sum(r.begin(), r.end(), r.begin());
+            function<int(int, int)> mergeSort = [&](int b, int e) -> int {
+                if (b > e)
+                    return 0;
+                if (b == e)
+                    return (lower <= r[b] && r[b] <= upper) ? 1 : 0;
+                int m = b + ((e - b) >> 1);
+                int c1 = mergeSort(b, m);     // sort(r[b..m])
+                int c2 = mergeSort(m + 1, e); // sort(r[(m+1)..e])
+                int c3 = 0;
+                int l = m + 1;
+                int h = m + 1;
+                for (int i = b; i <= m; i++)
+                {
+                    while (l <= e && (r[l] - r[i]) < lower)
+                        l++;
+                    while (h <= e && (r[h] - r[i]) <= upper)
+                        h++;
+                    c3 += h - l;
+                }
+                // sort(r[b..e])
+                inplace_merge(r.begin() + b, r.begin() + m + 1, r.begin() + e + 1);
+                return c1 + c2 + c3;
+            };
+            return mergeSort(0, r.size() - 1);
+        }
 
     }
 }
