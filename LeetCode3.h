@@ -384,7 +384,6 @@ namespace Test
                     acc[i] = a;
                 }
             }
-
             void update(int index, int val)
             {
                 if (0 <= index && index < (int)acc.size())
@@ -397,7 +396,6 @@ namespace Test
                         acc[i] += d;
                 }
             }
-
             int sumRange(int left, int right)
             {
                 int r = acc[right];
@@ -572,7 +570,6 @@ namespace Test
                 n = nums.size();
                 buildTree(nums, tree);
             }
-
             void update(int index, int val)
             {
                 if (0 <= index && index < n)
@@ -587,7 +584,6 @@ namespace Test
                     tree[index] += d;
                 }
             }
-
             int sumRange(int left, int right)
             {
                 left += n - 1;
@@ -721,14 +717,12 @@ namespace Test
                     add(i, nums[i]);
                 }
             }
-
             void update(int index, int val)
             {
                 int v = getOriginalNumber(index);
                 int d = val - v;
                 add(index, d);
             }
-
             int sumRange(int left, int right)
             {
                 return sumUpTo(right) - sumUpTo(left - 1);
@@ -745,7 +739,6 @@ namespace Test
             {
                 return b & (~b + 1);
             }
-
             int getOriginalNumber(int i)
             {
                 i++;
@@ -759,7 +752,6 @@ namespace Test
                 }
                 return n;
             }
-
             int sumUpTo(int i)
             {
                 i++;
@@ -793,7 +785,6 @@ namespace Test
                     bit.push_back(s);
                 }
             }
-
             void update(int index, int val)
             {
                 if (0 <= index && index < count)
@@ -808,7 +799,6 @@ namespace Test
                     }
                 }
             }
-
             int sumRange(int left, int right)
             {
                 int s = sumUpTo(right);
@@ -816,7 +806,6 @@ namespace Test
                     s -= sumUpTo(left - 1);
                 return s;
             }
-
             void print()
             {
                 cout << "{";
@@ -840,7 +829,6 @@ namespace Test
             {
                 return b & (~b + 1);
             }
-
             int getOriginalNumber(int i)
             {
                 int n = bit[i];
@@ -854,7 +842,6 @@ namespace Test
                 }
                 return n;
             }
-
             int sumUpTo(int i)
             {
                 i++; // convert to BIT index
@@ -888,7 +875,6 @@ namespace Test
                     bit.push_back(s);
                 }
             }
-
             void update(int index, int val)
             {
                 if (0 <= index && index < count)
@@ -903,7 +889,6 @@ namespace Test
                     }
                 }
             }
-
             int sumRange(int left, int right)
             {
                 int s = sumUpTo(right);
@@ -922,7 +907,6 @@ namespace Test
             {
                 return b & (~b + 1);
             }
-
             void add(int i, int val)
             {
                 i++;
@@ -932,7 +916,6 @@ namespace Test
                     i += lsb1(i);
                 }
             }
-
             int getOriginalNumber(int i)
             {
                 int n = bit[i];
@@ -946,7 +929,6 @@ namespace Test
                 }
                 return n;
             }
-
             int sumUpTo(int i)
             {
                 i++;
@@ -969,7 +951,6 @@ namespace Test
                     add(i, nums[i]); // update bit while maintaining it as a valid BIT
                 }
             }
-
             void update(int index, int val)
             {
                 if (0 <= index && index < count)
@@ -979,7 +960,6 @@ namespace Test
                     add(index, d);
                 }
             }
-
             int sumRange(int left, int right)
             {
                 int s = sumUpTo(right);
