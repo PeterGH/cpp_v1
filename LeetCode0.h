@@ -4915,8 +4915,8 @@ namespace Test
             solve(0, target, v);
             return result;
         }
-        vector<vector<int>> combinationSum_2(const vector<int> &candidates,
-                                             int target)
+        vector<vector<int>> combinationSum2(const vector<int> &candidates,
+                                            int target)
         {
             vector<vector<int>> result;
             function<void(size_t, int, vector<int> &)>
@@ -4938,7 +4938,7 @@ namespace Test
             solve(0, target, v);
             return result;
         }
-        vector<vector<int>> combinationSum_3(vector<int> &candidates, int target)
+        vector<vector<int>> combinationSum3(vector<int> &candidates, int target)
         {
             vector<vector<int>> result = vector<vector<int>>{};
             sort(candidates.begin(), candidates.end());
@@ -4962,7 +4962,7 @@ namespace Test
             solve(0, target, s);
             return result;
         }
-        vector<vector<int>> combinationSum_4(vector<int> &candidates, int target)
+        vector<vector<int>> combinationSum4(vector<int> &candidates, int target)
         {
             sort(candidates.begin(), candidates.end());
             map<pair<int, int>, vector<vector<int>>> m;
@@ -4993,7 +4993,7 @@ namespace Test
             solve(0, target);
             return m[make_pair(0, target)];
         }
-        vector<vector<int>> combinationSum_5(vector<int> &candidates, int target)
+        vector<vector<int>> combinationSum5(vector<int> &candidates, int target)
         {
             vector<vector<int>> o;
             vector<pair<vector<int>, int>> s;
@@ -5018,6 +5018,159 @@ namespace Test
                             o.push_back(v);
                     }
                 }
+            }
+            return o;
+        }
+
+        // 40. Combination Sum II
+        // Given a collection of candidate numbers (candidates) and a target number
+        // (target), find all unique combinations in candidates where the candidate
+        // numbers sums to target. Each number in candidates may only be used once in
+        // the combination. Note: All numbers (including target) will be positive
+        // integers. The solution set must not contain duplicate combinations.
+        // Example 1:
+        // Input: candidates = [10,1,2,7,6,1,5], target = 8,
+        // A solution set is:
+        // [
+        //   [1, 7],
+        //   [1, 2, 5],
+        //   [2, 6],
+        //   [1, 1, 6]
+        // ]
+        // Example 2:
+        // Input: candidates = [2,5,2,1,2], target = 5,
+        // A solution set is:
+        // [
+        //   [1,2,2],
+        //   [5]
+        // ]
+        vector<vector<int>> combinationSumII(vector<int> &candidates, int target)
+        {
+            vector<vector<int>> result;
+            sort(candidates.begin(), candidates.end());
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &v) {
+                    if (i >= candidates.size() || candidates[i] > t)
+                        return;
+                    size_t j = i;
+                    while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                        j++;
+                    int s = 0;
+                    for (size_t k = i; k <= j; k++)
+                    {
+                        s += candidates[k];
+                        v.push_back(candidates[k]);
+                        if (s == t)
+                            result.push_back(v);
+                        else
+                            solve(j + 1, t - s, v);
+                    }
+                    for (size_t k = i; k <= j; k++)
+                        v.pop_back();
+                    solve(j + 1, t, v);
+                };
+            vector<int> v;
+            solve(0, target, v);
+            return result;
+        }
+        vector<vector<int>> combinationSumII2(vector<int> &candidates, int target)
+        {
+            vector<vector<int>> result = vector<vector<int>>{};
+            // Sort so we can eliminate duplicate solutions later
+            // [Can we not use sort? Instead using a set of <i,t> pairs to track the
+            // visited?]
+            std::sort(candidates.begin(), candidates.end());
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &c) {
+                    if (i >= candidates.size() || candidates[i] > t)
+                        return;
+                    vector<int> c1(c);
+                    c1.push_back(candidates[i]);
+                    if (candidates[i] == t)
+                    {
+                        result.push_back(c1);
+                        return;
+                    }
+                    solve(i + 1, t - candidates[i], c1);
+                    while (i + 1 < candidates.size() &&
+                           candidates[i] == candidates[i + 1])
+                    {
+                        // This is needed to eliminate duplicate solutions
+                        i++;
+                    }
+                    solve(i + 1, t, c);
+                };
+            vector<int> s;
+            solve(0, target, s);
+            return result;
+        }
+        vector<vector<int>> combinationSumII3(vector<int> &candidates, int target)
+        {
+            vector<vector<int>> result = vector<vector<int>>{};
+            // Sort so we can eliminate duplicate solutions later
+            std::sort(candidates.begin(), candidates.end());
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &c) {
+                    if (i >= candidates.size() || candidates[i] > t)
+                        return;
+                    size_t j = i;
+                    while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                        j++;
+                    int s = 0;
+                    for (size_t k = i; k <= j; k++)
+                    {
+                        s += candidates[k];
+                        if (s > t)
+                            break;
+                        vector<int> c1(c);
+                        c1.insert(c1.end(), k - i + 1, candidates[i]);
+                        if (s == t)
+                        {
+                            result.push_back(c1);
+                            break;
+                        }
+                        solve(j + 1, t - s, c1);
+                    }
+                    solve(j + 1, t, c);
+                };
+            vector<int> s;
+            solve(0, target, s);
+            return result;
+        }
+        vector<vector<int>> combinationSumII4(vector<int> &candidates, int target)
+        {
+            sort(candidates.begin(), candidates.end());
+            vector<vector<int>> o;
+            vector<pair<vector<int>, long long>> s;
+            s.push_back(make_pair(vector<int>{}, target));
+            size_t i = 0;
+            while (i < candidates.size())
+            {
+                size_t j = i;
+                while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                    j++;
+                size_t n = s.size();
+                long long a = 0;
+                vector<int> v;
+                for (size_t k = i; k <= j; k++)
+                {
+                    a += candidates[k];
+                    v.push_back(candidates[k]);
+                    for (size_t l = 0; l < n; l++)
+                    {
+                        if (a <= s[l].second)
+                        {
+                            auto p = s[l];
+                            p.first.insert(p.first.end(), v.begin(), v.end());
+                            p.second -= a;
+                            if (p.second == 0)
+                                o.push_back(p.first);
+                            else
+                                s.push_back(p);
+                        }
+                    }
+                }
+                i = j + 1;
             }
             return o;
         }

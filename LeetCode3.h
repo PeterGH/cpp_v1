@@ -2123,6 +2123,20 @@ namespace Test
             }
             return c;
         }
+        // Let partial sum a[i] = sum(nums[0..i])
+        // Order all unique partial sums upto index i, so
+        // b[1] < b[2] < ... < b[j],
+        // where assuming there are j unique sums from a[0] to a[i].
+        // We want to find all the ranges whose ending is at i such that its range sum
+        // is within [lower, upper]. So we need to find b[p] and b[q], such that
+        // b[q] = a[i], and
+        // lower <= a[i] - b[p] <= upper, i.e., a[i] - upper <= b[p] <= a[i] - lower.
+        // So we need to count all the b[p] in the range. Let the accumulative count
+        // c[j] be the count of all the unique partial sums upto b[j], then we have
+        // c[1] < c[2] < ... < c[j].
+        // Now the count of b[p] within [a[i] - upper, a[i] - lower] is just the difference
+        // of two c[l] and c[u] that match the range of b[p], and this can be solved
+        // by binary index tree.
         int countRangeSum4(vector<int> &nums, int lower, int upper)
         {
             if (nums.empty())
@@ -2135,7 +2149,7 @@ namespace Test
             int rank = 1;
             for (auto s : sorted)
                 m[s] = rank++;
-            // binary index tree. bit[i] is the count of the unique sum at rank i
+            // binary index tree. bit[i] is the count of the unique sum whose rank <= i
             class BIT
             {
             private:
@@ -2174,8 +2188,8 @@ namespace Test
                 auto it = sorted.upper_bound(sum - lower);
                 if (it != sorted.begin())
                 {
-                    it--; // now *it <= sum - lower, i.e., lower <= sum - *it
-                    int u = bit.query(m[*it]);
+                    it--;                      // now *it <= sum - lower, i.e., lower <= sum - *it
+                    int u = bit.query(m[*it]); // count of sums whose rank <= (*it)'s rank
                     // *it2 is the least element such that sum - upper <= *it2, i.e., sum - *it2 <= upper
                     auto it2 = sorted.lower_bound(sum - upper);
                     if (it2 != sorted.end())
@@ -2187,6 +2201,59 @@ namespace Test
                 bit.update(m[sum], 1);
             }
             return res;
+        }
+
+        // Odd Even Linked List
+        // Given a singly linked list, group all odd nodes together followed by the even
+        // nodes. Please note here we are talking about the node number and not the value
+        // in the nodes. You should try to do it in place. The program should run in O(1)
+        // space complexity and O(nodes) time complexity.
+        // Example 1:
+        // Input: 1->2->3->4->5->NULL
+        // Output: 1->3->5->2->4->NULL
+        // Example 2:
+        // Input: 2->1->3->5->6->4->7->NULL
+        // Output: 2->3->6->7->1->5->4->NULL
+        // Note: The relative order inside both the even and odd groups should remain as
+        // it was in the input. The first node is considered odd, the second node even and so on ...
+        ListNode *oddEvenList(ListNode *head)
+        {
+            if (head == nullptr)
+                return nullptr;
+            ListNode *p = head;
+            ListNode *h2 = nullptr;
+            ListNode *t2 = nullptr;
+            while (p->next != nullptr)
+            {
+                ListNode *q = p->next;
+                p->next = q->next;
+                q->next = nullptr; // tail
+                if (h2 == nullptr)
+                    h2 = q;
+                else
+                    t2->next = q;
+                t2 = q;
+                if (p->next == nullptr)
+                    break;
+                p = p->next;
+            }
+            p->next = h2;
+            return head;
+        }
+        ListNode *oddEvenList2(ListNode *head)
+        {
+            ListNode *t1 = head;                                     // tail of odds
+            ListNode *t2 = (head == nullptr ? nullptr : head->next); // tail of evens
+            while (t2 != nullptr && t2->next != nullptr)
+            {
+                ListNode *p = t2->next;
+                t2->next = p->next;
+                t2 = t2->next;
+                p->next = t1->next;
+                t1->next = p;
+                t1 = p;
+            }
+            return head;
         }
 
     }

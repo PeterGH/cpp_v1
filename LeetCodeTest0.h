@@ -1135,18 +1135,22 @@ void LeetCodeTest::Init0(void)
             vector<int> v2(v);
             vector<int> v3(v);
             vector<int> v4(v);
+            vector<int> v5(v);
             auto c = combinationSum(v1, t);
-            auto c2 = combinationSum_2(v2, t);
-            auto c3 = combinationSum_3(v3, t);
-            auto c4 = combinationSum_4(v4, t);
+            auto c2 = combinationSum2(v2, t);
+            auto c3 = combinationSum3(v3, t);
+            auto c4 = combinationSum4(v4, t);
+            auto c5 = combinationSum5(v5, t);
             Util::SortGrid(c);
             Util::SortGrid(c2);
             Util::SortGrid(c3);
             Util::SortGrid(c4);
+            Util::SortGrid(c5);
             Logger() << c;
             ASSERT1(0 == Util::Compare(c, c2));
             ASSERT1(0 == Util::Compare(c, c3));
             ASSERT1(0 == Util::Compare(c, c4));
+            ASSERT1(0 == Util::Compare(c, c5));
         };
         for (int i = 0; i < 20; i++)
         {
@@ -1180,15 +1184,19 @@ void LeetCodeTest::Init0(void)
             vector<int> v1(v);
             vector<int> v2(v);
             vector<int> v3(v);
-            auto c1 = combinationSum2(v1, t);
-            auto c2 = combinationSum2_2(v2, t);
-            auto c3 = combinationSum2_2(v3, t);
+            vector<int> v4(v);
+            auto c1 = combinationSumII(v1, t);
+            auto c2 = combinationSumII2(v2, t);
+            auto c3 = combinationSumII3(v3, t);
+            auto c4 = combinationSumII4(v4, t);
             Util::SortGrid(c1);
             Util::SortGrid(c2);
             Util::SortGrid(c3);
-            Logger() << c1 << c2 << c3;
+            Util::SortGrid(c4);
+            Logger() << c1 << c2 << c3 << c4;
             ASSERT1(0 == Util::Compare(c1, c2));
             ASSERT1(0 == Util::Compare(c1, c3));
+            ASSERT1(0 == Util::Compare(c1, c4));
         };
         {
             vector<int> v = {10, 1, 2, 7, 6, 1, 5};
