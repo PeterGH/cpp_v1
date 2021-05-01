@@ -2099,6 +2099,95 @@ namespace Test
             };
             return mergeSort(0, r.size() - 1);
         }
+        // idea of twosum
+        int countRangeSum3(vector<int> &nums, int lower, int upper)
+        {
+            map<long long, int> m;
+            int n = nums.size();
+            int c = 0;
+            long long sum = 0;
+            for (int i = 0; i < n; i++)
+            {
+                sum += nums[i];
+                for (int j = lower; j <= upper; j++)
+                {
+                    if (sum == j)
+                        c++;
+                    long long d = sum - j; // lower <= sum - d <= upper
+                    if (m.find(d) != m.end())
+                        c += m[d];
+                }
+                if (m.find(sum) == m.end())
+                    m[sum] = 0;
+                m[sum]++;
+            }
+            return c;
+        }
+        int countRangeSum4(vector<int> &nums, int lower, int upper)
+        {
+            if (nums.empty())
+                return 0;
+            vector<long long> sums(nums.begin(), nums.end());
+            partial_sum(sums.begin(), sums.end(), sums.begin()); // sums[i] = sum(nums[0..i])
+            set<long long> sorted(sums.begin(), sums.end());
+            sorted.insert(0); // sorted sums from 0 to the largest sum
+            unordered_map<long long, int> m;
+            int rank = 1;
+            for (auto s : sorted)
+                m[s] = rank++;
+            // binary index tree. bit[i] is the count of the unique sum at rank i
+            class BIT
+            {
+            private:
+                int lsb(int i)
+                {
+                    return i & (-i);
+                }
+
+            public:
+                vector<long long> sum;
+                BIT(int n) { sum.resize(n); }
+                void update(int i, long long val)
+                {
+                    while (i < (int)sum.size())
+                    {
+                        sum[i] += val;
+                        i += lsb(i);
+                    }
+                }
+                long long query(int i)
+                {
+                    long long r = 0;
+                    while (i > 0)
+                    {
+                        r += sum[i];
+                        i -= lsb(i);
+                    }
+                    return r;
+                }
+            } bit(rank);
+            bit.update(m[0], 1); // there is only one sum 0
+            int res = 0;
+            for (auto sum : sums)
+            {
+                // *it is the least element such that sum - lower < *it, i.e., sum - *it < lower
+                auto it = sorted.upper_bound(sum - lower);
+                if (it != sorted.begin())
+                {
+                    it--; // now *it <= sum - lower, i.e., lower <= sum - *it
+                    int u = bit.query(m[*it]);
+                    // *it2 is the least element such that sum - upper <= *it2, i.e., sum - *it2 <= upper
+                    auto it2 = sorted.lower_bound(sum - upper);
+                    if (it2 != sorted.end())
+                    {
+                        int l = bit.query(m[*it2] - 1);
+                        res += u - l;
+                    }
+                }
+                bit.update(m[sum], 1);
+            }
+            return res;
+        }
 
     }
 }
