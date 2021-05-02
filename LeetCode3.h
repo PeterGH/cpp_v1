@@ -2256,6 +2256,90 @@ namespace Test
             return head;
         }
 
+        // 329. Longest Increasing Path in a Matrix
+        // Given an m x n integers matrix, return the length of the longest increasing path in matrix.
+        // From each cell, you can either move in four directions: left, right, up, or down. You may
+        // not move diagonally or move outside the boundary (i.e., wrap-around is not allowed).
+        // Example 1:
+        // Input: matrix = [[9,9,4],[6,6,8],[2,1,1]]
+        // Output: 4
+        // Explanation: The longest increasing path is [1, 2, 6, 9].
+        // Example 2:
+        // Input: matrix = [[3,4,5],[3,2,6],[2,2,1]]
+        // Output: 4
+        // Explanation: The longest increasing path is [3, 4, 5, 6]. Moving diagonally is not allowed.
+        // Example 3:
+        // Input: matrix = [[1]]
+        // Output: 1
+        // Constraints:
+        // m == matrix.length
+        // n == matrix[i].length
+        // 1 <= m, n <= 200
+        // 0 <= matrix[i][j] <= 2^31 - 1
+        int longestIncreasingPath(vector<vector<int>> &matrix)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return 0;
+            int r = 0;
+            int m = matrix.size();
+            int n = matrix[0].size();
+            function<void(int, int, int, int)> walk = [&](int i, int j, int p, int l) {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return;
+                int e = matrix[i][j];
+                if (e <= p)
+                    return;
+                l++;
+                r = max(r, l);
+                walk(i - 1, j, e, l);
+                walk(i, j + 1, e, l);
+                walk(i + 1, j, e, l);
+                walk(i, j - 1, e, l);
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    walk(i, j, -1, 0);
+                }
+            }
+            return r;
+        }
+        int longestIncreasingPath2(vector<vector<int>> &matrix)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return 0;
+            int m = matrix.size();
+            int n = matrix[0].size();
+            map<pair<int, int>, int> l; // max length at a point
+            function<int(int, int, int)> length = [&](int i, int j, int p) {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return 0;
+                int e = matrix[i][j];
+                if (e <= p)
+                    return 0;
+                auto k = make_pair(i, j);
+                if (l.find(k) != l.end())
+                    return l[k];
+                int r = 0;
+                r = max(r, length(i - 1, j, e));
+                r = max(r, length(i, j + 1, e));
+                r = max(r, length(i + 1, j, e));
+                r = max(r, length(i, j - 1, e));
+                l[k] = r + 1;
+                return l[k];
+            };
+            int o = 0;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    o = max(o, length(i, j, -1));
+                }
+            }
+            return o;
+        }
+
     }
 }
 
