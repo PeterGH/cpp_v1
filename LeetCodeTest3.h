@@ -101,6 +101,17 @@ void LeetCodeTest::Init3(void)
         };
         check({336, 288, 378, 16, 319, 146}, 9212);
     });
+
+    Add("330. Patching Array", [&]() {
+        auto check = [&](const vector<int> &nums, int n, int e) {
+            Logger() << nums;
+            Logger() << n;
+            int c = minPatches(nums, n);
+            Logger() << c << (c == e ? "==" : "!=") << e << endl;
+            ASSERT1(c == e);
+        };
+        check({1, 2, 31, 33}, 2147483647, 27);
+    });
 }
 
 #endif

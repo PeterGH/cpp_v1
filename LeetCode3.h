@@ -2340,6 +2340,120 @@ namespace Test
             return o;
         }
 
+        // 330. Patching Array
+        // Given a sorted integer array nums and an integer n, add/patch elements
+        // to the array such that any number in the range [1, n] inclusive can be
+        // formed by the sum of some elements in the array.
+        // Return the minimum number of patches required.
+        // Example 1:
+        // Input: nums = [1,3], n = 6
+        // Output: 1
+        // Explanation:
+        // Combinations of nums are [1], [3], [1,3], which form possible sums of: 1, 3, 4.
+        // Now if we add/patch 2 to nums, the combinations are: [1], [2], [3], [1,3], [2,3], [1,2,3].
+        // Possible sums are 1, 2, 3, 4, 5, 6, which now covers the range [1, 6].
+        // So we only need 1 patch.
+        // Example 2:
+        // Input: nums = [1,5,10], n = 20
+        // Output: 2
+        // Explanation: The two patches can be [2, 4].
+        // Example 3:
+        // Input: nums = [1,2,2], n = 5
+        // Output: 0
+        // Constraints:
+        // 1 <= nums.length <= 1000
+        // 1 <= nums[i] <= 10^4
+        // nums is sorted in ascending order.
+        // 1 <= n <= 2^31 - 1
+        int minPatches(const vector<int> &nums, int n)
+        {
+            function<bool(size_t, int, const vector<int> &)>
+                has = [&](size_t i, int t, const vector<int> &v) -> bool {
+                if (i >= v.size())
+                    return t == 0;
+                if (t == 0)
+                    return true;
+                if (t < 0)
+                    return false;
+                size_t j = i;
+                while (j + 1 < v.size() && v[j] == v[j + 1])
+                    j++;
+                int a = 0;
+                for (size_t k = i; k <= j; k++)
+                {
+                    a += v[k];
+                    if (a > t)
+                        break;
+                    if (has(j + 1, t - a, v))
+                        return true;
+                }
+                return has(j + 1, t, v);
+            };
+            int c = 0;
+            long long d = 1;
+            vector<int> v(nums);
+            while (d <= (long long)n)
+            {
+                if (!has(0, d, v))
+                {
+                    c++;
+                    auto it = upper_bound(v.begin(), v.end(), d);
+                    v.insert(it, d);
+                    cout << d << endl;
+                }
+                d = d << 1;
+            }
+            return c;
+        }
+        int minPatches2(const vector<int> &nums, int n)
+        {
+            function<bool(size_t, int, const vector<int> &, map<pair<size_t, int>, bool> &)>
+                has = [&](size_t i, int t, const vector<int> &v, map<pair<size_t, int>, bool> &m) -> bool {
+                if (i >= v.size())
+                    return t == 0;
+                if (t == 0)
+                    return true;
+                if (t < 0)
+                    return false;
+                pair<size_t, int> p = make_pair(i, t);
+                if (m.find(p) != m.end())
+                    return m[p];
+                size_t j = i;
+                while (j + 1 < v.size() && v[j] == v[j + 1])
+                    j++;
+                int a = 0;
+                for (size_t k = i; k <= j; k++)
+                {
+                    a += v[k];
+                    if (a > t)
+                        break;
+                    if (has(j + 1, t - a, v, m))
+                    {
+                        m[p] = true;
+                        return true;
+                    }
+                }
+                m[p] = has(j + 1, t, v, m);
+                return m[p];
+            };
+            int c = 0;
+            long long d = 1;
+            vector<int> v(nums);
+            map<pair<size_t, int>, bool> m;
+            while (d <= (long long)n)
+            {
+                if (!has(0, d, v, m))
+                {
+                    c++;
+                    auto it = upper_bound(v.begin(), v.end(), d);
+                    v.insert(it, d);
+                }
+                d = d << 1;
+                m.clear();
+            }
+            return c;
+        }
+
     }
 }
 
