@@ -2453,7 +2453,69 @@ namespace Test
             }
             return c;
         }
+        // Given sum range  [1,K], adding K+1 to the set making the resulting range to be [1,2*K+1].
+        // To extend the range using an int A, we need to have K>=A+1.
+        int minPatches3(const vector<int> &nums, int n)
+        {
+            long long k = 0;
+            int c = 0;
+            for (auto val : nums)
+            {
+                if (k >= n)
+                    break;
+                while (k + 1 < val && k < n)
+                {
+                    k += (k + 1);
+                    c++;
+                }
+                k += val;
+            }
 
+            while (k < n)
+            {
+                k += (k + 1);
+                c++;
+            }
+
+            return c;
+        }
+        // The idea is to greedily add the maximum missing number, and the numbers
+        // from nums once we can reach those numbers. Assume we have nums = [1, 5, 10]
+        // and we want all numbers to 20. To start thing off, we need to look for a 1.
+        // We have a 1 in the array, so are we good. Then we look for a 2. We do not
+        // have a 2 in the array, and the next element in the array is 5. This means
+        // we must add a patch to get 2. Since we already have 1, we can either add a 1,
+        // or we can add a 2. However, if we add a 2, we will be able to make 2 and 3,
+        // but if we add a 1, we will only be able to get 2. Since we want the minimum
+        // number of patches, we should aim to maximize the new numbers we can make from
+        // each patch. Now we can make [1, 4), and we are missing 4, so by the previous
+        // logic we would add a 4 as the second patch, to get all numbers between 0 and 7.
+        // If we look at the next number in nums, we can see that it is a 5, so we have
+        // already covered it. But this is a "free" number. We can add it to any of our
+        // sums from 0 ... 7 and get a new number. The maximum number is now 12. This
+        // means we are able to increase the numbers we can reach without having to add
+        // a patch. Thus, we keep this up, and either add mandatory patches that maximizes
+        // the numbers we get, or add in free numbers from nums that extends our maximum
+        // range, until we reach the required range.
+        int minPatches4(const vector<int> &nums, int n)
+        {
+            long long k = 1;
+            size_t i = 0;
+            int c = 0;
+            while (k <= n)
+            {
+                if (i < nums.size() && nums[i] <= k)
+                {
+                    k += nums[i++];
+                }
+                else
+                {
+                    k += k;
+                    ++c;
+                }
+            }
+            return c;
+        }
     }
 }
 
