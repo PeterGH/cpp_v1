@@ -5393,6 +5393,135 @@ namespace Test
             return v;
         }
 
+        // 43. Multiply Strings
+        // Given two non-negative integers num1 and num2 represented as strings, return
+        // the product of num1 and num2, also represented as a string.
+        // Example 1: Input: num1 = "2", num2 = "3", Output: "6"
+        // Example 2: Input: num1 = "123", num2 = "456", Output: "56088"
+        // Note: The length of both num1 and num2 is < 110. Both num1 and num2 contain
+        // only digits 0-9. Both num1 and num2 do not contain any leading zero, except
+        // the number 0 itself. You must not use any built-in BigInteger library or
+        // convert the inputs to integer directly.
+        string multiply(string num1, string num2)
+        {
+            if (num1 == "0" || num2 == "0")
+                return "0";
+            function<string(const string &, char)>
+                mul = [&](const string &s, char d) -> string {
+                string r;
+                char c = '0';
+                int i = s.size() - 1;
+                while (0 <= i || c != '0')
+                {
+                    int t = c - '0';
+                    if (0 <= i)
+                        t += (s[i--] - '0') * (d - '0');
+                    if (t >= 10)
+                    {
+                        c = '0' + t / 10;
+                        t %= 10;
+                    }
+                    else
+                    {
+                        c = '0';
+                    }
+                    r.insert(r.begin(), '0' + t);
+                }
+                return r;
+            };
+            function<string(const string &, const string &)> add =
+                [&](const string &s1, const string &s2) -> string {
+                string r;
+                char c = '0';
+                int i = s1.size() - 1;
+                int j = s2.size() - 1;
+                while (0 <= i || 0 <= j || c != '0')
+                {
+                    int t = c - '0';
+                    if (0 <= i)
+                        t += (s1[i--] - '0');
+                    if (0 <= j)
+                        t += (s2[j--] - '0');
+                    if (t >= 10)
+                    {
+                        c = '1';
+                        t -= 10;
+                    }
+                    else
+                    {
+                        c = '0';
+                    }
+                    r.insert(r.begin(), '0' + t);
+                }
+                return r;
+            };
+            string result = "0";
+            for (int i = num2.size() - 1; i >= 0; i--)
+            {
+                string m = mul(num1, num2[i]);
+                result = add(result, m);
+                num1.append(1, '0');
+            }
+            return result;
+        }
+        string multiply2(string num1, string num2)
+        {
+            if (num1.length() == 1 && num1[0] == '0')
+                return string("0");
+            if (num2.length() == 1 && num2[0] == '0')
+                return string("0");
+            function<int(char)> toDigit = [&](char c) { return c - '0'; };
+            function<char(int)> toChar = [&](int i) { return i + '0'; };
+            function<string(string, char)> multiplyDigit = [&](string str, char ch) {
+                string result;
+                int i = str.length() - 1;
+                int c = 0;
+                int m;
+                while (0 <= i)
+                {
+                    m = c + toDigit(str[i--]) * toDigit(ch);
+                    c = m / 10;
+                    result.insert(result.begin(), toChar(m % 10));
+                }
+                if (c > 0)
+                    result.insert(result.begin(), toChar(c));
+                return result;
+            };
+            function<string(string, string)> sum = [&](string str1, string str2) {
+                string result;
+                int i = str1.length() - 1;
+                int j = str2.length() - 1;
+                int c = 0;
+                int m;
+                while (0 <= i || 0 <= j)
+                {
+                    if (0 <= i && 0 <= j)
+                        m = toDigit(str1[i--]) + toDigit(str2[j--]);
+                    else if (0 <= i)
+                        m = toDigit(str1[i--]);
+                    else
+                        m = toDigit(str2[j--]);
+                    m += c;
+                    c = m / 10;
+                    result.insert(result.begin(), toChar(m % 10));
+                }
+                if (c > 0)
+                    result.insert(result.begin(), toChar(c));
+                return result;
+            };
+            string result = "0";
+            char c;
+            int i = num2.length() - 1;
+            while (0 <= i)
+            {
+                c = num2[i--];
+                if (c != '0')
+                    result = sum(result, multiplyDigit(num1, c));
+                num1.append(1, '0');
+            }
+            return result;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
