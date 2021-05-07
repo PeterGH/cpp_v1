@@ -5522,6 +5522,199 @@ namespace Test
             return result;
         }
 
+        // 44. Wildcard Matching
+        // Given an input string (s) and a pattern (p), implement wildcard pattern
+        // matching with support for '?' and '*'.
+        // '?' Matches any single character.
+        // '*' Matches any sequence of characters (including the empty sequence).
+        // The matching should cover the entire input string (not partial).
+        // Note:
+        // s could be empty and contains only lowercase letters a-z.
+        // p could be empty and contains only lowercase letters a-z, and characters like
+        // ? or *. Example 1: Input: s = "aa" p = "a" Output: false Explanation: "a"
+        // does not match the entire string "aa". Example 2: Input: s = "aa" p = "*"
+        // Output: true
+        // Explanation: '*' matches any sequence.
+        // Example 3:
+        // Input:
+        // s = "cb"
+        // p = "?a"
+        // Output: false
+        // Explanation: '?' matches 'c', but the second letter is 'a', which does not
+        // match 'b'. Example 4: Input: s = "adceb" p = "*a*b" Output: true Explanation:
+        // The first '*' matches the empty sequence, while the second '*' matches the
+        // substring "dce". Example 5: Input: s = "acdcb" p = "a*c?b" Output: false
+        bool isMatch(string s, string p)
+        {
+            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool {
+                if (i == s.size() && j == p.size())
+                    return true;
+                if (j == p.size())
+                    return false;
+                if (i < s.size() && (s[i] == p[j] || p[j] == '?'))
+                    return match(i + 1, j + 1);
+                // i == s.size()
+                // s[i] != p[j] && p[j] != '?'
+                if (p[j] == '*')
+                {
+                    // Skip all '*'
+                    while (j < p.size() && p[j] == '*')
+                        j++;
+                    size_t k = i;
+                    while (k <= s.size())
+                    {
+                        if (match(k, j))
+                            return true;
+                        k++;
+                    }
+                }
+                return false;
+            };
+            return match(0, 0);
+        }
+        bool isMatch2(string s, string p)
+        {
+            map<pair<size_t, size_t>, bool> m;
+            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool {
+                pair<size_t, size_t> v = make_pair(i, j);
+                if (m.find(v) != m.end())
+                    return m[v];
+                if (i == s.size() && j == p.size())
+                {
+                    m[v] = true;
+                    return true;
+                }
+                if (j == p.size())
+                {
+                    m[v] = false;
+                    return false;
+                }
+                if (i < s.size() && (s[i] == p[j] || p[j] == '?'))
+                    return match(i + 1, j + 1);
+                if (p[j] == '*')
+                {
+                    while (j < p.size() && p[j] == '*')
+                        j++;
+                    size_t k = i;
+                    while (k <= s.size())
+                    {
+                        if (match(k, j))
+                        {
+                            m[v] = true;
+                            return true;
+                        }
+                        k++;
+                    }
+                }
+                m[v] = false;
+                return false;
+            };
+            return match(0, 0);
+        }
+        // s = "adceb" p = "*a*b"
+        //  ( ,*)->(a,a)->( ,  *)->(d,b)
+        // |            |->(d,  *)->(c,b)
+        // |            |->(dc, *)->(e,b)
+        // |            |->(dce,*)->(b,b)
+        // |(a,    *)->(d,a)
+        // |(ad,   *)->(c,a)
+        // |(adc,  *)->(e,a)
+        // |(adce, *)->(b,a)
+        // |(adceb,*)->( ,a)
+        // s = "abcabc" p = "*a*c"
+        // http://yucoding.blogspot.com/2013/02/leetcode-question-123-wildcard-matching.html
+        bool isMatch3(string s, string p)
+        {
+            int lastStarIndex = -1;
+            int currentIndex = 0;
+            int i = 0;
+            int j = 0;
+            while (i < (int)s.size())
+            {
+                if (j < (int)p.size() && (s[i] == p[j] || p[j] == '?'))
+                {
+                    i++;
+                    j++;
+                    continue;
+                }
+                if (j < (int)p.size() && p[j] == '*')
+                {
+                    lastStarIndex = j++;
+                    currentIndex = i;
+                    continue;
+                }
+                if (lastStarIndex != -1)
+                {
+                    j = lastStarIndex + 1;
+                    i = ++currentIndex;
+                    continue;
+                }
+                return false;
+            }
+            while (j < (int)p.size() && p[j] == '*')
+                j++;
+            return j == (int)p.size();
+        }
+        bool isMatch(const char *s, const char *p)
+        {
+            function<int(const char *)> length = [&](const char *c) -> int {
+                // Count characters in c that is not '*'
+                int i = 0;
+                while (*c != '\0')
+                {
+                    if (*c != '*')
+                        i++;
+                    c++;
+                }
+                return i;
+            };
+            function<bool(const char *, const char *,
+                          map<pair<const char *, const char *>, bool> &)>
+                isMatchInternal =
+                    [&](const char *s, const char *p,
+                        map<pair<const char *, const char *>, bool> &m) -> bool {
+                pair<const char *, const char *> c = make_pair(s, p);
+                if (m.find(c) != m.end())
+                    return m[c];
+                m[c] = false;
+                int i = length(s);
+                int j = length(p);
+                if (i < j)
+                    return false;
+                while (*s != '\0' && *p != '\0' && (*s == *p || *p == '?'))
+                {
+                    ++s;
+                    ++p;
+                }
+                // Now *s == '\0' || *p == '\0' || (*s != *p && *p != '?')
+                if (*s == '\0' && *p == '\0')
+                {
+                    m[c] = true;
+                    return true;
+                }
+                if (*p == '\0' || *p != '*')
+                    return false;
+                // Now *p == '*'
+                while (*p == '*')
+                    p++;
+                // Now *p == '\0' || *p == '?' || *p != '*'
+                while (*s != '\0' && i >= j)
+                {
+                    if ((*s == *p || *p == '?') && isMatchInternal(s + 1, p + 1, m))
+                    {
+                        m[c] = true;
+                        return true;
+                    }
+                    s++;
+                    i--;
+                }
+                m[c] = (*s == *p) && (i >= j);
+                return m[c];
+            };
+            map<pair<const char *, const char *>, bool> m;
+            return isMatchInternal(s, p, m);
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
