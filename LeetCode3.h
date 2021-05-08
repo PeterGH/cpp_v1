@@ -2516,6 +2516,134 @@ namespace Test
             }
             return c;
         }
+
+        // 331. Verify Preorder Serialization of a Binary Tree
+        // One way to serialize a binary tree is to use preorder traversal.
+        // When we encounter a non-null node, we record the node's value.
+        // If it is a null node, we record using a sentinel value such as '#'.
+        // For example, the above binary tree can be serialized to the string
+        // "9,3,4,#,#,1,#,#,2,#,6,#,#", where '#' represents a null node.
+        // Given a string of comma-separated values preorder, return true
+        // if it is a correct preorder traversal serialization of a binary tree.
+        // It is guaranteed that each comma-separated value in the string must
+        // be either an integer or a character '#' representing null pointer.
+        // You may assume that the input format is always valid.
+        // For example, it could never contain two consecutive commas, such as "1,,3".
+        // Example 1:
+        // Input: preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
+        // Output: true
+        // Example 2:
+        // Input: preorder = "1,#"
+        // Output: false
+        // Example 3:
+        // Input: preorder = "9,#,#,1"
+        // Output: false
+        // Constraints:
+        // 1 <= preorder.length <= 10^4
+        // preoder consist of integers in the range [0, 100] and '#' separated by commas ','.
+        // Follow up: Find an algorithm without reconstructing the tree.
+        bool isValidSerialization(const string &preorder)
+        {
+            function<bool(size_t &)> check = [&](size_t &i) -> bool {
+                if (i >= preorder.size())
+                    return false;
+                if (preorder[i] == '#')
+                {
+                    i++; // skip '#'
+                    if (i < preorder.size())
+                        i++; // skip ','
+                    return true;
+                }
+                while (i < preorder.size() && preorder[i] != ',')
+                    i++;
+                if (i == preorder.size())
+                    return false; // integer without children '#'
+                i++;
+                if (!check(i)) // check left subtree
+                    return false;
+                return check(i); // check right subtree
+            };
+            size_t i = 0;
+            return check(i) && i == preorder.size();
+        }
+        bool isValidSerialization2(const string &preorder)
+        {
+            if (preorder.empty())
+                return false;
+            function<void(int, int, const vector<int> &)>
+            print = [&](int c, int i, const vector<int> &s) {
+                cout << "c=" << c << " p[" << c << "]='" << (c == -1 ? '#' : preorder[c-1]) << "' ";
+                cout << "i=" << i << " p[" << i << "]='" << preorder[i] << "' ";
+                cout << "s={";
+                for (size_t j = 0; j < s.size(); j++) {
+                    if (j > 0)
+                        cout << ",";
+                    cout << preorder[s[j] - 1]; // s[j];
+                }
+                cout << "}" << endl;
+            };
+            int n = preorder.size();
+            int i = 0;
+            vector<int> s;
+            int c = -1;
+            if (preorder[i] == '#')
+                return n == 1; // "#" is ok
+            while (i < n && preorder[i] != ',')
+                i++;
+            if (i == n)
+                return false;
+            c = i;
+            i++;
+            if (i == n)
+                return false;
+            while (!s.empty() || c != -1)
+            {
+                print(c, i,s);
+                if (c != -1)
+                {
+                    s.push_back(c);
+                    if (preorder[i] == '#')
+                    {
+                        i++;
+                        if (i < n)
+                            i++;
+                        if (i == n)
+                            return false;
+                        c = -1;
+                    }
+                    else
+                    {
+                        while (i < n && preorder[i] != ',')
+                            i++;
+                        if (i == n)
+                            return false;
+                        c = i;
+                        i++;
+                    }
+                }
+                else
+                {
+                    s.pop_back();
+                    if (preorder[i] == '#')
+                    {
+                        i++;
+                        if (i < n)
+                            i++;
+                    }
+                    else
+                    {
+                        while (i < n && preorder[i] != ',')
+                            i++;
+                        if (i == n)
+                            return false;
+                        c = i;
+                        i++;
+                    }
+                }
+            }
+            return i == n;
+        }
+
     }
 }
 

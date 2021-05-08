@@ -112,6 +112,14 @@ void LeetCodeTest::Init3(void)
         };
         check({1, 2, 31, 33}, 2147483647, 27);
     });
+
+    Add("331. Verify Preorder Serialization of a Binary Tree", [&]() {
+        auto check = [&](const string &p, bool e) {
+            bool r = isValidSerialization2(p);
+            ASSERT1(r == e);
+        };
+        check("9,3,4,#,#,1,#,#,2,#,6,#,#", true);
+    });
 }
 
 #endif
