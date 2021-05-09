@@ -2571,17 +2571,18 @@ namespace Test
             if (preorder.empty())
                 return false;
             function<void(int, int, const vector<int> &)>
-            print = [&](int c, int i, const vector<int> &s) {
-                cout << "c=" << c << " p[" << c << "]='" << (c == -1 ? '#' : preorder[c-1]) << "' ";
-                cout << "i=" << i << " p[" << i << "]='" << preorder[i] << "' ";
-                cout << "s={";
-                for (size_t j = 0; j < s.size(); j++) {
-                    if (j > 0)
-                        cout << ",";
-                    cout << preorder[s[j] - 1]; // s[j];
-                }
-                cout << "}" << endl;
-            };
+                print = [&](int c, int i, const vector<int> &s) {
+                    cout << "c=" << c << " p[" << c << "]='" << (c == -1 ? '#' : preorder[c - 1]) << "' ";
+                    cout << "i=" << i << " p[" << i << "]='" << preorder[i] << "' ";
+                    cout << "s={";
+                    for (size_t j = 0; j < s.size(); j++)
+                    {
+                        if (j > 0)
+                            cout << ",";
+                        cout << preorder[s[j] - 1]; // s[j];
+                    }
+                    cout << "}" << endl;
+                };
             int n = preorder.size();
             int i = 0;
             vector<int> s;
@@ -2598,7 +2599,7 @@ namespace Test
                 return false;
             while (!s.empty() || c != -1)
             {
-                print(c, i,s);
+                print(c, i, s);
                 if (c != -1)
                 {
                     s.push_back(c);
@@ -2642,6 +2643,53 @@ namespace Test
                 }
             }
             return i == n;
+        }
+        // If current node is a right child, then the node before it must be '#'
+        //     parent
+        //     /    \
+        //    '#'  right
+        // or
+        //     parent
+        //     /    \
+        //   left  right
+        //   /  \
+        // '#'  '#'
+        // If current node is a left child, then the node before it must be its parent
+        //     parent
+        //     /
+        //   left
+        // or
+        //     parent
+        //     /
+        //   '#'
+        bool isValidSerialization3(const string &preorder)
+        {
+            if (preorder.empty())
+                return false;
+            int i = preorder.size() - 1;
+            if (preorder[i] != '#')
+                return false;
+            stack<int> s;
+            while (i >= 0)
+            {
+                while (i >= 0 && preorder[i] != ',')
+                    i--;
+                if ((i - 1 >= 0) && (preorder[i - 1] == '#'))
+                {
+                    if ((i - 2 >= 0) && (preorder[i - 2] == ','))
+                        s.push(i);
+                    else
+                        return false;
+                }
+                else if (i >= 0)
+                {
+                    if (s.empty())
+                        return false;
+                    s.pop();
+                }
+                i--;
+            }
+            return s.empty();
         }
 
     }
