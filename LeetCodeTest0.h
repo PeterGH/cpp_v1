@@ -1376,11 +1376,16 @@ void LeetCodeTest::Init0(void)
             vector<vector<int>> p5 = permuteUnique2(v5);
             Logger() << p5;
             Util::Sort(p5);
+            vector<int> v6(v);
+            vector<vector<int>> p6 = permuteUnique3(v6);
+            Logger() << p6;
+            Util::Sort(p6);
             ASSERT1(0 == Util::Compare(p1, p));
             ASSERT1(0 == Util::Compare(p2, p));
             ASSERT1(0 == Util::Compare(p3, p));
             ASSERT1(0 == Util::Compare(p4, p));
             ASSERT1(0 == Util::Compare(p5, p));
+            ASSERT1(0 == Util::Compare(p6, p));
         };
         {
             vector<int> v = {3};
@@ -1420,8 +1425,13 @@ void LeetCodeTest::Init0(void)
             vector<vector<int>> p3 = permuteUnique2(v3);
             Logger() << p3;
             Util::Sort(p3);
+            vector<int> v4(v);
+            vector<vector<int>> p4 = permuteUnique3(v4);
+            Logger() << p4;
+            Util::Sort(p4);
             ASSERT1(0 == Util::Compare(p2, p));
             ASSERT1(0 == Util::Compare(p3, p));
+            ASSERT1(0 == Util::Compare(p4, p));
         };
         check({2, 2});
         check({3, 3, 3});
@@ -1431,6 +1441,7 @@ void LeetCodeTest::Init0(void)
         check({1, 2, 2});
         check({2, 1, 2});
         check({2, 2, 1});
+        check({0, 1, 0, 0, 9});
     });
 
     Add("48. Rotate Image", [&]() {
