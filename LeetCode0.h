@@ -363,7 +363,8 @@ namespace Test
                     if (twosum.find(t) != twosum.end())
                     {
                         for_each(
-                            twosum[t].begin(), twosum[t].end(), [&](pair<int, int> p) {
+                            twosum[t].begin(), twosum[t].end(), [&](pair<int, int> p)
+                            {
                                 vector<int> a = {p.first, p.second, num[i], num[j]};
                                 ans.insert(a);
                             });
@@ -390,70 +391,71 @@ namespace Test
             function<void(vector<int> &, int, int, const vector<int> &,
                           vector<vector<int>> &)>
                 solve = [&](vector<int> &n, int i, int t, const vector<int> &s,
-                            vector<vector<int>> &o) {
-                    // Search n[i..] for target sum t, where s contains candidates
-                    // found so far and o is the output collection.
-                    if (s.size() == 3)
+                            vector<vector<int>> &o)
+            {
+                // Search n[i..] for target sum t, where s contains candidates
+                // found so far and o is the output collection.
+                if (s.size() == 3)
+                {
+                    // Already have 3 numbers, just need one more
+                    int l = i;
+                    int h = n.size() - 1;
+                    int m;
+                    while (l <= h)
                     {
-                        // Already have 3 numbers, just need one more
-                        int l = i;
-                        int h = n.size() - 1;
-                        int m;
-                        while (l <= h)
+                        m = l + ((h - l) >> 1);
+                        if (t < n[m])
                         {
-                            m = l + ((h - l) >> 1);
-                            if (t < n[m])
-                            {
-                                if (l == m)
-                                    break;
-                                h = m - 1;
-                            }
-                            else if (n[m] < t)
-                            {
-                                if (m == h)
-                                    break;
-                                l = m + 1;
-                            }
-                            else
-                            {
-                                vector<int> v(s);
-                                v.push_back(n[m]);
+                            if (l == m)
+                                break;
+                            h = m - 1;
+                        }
+                        else if (n[m] < t)
+                        {
+                            if (m == h)
+                                break;
+                            l = m + 1;
+                        }
+                        else
+                        {
+                            vector<int> v(s);
+                            v.push_back(n[m]);
+                            o.push_back(v);
+                            break;
+                        }
+                    }
+                    return;
+                }
+                // while (i <= (int)n.size() - 4 + (int)s.size() && n[i] <= t) {
+                while (i <= (int)n.size() - 4 + (int)s.size())
+                {
+                    // Skip all the duplicates of n[i]
+                    int j = i;
+                    while (j + 1 < (int)n.size() && n[j + 1] == n[j])
+                        j++;
+                    // Now all n[i..j] are the same
+                    int k = i;    // k iterates from i to j
+                    int u = n[k]; // partial sum n[i..k]
+                    vector<int> v(s);
+                    while (k <= j)
+                    {
+                        v.push_back(n[k]);
+                        if (v.size() == 4)
+                        {
+                            if (u == t)
                                 o.push_back(v);
-                                break;
-                            }
+                            break;
                         }
-                        return;
-                    }
-                    // while (i <= (int)n.size() - 4 + (int)s.size() && n[i] <= t) {
-                    while (i <= (int)n.size() - 4 + (int)s.size())
-                    {
-                        // Skip all the duplicates of n[i]
-                        int j = i;
-                        while (j + 1 < (int)n.size() && n[j + 1] == n[j])
-                            j++;
-                        // Now all n[i..j] are the same
-                        int k = i;    // k iterates from i to j
-                        int u = n[k]; // partial sum n[i..k]
-                        vector<int> v(s);
-                        while (k <= j)
+                        else
                         {
-                            v.push_back(n[k]);
-                            if (v.size() == 4)
-                            {
-                                if (u == t)
-                                    o.push_back(v);
-                                break;
-                            }
-                            else
-                            {
-                                solve(n, j + 1, t - u, v, o);
-                            }
-                            k++;
-                            u += n[k];
+                            solve(n, j + 1, t - u, v, o);
                         }
-                        i = j + 1; // Move to next number, i.e., skip n[i..j]
+                        k++;
+                        u += n[k];
                     }
-                };
+                    i = j + 1; // Move to next number, i.e., skip n[i..j]
+                }
+            };
             vector<vector<int>> o;
             solve(num, 0, target, vector<int>{}, o);
             return o;
@@ -466,42 +468,43 @@ namespace Test
             function<void(vector<int> &, int, int, int, const vector<int> &,
                           vector<vector<int>> &)>
                 solve = [&](vector<int> &n, int i, int r, int t, const vector<int> &s,
-                            vector<vector<int>> &o) {
-                    // Search n[i..] for remaining r numbers whose sum is t
-                    // while (r > 0 && i <= (int)n.size() - r && n[i] <= t) {
-                    while (r > 0 && i <= (int)n.size() - r)
+                            vector<vector<int>> &o)
+            {
+                // Search n[i..] for remaining r numbers whose sum is t
+                // while (r > 0 && i <= (int)n.size() - r && n[i] <= t) {
+                while (r > 0 && i <= (int)n.size() - r)
+                {
+                    int j = i;
+                    while (j + 1 < (int)n.size() && n[j + 1] == n[j])
+                        j++;
+                    // Range num[i..j] contains the same number
+                    int k = i;
+                    int u = 0; // n[k];
+                    int c = 0; // 1;
+                    vector<int> v(s);
+                    // while (k <= j && u <= t && c <= r) {
+                    while (k <= j && c <= r)
                     {
-                        int j = i;
-                        while (j + 1 < (int)n.size() && n[j + 1] == n[j])
-                            j++;
-                        // Range num[i..j] contains the same number
-                        int k = i;
-                        int u = 0; // n[k];
-                        int c = 0; // 1;
-                        vector<int> v(s);
-                        // while (k <= j && u <= t && c <= r) {
-                        while (k <= j && c <= r)
+                        v.push_back(n[k]);
+                        u += n[k];
+                        c++;
+                        if (c == r)
                         {
-                            v.push_back(n[k]);
-                            u += n[k];
-                            c++;
-                            if (c == r)
-                            {
-                                if (u == t)
-                                    o.push_back(v);
-                                break;
-                            }
-                            else
-                            {
-                                solve(n, j + 1, r - c, t - u, v, o);
-                            }
-                            k++;
-                            // u += n[k];
-                            // c++;
+                            if (u == t)
+                                o.push_back(v);
+                            break;
                         }
-                        i = j + 1;
+                        else
+                        {
+                            solve(n, j + 1, r - c, t - u, v, o);
+                        }
+                        k++;
+                        // u += n[k];
+                        // c++;
                     }
-                };
+                    i = j + 1;
+                }
+            };
             vector<vector<int>> o;
             solve(num, 0, 4, target, vector<int>{}, o);
             return o;
@@ -595,24 +598,25 @@ namespace Test
             int count = 0;
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int)> solve =
-                [&](int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
-                        return;
-                    int t = A[a] + B[b] + C[c] + D[d];
-                    auto i = make_tuple(a, b, c, d);
-                    if (t == 0)
+                [&](int a, int b, int c, int d)
+            {
+                if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                    return;
+                int t = A[a] + B[b] + C[c] + D[d];
+                auto i = make_tuple(a, b, c, d);
+                if (t == 0)
+                {
+                    if (s.find(i) == s.end())
                     {
-                        if (s.find(i) == s.end())
-                        {
-                            count++;
-                            s.insert(i);
-                        }
+                        count++;
+                        s.insert(i);
                     }
-                    solve(a + 1, b, c, d);
-                    solve(a, b + 1, c, d);
-                    solve(a, b, c - 1, d);
-                    solve(a, b, c, d - 1);
-                };
+                }
+                solve(a + 1, b, c, d);
+                solve(a, b + 1, c, d);
+                solve(a, b, c - 1, d);
+                solve(a, b, c, d - 1);
+            };
             solve(0, 0, nC - 1, nD - 1);
             return count;
         }
@@ -643,7 +647,8 @@ namespace Test
         int fourSumCount3(vector<int> &A, vector<int> &B, vector<int> &C, vector<int> &D)
         {
             function<int(const vector<int> &, int &)> increase =
-                [&](const vector<int> &v, int &i) -> int {
+                [&](const vector<int> &v, int &i) -> int
+            {
                 int s = 1;
                 while (i + 1 < (int)v.size() && v[i] == v[i + 1])
                 {
@@ -653,7 +658,8 @@ namespace Test
                 return s;
             };
             function<int(const vector<int> &, int &)> decrease =
-                [&](const vector<int> &v, int &i) -> int {
+                [&](const vector<int> &v, int &i) -> int
+            {
                 int s = 1;
                 while (i > 0 && v[i - 1] == v[i])
                 {
@@ -673,31 +679,32 @@ namespace Test
             int count = 0;
             set<tuple<int, int, int, int>> s;
             function<void(int, int, int, int, int)> solve =
-                [&](int k, int a, int b, int c, int d) {
-                    if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
-                        return;
-                    cout << string(k, ' ') << "count(" << a << ", " << b
-                         << ", " << c << ", " << d << ") = ";
-                    int t = A[a] + B[b] + C[c] + D[d];
-                    auto i = make_tuple(a, b, c, d);
-                    int cA = increase(A, a);
-                    int cB = increase(B, b);
-                    int cC = decrease(C, c);
-                    int cD = decrease(D, d);
-                    if (t == 0)
+                [&](int k, int a, int b, int c, int d)
+            {
+                if (a < 0 || a >= nA || b < 0 || b >= nB || c < 0 || c >= nC || d < 0 || d >= nD)
+                    return;
+                cout << string(k, ' ') << "count(" << a << ", " << b
+                     << ", " << c << ", " << d << ") = ";
+                int t = A[a] + B[b] + C[c] + D[d];
+                auto i = make_tuple(a, b, c, d);
+                int cA = increase(A, a);
+                int cB = increase(B, b);
+                int cC = decrease(C, c);
+                int cD = decrease(D, d);
+                if (t == 0)
+                {
+                    if (s.find(i) == s.end())
                     {
-                        if (s.find(i) == s.end())
-                        {
-                            count += cA * cB * cC * cD;
-                            s.insert(i);
-                        }
+                        count += cA * cB * cC * cD;
+                        s.insert(i);
                     }
-                    cout << count << endl;
-                    solve(k + 1, a + 1, b, c, d);
-                    solve(k + 1, a, b + 1, c, d);
-                    solve(k + 1, a, b, c - 1, d);
-                    solve(k + 1, a, b, c, d - 1);
-                };
+                }
+                cout << count << endl;
+                solve(k + 1, a + 1, b, c, d);
+                solve(k + 1, a, b + 1, c, d);
+                solve(k + 1, a, b, c - 1, d);
+                solve(k + 1, a, b, c, d - 1);
+            };
             solve(0, 0, 0, nC - 1, nD - 1);
             return count;
         }
@@ -898,7 +905,8 @@ namespace Test
             // If n is even, its medians are indexed at (n-1)/2 and n/2
             // If n is odd, its median is indexed at (n-1)/2 == n/2
             function<double(const vector<int> &, const vector<int> &)> search =
-                [&](const vector<int> &s, const vector<int> &l) -> double {
+                [&](const vector<int> &s, const vector<int> &l) -> double
+            {
                 // Assume s.size() <= l.size()
                 int bs = 0;
                 int es = s.size() - 1;
@@ -1055,7 +1063,8 @@ namespace Test
         {
             if (s.empty())
                 return string();
-            function<int(int, int)> expand = [&](int i, int j) -> int {
+            function<int(int, int)> expand = [&](int i, int j) -> int
+            {
                 while (0 <= i && j < (int)s.size() && s[i] == s[j])
                 {
                     i--;
@@ -1086,7 +1095,8 @@ namespace Test
         string longestPalindrome2(const string &s)
         {
             function<pair<int, int>(int, int)>
-                expand = [&](int l, int r) -> pair<int, int> {
+                expand = [&](int l, int r) -> pair<int, int>
+            {
                 while (0 <= l && r < (int)s.size() && s[l] == s[r])
                 {
                     l--;
@@ -1158,13 +1168,15 @@ namespace Test
             if (s.empty())
                 return s;
             // #b#a#b#a#d#
-            auto getChar = [&](int i) -> char {
+            auto getChar = [&](int i) -> char
+            {
                 if ((i & 0x1) == 0)
                     return '#';
                 return s[i >> 1];
             };
             int n = (s.size() << 1) + 1;
-            auto expand = [&](int c, int &l) {
+            auto expand = [&](int c, int &l)
+            {
                 while (true)
                 {
                     int i = c - l;
@@ -1971,7 +1983,8 @@ namespace Test
             if (strs.size() == 1)
                 return strs[0];
             function<size_t(size_t, size_t)> prefix = [&](size_t l,
-                                                          size_t i) -> size_t {
+                                                          size_t i) -> size_t
+            {
                 size_t j = 0;
                 while (j < l && j < strs[i].size() && strs[0][j] == strs[i][j])
                     j++;
@@ -2060,7 +2073,8 @@ namespace Test
                 {'9', {'w', 'x', 'y', 'z'}}};
             vector<string> result;
             function<void(const string &, size_t)> combine = [&](const string &s,
-                                                                 size_t i) {
+                                                                 size_t i)
+            {
                 if (i == digits.size())
                 {
                     if (!s.empty())
@@ -2138,24 +2152,26 @@ namespace Test
             function<void(const string &, int, const string &,
                           map<char, vector<char>> &, vector<string> &)>
                 combine = [&](const string &s, int i, const string &r,
-                              map<char, vector<char>> &m, vector<string> &o) {
-                    if (i == (int)s.length())
-                    {
-                        o.push_back(r);
-                        return;
-                    }
-                    if (m.find(s[i]) == m.end())
-                    {
-                        // Why need this? Should not throw an error?
-                        combine(s, i + 1, r, m, o);
-                        return;
-                    }
-                    for_each(m[s[i]].begin(), m[s[i]].end(), [&](char c) {
-                        string t(r);
-                        t.append(1, c);
-                        combine(s, i + 1, t, m, o);
-                    });
-                };
+                              map<char, vector<char>> &m, vector<string> &o)
+            {
+                if (i == (int)s.length())
+                {
+                    o.push_back(r);
+                    return;
+                }
+                if (m.find(s[i]) == m.end())
+                {
+                    // Why need this? Should not throw an error?
+                    combine(s, i + 1, r, m, o);
+                    return;
+                }
+                for_each(m[s[i]].begin(), m[s[i]].end(), [&](char c)
+                         {
+                             string t(r);
+                             t.append(1, c);
+                             combine(s, i + 1, t, m, o);
+                         });
+            };
 
             map<char, vector<char>> m;
             m['0'] = {' '};
@@ -2376,7 +2392,8 @@ namespace Test
         }
         ListNode *mergeTwoLists3(ListNode *l1, ListNode *l2)
         {
-            function<ListNode *(ListNode *, ListNode *)> merge = [&](ListNode *n1, ListNode *n2) -> ListNode * {
+            function<ListNode *(ListNode *, ListNode *)> merge = [&](ListNode *n1, ListNode *n2) -> ListNode *
+            {
                 if (n1 == nullptr)
                     return n2;
                 if (n2 == nullptr)
@@ -2416,7 +2433,8 @@ namespace Test
         {
             vector<string> result;
             function<void(int, int, const string &)> gen = [&](int l, int r,
-                                                               const string &s) {
+                                                               const string &s)
+            {
                 if (l == n && r == n)
                 {
                     result.push_back(s);
@@ -2467,32 +2485,34 @@ namespace Test
                 solve = [&](       // l <= r
                             int l, // count '(' needed
                             int r, // count ')' needed
-                            map<pair<int, int>, vector<string>> &m) {
-                    pair<int, int> p = make_pair(l, r);
-                    m[p] = vector<string>{};
-                    string s;
-                    for (int i = 1; i < l; i++)
-                    {
-                        s.append(1, '(');
-                        string t(s);
-                        for (int j = 1; j <= r - l + i; j++)
-                        {
-                            t.append(1, ')');
-                            // l - i <= r - j
-                            pair<int, int> q = make_pair(l - i, r - j);
-                            if (m.find(q) == m.end())
-                                solve(l - i, r - j, m);
-                            for_each(m[q].begin(), m[q].end(), [&](string &u) {
-                                string v(t);
-                                v.append(u);
-                                m[p].push_back(v);
-                            });
-                        }
-                    }
+                            map<pair<int, int>, vector<string>> &m)
+            {
+                pair<int, int> p = make_pair(l, r);
+                m[p] = vector<string>{};
+                string s;
+                for (int i = 1; i < l; i++)
+                {
                     s.append(1, '(');
-                    s.append(r, ')');
-                    m[p].push_back(s);
-                };
+                    string t(s);
+                    for (int j = 1; j <= r - l + i; j++)
+                    {
+                        t.append(1, ')');
+                        // l - i <= r - j
+                        pair<int, int> q = make_pair(l - i, r - j);
+                        if (m.find(q) == m.end())
+                            solve(l - i, r - j, m);
+                        for_each(m[q].begin(), m[q].end(), [&](string &u)
+                                 {
+                                     string v(t);
+                                     v.append(u);
+                                     m[p].push_back(v);
+                                 });
+                    }
+                }
+                s.append(1, '(');
+                s.append(r, ')');
+                m[p].push_back(s);
+            };
             map<pair<int, int>, vector<string>> m;
             solve(n, n, m);
             pair<int, int> p = make_pair(n, n);
@@ -2508,21 +2528,22 @@ namespace Test
                 solve = [&](string s,
                             int l, // count '(' in s
                             int r, // count ')' in s
-                            int n, vector<string> &o) {
-                    for (int i = 1; i < n - l; i++)
-                    {
-                        s.append(1, '(');
-                        string t(s);
-                        for (int j = 1; j <= l - r + i; j++)
-                        {
-                            t.append(1, ')');
-                            solve(t, l + i, r + j, n, o);
-                        }
-                    }
+                            int n, vector<string> &o)
+            {
+                for (int i = 1; i < n - l; i++)
+                {
                     s.append(1, '(');
-                    s.append(n - r, ')');
-                    o.push_back(s);
-                };
+                    string t(s);
+                    for (int j = 1; j <= l - r + i; j++)
+                    {
+                        t.append(1, ')');
+                        solve(t, l + i, r + j, n, o);
+                    }
+                }
+                s.append(1, '(');
+                s.append(n - r, ')');
+                o.push_back(s);
+            };
 
             vector<string> result;
             string s;
@@ -2608,7 +2629,8 @@ namespace Test
         }
         ListNode *swapPairs2(ListNode *head)
         {
-            function<ListNode *(ListNode *)> solve = [&](ListNode *node) -> ListNode * {
+            function<ListNode *(ListNode *)> solve = [&](ListNode *node) -> ListNode *
+            {
                 if (node == nullptr || node->next == nullptr)
                     return node;
                 ListNode *next = node->next;
@@ -2709,7 +2731,8 @@ namespace Test
         ListNode *reverseKGroup3(ListNode *head, int k)
         {
             function<ListNode *(ListNode *)> reverse =
-                [&](ListNode *h) -> ListNode * {
+                [&](ListNode *h) -> ListNode *
+            {
                 int i = 0;
                 ListNode *t = h;
                 while (i < k - 1 && t != nullptr)
@@ -3473,16 +3496,18 @@ namespace Test
         vector<int> findSubstring(const string &s, const vector<string> &words)
         {
             function<void(const string &, const map<string, int> &)>
-                pmap = [&](const string &msg, const map<string, int> &m) {
-                    cout << msg << ": {";
-                    for (const auto &p : m)
-                    {
-                        cout << "{" << p.first << ": " << p.second << "}, ";
-                    }
-                    cout << "}" << endl;
-                };
+                pmap = [&](const string &msg, const map<string, int> &m)
+            {
+                cout << msg << ": {";
+                for (const auto &p : m)
+                {
+                    cout << "{" << p.first << ": " << p.second << "}, ";
+                }
+                cout << "}" << endl;
+            };
             function<bool(const map<string, int> &, const map<string, int> &)>
-                match = [&](const map<string, int> &a, const map<string, int> &b) -> bool {
+                match = [&](const map<string, int> &a, const map<string, int> &b) -> bool
+            {
                 if (a.size() != b.size())
                     return false;
                 for (const auto &p : a)
@@ -3594,7 +3619,8 @@ namespace Test
         vector<int> findSubstring3(const string &s, const vector<string> &words)
         {
             function<bool(const map<char, int> &, const map<char, int> &)> equal =
-                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool {
+                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool
+            {
                 if (m1.size() != m2.size())
                     return false;
                 for (const auto &p : m1)
@@ -3870,7 +3896,8 @@ namespace Test
             int len = s.length();
             if (len == 0)
                 return 0;
-            function<bool(int &, int &)> expand = [&](int &j, int &k) -> bool {
+            function<bool(int &, int &)> expand = [&](int &j, int &k) -> bool
+            {
                 bool e = false;
                 while (j - 1 >= 0 && k + 1 < len && s[j - 1] == '(' &&
                        s[k + 1] == ')')
@@ -4646,7 +4673,8 @@ namespace Test
         void solveSudoku(vector<vector<char>> &board)
         {
             function<bool(size_t, size_t, vector<vector<char>> &)> solve =
-                [&](size_t i, size_t j, vector<vector<char>> &b) -> bool {
+                [&](size_t i, size_t j, vector<vector<char>> &b) -> bool
+            {
                 if (i == 9 && j == 0)
                     return true;
                 if (b[i][j] != '.')
@@ -4703,15 +4731,16 @@ namespace Test
         void solveSudoku2(vector<vector<char>> &board)
         {
             function<void(int &, int, int &, int)>
-                oneStep = [&](int &i, int r, int &j, int c) {
-                    j++;
-                    j = j % c;
-                    if (j == 0)
-                    {
-                        i++;
-                        i = i % r;
-                    }
-                };
+                oneStep = [&](int &i, int r, int &j, int c)
+            {
+                j++;
+                j = j % c;
+                if (j == 0)
+                {
+                    i++;
+                    i = i % r;
+                }
+            };
             function<bool(vector<vector<char>> &, int, int, vector<set<char>> &,
                           vector<set<char>> &, vector<vector<set<char>>> &,
                           map<pair<int, int>, set<char>> &)>
@@ -4723,7 +4752,8 @@ namespace Test
                             cell, // existing characters in every 3x3 cell
                         map<pair<int, int>, set<char>>
                             &m // available characters for every empty cell
-                        ) -> bool {
+                        ) -> bool
+            {
                 while (i != (int)b.size() - 1 || j != (int)b[i].size() - 1)
                 {
                     if (b[i][j] == '.')
@@ -4896,21 +4926,22 @@ namespace Test
         {
             vector<vector<int>> result;
             function<void(size_t, int, vector<int> &)>
-                solve = [&](size_t i, int t, vector<int> &v) {
-                    if (i >= candidates.size())
-                        return;
-                    if (candidates[i] <= t)
-                    {
-                        vector<int> v1(v);
-                        v1.push_back(candidates[i]);
-                        if (candidates[i] == t)
-                            result.push_back(v1);
-                        else
-                            solve(i, t - candidates[i], v1);
-                    }
-                    vector<int> v2(v);
-                    solve(i + 1, t, v2);
-                };
+                solve = [&](size_t i, int t, vector<int> &v)
+            {
+                if (i >= candidates.size())
+                    return;
+                if (candidates[i] <= t)
+                {
+                    vector<int> v1(v);
+                    v1.push_back(candidates[i]);
+                    if (candidates[i] == t)
+                        result.push_back(v1);
+                    else
+                        solve(i, t - candidates[i], v1);
+                }
+                vector<int> v2(v);
+                solve(i + 1, t, v2);
+            };
             vector<int> v;
             solve(0, target, v);
             return result;
@@ -4920,20 +4951,21 @@ namespace Test
         {
             vector<vector<int>> result;
             function<void(size_t, int, vector<int> &)>
-                solve = [&](size_t i, int t, vector<int> &v) {
-                    if (i >= candidates.size())
-                        return;
-                    if (candidates[i] <= t)
-                    {
-                        v.push_back(candidates[i]);
-                        if (candidates[i] == t)
-                            result.push_back(v);
-                        else
-                            solve(i, t - candidates[i], v);
-                        v.pop_back();
-                    }
-                    solve(i + 1, t, v);
-                };
+                solve = [&](size_t i, int t, vector<int> &v)
+            {
+                if (i >= candidates.size())
+                    return;
+                if (candidates[i] <= t)
+                {
+                    v.push_back(candidates[i]);
+                    if (candidates[i] == t)
+                        result.push_back(v);
+                    else
+                        solve(i, t - candidates[i], v);
+                    v.pop_back();
+                }
+                solve(i + 1, t, v);
+            };
             vector<int> v;
             solve(0, target, v);
             return result;
@@ -4943,21 +4975,22 @@ namespace Test
             vector<vector<int>> result = vector<vector<int>>{};
             sort(candidates.begin(), candidates.end());
             function<void(int, int, vector<int> &)>
-                solve = [&](int i, int t, vector<int> &s) {
-                    for (int j = i; j < (int)candidates.size(); j++)
+                solve = [&](int i, int t, vector<int> &s)
+            {
+                for (int j = i; j < (int)candidates.size(); j++)
+                {
+                    if (candidates[j] > t)
+                        break;
+                    vector<int> r(s);
+                    r.push_back(candidates[j]);
+                    if (candidates[j] == t)
                     {
-                        if (candidates[j] > t)
-                            break;
-                        vector<int> r(s);
-                        r.push_back(candidates[j]);
-                        if (candidates[j] == t)
-                        {
-                            result.push_back(r);
-                            break;
-                        }
-                        solve(j, t - candidates[j], r);
+                        result.push_back(r);
+                        break;
                     }
-                };
+                    solve(j, t - candidates[j], r);
+                }
+            };
             vector<int> s;
             solve(0, target, s);
             return result;
@@ -4966,7 +4999,8 @@ namespace Test
         {
             sort(candidates.begin(), candidates.end());
             map<pair<int, int>, vector<vector<int>>> m;
-            function<void(int, int)> solve = [&](int i, int t) {
+            function<void(int, int)> solve = [&](int i, int t)
+            {
                 pair<int, int> p = make_pair(i, t);
                 if (m.find(p) != m.end())
                     return;
@@ -4983,11 +5017,12 @@ namespace Test
                     int d = t - candidates[j];
                     solve(j, d);
                     pair<int, int> p1 = make_pair(j, d);
-                    for_each(m[p1].begin(), m[p1].end(), [&](vector<int> &s) {
-                        vector<int> r(s);
-                        r.insert(r.begin(), candidates[j]);
-                        m[p].push_back(r);
-                    });
+                    for_each(m[p1].begin(), m[p1].end(), [&](vector<int> &s)
+                             {
+                                 vector<int> r(s);
+                                 r.insert(r.begin(), candidates[j]);
+                                 m[p].push_back(r);
+                             });
                 }
             };
             solve(0, target);
@@ -5049,26 +5084,27 @@ namespace Test
             vector<vector<int>> result;
             sort(candidates.begin(), candidates.end());
             function<void(size_t, int, vector<int> &)>
-                solve = [&](size_t i, int t, vector<int> &v) {
-                    if (i >= candidates.size() || candidates[i] > t)
-                        return;
-                    size_t j = i;
-                    while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
-                        j++;
-                    int s = 0;
-                    for (size_t k = i; k <= j; k++)
-                    {
-                        s += candidates[k];
-                        v.push_back(candidates[k]);
-                        if (s == t)
-                            result.push_back(v);
-                        else
-                            solve(j + 1, t - s, v);
-                    }
-                    for (size_t k = i; k <= j; k++)
-                        v.pop_back();
-                    solve(j + 1, t, v);
-                };
+                solve = [&](size_t i, int t, vector<int> &v)
+            {
+                if (i >= candidates.size() || candidates[i] > t)
+                    return;
+                size_t j = i;
+                while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                    j++;
+                int s = 0;
+                for (size_t k = i; k <= j; k++)
+                {
+                    s += candidates[k];
+                    v.push_back(candidates[k]);
+                    if (s == t)
+                        result.push_back(v);
+                    else
+                        solve(j + 1, t - s, v);
+                }
+                for (size_t k = i; k <= j; k++)
+                    v.pop_back();
+                solve(j + 1, t, v);
+            };
             vector<int> v;
             solve(0, target, v);
             return result;
@@ -5081,25 +5117,26 @@ namespace Test
             // visited?]
             std::sort(candidates.begin(), candidates.end());
             function<void(size_t, int, vector<int> &)>
-                solve = [&](size_t i, int t, vector<int> &c) {
-                    if (i >= candidates.size() || candidates[i] > t)
-                        return;
-                    vector<int> c1(c);
-                    c1.push_back(candidates[i]);
-                    if (candidates[i] == t)
-                    {
-                        result.push_back(c1);
-                        return;
-                    }
-                    solve(i + 1, t - candidates[i], c1);
-                    while (i + 1 < candidates.size() &&
-                           candidates[i] == candidates[i + 1])
-                    {
-                        // This is needed to eliminate duplicate solutions
-                        i++;
-                    }
-                    solve(i + 1, t, c);
-                };
+                solve = [&](size_t i, int t, vector<int> &c)
+            {
+                if (i >= candidates.size() || candidates[i] > t)
+                    return;
+                vector<int> c1(c);
+                c1.push_back(candidates[i]);
+                if (candidates[i] == t)
+                {
+                    result.push_back(c1);
+                    return;
+                }
+                solve(i + 1, t - candidates[i], c1);
+                while (i + 1 < candidates.size() &&
+                       candidates[i] == candidates[i + 1])
+                {
+                    // This is needed to eliminate duplicate solutions
+                    i++;
+                }
+                solve(i + 1, t, c);
+            };
             vector<int> s;
             solve(0, target, s);
             return result;
@@ -5110,29 +5147,30 @@ namespace Test
             // Sort so we can eliminate duplicate solutions later
             std::sort(candidates.begin(), candidates.end());
             function<void(size_t, int, vector<int> &)>
-                solve = [&](size_t i, int t, vector<int> &c) {
-                    if (i >= candidates.size() || candidates[i] > t)
-                        return;
-                    size_t j = i;
-                    while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
-                        j++;
-                    int s = 0;
-                    for (size_t k = i; k <= j; k++)
+                solve = [&](size_t i, int t, vector<int> &c)
+            {
+                if (i >= candidates.size() || candidates[i] > t)
+                    return;
+                size_t j = i;
+                while (j + 1 < candidates.size() && candidates[j] == candidates[j + 1])
+                    j++;
+                int s = 0;
+                for (size_t k = i; k <= j; k++)
+                {
+                    s += candidates[k];
+                    if (s > t)
+                        break;
+                    vector<int> c1(c);
+                    c1.insert(c1.end(), k - i + 1, candidates[i]);
+                    if (s == t)
                     {
-                        s += candidates[k];
-                        if (s > t)
-                            break;
-                        vector<int> c1(c);
-                        c1.insert(c1.end(), k - i + 1, candidates[i]);
-                        if (s == t)
-                        {
-                            result.push_back(c1);
-                            break;
-                        }
-                        solve(j + 1, t - s, c1);
+                        result.push_back(c1);
+                        break;
                     }
-                    solve(j + 1, t, c);
-                };
+                    solve(j + 1, t - s, c1);
+                }
+                solve(j + 1, t, c);
+            };
             vector<int> s;
             solve(0, target, s);
             return result;
@@ -5302,7 +5340,8 @@ namespace Test
         {
             if (height.size() <= 2)
                 return 0;
-            function<int(int, int)> count = [&](int i, int j) -> int {
+            function<int(int, int)> count = [&](int i, int j) -> int
+            {
                 int m = min(height[i], height[j]);
                 int s = 0;
                 for (int k = i + 1; k < j; k++)
@@ -5407,7 +5446,8 @@ namespace Test
             if (num1 == "0" || num2 == "0")
                 return "0";
             function<string(const string &, char)>
-                mul = [&](const string &s, char d) -> string {
+                mul = [&](const string &s, char d) -> string
+            {
                 string r;
                 char c = '0';
                 int i = s.size() - 1;
@@ -5430,7 +5470,8 @@ namespace Test
                 return r;
             };
             function<string(const string &, const string &)> add =
-                [&](const string &s1, const string &s2) -> string {
+                [&](const string &s1, const string &s2) -> string
+            {
                 string r;
                 char c = '0';
                 int i = s1.size() - 1;
@@ -5470,9 +5511,12 @@ namespace Test
                 return string("0");
             if (num2.length() == 1 && num2[0] == '0')
                 return string("0");
-            function<int(char)> toDigit = [&](char c) { return c - '0'; };
-            function<char(int)> toChar = [&](int i) { return i + '0'; };
-            function<string(string, char)> multiplyDigit = [&](string str, char ch) {
+            function<int(char)> toDigit = [&](char c)
+            { return c - '0'; };
+            function<char(int)> toChar = [&](int i)
+            { return i + '0'; };
+            function<string(string, char)> multiplyDigit = [&](string str, char ch)
+            {
                 string result;
                 int i = str.length() - 1;
                 int c = 0;
@@ -5487,7 +5531,8 @@ namespace Test
                     result.insert(result.begin(), toChar(c));
                 return result;
             };
-            function<string(string, string)> sum = [&](string str1, string str2) {
+            function<string(string, string)> sum = [&](string str1, string str2)
+            {
                 string result;
                 int i = str1.length() - 1;
                 int j = str2.length() - 1;
@@ -5546,7 +5591,8 @@ namespace Test
         // substring "dce". Example 5: Input: s = "acdcb" p = "a*c?b" Output: false
         bool isMatch(string s, string p)
         {
-            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool {
+            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool
+            {
                 if (i == s.size() && j == p.size())
                     return true;
                 if (j == p.size())
@@ -5575,7 +5621,8 @@ namespace Test
         bool isMatch2(string s, string p)
         {
             map<pair<size_t, size_t>, bool> m;
-            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool {
+            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool
+            {
                 pair<size_t, size_t> v = make_pair(i, j);
                 if (m.find(v) != m.end())
                     return m[v];
@@ -5657,7 +5704,8 @@ namespace Test
         }
         bool isMatch(const char *s, const char *p)
         {
-            function<int(const char *)> length = [&](const char *c) -> int {
+            function<int(const char *)> length = [&](const char *c) -> int
+            {
                 // Count characters in c that is not '*'
                 int i = 0;
                 while (*c != '\0')
@@ -5672,7 +5720,8 @@ namespace Test
                           map<pair<const char *, const char *>, bool> &)>
                 isMatchInternal =
                     [&](const char *s, const char *p,
-                        map<pair<const char *, const char *>, bool> &m) -> bool {
+                        map<pair<const char *, const char *>, bool> &m) -> bool
+            {
                 pair<const char *, const char *> c = make_pair(s, p);
                 if (m.find(c) != m.end())
                     return m[c];
@@ -5827,7 +5876,8 @@ namespace Test
         vector<vector<int>> permute(vector<int> &nums)
         {
             vector<vector<int>> result;
-            function<void(size_t)> solve = [&](size_t i) {
+            function<void(size_t)> solve = [&](size_t i)
+            {
                 if (i + 1 == nums.size())
                 {
                     result.push_back(nums);
@@ -5847,19 +5897,20 @@ namespace Test
         {
             vector<vector<int>> result = vector<vector<int>>{};
             function<void(size_t, vector<int> &)>
-                solve = [&](size_t i, vector<int> &n) {
-                    if (i == nums.size())
-                    {
-                        result.push_back(n);
-                        return;
-                    }
-                    for (size_t j = i; j < nums.size(); j++)
-                    {
-                        vector<int> n1(n);
-                        swap(n1[i], n1[j]);
-                        solve(i + 1, n1);
-                    }
-                };
+                solve = [&](size_t i, vector<int> &n)
+            {
+                if (i == nums.size())
+                {
+                    result.push_back(n);
+                    return;
+                }
+                for (size_t j = i; j < nums.size(); j++)
+                {
+                    vector<int> n1(n);
+                    swap(n1[i], n1[j]);
+                    solve(i + 1, n1);
+                }
+            };
             solve(0, nums);
             return result;
         }
@@ -5867,27 +5918,28 @@ namespace Test
         {
             vector<vector<int>> result = vector<vector<int>>{};
             function<void(size_t, vector<int> &)>
-                solve = [&](size_t i, vector<int> &n) {
-                    if (i == nums.size())
+                solve = [&](size_t i, vector<int> &n)
+            {
+                if (i == nums.size())
+                {
+                    result.push_back(n);
+                    return;
+                }
+                for (size_t j = i; j < nums.size(); j++)
+                {
+                    vector<int> n1(n);
+                    if (j > i)
                     {
-                        result.push_back(n);
-                        return;
+                        // Erase and insert, which effectively push ns[i] one more
+                        // positin to the right. This way keeps the lexicographical
+                        // order.
+                        int t = n1[j];
+                        n1.erase(n1.begin() + j);
+                        n1.insert(n1.begin() + i, t);
                     }
-                    for (size_t j = i; j < nums.size(); j++)
-                    {
-                        vector<int> n1(n);
-                        if (j > i)
-                        {
-                            // Erase and insert, which effectively push ns[i] one more
-                            // positin to the right. This way keeps the lexicographical
-                            // order.
-                            int t = n1[j];
-                            n1.erase(n1.begin() + j);
-                            n1.insert(n1.begin() + i, t);
-                        }
-                        solve(i + 1, n1);
-                    }
-                };
+                    solve(i + 1, n1);
+                }
+            };
             solve(0, nums);
             return result;
         }
@@ -5905,7 +5957,8 @@ namespace Test
         vector<vector<int>> permuteUnique(vector<int> &nums)
         {
             vector<vector<int>> result;
-            function<void(size_t)> solve = [&](size_t i) {
+            function<void(size_t)> solve = [&](size_t i)
+            {
                 if (i + 1 == nums.size())
                 {
                     result.push_back(nums);
@@ -5929,24 +5982,25 @@ namespace Test
         {
             vector<vector<int>> result = vector<vector<int>>{};
             function<void(size_t, vector<int> &)>
-                solve = [&](size_t i, vector<int> &n) {
-                    if (i == nums.size())
+                solve = [&](size_t i, vector<int> &n)
+            {
+                if (i == nums.size())
+                {
+                    result.push_back(n);
+                    return;
+                }
+                set<int> visited = {};
+                for (size_t j = i; j < nums.size(); j++)
+                {
+                    if (visited.find(n[j]) == visited.end())
                     {
-                        result.push_back(n);
-                        return;
+                        vector<int> n1(n);
+                        swap(n1[i], n1[j]);
+                        solve(i + 1, n1);
+                        visited.insert(n[j]);
                     }
-                    set<int> visited = {};
-                    for (size_t j = i; j < nums.size(); j++)
-                    {
-                        if (visited.find(n[j]) == visited.end())
-                        {
-                            vector<int> n1(n);
-                            swap(n1[i], n1[j]);
-                            solve(i + 1, n1);
-                            visited.insert(n[j]);
-                        }
-                    }
-                };
+                }
+            };
             solve(0, nums);
             return result;
         }
@@ -5955,7 +6009,8 @@ namespace Test
         {
             sort(nums.begin(), nums.end());
             vector<vector<int>> output;
-            function<void(size_t)> permute = [&](size_t i) {
+            function<void(size_t)> permute = [&](size_t i)
+            {
                 print(string(i << 2, ' '), nums);
                 if (i + 1 == nums.size())
                 {
@@ -5976,6 +6031,309 @@ namespace Test
             };
             permute(0);
             return output;
+        }
+
+        // 48. Rotate Image
+        // You are given an n x n 2D matrix representing an image. Rotate the image
+        // by 90 degrees (clockwise). Note: You have to rotate the image in-place, which
+        // means you have to modify the input 2D matrix directly. DO NOT allocate
+        // another 2D matrix and do the rotation. Example 1: Given input matrix =
+        // [
+        //   [1,2,3],
+        //   [4,5,6],
+        //   [7,8,9]
+        // ],
+        // rotate the input matrix in-place such that it becomes:
+        // [
+        //   [7,4,1],
+        //   [8,5,2],
+        //   [9,6,3]
+        // ]
+        // Example 2: Given input matrix =
+        // [
+        //   [ 5, 1, 9,11],
+        //   [ 2, 4, 8,10],
+        //   [13, 3, 6, 7],
+        //   [15,14,12,16]
+        // ],
+        // rotate the input matrix in-place such that it becomes:
+        // [
+        //   [15,13, 2, 5],
+        //   [14, 3, 4, 1],
+        //   [12, 6, 8, 9],
+        //   [16, 7,10,11]
+        // ]
+        void rotate(vector<vector<int>> &matrix)
+        {
+            // Swap up-right with bottom-left
+            for (size_t i = 1; i < matrix.size(); i++)
+            {
+                for (size_t j = 0; j < i; j++)
+                    swap(matrix[i][j], matrix[j][i]);
+            }
+            size_t n = matrix[0].size();
+            size_t c = n >> 1;
+            // Swap left with right
+            for (size_t i = 0; i < matrix.size(); i++)
+            {
+                for (size_t j = 0; j < c; j++)
+                {
+                    swap(matrix[i][j], matrix[i][n - 1 - j]);
+                }
+            }
+        }
+        void rotate2(vector<vector<int>> &matrix)
+        {
+            int d = matrix.size();
+            // Swap up-left with bottom-right
+            for (int i = 0; i < d - 1; i++)
+            {
+                for (int j = 0; j < d - i - 1; j++)
+                {
+                    swap(matrix[i][j], matrix[d - j - 1][d - i - 1]);
+                }
+            }
+            // Swap up with bottom
+            for (int i = 0; i < (d >> 1); i++)
+            {
+                for (int j = 0; j < d; j++)
+                {
+                    swap(matrix[i][j], matrix[d - i - 1][j]);
+                }
+            }
+        }
+
+        // 49. Group Anagrams
+        // Given an array of strings, group anagrams together.
+        // Example:
+        // Input: ["eat", "tea", "tan", "ate", "nat", "bat"],
+        // Output:
+        // [
+        //   ["ate","eat","tea"],
+        //   ["nat","tan"],
+        //   ["bat"]
+        // ]
+        // Note: All inputs will be in lowercase. The order of your output does not
+        // matter.
+        vector<vector<string>> groupAnagrams(const vector<string> &strs)
+        {
+            map<string, vector<size_t>> m;
+            for (size_t i = 0; i < strs.size(); i++)
+            {
+                string s(strs[i]);
+                sort(s.begin(), s.end());
+                if (m.find(s) == m.end())
+                    m[s] = {i};
+                else
+                    m[s].push_back(i);
+            }
+            vector<vector<string>> result;
+            for (auto it = m.begin(); it != m.end(); it++)
+            {
+                vector<string> v;
+                for (size_t i = 0; i < it->second.size(); i++)
+                    v.push_back(strs[it->second[i]]);
+                result.push_back(v);
+            }
+            return result;
+        }
+        vector<vector<string>> groupAnagrams2(const vector<string> &strs)
+        {
+            vector<vector<string>> result = vector<vector<string>>{};
+            map<string, vector<string>> m = map<string, vector<string>>{};
+            for_each(strs.begin(), strs.end(), [&](const string &s)
+                     {
+                         string k(s);
+                         sort(k.begin(), k.end());
+                         if (m.find(k) == m.end())
+                             m[k] = vector<string>{};
+                         m[k].push_back(s);
+                     });
+            for (map<string, vector<string>>::iterator it = m.begin(); it != m.end();
+                 it++)
+            {
+                result.push_back(it->second);
+            }
+            return result;
+        }
+
+        // 50. Pow(x, n)
+        // Implement pow(x, n), which calculates x raised to the power n (x^n).
+        // Example 1:
+        // Input: 2.00000, 10
+        // Output: 1024.00000
+        // Example 2:
+        // Input: 2.10000, 3
+        // Output: 9.26100
+        // Example 3:
+        // Input: 2.00000, -2
+        // Output: 0.25000
+        // Explanation: 2^(-2) = 1/(2^2) = 1/4 = 0.25
+        // Note:
+        // -100.0 < x < 100.0
+        // n is a 32-bit signed integer, within the range [−2^31, 2^31 − 1]
+        // Keep dividing n by 2 and get the remainder r (0 or 1)
+        // then there is a sequence:
+        // n n_1 n_2 n_3 n_4 ...... n_k (= 0)
+        //   r_1 r_2 r_3 r_4 ...... r_k (= 0)
+        // The bits of n are {r_k, ..., r_2, r_1}
+        // x^n = x^{r_1} * (x^2)^{n_1}
+        //     = x^{r_1} * (x^2)^{r_2} * (x^4)^{n_2}
+        //     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{n_3}
+        //     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{n_4}
+        //     ......
+        //     = x^{r_1} * (x^2)^{r_2} * (x^4)^{r_3} * (x^8)^{r_4} * (x^16)^{r_5} ......
+        //     * (x^{2^(k-1)})^{r_(k-1)} * (x^{2^k})^{n_k}
+        double myPow(double x, int n)
+        {
+            double y = 1;
+            bool negative = false;
+            if (n < 0)
+            {
+                negative = true;
+                if (n == INT_MIN)
+                {
+                    y = x;
+                    n = -(n + 1);
+                }
+                else
+                {
+                    n = -n;
+                }
+            }
+            while (n > 0)
+            {
+                if ((n & 0x1) > 0)
+                {
+                    y *= x;
+                }
+                n = n >> 1;
+                x *= x;
+            }
+            return negative ? 1 / y : y;
+        }
+        double myPow2(double x, int n)
+        {
+            // Use long long to avoid overflow when flip the sign.
+            long long n1 = n;
+            bool inverse = false;
+            if (n1 < 0)
+            {
+                inverse = true;
+                n1 = -n1;
+            }
+            // Use long long to avoid overflow when left-shift the bits.
+            long long d;
+            double y;
+            double z = 1;
+            while (n1 > 0)
+            {
+                d = 1;
+                y = x; // = x^d
+                // loop x^2, x^4, x^8, ...
+                while ((d << 1) <= n1)
+                {
+                    y *= y;
+                    d = d << 1;
+                }
+                z *= y;
+                n1 -= d;
+            }
+            return inverse ? 1 / z : z;
+        }
+        double myPow3(double x, int n)
+        {
+            if (x == 0)
+                return 0;
+            if (n == 0)
+                return 1;
+            long long n1 = n;
+            bool negative = n1 < 0;
+            if (negative)
+                n1 = -n1;
+            double m = x;
+            double p = (n1 & 0x1) == 1 ? x : 1;
+            n1 = n1 >> 1;
+            while (n1 > 0)
+            {
+                m = m * m;
+                if ((n1 & 0x1) == 1)
+                {
+                    p = p * m;
+                }
+                n1 = n1 >> 1;
+            }
+            if (negative)
+                p = 1 / p;
+            return p;
+        }
+        double myPow4(double x, int n)
+        {
+            if (x == 0)
+                return 0;
+            if (n == 0)
+                return 1;
+            long long n1 = n;
+            bool negative = n1 < 0;
+            if (negative)
+                n1 = -n1;
+            double m = x;
+            double p = 1;
+            while (n1 > 0)
+            {
+                if ((n1 & 0x1) == 1)
+                {
+                    p = p * m;
+                }
+                m = m * m;
+                n1 = n1 >> 1;
+            }
+            if (negative)
+                p = 1 / p;
+            return p;
+        }
+        double myPow5(double x, int n)
+        {
+            if (x == 0)
+                return 0;
+            if (n == 0)
+                return 1;
+            long long n1 = n;
+            bool negative = n1 < 0;
+            if (negative)
+                n1 = -n1;
+            double p = (n1 & 0x1) == 1 ? x : 1;
+            p = p * myPow5(x * x, n1 >> 1);
+            if (negative)
+                p = 1 / p;
+            return p;
+        }
+        double myPow6(double x, int n)
+        {
+            if (x == 0)
+                return 0;
+            map<int, double> m;
+            function<double(int)> p = [&](int k) -> double
+            {
+                if (m.find(k) != m.end())
+                    return m[k];
+                if (k == 0)
+                    m[k] = 1;
+                else if (k == 1)
+                    m[k] = x;
+                else
+                {
+                    m[k] = p(k >> 1) * p(k >> 1);
+                    if ((k & 0x1) == 1)
+                        m[k] *= x;
+                }
+                return m[k];
+            };
+            if (n >= 0)
+                return p(n);
+            if (n == INT_MIN)
+                return 1 / (x * p(INT_MAX));
+            return 1 / p(-n);
         }
 
     } // namespace LeetCode
