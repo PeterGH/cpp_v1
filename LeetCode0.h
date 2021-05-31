@@ -6336,6 +6336,399 @@ namespace Test
             return 1 / p(-n);
         }
 
+        // 51. N-Queens
+        // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
+        // such that no two queens attack each other. Given an integer n, return all
+        // distinct solutions to the n-queens puzzle. Each solution contains a distinct
+        // board configuration of the n-queens' placement, where 'Q' and '.' both
+        // indicate a queen and an empty space respectively.
+        // Example:
+        // Input: 4
+        // Output: [
+        //  [".Q..",  // Solution 1
+        //   "...Q",
+        //   "Q...",
+        //   "..Q."],
+        //  ["..Q.",  // Solution 2
+        //   "Q...",
+        //   "...Q",
+        //   ".Q.."]
+        // ]
+        // Explanation: There exist two distinct solutions to the 4-queens puzzle as
+        // shown above.
+        vector<vector<string>> solveNQueens(int n)
+        {
+            vector<vector<string>> result;
+            function<void(int, vector<string> &)>
+                solve = [&](int i, vector<string> &b)
+            {
+                if (i == n)
+                {
+                    result.push_back(b);
+                    return;
+                }
+                for (int j = 0; j < n; j++)
+                {
+                    bool ok = true;
+                    for (int k = i - 1; k >= 0; k--)
+                    {
+                        if (j - (i - k) >= 0 && b[k][j - (i - k)] == 'Q')
+                        {
+                            ok = false;
+                            break;
+                        }
+                        if (b[k][j] == 'Q')
+                        {
+                            ok = false;
+                            break;
+                        }
+                        if (j + (i - k) < n && b[k][j + (i - k)] == 'Q')
+                        {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if (!ok)
+                        continue;
+                    b[i][j] = 'Q';
+                    solve(i + 1, b);
+                    b[i][j] = '.';
+                }
+            };
+            vector<string> board(n, string(n, '.'));
+            solve(0, board);
+            return result;
+        }
+        vector<vector<string>> solveNQueens2(int n)
+        {
+            if (n <= 0)
+                return vector<vector<string>>{};
+            function<void(vector<string> &, int, vector<vector<string>> &)> solve =
+                [&](vector<string> &board, size_t line,
+                    vector<vector<string>> &solutions)
+            {
+                for (size_t i = 0; i < board[line].size(); i++)
+                {
+                    if (board[line][i] == '.')
+                    {
+                        vector<string> next(board);
+                        next[line][i] = 'Q';
+                        if (line == board.size() - 1)
+                        {
+                            for_each(next.begin(), next.end(), [&](string &l)
+                                     {
+                                         for (size_t j = 0; j < l.length(); j++)
+                                         {
+                                             if (l[j] == 'X')
+                                                 l[j] = '.';
+                                         }
+                                     });
+                            solutions.push_back(next);
+                        }
+                        else
+                        {
+                            int a = i;
+                            int b = i;
+                            for (size_t j = line + 1; j < board.size(); j++)
+                            {
+                                a--;
+                                if (a >= 0)
+                                    next[j][a] = 'X';
+                                next[j][i] = 'X';
+                                b++;
+                                if (b < (int)next[j].size())
+                                    next[j][b] = 'X';
+                            }
+                            solve(next, line + 1, solutions);
+                        }
+                    }
+                }
+            };
+            vector<vector<string>> solutions;
+            vector<string> board(n, string(n, '.'));
+            solve(board, 0, solutions);
+            return solutions;
+        }
+        // (-7,0)
+        // (-6,0)
+        // (-5,0)
+        // (-4,0)
+        // (-3,0)
+        // (-2,0)
+        // (-1,0)
+        //  (0,0) (0,1) (0,2) (0,3) (0,4) (0,5) (0,6) (0,7) (0,8) (0,9) (0,10) (0,11) (0,12) (0,13) (0,14)
+        //  (1,0) (1,1) (1,2) (1,3) (1,4) (1,5) (1,6) (1,7)
+        //  (2,0) (2,1) (2,2) (2,3) (2,4) (2,5) (2,6) (2,7)
+        //  (3,0) (3,1) (3,2) (3,3) (3,4) (3,5) (3,6) (3,7)
+        //  (4,0) (4,1) (4,2) (4,3) (4,4) (4,5) (4,6) (4,7)
+        //  (5,0) (5,1) (5,2) (5,3) (5,4) (5,5) (5,6) (5,7)
+        //  (6,0) (6,1) (6,2) (6,3) (6,4) (6,5) (6,6) (6,7)
+        //  (7,0) (7,1) (7,2) (7,3) (7,4) (7,5) (7,6) (7,7)
+        vector<vector<string>> solveNQueens3(int n)
+        {
+            vector<vector<string>> output;
+            vector<bool> column(n, false); // whether column j is occupied
+            // diag from up-left to bottom-right
+            // (i,j) mapped to i - j + n - 1
+            vector<bool> diag1(n + n - 1, false);
+            // diag from up-right to bottom-left
+            // (i,j) mapped to i + j
+            vector<bool> diag2(n + n - 1, false);
+            function<void(int, vector<string> &)>
+                solve = [&](int i, vector<string> &b)
+            {
+                if (i == n)
+                {
+                    output.push_back(b);
+                    return;
+                }
+                for (int j = 0; j < n; j++)
+                {
+                    if (column[j])
+                        continue;
+                    int d1 = i - j + n - 1;
+                    if (diag1[d1])
+                        continue;
+                    int d2 = i + j;
+                    if (diag2[d2])
+                        continue;
+                    column[j] = true;
+                    diag1[d1] = true;
+                    diag2[d2] = true;
+                    b[i][j] = 'Q';
+                    solve(i + 1, b);
+                    b[i][j] = '.';
+                    column[j] = false;
+                    diag1[d1] = false;
+                    diag2[d2] = false;
+                }
+            };
+            vector<string> board(n, string(n, '.'));
+            solve(0, board);
+            return output;
+        }
+
+        // 52. N-Queens II
+        // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
+        // such that no two queens attack each other. Given an integer n, return the
+        // number of distinct solutions to the n-queens puzzle.
+        // Example:
+        // Input: 4
+        // Output: 2
+        // Explanation: There are two distinct solutions to the 4-queens puzzle as shown
+        // below.
+        // [
+        //  [".Q..",  // Solution 1
+        //   "...Q",
+        //   "Q...",
+        //   "..Q."],
+        //  ["..Q.",  // Solution 2
+        //   "Q...",
+        //   "...Q",
+        //   ".Q.."]
+        // ]
+        int totalNQueens(int n)
+        {
+            if (n <= 0)
+                return 0;
+            int count = 0;
+            vector<int> b(n, 0); // b[i] = j if (i,j) is a valid position
+            function<void(int)> solve = [&](int i)
+            {
+                if (i == n)
+                {
+                    count++;
+                    return;
+                }
+                for (int j = 0; j < n; j++)
+                {
+                    bool ok = true;
+                    for (int k = i - 1; k >= 0; k--)
+                    {
+                        if ((j - (i - k) >= 0 && b[k] == (j - (i - k))) || b[k] == j ||
+                            (j + (i - k) < n && b[k] == (j + (i - k))))
+                        {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if (!ok)
+                        continue;
+                    b[i] = j;
+                    solve(i + 1);
+                    b[i] = 0;
+                }
+            };
+            solve(0);
+            return count;
+        }
+        int totalNQueens2(int n)
+        {
+            if (n <= 0)
+                return 0;
+            function<int(vector<vector<bool>> &, int)> count =
+                [&](vector<vector<bool>> &board, int line) -> int
+            {
+                int c = 0;
+                for (size_t i = 0; i < board[line].size(); i++)
+                {
+                    if (board[line][i] == true)
+                    {
+                        if (line == (int)board.size() - 1)
+                            c++;
+                        else
+                        {
+                            vector<vector<bool>> next(board);
+                            next[line][i] = false;
+                            int a = i;
+                            int b = i;
+                            bool proceed = false;
+                            for (size_t j = line + 1; j < board.size(); j++)
+                            {
+                                a--;
+                                if (a >= 0)
+                                    next[j][a] = false;
+                                next[j][i] = false;
+                                b++;
+                                if (b < (int)next[j].size())
+                                    next[j][b] = false;
+                                proceed = false;
+                                for (size_t k = 0; k < next[j].size(); k++)
+                                {
+                                    if (next[j][k] == true)
+                                    {
+                                        proceed = true;
+                                        break;
+                                    }
+                                }
+                                if (proceed == false)
+                                    break;
+                            }
+                            if (proceed)
+                                c += count(next, line + 1);
+                        }
+                    }
+                }
+                return c;
+            };
+            vector<vector<bool>> board(n, vector<bool>(n, true));
+            return count(board, 0);
+        }
+
+        // 53. Maximum Subarray
+        // Given an integer array nums, find the contiguous subarray (containing at
+        // least one number) which has the largest sum and return its sum.
+        // Example:
+        // Input: [-2,1,-3,4,-1,2,1,-5,4],
+        // Output: 6
+        // Explanation: [4,-1,2,1] has the largest sum = 6.
+        // Follow up:
+        // If you have figured out the O(n) solution, try coding another solution
+        // using the divide and conquer approach, which is more subtle.
+        int maxSubArray(const vector<int> &nums)
+        {
+            long long maxSubSum = INT_MIN;
+            long long minSum = 0;
+            long long sum = 0;
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                sum += nums[i];
+                maxSubSum = max(maxSubSum, sum - minSum);
+                minSum = min(minSum, sum);
+            }
+            return (int)maxSubSum; // may overflow
+        }
+        int maxSubArray2(const vector<int> &nums)
+        {
+            // Another option could be to init minSum and sum to nums[0]
+            // and loop start at 1. (No, this does not work, e.g. {1, 2})
+            long long minSum = 0;
+            long long sum = 0;
+            long long delta = INT_MIN;
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                sum += nums[i];
+                if (sum - minSum >= delta)
+                    delta = sum - minSum;
+                if (sum < minSum)
+                    minSum = sum;
+            }
+            return (int)delta; // may overflow
+        }
+        int maxSubArray2(const vector<int> &nums, int &begin, int &end)
+        {
+            begin = -1;
+            end = -1;
+            long long delta = INT_MIN;
+            int minIndex = -1;
+            long long minSum = 0; // sum[0..minIndex]
+            long long sum = 0;    // sum[0..i]
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                sum += nums[i];
+                long long d = sum - minSum;
+                if (d > delta)
+                {
+                    delta = d;
+                    begin = minIndex + 1;
+                    end = i;
+                }
+                if (d <= 0)
+                {
+                    minSum = sum;
+                    minIndex = i;
+                }
+            }
+            return (int)delta; // may overflow
+        }
+        int maxSubArray3(const vector<int> &nums, int &begin, int &end)
+        {
+            begin = -1;
+            end = -1;
+            long long delta = INT_MIN;
+            if (nums.empty())
+                return (int)delta;
+            // Track the last maximum sum so far
+            begin = 0;
+            end = 0;
+            delta = 0;
+            // Track the current streak
+            int l = 0;       // Beginning
+            long long c = 0; // Cumulative sum up to current element
+            int max = 0;     // The index of the maximum element seen so far
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                c += nums[i];
+                if (c > delta)
+                {
+                    // Current element is positive and the current sum is larger than
+                    // the last one. Update the last seen maximum sum
+                    begin = l;
+                    end = i;
+                    delta = c;
+                }
+                else if (c <= 0)
+                {
+                    // Current element is negative and everything cancel out
+                    // Reset and start from the next element
+                    l = i + 1;
+                    c = 0;
+                }
+                // Record the max element so far
+                if (nums[i] > nums[max])
+                    max = i;
+            }
+            if (delta <= 0)
+            {
+                // All elements are zero or negative
+                // Return the maximum element
+                begin = max;
+                end = max;
+                delta = nums[max];
+            }
+            return (int)delta;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 

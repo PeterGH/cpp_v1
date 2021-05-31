@@ -290,337 +290,6 @@ namespace Test
             return true;
         }
 
-        // 51. N-Queens
-        // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
-        // such that no two queens attack each other. Given an integer n, return all
-        // distinct solutions to the n-queens puzzle. Each solution contains a distinct
-        // board configuration of the n-queens' placement, where 'Q' and '.' both
-        // indicate a queen and an empty space respectively.
-        // Example:
-        // Input: 4
-        // Output: [
-        //  [".Q..",  // Solution 1
-        //   "...Q",
-        //   "Q...",
-        //   "..Q."],
-
-        //  ["..Q.",  // Solution 2
-        //   "Q...",
-        //   "...Q",
-        //   ".Q.."]
-        // ]
-        // Explanation: There exist two distinct solutions to the 4-queens puzzle as
-        // shown above.
-        vector<vector<string>> solveNQueens(int n)
-        {
-            vector<vector<string>> result;
-            function<void(int, vector<string> &)>
-            solve = [&](int i, vector<string> &b) {
-                if (i == n)
-                {
-                    result.push_back(b);
-                    return;
-                }
-                for (int j = 0; j < n; j++)
-                {
-                    bool ok = true;
-                    for (int k = i - 1; k >= 0; k--)
-                    {
-                        if (j - (i - k) >= 0 && b[k][j - (i - k)] == 'Q')
-                        {
-                            ok = false;
-                            break;
-                        }
-                        if (b[k][j] == 'Q')
-                        {
-                            ok = false;
-                            break;
-                        }
-                        if (j + (i - k) < n && b[k][j + (i - k)] == 'Q')
-                        {
-                            ok = false;
-                            break;
-                        }
-                    }
-                    if (!ok)
-                        continue;
-                    b[i][j] = 'Q';
-                    solve(i + 1, b);
-                    b[i][j] = '.';
-                }
-            };
-            vector<string> board(n, string(n, '.'));
-            solve(0, board);
-            return result;
-        }
-        vector<vector<string>> solveNQueens2(int n)
-        {
-            if (n <= 0)
-                return vector<vector<string>>{};
-            function<void(vector<string> &, int, vector<vector<string>> &)> solve =
-                [&](vector<string> &board, size_t line,
-                    vector<vector<string>> &solutions) {
-                    for (size_t i = 0; i < board[line].size(); i++)
-                    {
-                        if (board[line][i] == '.')
-                        {
-                            vector<string> next(board);
-                            next[line][i] = 'Q';
-                            if (line == board.size() - 1)
-                            {
-                                for_each(next.begin(), next.end(), [&](string &l) {
-                                    for (size_t j = 0; j < l.length(); j++)
-                                    {
-                                        if (l[j] == 'X')
-                                            l[j] = '.';
-                                    }
-                                });
-                                solutions.push_back(next);
-                            }
-                            else
-                            {
-                                int a = i;
-                                int b = i;
-                                for (size_t j = line + 1; j < board.size(); j++)
-                                {
-                                    a--;
-                                    if (a >= 0)
-                                        next[j][a] = 'X';
-                                    next[j][i] = 'X';
-                                    b++;
-                                    if (b < (int)next[j].size())
-                                        next[j][b] = 'X';
-                                }
-                                solve(next, line + 1, solutions);
-                            }
-                        }
-                    }
-                };
-            vector<vector<string>> solutions;
-            vector<string> board(n, string(n, '.'));
-            solve(board, 0, solutions);
-            return solutions;
-        }
-
-        // 52. N-Queens II
-        // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
-        // such that no two queens attack each other. Given an integer n, return the
-        // number of distinct solutions to the n-queens puzzle.
-        // Example:
-        // Input: 4
-        // Output: 2
-        // Explanation: There are two distinct solutions to the 4-queens puzzle as shown
-        // below.
-        // [
-        //  [".Q..",  // Solution 1
-        //   "...Q",
-        //   "Q...",
-        //   "..Q."],
-        //  ["..Q.",  // Solution 2
-        //   "Q...",
-        //   "...Q",
-        //   ".Q.."]
-        // ]
-        int totalNQueens(int n)
-        {
-            if (n <= 0)
-                return 0;
-            int count = 0;
-            vector<int> b(n, 0); // b[i] = j if (i,j) is a valid position
-            function<void(int)> solve = [&](int i) {
-                if (i == n)
-                {
-                    count++;
-                    return;
-                }
-                for (int j = 0; j < n; j++)
-                {
-                    bool ok = true;
-                    for (int k = i - 1; k >= 0; k--)
-                    {
-                        if ((j - (i - k) >= 0 && b[k] == (j - (i - k))) || b[k] == j ||
-                            (j + (i - k) < n && b[k] == (j + (i - k))))
-                        {
-                            ok = false;
-                            break;
-                        }
-                    }
-                    if (!ok)
-                        continue;
-                    b[i] = j;
-                    solve(i + 1);
-                    b[i] = 0;
-                }
-            };
-            solve(0);
-            return count;
-        }
-        int totalNQueens2(int n)
-        {
-            if (n <= 0)
-                return 0;
-            function<int(vector<vector<bool>> &, int)> count =
-                [&](vector<vector<bool>> &board, int line) -> int {
-                int c = 0;
-                for (size_t i = 0; i < board[line].size(); i++)
-                {
-                    if (board[line][i] == true)
-                    {
-                        if (line == (int)board.size() - 1)
-                            c++;
-                        else
-                        {
-                            vector<vector<bool>> next(board);
-                            next[line][i] = false;
-                            int a = i;
-                            int b = i;
-                            bool proceed = false;
-                            for (size_t j = line + 1; j < board.size(); j++)
-                            {
-                                a--;
-                                if (a >= 0)
-                                    next[j][a] = false;
-                                next[j][i] = false;
-                                b++;
-                                if (b < (int)next[j].size())
-                                    next[j][b] = false;
-                                proceed = false;
-                                for (size_t k = 0; k < next[j].size(); k++)
-                                {
-                                    if (next[j][k] == true)
-                                    {
-                                        proceed = true;
-                                        break;
-                                    }
-                                }
-                                if (proceed == false)
-                                    break;
-                            }
-                            if (proceed)
-                                c += count(next, line + 1);
-                        }
-                    }
-                }
-                return c;
-            };
-            vector<vector<bool>> board(n, vector<bool>(n, true));
-            return count(board, 0);
-        }
-
-        // 53. Maximum Subarray
-        // Given an integer array nums, find the contiguous subarray (containing at
-        // least one number) which has the largest sum and return its sum.
-        // Example:
-        // Input: [-2,1,-3,4,-1,2,1,-5,4],
-        // Output: 6
-        // Explanation: [4,-1,2,1] has the largest sum = 6.
-        // Follow up:
-        // If you have figured out the O(n) solution, try coding another solution
-        // using the divide and conquer approach, which is more subtle.
-        int maxSubArray(const vector<int> &nums)
-        {
-            long long maxSubSum = INT_MIN;
-            long long minSum = 0;
-            long long sum = 0;
-            for (size_t i = 0; i < nums.size(); i++)
-            {
-                sum += nums[i];
-                maxSubSum = max(maxSubSum, sum - minSum);
-                minSum = min(minSum, sum);
-            }
-            return (int)maxSubSum; // may overflow
-        }
-        int maxSubArray2(const vector<int> &nums)
-        {
-            // Another option could be to init minSum and sum to nums[0]
-            // and loop start at 1. (No, this does not work, e.g. {1, 2})
-            long long minSum = 0;
-            long long sum = 0;
-            long long delta = INT_MIN;
-            for (size_t i = 0; i < nums.size(); i++)
-            {
-                sum += nums[i];
-                if (sum - minSum >= delta)
-                    delta = sum - minSum;
-                if (sum < minSum)
-                    minSum = sum;
-            }
-            return (int)delta; // may overflow
-        }
-        int maxSubArray2(const vector<int> &nums, int &begin, int &end)
-        {
-            begin = -1;
-            end = -1;
-            long long delta = INT_MIN;
-            int minIndex = -1;
-            long long minSum = 0; // sum[0..minIndex]
-            long long sum = 0;    // sum[0..i]
-            for (size_t i = 0; i < nums.size(); i++)
-            {
-                sum += nums[i];
-                long long d = sum - minSum;
-                if (d > delta)
-                {
-                    delta = d;
-                    begin = minIndex + 1;
-                    end = i;
-                }
-                if (d <= 0)
-                {
-                    minSum = sum;
-                    minIndex = i;
-                }
-            }
-            return (int)delta; // may overflow
-        }
-        int maxSubArray3(const vector<int> &nums, int &begin, int &end)
-        {
-            begin = -1;
-            end = -1;
-            long long delta = INT_MIN;
-            if (nums.empty())
-                return (int)delta;
-            // Track the last maximum sum so far
-            begin = 0;
-            end = 0;
-            delta = 0;
-            // Track the current streak
-            int l = 0;       // Beginning
-            long long c = 0; // Cumulative sum up to current element
-            int max = 0;     // The index of the maximum element seen so far
-            for (int i = 0; i < (int)nums.size(); i++)
-            {
-                c += nums[i];
-                if (c > delta)
-                {
-                    // Current element is positive and the current sum is larger than
-                    // the last one. Update the last seen maximum sum
-                    begin = l;
-                    end = i;
-                    delta = c;
-                }
-                else if (c <= 0)
-                {
-                    // Current element is negative and everything cancel out
-                    // Reset and start from the next element
-                    l = i + 1;
-                    c = 0;
-                }
-                // Record the max element so far
-                if (nums[i] > nums[max])
-                    max = i;
-            }
-            if (delta <= 0)
-            {
-                // All elements are zero or negative
-                // Return the maximum element
-                begin = max;
-                end = max;
-                delta = nums[max];
-            }
-            return (int)delta;
-        }
-
         // 54. Spiral Matrix
         // Given a matrix of m x n elements (m rows, n columns), return all elements
         // of the matrix in spiral order.
@@ -760,7 +429,8 @@ namespace Test
             vector<int> result = vector<int>{};
             if (matrix.empty() || matrix[0].empty())
                 return result;
-            function<void(int, int, int, int)> solve = [&](int i, int j, int m, int n) {
+            function<void(int, int, int, int)> solve = [&](int i, int j, int m, int n)
+            {
                 for (int k = 0; k < n; k++)
                     result.push_back(matrix[i][j + k]);
                 if (m == 1)
@@ -841,7 +511,8 @@ namespace Test
         {
             vector<vector<int>> result;
             sort(intervals.begin(), intervals.end(),
-                 [&](const vector<int> &l, const vector<int> &r) -> bool {
+                 [&](const vector<int> &l, const vector<int> &r) -> bool
+                 {
                      if (l[0] == r[0])
                          return l[1] < r[1];
                      return l[0] < r[0];
@@ -870,7 +541,8 @@ namespace Test
         vector<Interval> merge(vector<Interval> &intervals)
         {
             function<bool(const Interval &, const Interval &)> less =
-                [&](const Interval &first, const Interval &second) -> bool {
+                [&](const Interval &first, const Interval &second) -> bool
+            {
                 if (first.start == second.start)
                     return first.end < second.end;
                 return first.start < second.start;
@@ -1024,17 +696,18 @@ namespace Test
                                                     Interval newInterval)
         {
             vector<Interval> output;
-            for_each(intervals.begin(), intervals.end(), [&](Interval i) {
-                if (i.end < newInterval.start || newInterval.end < i.start)
-                {
-                    output.push_back(i);
-                }
-                else
-                {
-                    newInterval.start = min(newInterval.start, i.start);
-                    newInterval.end = max(newInterval.end, i.end);
-                }
-            });
+            for_each(intervals.begin(), intervals.end(), [&](Interval i)
+                     {
+                         if (i.end < newInterval.start || newInterval.end < i.start)
+                         {
+                             output.push_back(i);
+                         }
+                         else
+                         {
+                             newInterval.start = min(newInterval.start, i.start);
+                             newInterval.end = max(newInterval.end, i.end);
+                         }
+                     });
             output.push_back(newInterval);
             return output;
         }
@@ -1238,7 +911,8 @@ namespace Test
         {
             vector<vector<int>> m(n, vector<int>(n, 0));
             function<int(int, int, int, int, int)> generate =
-                [&](int v, int i, int j, int r, int c) -> int {
+                [&](int v, int i, int j, int r, int c) -> int
+            {
                 for (int k = 0; k < c; k++)
                     m[i][j + k] = v++;
                 r--;
@@ -2402,7 +2076,8 @@ namespace Test
         int climbStairs3(int n)
         {
             map<int, int> m;
-            function<int(int)> f = [&](int k) -> int {
+            function<int(int)> f = [&](int k) -> int
+            {
                 if (m.find(k) == m.end())
                 {
                     if (k == 1 || k == 2)
@@ -2626,10 +2301,11 @@ namespace Test
             }
             else
             {
-                for_each(tokens.begin(), tokens.end(), [&](string &t) {
-                    output.append(1, '/');
-                    output.append(t.begin(), t.end());
-                });
+                for_each(tokens.begin(), tokens.end(), [&](string &t)
+                         {
+                             output.append(1, '/');
+                             output.append(t.begin(), t.end());
+                         });
             }
             return output;
         }
@@ -2660,7 +2336,8 @@ namespace Test
         int minDistance(const string &word1, const string &word2)
         {
             map<pair<size_t, size_t>, int> m;
-            function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int {
+            function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int
+            {
                 pair<size_t, size_t> p = make_pair(i, j);
                 if (m.find(p) != m.end())
                     return m[p];
@@ -2699,7 +2376,8 @@ namespace Test
             function<int(const string &, int, const string &, int,
                          map<pair<int, int>, int> &)>
                 distance = [&](const string &w1, int i, const string &w2, int j,
-                               map<pair<int, int>, int> &d) -> int {
+                               map<pair<int, int>, int> &d) -> int
+            {
                 pair<int, int> p = make_pair(i, j);
                 if (d.find(p) == d.end())
                 {
@@ -3080,7 +2758,8 @@ namespace Test
             if (matrix.empty() || matrix[0].empty())
                 return false;
             function<bool(int, int, int, int)> search =
-                [&](int r0, int r1, int c0, int c1) -> bool {
+                [&](int r0, int r1, int c0, int c1) -> bool
+            {
                 if (r0 > r1 || c0 > c1)
                     return false;
                 if (r1 - r0 <= 1 && c1 - c0 <= 1)
@@ -3330,7 +3009,8 @@ namespace Test
                     countT[t[i]] += 1;
             }
             // c1 count should be no less than c2 count
-            auto compare = [&](map<char, int> &c1, map<char, int> &c2) -> bool {
+            auto compare = [&](map<char, int> &c1, map<char, int> &c2) -> bool
+            {
                 if (c1.size() != c2.size())
                     return false;
                 for (map<char, int>::iterator it = c1.begin(); it != c1.end(); it++)
@@ -3450,7 +3130,8 @@ namespace Test
             if (k <= 0 || n <= 0 || k > n)
                 return result;
             function<void(int, int, vector<int> &)> solve = [&](int i, int c,
-                                                                vector<int> &v) {
+                                                                vector<int> &v)
+            {
                 if (c == 0)
                 {
                     result.push_back(v);
@@ -3473,7 +3154,8 @@ namespace Test
             if (k <= 0 || n <= 0 || k > n)
                 return result;
             function<void(int, int, vector<int> &)> select = [&](int i, int l,
-                                                                 vector<int> &c) {
+                                                                 vector<int> &c)
+            {
                 if (l == 0)
                 {
                     result.push_back(c);
@@ -3501,38 +3183,41 @@ namespace Test
                 return vector<vector<int>>{{}};
             function<void(int, int, map<pair<int, int>, vector<vector<int>>> &)>
                 combine =
-                    [&](int i, int j, map<pair<int, int>, vector<vector<int>>> &s) {
-                        pair<int, int> p = make_pair(i, j);
-                        s[p] = vector<vector<int>>{};
-                        if (i <= 0 || j <= 0 || i < j)
-                        {
-                            s[p].push_back(vector<int>{});
-                            return;
-                        }
-                        if (i == j)
-                        {
-                            vector<int> v;
-                            for (int k = 1; k <= j; k++)
-                            {
-                                v.push_back(k);
-                            }
-                            s[p].push_back(v);
-                            return;
-                        }
-                        pair<int, int> q1 = make_pair(i - 1, j - 1);
-                        if (s.find(q1) == s.end())
-                            combine(i - 1, j - 1, s);
-                        for_each(s[q1].begin(), s[q1].end(), [&](vector<int> &v) {
-                            vector<int> ex(v.begin(), v.end());
-                            ex.push_back(i);
-                            s[p].push_back(ex);
-                        });
-                        pair<int, int> q2 = make_pair(i - 1, j);
-                        if (s.find(q2) == s.end())
-                            combine(i - 1, j, s);
-                        for_each(s[q2].begin(), s[q2].end(),
-                                 [&](vector<int> &v) { s[p].push_back(v); });
-                    };
+                    [&](int i, int j, map<pair<int, int>, vector<vector<int>>> &s)
+            {
+                pair<int, int> p = make_pair(i, j);
+                s[p] = vector<vector<int>>{};
+                if (i <= 0 || j <= 0 || i < j)
+                {
+                    s[p].push_back(vector<int>{});
+                    return;
+                }
+                if (i == j)
+                {
+                    vector<int> v;
+                    for (int k = 1; k <= j; k++)
+                    {
+                        v.push_back(k);
+                    }
+                    s[p].push_back(v);
+                    return;
+                }
+                pair<int, int> q1 = make_pair(i - 1, j - 1);
+                if (s.find(q1) == s.end())
+                    combine(i - 1, j - 1, s);
+                for_each(s[q1].begin(), s[q1].end(), [&](vector<int> &v)
+                         {
+                             vector<int> ex(v.begin(), v.end());
+                             ex.push_back(i);
+                             s[p].push_back(ex);
+                         });
+                pair<int, int> q2 = make_pair(i - 1, j);
+                if (s.find(q2) == s.end())
+                    combine(i - 1, j, s);
+                for_each(s[q2].begin(), s[q2].end(),
+                         [&](vector<int> &v)
+                         { s[p].push_back(v); });
+            };
             map<pair<int, int>, vector<vector<int>>> sets;
             combine(n, k, sets);
             pair<int, int> p = make_pair(n, k);
@@ -3578,10 +3263,12 @@ namespace Test
                     // s[i] = s(i+j, j)
                     // Extend s[i] by adding i+j to each of s(i-1+j,j-1)
                     for_each(s[i].begin(), s[i].end(),
-                             [&](vector<int> &v) { v.push_back(i + j); });
+                             [&](vector<int> &v)
+                             { v.push_back(i + j); });
                     // Extend s[i] = s(i+j,j) by adding s(i-1+j,j)
                     for_each(s[i - 1].begin(), s[i - 1].end(),
-                             [&](vector<int> &v) { s[i].push_back(v); });
+                             [&](vector<int> &v)
+                             { s[i].push_back(v); });
                 }
             }
             return s[n - k];
@@ -3611,28 +3298,29 @@ namespace Test
         vector<vector<int>> combine6(int n, int k)
         {
             function<void(vector<int>, int, int, vector<vector<int>> &)> solve =
-                [&](vector<int> pre, int i, int k1, vector<vector<int>> &s) {
-                    if (k1 == 0)
-                    {
-                        s.push_back(pre);
-                        return;
-                    }
-                    if (n - i + 1 == k1)
-                    {
-                        // pre contains i - 1 numbers
-                        // There k1 numbers from i to n
-                        for (int j = i; j <= n; j++)
-                            pre.push_back(j);
-                        s.push_back(pre);
-                        return;
-                    }
-                    for (int j = i; j <= n - k1 + 1; j++)
-                    {
-                        vector<int> p(pre.begin(), pre.end());
-                        p.push_back(j);
-                        solve(p, j + 1, k1 - 1, s);
-                    }
-                };
+                [&](vector<int> pre, int i, int k1, vector<vector<int>> &s)
+            {
+                if (k1 == 0)
+                {
+                    s.push_back(pre);
+                    return;
+                }
+                if (n - i + 1 == k1)
+                {
+                    // pre contains i - 1 numbers
+                    // There k1 numbers from i to n
+                    for (int j = i; j <= n; j++)
+                        pre.push_back(j);
+                    s.push_back(pre);
+                    return;
+                }
+                for (int j = i; j <= n - k1 + 1; j++)
+                {
+                    vector<int> p(pre.begin(), pre.end());
+                    p.push_back(j);
+                    solve(p, j + 1, k1 - 1, s);
+                }
+            };
             vector<vector<int>> set = {};
             solve(vector<int>{}, 1, k, set);
             return set;
@@ -3673,19 +3361,20 @@ namespace Test
         {
             vector<vector<int>> sets;
             function<void(size_t, size_t, vector<int> &)> select =
-                [&](size_t i, size_t k, vector<int> &v) {
-                    if (k == 0)
-                    {
-                        sets.push_back(v);
-                        return;
-                    }
-                    for (size_t j = i; j < nums.size(); j++)
-                    {
-                        v.push_back(nums[j]);
-                        select(j + 1, k - 1, v);
-                        v.pop_back();
-                    }
-                };
+                [&](size_t i, size_t k, vector<int> &v)
+            {
+                if (k == 0)
+                {
+                    sets.push_back(v);
+                    return;
+                }
+                for (size_t j = i; j < nums.size(); j++)
+                {
+                    v.push_back(nums[j]);
+                    select(j + 1, k - 1, v);
+                    v.pop_back();
+                }
+            };
             vector<int> s;
             for (size_t k = 0; k <= nums.size(); k++)
                 select(0, k, s);
@@ -3716,7 +3405,8 @@ namespace Test
                 return false;
             function<bool(size_t, size_t, size_t, set<pair<size_t, size_t>> &)> solve =
                 [&](size_t i, size_t j, size_t k,
-                    set<pair<size_t, size_t>> &v) -> bool {
+                    set<pair<size_t, size_t>> &v) -> bool
+            {
                 if (k == word.size())
                     return true;
                 if (board[i][j] != word[k])
@@ -3757,7 +3447,8 @@ namespace Test
             int n = board[0].size();
             int l = word.size();
             function<bool(pair<int, int> &, int, set<pair<int, int>> &)> search =
-                [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
+                [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool
+            {
                 if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n ||
                     i < 0 || i >= l || board[p.first][p.second] != word[i] ||
                     v.find(p) != v.end())
@@ -3925,7 +3616,8 @@ namespace Test
         // How and why?
         bool searchII(const vector<int> &nums, int target)
         {
-            function<bool(int, int)> solve = [&](int l, int h) -> bool {
+            function<bool(int, int)> solve = [&](int l, int h) -> bool
+            {
                 while (l <= h)
                 {
                     int m = l + ((h - l) >> 1);
@@ -3986,7 +3678,8 @@ namespace Test
         {
             if (nums.size() == 0)
                 return false;
-            function<bool(int, int)> search = [&](int l, int r) -> bool {
+            function<bool(int, int)> search = [&](int l, int r) -> bool
+            {
                 if (l > r)
                     return false;
                 int m = l + ((r - l) >> 1);
@@ -4098,7 +3791,8 @@ namespace Test
         ListNode *deleteDuplicatesII3(ListNode *head)
         {
             function<ListNode *(ListNode *)> del =
-                [&](ListNode *h) -> ListNode * {
+                [&](ListNode *h) -> ListNode *
+            {
                 if (h == nullptr)
                     return h;
                 bool delete_h = false;
@@ -4374,7 +4068,8 @@ namespace Test
             if (matrix.empty() || matrix[0].empty())
                 return 0;
             function<int(const vector<int> &)> solve =
-                [&](const vector<int> &v) -> int {
+                [&](const vector<int> &v) -> int
+            {
                 stack<pair<int, int>> s;
                 int m = 0;
                 for (int i = 0; i < (int)v.size(); i++)
@@ -4420,7 +4115,8 @@ namespace Test
             if (matrix.empty() || matrix[0].empty())
                 return 0;
             // Compute max rectangle whose top-left point is at (pi, pj)
-            function<int(int, int)> solve = [&](int pi, int pj) {
+            function<int(int, int)> solve = [&](int pi, int pj)
+            {
                 if (pi < 0 || pi >= (int)matrix.size() || pj < 0 ||
                     pj >= (int)matrix[0].size())
                     return 0;
@@ -4648,7 +4344,8 @@ namespace Test
             if (s1.empty() && s2.empty())
                 return true;
             function<bool(const map<char, int> &, const map<char, int> &)> areEqual =
-                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool {
+                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool
+            {
                 if (m1.size() != m2.size())
                     return false;
                 for (auto it = m1.cbegin(); it != m1.cend(); it++)
@@ -4662,7 +4359,8 @@ namespace Test
             };
             // Check if s1[i1..j1] is scramble of s2[i2..j2]
             function<bool(int, int, int, int)> solve = [&](int i1, int j1, int i2,
-                                                           int j2) -> bool {
+                                                           int j2) -> bool
+            {
                 if (j1 - i1 != j2 - i2)
                     return false;
                 if (i1 == j1 && i2 == j2)
@@ -4786,7 +4484,8 @@ namespace Test
                 return true;
             map<pair<int, int>, map<pair<int, int>, bool>> scramble;
             function<bool(int, int, int, int)> isscramble = [&](int i1, int i2, int j1,
-                                                                int j2) -> bool {
+                                                                int j2) -> bool
+            {
                 // check s1[i1..i2] and s2[j1..j2]
                 pair<int, int> pi = make_pair(i1, i2);
                 pair<int, int> pj = make_pair(j1, j2);
@@ -5061,7 +4760,8 @@ namespace Test
             vector<int> codes = {};
             if (n <= 0 || n > 8 * (int)sizeof(int))
                 return codes;
-            function<void(int &, int)> toggle = [&](int &code, int position) {
+            function<void(int &, int)> toggle = [&](int &code, int position)
+            {
                 code = code ^ (0x1 << position);
                 codes.push_back(code);
                 if (position > 0)
@@ -5192,7 +4892,8 @@ namespace Test
             if (s.empty())
                 return 0;
             int len = (int)s.size();
-            function<int(int)> solve = [&](int i) -> int {
+            function<int(int)> solve = [&](int i) -> int
+            {
                 if (i == len)
                     return 0;
                 if (i == len - 1)
@@ -5450,7 +5151,8 @@ namespace Test
             vector<string> ips;
             if (s.size() < 4)
                 return ips;
-            function<bool(int, int)> isValid = [&](int i, int j) -> bool {
+            function<bool(int, int)> isValid = [&](int i, int j) -> bool
+            {
                 if (i > j || i + 3 <= j)
                     return false;
                 if (s[i] == '0' && i < j)
@@ -5494,7 +5196,8 @@ namespace Test
         vector<string> restoreIpAddresses2(const string &s)
         {
             vector<string> result;
-            function<void(int, int, string &)> solve = [&](int i, int j, string &p) {
+            function<void(int, int, string &)> solve = [&](int i, int j, string &p)
+            {
                 if (i > 4)
                 {
                     if (j == (int)s.length())
@@ -5533,7 +5236,8 @@ namespace Test
             int len = s.length();
             if (len < 4 || len > 12)
                 return ips;
-            auto check = [&](const string &octet) -> bool {
+            auto check = [&](const string &octet) -> bool
+            {
                 int l = octet.length();
                 for (int i = 0; i < min(3, l); i++)
                 {
@@ -5586,7 +5290,8 @@ namespace Test
         void Print(TreeNode *node)
         {
             function<void(stringstream *, int, char)> printChar = [&](stringstream *s,
-                                                                      int n, char c) {
+                                                                      int n, char c)
+            {
                 if (n > 0)
                 {
                     string chars(n, c);
@@ -5602,45 +5307,47 @@ namespace Test
                         int &r,                    // x-axis position of right-most boundary of last
                                                    // printed sub tree
                         vector<stringstream *> &ss // output streams, one per level
-                    ) {
-                        if (n == nullptr)
-                            return;
-                        if (ss.size() <= y)
-                            ss.push_back(new stringstream());
-                        // print left tree, update x and r accordingly
-                        toString(n->left, y + 1, x, r, ss);
-                        stringstream *s = ss[y];
-                        int l = (int)(s->str().length());
-                        if (l < x)
-                            printChar(s, x - l, ' ');
-                        if (n->left != nullptr && r > x)
-                        {
-                            *s << '/';
-                            printChar(s, r - x - 1, '-');
-                        }
-                        string nc = to_string(n->val);
-                        *s << nc;
-                        x = (r + (nc.length() >> 1));
-                        r = r + nc.length();
-                        int rx = r;
-                        int rr = r;
-                        toString(n->right, y + 1, rx, rr, ss);
-                        if (n->right != nullptr && rx >= r)
-                        {
-                            printChar(s, rx - r - 1, '-');
-                            *s << '\\';
-                        }
-                        // Update the right most boundary
-                        r = rr;
-                    };
+                    )
+            {
+                if (n == nullptr)
+                    return;
+                if (ss.size() <= y)
+                    ss.push_back(new stringstream());
+                // print left tree, update x and r accordingly
+                toString(n->left, y + 1, x, r, ss);
+                stringstream *s = ss[y];
+                int l = (int)(s->str().length());
+                if (l < x)
+                    printChar(s, x - l, ' ');
+                if (n->left != nullptr && r > x)
+                {
+                    *s << '/';
+                    printChar(s, r - x - 1, '-');
+                }
+                string nc = to_string(n->val);
+                *s << nc;
+                x = (r + (nc.length() >> 1));
+                r = r + nc.length();
+                int rx = r;
+                int rr = r;
+                toString(n->right, y + 1, rx, rr, ss);
+                if (n->right != nullptr && rx >= r)
+                {
+                    printChar(s, rx - r - 1, '-');
+                    *s << '\\';
+                }
+                // Update the right most boundary
+                r = rr;
+            };
             vector<stringstream *> streams;
             int x = 0;
             int r = 0;
             toString(node, 0, x, r, streams);
-            for_each(streams.begin(), streams.end(), [&](stringstream *s) {
-                cout << s->str() << endl;
-                delete s;
-            });
+            for_each(streams.begin(), streams.end(), [&](stringstream *s)
+                     {
+                         cout << s->str() << endl;
+                         delete s;
+                     });
         }
 
         void DeleteTree(TreeNode *root)
@@ -5685,7 +5392,8 @@ namespace Test
             if (values.empty())
                 return nullptr;
             function<TreeNode *(const vector<int> &, int, int)> create =
-                [&](const vector<int> &v, int i, int j) -> TreeNode * {
+                [&](const vector<int> &v, int i, int j) -> TreeNode *
+            {
                 if (i > j)
                     return nullptr;
                 TreeNode *n = nullptr;
@@ -5721,7 +5429,8 @@ namespace Test
             if (num <= 0)
                 return nullptr;
             int t = 0;
-            function<TreeNode *(int, int)> create = [&](int i, int j) -> TreeNode * {
+            function<TreeNode *(int, int)> create = [&](int i, int j) -> TreeNode *
+            {
                 if (i > j || t >= num)
                     return nullptr;
                 TreeNode *n = new TreeNode(t++);
@@ -5756,7 +5465,8 @@ namespace Test
             if (values.empty())
                 return nullptr;
             function<TreeNode *(const vector<int> &, int, int)> create =
-                [&](const vector<int> &v, int i, int j) -> TreeNode * {
+                [&](const vector<int> &v, int i, int j) -> TreeNode *
+            {
                 if (i > j)
                     return nullptr;
                 int k = i + (rand() % (j - i + 1));
@@ -5872,7 +5582,8 @@ namespace Test
         vector<int> preorderTraversal4(TreeNode *root)
         {
             vector<int> v;
-            function<void(TreeNode *)> visit = [&](TreeNode *n) {
+            function<void(TreeNode *)> visit = [&](TreeNode *n)
+            {
                 if (n == nullptr)
                     return;
                 v.push_back(n->val);
@@ -5977,7 +5688,8 @@ namespace Test
         vector<int> inorderTraversal4(TreeNode *root)
         {
             vector<int> v;
-            function<void(TreeNode *)> trav = [&](TreeNode *n) {
+            function<void(TreeNode *)> trav = [&](TreeNode *n)
+            {
                 if (n == nullptr)
                     return;
                 trav(n->left);
@@ -6096,7 +5808,8 @@ namespace Test
         vector<int> postorderTraversal4(TreeNode *root)
         {
             vector<int> v;
-            function<void(TreeNode *)> trav = [&](TreeNode *n) {
+            function<void(TreeNode *)> trav = [&](TreeNode *n)
+            {
                 if (n == nullptr)
                     return;
                 trav(n->left);
@@ -6129,7 +5842,8 @@ namespace Test
         //    2     1         2                 3
         vector<TreeNode *> generateTrees(int n)
         {
-            function<TreeNode *(TreeNode *)> clone = [&](TreeNode *m) -> TreeNode * {
+            function<TreeNode *(TreeNode *)> clone = [&](TreeNode *m) -> TreeNode *
+            {
                 if (m == nullptr)
                     return nullptr;
                 TreeNode *c = new TreeNode(m->val);
@@ -6137,7 +5851,8 @@ namespace Test
                 c->right = clone(m->right);
                 return c;
             };
-            function<void(TreeNode *)> deleteTree = [&](TreeNode *m) {
+            function<void(TreeNode *)> deleteTree = [&](TreeNode *m)
+            {
                 if (m == nullptr)
                     return;
                 deleteTree(m->left);
@@ -6147,7 +5862,8 @@ namespace Test
                 delete m;
             };
             function<vector<TreeNode *>(int, int)> bst =
-                [&](int i, int j) -> vector<TreeNode *> {
+                [&](int i, int j) -> vector<TreeNode *>
+            {
                 vector<TreeNode *> v;
                 if (i > j)
                     return v;
@@ -6212,7 +5928,8 @@ namespace Test
             if (n <= 0)
                 return vector<TreeNode *>{};
             function<vector<vector<int>>(int, int)> generateSerializations =
-                [&](int i, int j) -> vector<vector<int>> {
+                [&](int i, int j) -> vector<vector<int>>
+            {
                 vector<vector<int>> serializations;
                 if (i > j)
                 {
@@ -6247,7 +5964,8 @@ namespace Test
                 return serializations;
             };
             function<TreeNode *(size_t &, vector<int> &)> generateTree =
-                [&](size_t &i, vector<int> &serialization) -> TreeNode * {
+                [&](size_t &i, vector<int> &serialization) -> TreeNode *
+            {
                 if (i >= serialization.size())
                     return nullptr;
                 if (serialization[i] == 0)
@@ -6273,7 +5991,8 @@ namespace Test
         {
             // Generate all the preorder serializations
             function<vector<vector<int>>(int, int)> generate =
-                [&](int i, int j) -> vector<vector<int>> {
+                [&](int i, int j) -> vector<vector<int>>
+            {
                 if (i > j)
                     return vector<vector<int>>();
                 vector<vector<int>> result;
@@ -6322,7 +6041,8 @@ namespace Test
             // Build a tree from a preorder serialization
             // The tree is built from t[i] to t[j] where t[j] <= p
             function<TreeNode *(const vector<int> &, int &, int)> build =
-                [&](const vector<int> &t, int &i, int p) -> TreeNode * {
+                [&](const vector<int> &t, int &i, int p) -> TreeNode *
+            {
                 if (i < 0 || i >= (int)t.size() || p < t[i])
                     return nullptr;
                 TreeNode *node = new TreeNode(t[i++]);
@@ -6390,7 +6110,8 @@ namespace Test
             if (n <= 0)
                 return 0;
             map<pair<int, int>, int> solved;
-            function<int(int, int)> count = [&](int i, int j) -> int {
+            function<int(int, int)> count = [&](int i, int j) -> int
+            {
                 if (i >= j)
                     return 1;
                 pair<int, int> p = make_pair(i, j);
@@ -6430,7 +6151,8 @@ namespace Test
         bool isInterleave(const string &s1, const string &s2, const string &s3)
         {
             // Check if s3[0..k] is interleaved of s1[0..i] and s2[0..j]
-            function<bool(int, int, int)> solve = [&](int i, int j, int k) -> bool {
+            function<bool(int, int, int)> solve = [&](int i, int j, int k) -> bool
+            {
                 if (i + j != k - 1)
                     return false;
                 if (i == -1)
@@ -6580,7 +6302,8 @@ namespace Test
         bool isValidBST3(TreeNode *root)
         {
             function<bool(TreeNode *, int &, int &)> verify =
-                [&](TreeNode *node, int &min, int &max) -> bool {
+                [&](TreeNode *node, int &min, int &max) -> bool
+            {
                 if (node == nullptr)
                     return true;
                 if (node->left == nullptr && node->right == nullptr)
@@ -6626,7 +6349,8 @@ namespace Test
         bool isValidBST4(TreeNode *root)
         {
             function<bool(TreeNode *, int &, int &)> isValid =
-                [&](TreeNode *node, int &min, int &max) -> bool {
+                [&](TreeNode *node, int &min, int &max) -> bool
+            {
                 if (node == nullptr)
                     return true;
                 min = node->val;
@@ -6746,27 +6470,28 @@ namespace Test
             function<void(TreeNode *, TreeNode *&, TreeNode *&, TreeNode *&,
                           TreeNode *&, TreeNode *&)>
                 search = [&](TreeNode *current, TreeNode *&prev, TreeNode *&n1,
-                             TreeNode *&n2, TreeNode *&n3, TreeNode *&n4) {
-                    if (current == nullptr)
-                        return;
-                    search(current->left, prev, n1, n2, n3, n4);
-                    if (prev != nullptr && prev->val > current->val)
+                             TreeNode *&n2, TreeNode *&n3, TreeNode *&n4)
+            {
+                if (current == nullptr)
+                    return;
+                search(current->left, prev, n1, n2, n3, n4);
+                if (prev != nullptr && prev->val > current->val)
+                {
+                    if (n1 == nullptr && n2 == nullptr)
                     {
-                        if (n1 == nullptr && n2 == nullptr)
-                        {
-                            n1 = prev;
-                            n2 = current;
-                        }
-                        else
-                        {
-                            n3 = prev;
-                            n4 = current;
-                            return;
-                        }
+                        n1 = prev;
+                        n2 = current;
                     }
-                    prev = current;
-                    search(current->right, prev, n1, n2, n3, n4);
-                };
+                    else
+                    {
+                        n3 = prev;
+                        n4 = current;
+                        return;
+                    }
+                }
+                prev = current;
+                search(current->right, prev, n1, n2, n3, n4);
+            };
             TreeNode *prev = nullptr;
             TreeNode *n1 = nullptr;
             TreeNode *n2 = nullptr;
@@ -6812,7 +6537,8 @@ namespace Test
         bool isSameTree(TreeNode *p, TreeNode *q)
         {
             function<bool(TreeNode *, TreeNode *)> same = [&](TreeNode *a,
-                                                              TreeNode *b) -> bool {
+                                                              TreeNode *b) -> bool
+            {
                 if (a == nullptr && b == nullptr)
                     return true;
                 if (a == nullptr || b == nullptr)
@@ -6855,7 +6581,8 @@ namespace Test
         bool isSameTree3(TreeNode *p, TreeNode *q)
         {
             function<vector<TreeNode *>(TreeNode *)> serialize =
-                [&](TreeNode *n) -> vector<TreeNode *> {
+                [&](TreeNode *n) -> vector<TreeNode *>
+            {
                 vector<TreeNode *> v;
                 stack<TreeNode *> s;
                 while (!s.empty() || n != nullptr)
@@ -6877,19 +6604,20 @@ namespace Test
                 return v;
             };
             function<void(const vector<TreeNode *> &)> print =
-                [&](const vector<TreeNode *> &v) {
-                    cout << "{";
-                    for (size_t i = 0; i < v.size(); i++)
-                    {
-                        if (i > 0)
-                            cout << ", ";
-                        if (v[i] == nullptr)
-                            cout << "null";
-                        else
-                            cout << v[i]->val;
-                    }
-                    cout << "}" << endl;
-                };
+                [&](const vector<TreeNode *> &v)
+            {
+                cout << "{";
+                for (size_t i = 0; i < v.size(); i++)
+                {
+                    if (i > 0)
+                        cout << ", ";
+                    if (v[i] == nullptr)
+                        cout << "null";
+                    else
+                        cout << v[i]->val;
+                }
+                cout << "}" << endl;
+            };
             vector<TreeNode *> vp = serialize(p);
             vector<TreeNode *> vq = serialize(q);
             print(vp);
@@ -6926,7 +6654,8 @@ namespace Test
         bool isSymmetric(TreeNode *root)
         {
             function<bool(TreeNode *, TreeNode *)> same = [&](TreeNode *p,
-                                                              TreeNode *q) -> bool {
+                                                              TreeNode *q) -> bool
+            {
                 if (p == nullptr && q == nullptr)
                     return true;
                 if (p == nullptr || q == nullptr)
@@ -7064,7 +6793,8 @@ namespace Test
         vector<vector<int>> levelOrder3(TreeNode *root)
         {
             vector<vector<int>> result;
-            function<void(TreeNode *, size_t)> visit = [&](TreeNode *n, size_t l) {
+            function<void(TreeNode *, size_t)> visit = [&](TreeNode *n, size_t l)
+            {
                 if (n == nullptr)
                     return;
                 if (result.size() < l)
@@ -7218,7 +6948,8 @@ namespace Test
         }
         int maxDepth2(TreeNode *root)
         {
-            function<int(TreeNode *)> depth = [&](TreeNode *node) -> int {
+            function<int(TreeNode *)> depth = [&](TreeNode *node) -> int
+            {
                 if (node == nullptr)
                     return 0;
                 if (node->left == nullptr && node->right == nullptr)
@@ -7229,7 +6960,8 @@ namespace Test
         }
         int maxDepth3(TreeNode *root)
         {
-            function<int(TreeNode *, int)> depth = [&](TreeNode *n, int d) -> int {
+            function<int(TreeNode *, int)> depth = [&](TreeNode *n, int d) -> int
+            {
                 if (n == nullptr)
                     return 0;
                 if (n->left == nullptr && n->right == nullptr)
@@ -7290,7 +7022,8 @@ namespace Test
             for (int i = 0; i < (int)inorder.size(); i++)
                 m[inorder[i]] = i;
             function<TreeNode *(int, int, int, int)> build = [&](int p1, int p2, int i1,
-                                                                 int i2) -> TreeNode * {
+                                                                 int i2) -> TreeNode *
+            {
                 if (p2 - p1 != i2 - i1)
                     return nullptr;
                 if (p1 > p2 || i1 > i2)
@@ -7354,7 +7087,8 @@ namespace Test
                 return nullptr;
             int p = 0;
             int i = 0;
-            function<TreeNode *(int)> build = [&](int val) -> TreeNode * {
+            function<TreeNode *(int)> build = [&](int val) -> TreeNode *
+            {
                 if (i >= (int)inorder.size() || inorder[i] == val)
                     return nullptr;
                 TreeNode *n = new TreeNode(preorder[p]);
@@ -7386,7 +7120,8 @@ namespace Test
             for (int i = 0; i < (int)inorder.size(); i++)
                 m[inorder[i]] = i;
             function<TreeNode *(int, int, int, int)> build = [&](int i1, int i2, int p1,
-                                                                 int p2) -> TreeNode * {
+                                                                 int p2) -> TreeNode *
+            {
                 if (i2 - i1 != p2 - p1 || i1 > i2 || p1 > p2)
                     return nullptr;
                 TreeNode *n = new TreeNode(postorder[p2]);
@@ -7452,7 +7187,8 @@ namespace Test
                 return nullptr;
             int p = (int)postorder.size() - 1;
             int i = (int)inorder.size() - 1;
-            function<TreeNode *(int)> build = [&](int val) -> TreeNode * {
+            function<TreeNode *(int)> build = [&](int val) -> TreeNode *
+            {
                 if (i == -1 || inorder[i] == val)
                     return nullptr;
                 TreeNode *n = new TreeNode(postorder[p]);
@@ -7558,7 +7294,8 @@ namespace Test
         //  -10  5
         TreeNode *sortedArrayToBST(const vector<int> &nums)
         {
-            function<TreeNode *(int, int)> bst = [&](int i, int j) -> TreeNode * {
+            function<TreeNode *(int, int)> bst = [&](int i, int j) -> TreeNode *
+            {
                 if (i > j || i < 0 || j >= (int)nums.size())
                     return nullptr;
                 int k = i + ((j - i) >> 1);
@@ -7573,7 +7310,8 @@ namespace Test
         {
             if (nums.empty())
                 return nullptr;
-            function<int(int, int)> middle = [&](int i, int j) -> int {
+            function<int(int, int)> middle = [&](int i, int j) -> int
+            {
                 return i + ((j - i) >> 1);
             };
             int i = 0;
@@ -7645,7 +7383,8 @@ namespace Test
         TreeNode *sortedListToBST(ListNode *head)
         {
             function<TreeNode *(ListNode *, ListNode *)> bst =
-                [&](ListNode *b, ListNode *e) -> TreeNode * {
+                [&](ListNode *b, ListNode *e) -> TreeNode *
+            {
                 if (b == e)
                     return nullptr;
                 ListNode *p = b; // 1st
@@ -7671,7 +7410,8 @@ namespace Test
             if (head->next == nullptr)
                 return new TreeNode(head->val);
             function<TreeNode *(ListNode *, ListNode *)> build =
-                [&](ListNode *b, ListNode *e) -> TreeNode * {
+                [&](ListNode *b, ListNode *e) -> TreeNode *
+            {
                 if (b == nullptr || e == nullptr)
                     return nullptr;
                 TreeNode *node;
@@ -7727,7 +7467,8 @@ namespace Test
                 p = p->next;
             }
             function<TreeNode *(ListNode *&, int, int)> bst = [&](ListNode *&h, int b,
-                                                                  int e) -> TreeNode * {
+                                                                  int e) -> TreeNode *
+            {
                 if (b > e)
                     return nullptr;
                 int m = b + ((e - b) >> 1);
@@ -7768,7 +7509,8 @@ namespace Test
         bool isBalanced(TreeNode *root)
         {
             function<bool(TreeNode *, int &)> balanced = [&](TreeNode *n,
-                                                             int &h) -> bool {
+                                                             int &h) -> bool
+            {
                 if (n == nullptr)
                 {
                     h = 0;
@@ -7841,7 +7583,8 @@ namespace Test
             if (root == nullptr)
                 return 0;
             int m = INT_MAX;
-            function<void(TreeNode *, int)> depth = [&](TreeNode *n, int d) {
+            function<void(TreeNode *, int)> depth = [&](TreeNode *n, int d)
+            {
                 if (n == nullptr)
                     return;
                 d++;
@@ -7886,7 +7629,8 @@ namespace Test
         int minDepth3(TreeNode *root)
         {
             function<int(TreeNode *, int)> solve = [&](TreeNode *node,
-                                                       int depth) -> int {
+                                                       int depth) -> int
+            {
                 if (node == nullptr)
                     return depth;
                 depth++;
@@ -7915,7 +7659,8 @@ namespace Test
         // return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
         bool hasPathSum(TreeNode *root, int sum)
         {
-            function<bool(TreeNode *, int)> solve = [&](TreeNode *n, int s) -> bool {
+            function<bool(TreeNode *, int)> solve = [&](TreeNode *n, int s) -> bool
+            {
                 if (n == nullptr)
                     return false;
                 s = s + n->val;
@@ -7953,7 +7698,8 @@ namespace Test
         int pickPathSum(TreeNode *root)
         {
             int sum = 0;
-            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s)
+            {
                 if (n == nullptr)
                     return;
                 s += n->val;
@@ -7990,22 +7736,23 @@ namespace Test
         {
             vector<vector<int>> result;
             function<void(TreeNode *, int, vector<int> &)> solve =
-                [&](TreeNode *n, int s, vector<int> &v) {
-                    if (n == nullptr)
-                        return;
-                    s += n->val;
-                    v.push_back(n->val);
-                    if (s == sum && n->left == nullptr && n->right == nullptr)
-                        result.push_back(v);
-                    else
-                    {
-                        if (n->left != nullptr)
-                            solve(n->left, s, v);
-                        if (n->right != nullptr)
-                            solve(n->right, s, v);
-                    }
-                    v.pop_back();
-                };
+                [&](TreeNode *n, int s, vector<int> &v)
+            {
+                if (n == nullptr)
+                    return;
+                s += n->val;
+                v.push_back(n->val);
+                if (s == sum && n->left == nullptr && n->right == nullptr)
+                    result.push_back(v);
+                else
+                {
+                    if (n->left != nullptr)
+                        solve(n->left, s, v);
+                    if (n->right != nullptr)
+                        solve(n->right, s, v);
+                }
+                v.pop_back();
+            };
             vector<int> w;
             solve(root, 0, w);
             return result;
@@ -8049,7 +7796,8 @@ namespace Test
         }
         void setPathSum(TreeNode *root, int sum)
         {
-            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s)
+            {
                 if (n == nullptr)
                     return;
                 if (n->left == nullptr && n->right == nullptr)
@@ -8090,31 +7838,32 @@ namespace Test
         void flatten(TreeNode *root)
         {
             function<void(TreeNode *, TreeNode *&, TreeNode *&)> flat =
-                [&](TreeNode *n, TreeNode *&l, TreeNode *&r) {
-                    if (n == nullptr)
-                    {
-                        l = nullptr;
-                        r = nullptr;
-                        return;
-                    }
-                    TreeNode *ll = nullptr;
-                    TreeNode *lr = nullptr;
-                    flat(n->left, ll, lr);
-                    TreeNode *rl = nullptr;
-                    TreeNode *rr = nullptr;
-                    flat(n->right, rl, rr);
-                    if (ll == nullptr)
-                    {
-                        l = n;
-                        r = rl == nullptr ? n : rr;
-                        return;
-                    }
-                    lr->right = rl;
-                    n->right = ll;
-                    n->left = nullptr;
+                [&](TreeNode *n, TreeNode *&l, TreeNode *&r)
+            {
+                if (n == nullptr)
+                {
+                    l = nullptr;
+                    r = nullptr;
+                    return;
+                }
+                TreeNode *ll = nullptr;
+                TreeNode *lr = nullptr;
+                flat(n->left, ll, lr);
+                TreeNode *rl = nullptr;
+                TreeNode *rr = nullptr;
+                flat(n->right, rl, rr);
+                if (ll == nullptr)
+                {
                     l = n;
-                    r = rl == nullptr ? lr : rr;
-                };
+                    r = rl == nullptr ? n : rr;
+                    return;
+                }
+                lr->right = rl;
+                n->right = ll;
+                n->left = nullptr;
+                l = n;
+                r = rl == nullptr ? lr : rr;
+            };
             TreeNode *l = nullptr;
             TreeNode *r = nullptr;
             flat(root, l, r);
@@ -8122,7 +7871,8 @@ namespace Test
         void flatten2(TreeNode *root)
         {
             function<TreeNode *(TreeNode *)> solve =
-                [&](TreeNode *node) -> TreeNode * {
+                [&](TreeNode *node) -> TreeNode *
+            {
                 if (node == nullptr)
                     return nullptr;
                 if (node->left == nullptr && node->right == nullptr)
@@ -8215,7 +7965,8 @@ namespace Test
         int numDistinct(const string &s, const string &t)
         {
             map<pair<size_t, size_t>, int> m;
-            function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int {
+            function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int
+            {
                 pair<size_t, size_t> p = make_pair(i, j);
                 if (m.find(p) != m.end())
                     return m[p];
@@ -8872,7 +8623,8 @@ namespace Test
             if (prices.size() < 2)
                 return 0;
             // Find one transaction during input[begin..end]
-            auto maxProfit = [&](int begin, int end, int &buy, int &sell, int &profit) {
+            auto maxProfit = [&](int begin, int end, int &buy, int &sell, int &profit)
+            {
                 int min = begin;
                 buy = begin;
                 sell = begin;
@@ -8967,44 +8719,45 @@ namespace Test
         int maxPathSum(TreeNode *root)
         {
             function<void(TreeNode *, int &, int &)> solve =
-                [&](TreeNode *n, int &pathSum, int &maxSum) {
-                    if (n == nullptr)
-                        return;
-                    if (n->left == nullptr && n->right == nullptr)
-                    {
-                        pathSum = n->val;
-                        maxSum = n->val;
-                        return;
-                    }
-                    int leftPathSum = INT_MIN;
-                    int leftMaxSum = INT_MIN;
-                    if (n->left != nullptr)
-                        solve(n->left, leftPathSum, leftMaxSum);
-                    if (leftPathSum < 0)
-                        leftPathSum = 0; // Ignore left path
-                    int rightPathSum = INT_MIN;
-                    int rightMaxSum = INT_MIN;
-                    if (n->right != nullptr)
-                        solve(n->right, rightPathSum, rightMaxSum);
-                    if (rightPathSum < 0)
-                        rightPathSum = 0; // Ignore right path
-                    if (n->left == nullptr)
-                    {
-                        pathSum = n->val + rightPathSum;
-                        maxSum = max(pathSum, rightMaxSum);
-                    }
-                    else if (n->right == nullptr)
-                    {
-                        pathSum = n->val + leftPathSum;
-                        maxSum = max(pathSum, leftMaxSum);
-                    }
-                    else
-                    {
-                        pathSum = n->val + max(leftPathSum, rightPathSum);
-                        maxSum = max(leftPathSum + n->val + rightPathSum,
-                                     max(leftMaxSum, rightMaxSum));
-                    }
-                };
+                [&](TreeNode *n, int &pathSum, int &maxSum)
+            {
+                if (n == nullptr)
+                    return;
+                if (n->left == nullptr && n->right == nullptr)
+                {
+                    pathSum = n->val;
+                    maxSum = n->val;
+                    return;
+                }
+                int leftPathSum = INT_MIN;
+                int leftMaxSum = INT_MIN;
+                if (n->left != nullptr)
+                    solve(n->left, leftPathSum, leftMaxSum);
+                if (leftPathSum < 0)
+                    leftPathSum = 0; // Ignore left path
+                int rightPathSum = INT_MIN;
+                int rightMaxSum = INT_MIN;
+                if (n->right != nullptr)
+                    solve(n->right, rightPathSum, rightMaxSum);
+                if (rightPathSum < 0)
+                    rightPathSum = 0; // Ignore right path
+                if (n->left == nullptr)
+                {
+                    pathSum = n->val + rightPathSum;
+                    maxSum = max(pathSum, rightMaxSum);
+                }
+                else if (n->right == nullptr)
+                {
+                    pathSum = n->val + leftPathSum;
+                    maxSum = max(pathSum, leftMaxSum);
+                }
+                else
+                {
+                    pathSum = n->val + max(leftPathSum, rightPathSum);
+                    maxSum = max(leftPathSum + n->val + rightPathSum,
+                                 max(leftMaxSum, rightMaxSum));
+                }
+            };
             int p;
             int m;
             solve(root, p, m);
@@ -9019,7 +8772,8 @@ namespace Test
         // Output: false
         bool isPalindrome(const string &s)
         {
-            function<bool(char)> isAlphaNumeric = [&](char c) -> bool {
+            function<bool(char)> isAlphaNumeric = [&](char c) -> bool
+            {
                 return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') ||
                        ('0' <= c && c <= '9');
             };
@@ -9060,13 +8814,16 @@ namespace Test
         }
         bool isPalindrome2(const string &s)
         {
-            function<bool(char)> isDigit = [&](char c) -> bool {
+            function<bool(char)> isDigit = [&](char c) -> bool
+            {
                 return '0' <= c && c <= '9';
             };
-            function<bool(char)> isLower = [&](char c) -> bool {
+            function<bool(char)> isLower = [&](char c) -> bool
+            {
                 return 'a' <= c && c <= 'z';
             };
-            function<bool(char)> isUpper = [&](char c) -> bool {
+            function<bool(char)> isUpper = [&](char c) -> bool
+            {
                 return 'A' <= c && c <= 'Z';
             };
             int i = 0;
@@ -9102,11 +8859,13 @@ namespace Test
         {
             if (s.empty())
                 return true;
-            auto isAlphaNumeric = [&](char c) -> bool {
+            auto isAlphaNumeric = [&](char c) -> bool
+            {
                 return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
                        (c >= '0' && c <= '9');
             };
-            auto equal = [&](char a, char b) -> bool {
+            auto equal = [&](char a, char b) -> bool
+            {
                 if (a >= 'a' && a <= 'z' &&
                     ((b - 'a' == a - 'a') || (b - 'A' == a - 'a')))
                     return true;
@@ -9169,12 +8928,14 @@ namespace Test
             vector<vector<string>> results;
             map<string, bool> visited;
             for_each(wordList.cbegin(), wordList.cend(),
-                     [&](const string &s) { visited[s] = false; });
+                     [&](const string &s)
+                     { visited[s] = false; });
             if (visited.find(endWord) == visited.end())
                 return results;
             size_t minLen = wordList.size() + 1;
             function<void(string &, vector<string> &)> solve = [&](string &w,
-                                                                   vector<string> &v) {
+                                                                   vector<string> &v)
+            {
                 if (v.size() >= minLen)
                     return;
                 for (size_t i = 0; i < w.size(); i++)
@@ -9255,7 +9016,8 @@ namespace Test
                             if (temp.compare(endWord) == 0)
                             {
                                 for_each(path[word].begin(), path[word].end(),
-                                         [&](vector<string> &p) {
+                                         [&](vector<string> &p)
+                                         {
                                              vector<string> r(p);
                                              r.push_back(temp);
                                              ladders.push_back(r);
@@ -9274,7 +9036,8 @@ namespace Test
                                 if (level[temp] > step)
                                 {
                                     for_each(path[word].begin(), path[word].end(),
-                                             [&](vector<string> &p) {
+                                             [&](vector<string> &p)
+                                             {
                                                  vector<string> r(p);
                                                  r.push_back(temp);
                                                  path[temp].push_back(r);
@@ -9296,42 +9059,43 @@ namespace Test
             set<string> wordSet(wordList.begin(), wordList.end());
             vector<vector<string>> ladders;
             function<void(string &, vector<string> &)> solve =
-                [&](string &word, vector<string> &ladder) {
-                    for (size_t i = 0; i < word.size(); i++)
+                [&](string &word, vector<string> &ladder)
+            {
+                for (size_t i = 0; i < word.size(); i++)
+                {
+                    char c = word[i];
+                    for (char j = 1; j < 26; j++)
                     {
-                        char c = word[i];
-                        for (char j = 1; j < 26; j++)
+                        word[i] = 'a' + ((c - 'a' + j) % 26);
+                        if (wordSet.find(word) == wordSet.end())
+                            continue;
+                        if (word.compare(endWord) == 0)
                         {
-                            word[i] = 'a' + ((c - 'a' + j) % 26);
-                            if (wordSet.find(word) == wordSet.end())
-                                continue;
-                            if (word.compare(endWord) == 0)
+                            vector<string> v(ladder.begin(), ladder.end());
+                            v.push_back(word);
+                            if (ladders.empty())
+                                ladders.push_back(v);
+                            else if (v.size() < ladders.begin()->size())
                             {
-                                vector<string> v(ladder.begin(), ladder.end());
-                                v.push_back(word);
-                                if (ladders.empty())
-                                    ladders.push_back(v);
-                                else if (v.size() < ladders.begin()->size())
-                                {
-                                    ladders.clear();
-                                    ladders.push_back(v);
-                                }
-                                else if (v.size() == ladders.begin()->size())
-                                {
-                                    ladders.push_back(v);
-                                }
-                                break;
+                                ladders.clear();
+                                ladders.push_back(v);
                             }
-                            else if (std::find(ladder.begin(), ladder.end(), word) == ladder.end())
+                            else if (v.size() == ladders.begin()->size())
                             {
-                                ladder.push_back(word);
-                                solve(word, ladder);
-                                ladder.pop_back();
+                                ladders.push_back(v);
                             }
+                            break;
                         }
-                        word[i] = c;
+                        else if (std::find(ladder.begin(), ladder.end(), word) == ladder.end())
+                        {
+                            ladder.push_back(word);
+                            solve(word, ladder);
+                            ladder.pop_back();
+                        }
                     }
-                };
+                    word[i] = c;
+                }
+            };
             vector<string> l;
             l.push_back(beginWord);
             string begin(beginWord);
@@ -9366,7 +9130,8 @@ namespace Test
         {
             map<string, bool> visited;
             for_each(wordList.cbegin(), wordList.cend(),
-                     [&](const string &s) { visited[s] = false; });
+                     [&](const string &s)
+                     { visited[s] = false; });
             queue<vector<string>> paths;
             paths.push(vector<string>(1, beginWord));
             while (!paths.empty())
@@ -9398,7 +9163,8 @@ namespace Test
         {
             function<int(bool, const string &, const vector<string> &)> search =
                 [&](bool transformed, const string &word,
-                    const vector<string> &list) -> int {
+                    const vector<string> &list) -> int
+            {
                 vector<string> list2(list);
                 auto it = find(list2.begin(), list2.end(), word);
                 if (it == list2.end())
@@ -9449,27 +9215,29 @@ namespace Test
                 dict.insert(endWord);
             map<string, vector<string>> graph;
             for_each(dict.begin(), dict.end(),
-                     [&](string word) { graph[word] = vector<string>{}; });
-            for_each(dict.begin(), dict.end(), [&](string word) {
-                int wordLen = word.length();
-                for (map<string, vector<string>>::iterator it = graph.begin();
-                     it != graph.end(); it++)
-                {
-                    if (wordLen == (int)it->first.length())
-                    {
-                        int diff = 0;
-                        for (int i = 0; i < wordLen; i++)
-                        {
-                            if (word[i] != it->first[i])
-                                diff++;
-                            if (diff > 1)
-                                break;
-                        }
-                        if (diff == 1)
-                            it->second.push_back(word);
-                    }
-                }
-            });
+                     [&](string word)
+                     { graph[word] = vector<string>{}; });
+            for_each(dict.begin(), dict.end(), [&](string word)
+                     {
+                         int wordLen = word.length();
+                         for (map<string, vector<string>>::iterator it = graph.begin();
+                              it != graph.end(); it++)
+                         {
+                             if (wordLen == (int)it->first.length())
+                             {
+                                 int diff = 0;
+                                 for (int i = 0; i < wordLen; i++)
+                                 {
+                                     if (word[i] != it->first[i])
+                                         diff++;
+                                     if (diff > 1)
+                                         break;
+                                 }
+                                 if (diff == 1)
+                                     it->second.push_back(word);
+                             }
+                         }
+                     });
             bool found = false;
             unordered_set<string> visited;
             queue<string> q[2];
@@ -9513,7 +9281,8 @@ namespace Test
                 return 0;
             unordered_set<string> dict;
             dict.insert(wordList.begin(), wordList.end());
-            auto diff1 = [&](const string &first, const string &second) -> bool {
+            auto diff1 = [&](const string &first, const string &second) -> bool
+            {
                 if (first.size() != second.size())
                     return false;
                 int diff = 0;
@@ -9549,7 +9318,8 @@ namespace Test
                         }
                     }
                 }
-                for_each(next.begin(), next.end(), [&](string &s) { dict.erase(s); });
+                for_each(next.begin(), next.end(), [&](string &s)
+                         { dict.erase(s); });
                 step++;
             }
             return 0;
@@ -9814,7 +9584,8 @@ namespace Test
         int sumNumbers2(TreeNode *root)
         {
             int t = 0;
-            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s) {
+            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s)
+            {
                 if (n == nullptr)
                     return;
                 s = s * 10 + n->val;
@@ -9854,7 +9625,8 @@ namespace Test
                 return;
             int rows = board.size();
             int cols = board[0].size();
-            function<void(int, int)> mark = [&](int i, int j) {
+            function<void(int, int)> mark = [&](int i, int j)
+            {
                 if (i < 0 || i >= rows || j < 0 || j >= cols || board[i][j] != 'O')
                     return;
                 board[i][j] = 'Y';
@@ -9969,7 +9741,8 @@ namespace Test
                         else
                         {
                             for_each(region.begin(), region.end(),
-                                     [&](pair<int, int> p) {
+                                     [&](pair<int, int> p)
+                                     {
                                          board[p.first][p.second] = 'X';
                                      });
                         }
@@ -9983,7 +9756,8 @@ namespace Test
             if (height == 0)
                 return;
             int width = board[0].size();
-            auto search = [&](int i, int j) {
+            auto search = [&](int i, int j)
+            {
                 if (board[i][j] == 'O')
                 {
                     board[i][j] = 'C';
@@ -10067,7 +9841,8 @@ namespace Test
         //        }
         vector<vector<string>> partition(const string &s)
         {
-            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool
+            {
                 while (i < j)
                 {
                     if (s[i++] != s[j--])
@@ -10086,7 +9861,8 @@ namespace Test
                     {
                         string p = s.substr(i, j - i + 1);
                         for_each(m[j + 1].begin(), m[j + 1].end(),
-                                 [&](const vector<string> &v) {
+                                 [&](const vector<string> &v)
+                                 {
                                      vector<string> v1 = {p};
                                      v1.insert(v1.end(), v.cbegin(), v.cend());
                                      m[i].push_back(v1);
@@ -10101,7 +9877,8 @@ namespace Test
         vector<vector<string>> partition2(const string &s)
         {
             map<int, vector<vector<string>>> m;
-            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool
+            {
                 while (i < j)
                 {
                     if (s[i] != s[j])
@@ -10111,7 +9888,8 @@ namespace Test
                 }
                 return true;
             };
-            function<void(int)> solve = [&](int i) {
+            function<void(int)> solve = [&](int i)
+            {
                 if (i < 0 || i >= (int)s.size() || m.find(i) != m.end())
                     return;
                 m[i] = {};
@@ -10152,7 +9930,8 @@ namespace Test
             if (s.empty())
                 return result;
             function<bool(size_t, size_t)> isPalindrome = [&](size_t i,
-                                                              size_t j) -> bool {
+                                                              size_t j) -> bool
+            {
                 while (i < j)
                 {
                     if (s[i++] != s[j--])
@@ -10161,7 +9940,8 @@ namespace Test
                 return true;
             };
             function<void(size_t, vector<string> &)> solve = [&](size_t i,
-                                                                 vector<string> &p) {
+                                                                 vector<string> &p)
+            {
                 if (i == s.length())
                 {
                     result.push_back(p);
@@ -10201,7 +9981,8 @@ namespace Test
         {
             if (s.empty())
                 return 0;
-            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool
+            {
                 while (i < j)
                 {
                     if (s[i++] != s[j--])
@@ -10239,7 +10020,8 @@ namespace Test
             //              });
             //     cout << "}" << endl;
             // };
-            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool {
+            function<bool(int, int)> isPalindrome = [&](int i, int j) -> bool
+            {
                 // cout << "Enter m[(" << i << "," << j << ")]" << endl;
                 // printm();
                 pair<int, int> p = make_pair(i, j);
@@ -10333,7 +10115,8 @@ namespace Test
             int l = v.size();
             vector<Node *> n(l, nullptr);
             transform(v.begin(), v.end(), n.begin(),
-                      [&](int i) { return new Node(i); });
+                      [&](int i)
+                      { return new Node(i); });
             for (int i = 0; i < l; i++)
             {
                 int c = 1 + (rand() % l);
@@ -10374,19 +10157,21 @@ namespace Test
             {
                 Node *f = q.front();
                 q.pop();
-                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
-                    if (m.find(n) == m.end())
-                    {
-                        m.insert(n);
-                        q.push(n);
-                    }
-                });
+                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n)
+                         {
+                             if (m.find(n) == m.end())
+                             {
+                                 m.insert(n);
+                                 q.push(n);
+                             }
+                         });
                 f->neighbors.clear();
             }
-            for_each(m.begin(), m.end(), [&](Node *n) {
-                // cout << "delete " << n->val << endl;
-                delete n;
-            });
+            for_each(m.begin(), m.end(), [&](Node *n)
+                     {
+                         // cout << "delete " << n->val << endl;
+                         delete n;
+                     });
             m.clear();
         }
 
@@ -10403,14 +10188,15 @@ namespace Test
             {
                 Node *f = q.front();
                 q.pop();
-                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
-                    if (m.find(n->val) == m.end())
-                    {
-                        m[n->val] = {};
-                        q.push(n);
-                    }
-                    m[f->val].push_back(n->val);
-                });
+                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n)
+                         {
+                             if (m.find(n->val) == m.end())
+                             {
+                                 m[n->val] = {};
+                                 q.push(n);
+                             }
+                             m[f->val].push_back(n->val);
+                         });
             }
             return m;
         }
@@ -10461,7 +10247,8 @@ namespace Test
         Node *cloneGraph(Node *node)
         {
             map<Node *, Node *> cloned;
-            function<Node *(Node *)> clone = [&](Node *node) -> Node * {
+            function<Node *(Node *)> clone = [&](Node *node) -> Node *
+            {
                 if (node == nullptr)
                     return nullptr;
                 if (cloned.find(node) != cloned.end())
@@ -10469,7 +10256,8 @@ namespace Test
                 Node *copy = new Node(node->val);
                 cloned[node] = copy;
                 for_each(node->neighbors.begin(), node->neighbors.end(),
-                         [&](Node *n) { copy->neighbors.push_back(clone(n)); });
+                         [&](Node *n)
+                         { copy->neighbors.push_back(clone(n)); });
                 return copy;
             };
             return clone(node);
@@ -10486,14 +10274,15 @@ namespace Test
             {
                 Node *f = q.front();
                 q.pop();
-                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n) {
-                    if (m.find(n) == m.end())
-                    {
-                        m[n] = new Node(n->val);
-                        q.push(n);
-                    }
-                    m[f]->neighbors.push_back(m[n]);
-                });
+                for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n)
+                         {
+                             if (m.find(n) == m.end())
+                             {
+                                 m[n] = new Node(n->val);
+                                 q.push(n);
+                             }
+                             m[f]->neighbors.push_back(m[n]);
+                         });
             }
             return m[node];
         }
@@ -10611,12 +10400,14 @@ namespace Test
         int singleNumber(const vector<int> &nums)
         {
             int r = 0;
-            for_each(nums.begin(), nums.end(), [&](int n) { r ^= n; });
+            for_each(nums.begin(), nums.end(), [&](int n)
+                     { r ^= n; });
             return r;
         }
         int singleNumber2(const vector<int> &nums)
         {
-            return accumulate(nums.cbegin(), nums.cend(), 0, [&](int x, int n) -> int { return x ^ n; });
+            return accumulate(nums.cbegin(), nums.cend(), 0, [&](int x, int n) -> int
+                              { return x ^ n; });
         }
 
         // 137. Single Number II
@@ -10734,7 +10525,8 @@ namespace Test
             {
                 map<Node *, Node *> m;
                 function<Node *(Node *)> copy =
-                    [&](Node *n) -> Node * {
+                    [&](Node *n) -> Node *
+                {
                     if (n == nullptr)
                         return nullptr;
                     if (m.find(n) == m.end())
@@ -10750,7 +10542,8 @@ namespace Test
             Node *copyRandomList2(Node *head)
             {
                 map<Node *, Node *> m;
-                function<Node *(Node *)> copy = [&](Node *n) -> Node * {
+                function<Node *(Node *)> copy = [&](Node *n) -> Node *
+                {
                     if (n == nullptr)
                         return nullptr;
                     if (m.find(n) != m.end())
@@ -10766,7 +10559,8 @@ namespace Test
             Node *copyRandomList3(Node *head)
             {
                 map<Node *, Node *> m;
-                function<Node *(Node *)> copy = [&](Node *n) -> Node * {
+                function<Node *(Node *)> copy = [&](Node *n) -> Node *
+                {
                     if (n == nullptr)
                         return nullptr;
                     if (m.find(n) == m.end())
@@ -10838,7 +10632,8 @@ namespace Test
         bool wordBreak(const string &s, const vector<string> &wordDict)
         {
             function<bool(size_t, const string &)> same = [&](size_t i,
-                                                              const string &w) -> bool {
+                                                              const string &w) -> bool
+            {
                 if (i + w.size() > s.size())
                     return false;
                 for (size_t j = 0; j < w.size(); j++)
@@ -10849,7 +10644,8 @@ namespace Test
                 return true;
             };
             map<size_t, bool> m;
-            function<bool(size_t)> solve = [&](size_t i) -> bool {
+            function<bool(size_t)> solve = [&](size_t i) -> bool
+            {
                 if (m.find(i) != m.end())
                     return m[i];
                 if (i == s.size())
@@ -10876,7 +10672,8 @@ namespace Test
         bool wordBreak2(const string &s, const vector<string> &wordDict)
         {
             function<bool(size_t, const string &)> same = [&](size_t i,
-                                                              const string &w) -> bool {
+                                                              const string &w) -> bool
+            {
                 if (i + w.size() > s.size())
                     return false;
                 for (size_t j = 0; j < w.size(); j++)
@@ -10921,7 +10718,8 @@ namespace Test
                     maxLength = wordDict[i].size();
             }
             map<size_t, bool> breakable;
-            function<bool(size_t)> solve = [&](size_t i) -> bool {
+            function<bool(size_t)> solve = [&](size_t i) -> bool
+            {
                 if (breakable.find(i) != breakable.end())
                     return breakable[i];
                 breakable[i] = false;
@@ -10987,7 +10785,8 @@ namespace Test
         vector<string> wordBreakII(const string &s, const vector<string> &wordDict)
         {
             function<bool(size_t, const string &)> same = [&](size_t i,
-                                                              const string &w) -> bool {
+                                                              const string &w) -> bool
+            {
                 if (i + w.size() > s.size())
                     return false;
                 for (size_t j = 0; j < w.size(); j++)
@@ -10998,7 +10797,8 @@ namespace Test
                 return true;
             };
             map<size_t, vector<string>> m;
-            function<void(size_t)> solve = [&](size_t i) {
+            function<void(size_t)> solve = [&](size_t i)
+            {
                 if (i > s.size() || m.find(i) != m.end())
                     return;
                 m[i] = {};
@@ -11016,12 +10816,13 @@ namespace Test
                         else
                         {
                             solve(k);
-                            for_each(m[k].begin(), m[k].end(), [&](string &r) {
-                                string r1 = wordDict[j];
-                                r1.append(1, ' ');
-                                r1.append(r);
-                                m[i].push_back(r1);
-                            });
+                            for_each(m[k].begin(), m[k].end(), [&](string &r)
+                                     {
+                                         string r1 = wordDict[j];
+                                         r1.append(1, ' ');
+                                         r1.append(r);
+                                         m[i].push_back(r1);
+                                     });
                         }
                     }
                 }
@@ -11032,7 +10833,8 @@ namespace Test
         vector<string> wordBreakII2(const string &s, const vector<string> &wordDict)
         {
             function<bool(size_t, const string &)> same = [&](size_t i,
-                                                              const string &w) -> bool {
+                                                              const string &w) -> bool
+            {
                 if (i + w.size() > s.size())
                     return false;
                 for (size_t j = 0; j < w.size(); j++)
@@ -11439,7 +11241,8 @@ namespace Test
         ListNode *sortList(ListNode *head)
         {
             function<ListNode *(ListNode *, ListNode *)> merge =
-                [&](ListNode *p, ListNode *q) -> ListNode * {
+                [&](ListNode *p, ListNode *q) -> ListNode *
+            {
                 if (p == nullptr)
                     return q;
                 if (q == nullptr)
@@ -11473,7 +11276,8 @@ namespace Test
                     t->next = p;
                 return h;
             };
-            function<ListNode *(ListNode *)> sort = [&](ListNode *h) -> ListNode * {
+            function<ListNode *(ListNode *)> sort = [&](ListNode *h) -> ListNode *
+            {
                 if (h == nullptr || h->next == nullptr)
                     return h;
                 ListNode *p = h;
@@ -11524,7 +11328,8 @@ namespace Test
         {
             if (points.size() < 2)
                 return (int)points.size();
-            function<int(int, int)> gcd = [&](int a, int b) -> int {
+            function<int(int, int)> gcd = [&](int a, int b) -> int
+            {
                 if (a < b)
                     swap(a, b);
                 while (b != 0)
@@ -11536,7 +11341,8 @@ namespace Test
                 return a;
             };
             function<pair<int, int>(const vector<int> &, const vector<int> &)> slope =
-                [&](const vector<int> &p, const vector<int> &q) -> pair<int, int> {
+                [&](const vector<int> &p, const vector<int> &q) -> pair<int, int>
+            {
                 if (p[0] == q[0])
                     return make_pair(0, 1);
                 if (p[1] == q[1])
@@ -11594,7 +11400,8 @@ namespace Test
         {
             if (points.size() <= 1)
                 return points.size();
-            function<int(int, int)> gcd = [&](int a, int b) -> int {
+            function<int(int, int)> gcd = [&](int a, int b) -> int
+            {
                 if (a < b)
                     swap(a, b);
                 while (b != 0)
@@ -11607,7 +11414,8 @@ namespace Test
             };
             function<pair<int, int>(const vector<int> &, const vector<int> &)>
                 get_slope =
-                    [&](const vector<int> &p, const vector<int> &q) -> pair<int, int> {
+                    [&](const vector<int> &p, const vector<int> &q) -> pair<int, int>
+            {
                 if (p[0] == q[0])
                     return make_pair(0, 1);
                 if (p[1] == q[1])
@@ -11630,7 +11438,8 @@ namespace Test
             // are potentially on the same lines.
             // Use comparer of IntPoint
             sort(points.begin(), points.end(),
-                 [&](const vector<int> &l, const vector<int> &r) {
+                 [&](const vector<int> &l, const vector<int> &r)
+                 {
                      if (l[0] == r[0])
                          return l[1] < r[1];
                      return l[0] < r[0];
@@ -11664,7 +11473,8 @@ namespace Test
                 // lines of the same slope
                 vector<set<vector<int>>> lines;
                 for_each(slope->second.begin(), slope->second.end(),
-                         [&](pair<vector<int>, vector<int>> &s) {
+                         [&](pair<vector<int>, vector<int>> &s)
+                         {
                              // s is a line segament ending with two points.
                              // Check and assign the points into the set of points on
                              // the same line.
@@ -11713,13 +11523,15 @@ namespace Test
                                  lines.push_back(line);
                              }
                          });
-                for_each(lines.begin(), lines.end(), [&](set<vector<int>> &l) {
-                    int m = 0;
-                    for_each(l.cbegin(), l.cend(),
-                             [&](const vector<int> &v) { m += dup[v]; });
-                    if (m > max)
-                        max = m;
-                });
+                for_each(lines.begin(), lines.end(), [&](set<vector<int>> &l)
+                         {
+                             int m = 0;
+                             for_each(l.cbegin(), l.cend(),
+                                      [&](const vector<int> &v)
+                                      { m += dup[v]; });
+                             if (m > max)
+                                 max = m;
+                         });
             }
             return max;
         }
@@ -11752,44 +11564,45 @@ namespace Test
         int evalRPN(const vector<string> &tokens)
         {
             stack<int> q;
-            for_each(tokens.cbegin(), tokens.cend(), [&](const string &t) {
-                if (t == "+")
-                {
-                    int a = q.top();
-                    q.pop();
-                    int b = q.top();
-                    q.pop();
-                    q.push(b + a);
-                }
-                else if (t == "-")
-                {
-                    int a = q.top();
-                    q.pop();
-                    int b = q.top();
-                    q.pop();
-                    q.push(b - a);
-                }
-                else if (t == "*")
-                {
-                    int a = q.top();
-                    q.pop();
-                    int b = q.top();
-                    q.pop();
-                    q.push(b * a);
-                }
-                else if (t == "/")
-                {
-                    int a = q.top();
-                    q.pop();
-                    int b = q.top();
-                    q.pop();
-                    q.push(b / a);
-                }
-                else
-                {
-                    q.push(stoi(t));
-                }
-            });
+            for_each(tokens.cbegin(), tokens.cend(), [&](const string &t)
+                     {
+                         if (t == "+")
+                         {
+                             int a = q.top();
+                             q.pop();
+                             int b = q.top();
+                             q.pop();
+                             q.push(b + a);
+                         }
+                         else if (t == "-")
+                         {
+                             int a = q.top();
+                             q.pop();
+                             int b = q.top();
+                             q.pop();
+                             q.push(b - a);
+                         }
+                         else if (t == "*")
+                         {
+                             int a = q.top();
+                             q.pop();
+                             int b = q.top();
+                             q.pop();
+                             q.push(b * a);
+                         }
+                         else if (t == "/")
+                         {
+                             int a = q.top();
+                             q.pop();
+                             int b = q.top();
+                             q.pop();
+                             q.push(b / a);
+                         }
+                         else
+                         {
+                             q.push(stoi(t));
+                         }
+                     });
             return q.top();
         }
         int evalRPN2(const vector<string> &tokens)
@@ -11797,7 +11610,8 @@ namespace Test
             int n1;
             int n2;
             stack<int> nums;
-            function<void(int &, int &)> pop = [&](int &m1, int &m2) {
+            function<void(int &, int &)> pop = [&](int &m1, int &m2)
+            {
                 m2 = nums.top();
                 nums.pop();
                 m1 = nums.top();
@@ -11852,7 +11666,8 @@ namespace Test
         // O(1) extra space.
         string reverseWords(string s)
         {
-            function<void()> compact = [&]() {
+            function<void()> compact = [&]()
+            {
                 int i = -1;
                 for (int j = 0; j < (int)s.size(); j++)
                 {
@@ -11865,7 +11680,8 @@ namespace Test
                     i++;
                 s.resize(i);
             };
-            function<void(int, int)> reverse = [&](int i, int j) {
+            function<void(int, int)> reverse = [&](int i, int j)
+            {
                 while (i < j)
                     swap(s[i++], s[j--]);
             };
@@ -11958,7 +11774,8 @@ namespace Test
                 i--;
             s.resize(i + 1);
             // step 2: reverse words
-            function<void(int, int)> reverse = [&](int b, int e) {
+            function<void(int, int)> reverse = [&](int b, int e)
+            {
                 while (b < e)
                 {
                     swap(s[b++], s[e--]);
@@ -12242,7 +12059,8 @@ namespace Test
         {
             int n = (int)nums.size();
             int e = nums[n - 1];
-            function<int(int, int)> find = [&](int l, int h) -> int {
+            function<int(int, int)> find = [&](int l, int h) -> int
+            {
                 int m;
                 while (l < h)
                 {
@@ -12265,7 +12083,8 @@ namespace Test
         }
         int findMinII2(const vector<int> &nums)
         {
-            function<int(int, int)> find = [&](int l, int h) -> int {
+            function<int(int, int)> find = [&](int l, int h) -> int
+            {
                 if (l == h)
                     return nums[l];
                 if (l + 1 == h)
@@ -12390,7 +12209,8 @@ namespace Test
         }
         ListNode *getIntersectionNode3(ListNode *headA, ListNode *headB)
         {
-            function<int(ListNode *)> getLength = [&](ListNode *h) -> int {
+            function<int(ListNode *)> getLength = [&](ListNode *h) -> int
+            {
                 int i = 0;
                 while (h != nullptr)
                 {
@@ -12400,7 +12220,8 @@ namespace Test
                 return i;
             };
             function<ListNode *(ListNode *, int)> advance = [&](ListNode *h,
-                                                                int n) -> ListNode * {
+                                                                int n) -> ListNode *
+            {
                 while (n > 0)
                 {
                     h = h->next;
@@ -12763,13 +12584,15 @@ namespace Test
         int compareVersion(const string &version1, const string &version2)
         {
             function<int(const string &, int)> nextDot = [&](const string &s,
-                                                             int i) -> int {
+                                                             int i) -> int
+            {
                 while (i < (int)s.size() && s[i] != '.')
                     i++;
                 return i;
             };
             function<int(int, int, int, int)> comp = [&](int i1, int i2, int j1,
-                                                         int j2) -> int {
+                                                         int j2) -> int
+            {
                 while (i1 < i2 && version1[i1] == '0')
                     i1++;
                 while (j1 < j2 && version2[j1] == '0')
@@ -12790,7 +12613,8 @@ namespace Test
                 return 0;
             };
             function<bool(const string &, int)> allZeros = [&](const string &s,
-                                                               int i) -> bool {
+                                                               int i) -> bool
+            {
                 while (i < (int)s.size())
                 {
                     if (s[i] != '0' && s[i] != '.')
@@ -12820,7 +12644,8 @@ namespace Test
         int compareVersion2(const string &version1, const string &version2)
         {
             function<int(const string &, size_t &)> version = [&](const string &str,
-                                                                  size_t &i) -> int {
+                                                                  size_t &i) -> int
+            {
                 int val = 0;
                 while (i < str.size() && str[i] == '.')
                     i++;
@@ -13277,41 +13102,46 @@ namespace Test
             vector<string> s;
             s.resize(nums.size());
             transform(nums.begin(), nums.end(), s.begin(),
-                      [&](int i) { return std::to_string(i); });
-            sort(s.begin(), s.end(), [&](const string &a, const string &b) -> bool {
-                string ab = a + b;
-                string ba = b + a;
-                for (size_t i = 0; i < ab.size(); i++)
-                {
-                    if (ab[i] > ba[i])
-                        return true;
-                    else if (ab[i] < ba[i])
-                        return false;
-                }
-                return false;
-            });
+                      [&](int i)
+                      { return std::to_string(i); });
+            sort(s.begin(), s.end(), [&](const string &a, const string &b) -> bool
+                 {
+                     string ab = a + b;
+                     string ba = b + a;
+                     for (size_t i = 0; i < ab.size(); i++)
+                     {
+                         if (ab[i] > ba[i])
+                             return true;
+                         else if (ab[i] < ba[i])
+                             return false;
+                     }
+                     return false;
+                 });
             if (s[0] == "0")
                 return "0";
             ostringstream ss;
-            for_each(s.cbegin(), s.cend(), [&](const string &i) { ss << i; });
+            for_each(s.cbegin(), s.cend(), [&](const string &i)
+                     { ss << i; });
             return ss.str();
         }
         string largestNumber2(const vector<int> &nums)
         {
             vector<string> strs;
             strs.resize(nums.size());
-            transform(nums.begin(), nums.end(), strs.begin(), [&](int i) {
-                ostringstream oss;
-                oss << i;
-                return oss.str();
-            });
-            sort(strs.begin(), strs.end(), [&](const string &str1, const string &str2) {
-                string str12(str1);
-                str12.append(str2);
-                string str21(str2);
-                str21.append(str1);
-                return str12.compare(str21) > 0;
-            });
+            transform(nums.begin(), nums.end(), strs.begin(), [&](int i)
+                      {
+                          ostringstream oss;
+                          oss << i;
+                          return oss.str();
+                      });
+            sort(strs.begin(), strs.end(), [&](const string &str1, const string &str2)
+                 {
+                     string str12(str1);
+                     str12.append(str2);
+                     string str21(str2);
+                     str21.append(str1);
+                     return str12.compare(str21) > 0;
+                 });
             string result;
             if (strs[0] == "0")
             {
@@ -13320,7 +13150,8 @@ namespace Test
             else
             {
                 for_each(strs.begin(), strs.end(),
-                         [&](const string &str) { result.append(str); });
+                         [&](const string &str)
+                         { result.append(str); });
             }
             return result;
         }
@@ -13552,7 +13383,8 @@ namespace Test
             k = k % nums.size();
             if (k == 0)
                 return;
-            function<void(int, int)> Swap = [&](int i, int j) {
+            function<void(int, int)> Swap = [&](int i, int j)
+            {
                 while (i < j)
                 {
                     swap(nums[i], nums[j]);
@@ -13569,7 +13401,8 @@ namespace Test
             k %= nums.size();
             if (k == 0)
                 return;
-            function<void(int, int, int)> Swap = [&](int p, int q, int n) {
+            function<void(int, int, int)> Swap = [&](int p, int q, int n)
+            {
                 for (int m = 0; m < n; m++)
                     swap(nums[p + m], nums[q + m]);
             };
@@ -13862,7 +13695,8 @@ namespace Test
                 return 0;
             int m = grid.size();
             int n = grid[0].size();
-            function<void(int, int)> mark = [&](int i, int j) {
+            function<void(int, int)> mark = [&](int i, int j)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] != '1')
                     return;
                 grid[i][j] = '2';
@@ -13897,7 +13731,8 @@ namespace Test
         {
             if (grid.empty() || grid[0].empty())
                 return 0;
-            function<void(int, int)> visit = [&](int i, int j) {
+            function<void(int, int)> visit = [&](int i, int j)
+            {
                 queue<pair<int, int>> q;
                 pair<int, int> p = make_pair(i, j);
                 q.push(p);
@@ -14114,7 +13949,8 @@ namespace Test
             const int NumInts = (n / NumBitsInt) + 1;
             unique_ptr<int[]> bits(new int[NumInts]);
             memset(bits.get(), 0, NumInts * sizeof(int));
-            function<void(int, int)> setbit = [&](int i, int b) {
+            function<void(int, int)> setbit = [&](int i, int b)
+            {
                 int j = i / NumBitsInt;
                 int k = i % NumBitsInt;
                 if (b == 1)
@@ -14122,7 +13958,8 @@ namespace Test
                 else if (b == 0)
                     bits[j] &= ~(0x1 << k);
             };
-            function<int(int)> getbit = [&](int i) -> int {
+            function<int(int)> getbit = [&](int i) -> int
+            {
                 int j = i / NumBitsInt;
                 int k = i % NumBitsInt;
                 return (bits[j] & (0x1 << k)) >> k;
@@ -14228,7 +14065,8 @@ namespace Test
         }
         ListNode *reverseList3(ListNode *head)
         {
-            function<ListNode *(ListNode *)> reverse = [&](ListNode *t) -> ListNode * {
+            function<ListNode *(ListNode *)> reverse = [&](ListNode *t) -> ListNode *
+            {
                 if (t == nullptr || t->next == nullptr)
                     return t;
                 ListNode *h = reverse(t->next);
@@ -14241,18 +14079,19 @@ namespace Test
         ListNode *reverseList4(ListNode *head)
         {
             function<void(ListNode *, ListNode **, ListNode **)> reverse =
-                [&](ListNode *node, ListNode **h, ListNode **t) {
-                    if (node == nullptr || node->next == nullptr)
-                    {
-                        *h = node;
-                        *t = node;
-                        return;
-                    }
-                    reverse(node->next, h, t);
-                    (*t)->next = node;
-                    node->next = nullptr;
+                [&](ListNode *node, ListNode **h, ListNode **t)
+            {
+                if (node == nullptr || node->next == nullptr)
+                {
+                    *h = node;
                     *t = node;
-                };
+                    return;
+                }
+                reverse(node->next, h, t);
+                (*t)->next = node;
+                node->next = nullptr;
+                *t = node;
+            };
             ListNode *tail = nullptr;
             reverse(head, &head, &tail);
             return head;
@@ -14282,7 +14121,8 @@ namespace Test
         {
             map<int, vector<int>> g;
             for_each(prerequisites.cbegin(), prerequisites.cend(),
-                     [&](const vector<int> &e) {
+                     [&](const vector<int> &e)
+                     {
                          if (g.find(e[1]) == g.end())
                              g[e[1]] = vector<int>(1, e[0]);
                          else
@@ -14290,7 +14130,8 @@ namespace Test
                      });
             set<int> trees;
             function<bool(int, set<int> &)> hasCircle = [&](int i,
-                                                            set<int> &visited) -> bool {
+                                                            set<int> &visited) -> bool
+            {
                 if (g.find(i) == g.end())
                     return false;
                 if (trees.find(i) != trees.end())
@@ -14320,7 +14161,8 @@ namespace Test
         {
             map<int, vector<int>> g;
             for_each(prerequisites.cbegin(), prerequisites.cend(),
-                     [&](const vector<int> &e) {
+                     [&](const vector<int> &e)
+                     {
                          if (g.find(e[1]) == g.end())
                              g[e[1]] = vector<int>(1, e[0]);
                          else
@@ -14398,7 +14240,8 @@ namespace Test
                 if (node == nullptr)
                     return;
                 for_each(node->children.begin(), node->children.end(),
-                         [&](Node *n) { Delete(n); });
+                         [&](Node *n)
+                         { Delete(n); });
                 node->children.clear();
             }
 
@@ -14519,7 +14362,8 @@ namespace Test
                 if (node == nullptr)
                     return;
                 for_each(node->children.begin(), node->children.end(),
-                         [&](Node *n) { Delete(n); });
+                         [&](Node *n)
+                         { Delete(n); });
                 node->children.clear();
             }
 
@@ -14861,7 +14705,8 @@ namespace Test
                     next.clear();
                 }
             } *root = new Node('\0', true);
-            function<void(const string &)> insert = [&](const string &word) {
+            function<void(const string &)> insert = [&](const string &word)
+            {
                 Node *node = root;
                 size_t i = 0;
                 while (i < word.size())
@@ -14877,7 +14722,8 @@ namespace Test
                 }
                 node->complete = true;
             };
-            function<size_t(size_t)> match = [&](size_t i) -> size_t {
+            function<size_t(size_t)> match = [&](size_t i) -> size_t
+            {
                 Node *node = root;
                 size_t j = i;
                 while (j < sentence.size())
@@ -14979,7 +14825,8 @@ namespace Test
 
             void Print()
             {
-                function<void(int, Node *)> print = [&](int i, Node *node) {
+                function<void(int, Node *)> print = [&](int i, Node *node)
+                {
                     cout << string(i, ' ') << node->val << (node->complete ? "/" : " ") << endl;
                     for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
                         print(i + 2, it->second);
@@ -15009,7 +14856,8 @@ namespace Test
 
             bool search(const string &word)
             {
-                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool {
+                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool
+                {
                     if (i >= word.size())
                         return node->complete;
                     if (node->next.find(word[i]) == node->next.end())
@@ -15143,7 +14991,8 @@ namespace Test
         {
             map<int, vector<int>> g;
             for_each(prerequisites.cbegin(), prerequisites.cend(),
-                     [&](const vector<int> &e) {
+                     [&](const vector<int> &e)
+                     {
                          if (g.find(e[0]) == g.end())
                              g[e[0]] = vector<int>();
                          g[e[0]].push_back(e[1]);
@@ -15153,7 +15002,8 @@ namespace Test
             set<int> path;
             bool solvable = true;
             int rank = 0;
-            function<bool(int)> solve = [&](int i) -> bool {
+            function<bool(int)> solve = [&](int i) -> bool
+            {
                 if (visited.find(i) != visited.end())
                     return true;
                 if (g.find(i) != g.end())
@@ -15181,7 +15031,8 @@ namespace Test
             {
                 // sort(rankNodeVector.begin(), rankNodeVector.end());
                 for_each(rankNodeVector.cbegin(), rankNodeVector.cend(),
-                         [&](const pair<int, int> &p) { result.push_back(p.second); });
+                         [&](const pair<int, int> &p)
+                         { result.push_back(p.second); });
             }
             return result;
         }
@@ -15222,7 +15073,8 @@ namespace Test
                 if (n != nullptr)
                 {
                     for_each(n->children.begin(), n->children.end(),
-                             [&](Node *c) { Delete(c); });
+                             [&](Node *c)
+                             { Delete(c); });
                     n->children.clear();
                 }
             }
@@ -15238,7 +15090,8 @@ namespace Test
             {
                 size_t i = 0;
                 function<Node *(Node *, size_t &)> match = [&](Node *node,
-                                                               size_t &i) -> Node * {
+                                                               size_t &i) -> Node *
+                {
                     if (i == word.size())
                         return node;
                     for (size_t j = 0; j < node->children.size(); j++)
@@ -15263,7 +15116,8 @@ namespace Test
             bool search(const string &word)
             {
                 function<bool(Node *, size_t)> match = [&](Node *node,
-                                                           size_t i) -> bool {
+                                                           size_t i) -> bool
+                {
                     if (i == word.size())
                         return node->valid;
                     for (size_t j = 0; j < node->children.size(); j++)
@@ -15308,7 +15162,8 @@ namespace Test
             int n = board[0].size();
             set<pair<int, int>> path;
             function<bool(int, int, const string &, int)> find =
-                [&](int i, int j, const string &word, size_t k) -> bool {
+                [&](int i, int j, const string &word, size_t k) -> bool
+            {
                 if (k == word.size())
                     return true;
                 if (i < 0 || i >= m || j < 0 || j >= n || board[i][j] != word[k])
@@ -15323,19 +15178,20 @@ namespace Test
                 path.erase(p);
                 return found;
             };
-            for_each(words.cbegin(), words.cend(), [&](const string &w) {
-                bool found = false;
-                for (int i = 0; i < m && !found; i++)
-                {
-                    for (int j = 0; j < n && !found; j++)
-                    {
-                        if (find(i, j, w, 0))
-                            found = true;
-                    }
-                }
-                if (found)
-                    result.push_back(w);
-            });
+            for_each(words.cbegin(), words.cend(), [&](const string &w)
+                     {
+                         bool found = false;
+                         for (int i = 0; i < m && !found; i++)
+                         {
+                             for (int j = 0; j < n && !found; j++)
+                             {
+                                 if (find(i, j, w, 0))
+                                     found = true;
+                             }
+                         }
+                         if (found)
+                             result.push_back(w);
+                     });
             return result;
         }
         vector<string> findWords2(const vector<vector<char>> &board, const vector<string> &words)
@@ -15354,7 +15210,8 @@ namespace Test
                 }
             };
             unique_ptr<Node> root(new Node('\0'));
-            function<void(int)> add = [&](int i) {
+            function<void(int)> add = [&](int i)
+            {
                 const string &w = words[i];
                 Node *node = root.get();
                 size_t j = 0;
@@ -15371,24 +15228,25 @@ namespace Test
                 add(i);
             set<string> found; // use set because a word may appear more than once in the board
             function<void(int, int, Node *, set<pair<int, int>> &)> find =
-                [&](int i, int j, Node *node, set<pair<int, int>> &visited) {
-                    if (i < 0 || i >= (int)board.size() || j < 0 || j >= (int)board[i].size() || node == nullptr)
-                        return;
-                    if (node->next.find(board[i][j]) == node->next.end())
-                        return;
-                    pair<int, int> p = make_pair(i, j);
-                    if (visited.find(p) != visited.end())
-                        return;
-                    node = node->next[board[i][j]];
-                    if (node->index >= 0)
-                        found.insert(words[node->index]);
-                    visited.insert(p);
-                    find(i - 1, j, node, visited);
-                    find(i, j + 1, node, visited);
-                    find(i + 1, j, node, visited);
-                    find(i, j - 1, node, visited);
-                    visited.erase(p);
-                };
+                [&](int i, int j, Node *node, set<pair<int, int>> &visited)
+            {
+                if (i < 0 || i >= (int)board.size() || j < 0 || j >= (int)board[i].size() || node == nullptr)
+                    return;
+                if (node->next.find(board[i][j]) == node->next.end())
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (visited.find(p) != visited.end())
+                    return;
+                node = node->next[board[i][j]];
+                if (node->index >= 0)
+                    found.insert(words[node->index]);
+                visited.insert(p);
+                find(i - 1, j, node, visited);
+                find(i, j + 1, node, visited);
+                find(i + 1, j, node, visited);
+                find(i, j - 1, node, visited);
+                visited.erase(p);
+            };
             set<pair<int, int>> visited;
             for (int i = 0; i < (int)board.size(); i++)
             {
@@ -15438,7 +15296,8 @@ namespace Test
             };
             unique_ptr<Node> before(new Node('\0', false));
             unique_ptr<Node> after(new Node('\0', false));
-            function<void(int)> add = [&](int j) {
+            function<void(int)> add = [&](int j)
+            {
                 Node *node = before.get();
                 int i = 0;
                 const string &w = words[j];
@@ -15477,7 +15336,8 @@ namespace Test
                 node->completeIndices.push_back(j);
                 node->complete = true;
             };
-            function<bool(const string &, int, int)> isPalindrome = [&](const string &w, int i, int j) -> bool {
+            function<bool(const string &, int, int)> isPalindrome = [&](const string &w, int i, int j) -> bool
+            {
                 while (i < j)
                 {
                     if (w[i++] != w[j--])
@@ -15486,7 +15346,8 @@ namespace Test
                 return true;
             };
             vector<vector<int>> result;
-            function<void(int)> findBefore = [&](int j) {
+            function<void(int)> findBefore = [&](int j)
+            {
                 Node *node = before.get();
                 const string &w = words[j];
                 int i = (int)w.size() - 1;
@@ -15513,7 +15374,8 @@ namespace Test
                     }
                 }
             };
-            function<void(int)> findAfter = [&](int j) {
+            function<void(int)> findAfter = [&](int j)
+            {
                 Node *node = after.get();
                 const string &w = words[j];
                 int i = 0;
@@ -15751,7 +15613,8 @@ namespace Test
         }
         int findKthLargest2(vector<int> &nums, int k)
         {
-            sort(nums.begin(), nums.end(), [&](int a, int b) -> bool { return a > b; });
+            sort(nums.begin(), nums.end(), [&](int a, int b) -> bool
+                 { return a > b; });
             return nums[k - 1];
         }
         int findKthLargest3(const vector<int> &nums, int k)
@@ -15779,7 +15642,8 @@ namespace Test
         {
             vector<vector<int>> result;
             vector<int> s;
-            function<void(int, int, int)> solve = [&](int i, int c, int t) {
+            function<void(int, int, int)> solve = [&](int i, int c, int t)
+            {
                 if (c == 0 && t == 0)
                 {
                     result.push_back(s);
@@ -15810,7 +15674,8 @@ namespace Test
         {
             vector<int> result;
             function<void(vector<int> &, vector<int> &)> solve = [&](vector<int> &n1,
-                                                                     vector<int> &n2) {
+                                                                     vector<int> &n2)
+            {
                 for (int i = 0; i < (int)n1.size(); i++)
                 {
                     if (i > 0 && n1[i - 1] == n1[i])
@@ -15855,18 +15720,19 @@ namespace Test
         {
             vector<int> o;
             function<void(const vector<int> &, const vector<int> &)> solve =
-                [&](const vector<int> &n1, const vector<int> &n2) {
-                    set<int> s(n1.cbegin(), n1.cend());
-                    set<int> u;
-                    for (int n : n2)
+                [&](const vector<int> &n1, const vector<int> &n2)
+            {
+                set<int> s(n1.cbegin(), n1.cend());
+                set<int> u;
+                for (int n : n2)
+                {
+                    if (s.find(n) != s.end() && u.find(n) == u.end())
                     {
-                        if (s.find(n) != s.end() && u.find(n) == u.end())
-                        {
-                            o.push_back(n);
-                            u.insert(n);
-                        }
+                        o.push_back(n);
+                        u.insert(n);
                     }
-                };
+                }
+            };
             if (nums1.size() < nums2.size())
                 solve(nums1, nums2);
             else
@@ -15919,7 +15785,8 @@ namespace Test
         vector<int> intersectII(const vector<int> &nums1, const vector<int> &nums2)
         {
             function<map<int, int>(const vector<int> &)> count =
-                [&](const vector<int> &n) -> map<int, int> {
+                [&](const vector<int> &n) -> map<int, int>
+            {
                 map<int, int> m;
                 for (int x : n)
                 {
@@ -15956,26 +15823,27 @@ namespace Test
         {
             vector<int> o;
             function<void(const vector<int> &, const vector<int> &)> solve =
-                [&](const vector<int> &n1, const vector<int> &n2) {
-                    map<int, int> m;
-                    for (int n : n1)
+                [&](const vector<int> &n1, const vector<int> &n2)
+            {
+                map<int, int> m;
+                for (int n : n1)
+                {
+                    if (m.find(n) == m.end())
+                        m[n] = 1;
+                    else
+                        m[n]++;
+                }
+                for (int n : n2)
+                {
+                    if (m.find(n) != m.end())
                     {
-                        if (m.find(n) == m.end())
-                            m[n] = 1;
-                        else
-                            m[n]++;
+                        o.push_back(n);
+                        m[n]--;
+                        if (m[n] == 0)
+                            m.erase(n);
                     }
-                    for (int n : n2)
-                    {
-                        if (m.find(n) != m.end())
-                        {
-                            o.push_back(n);
-                            m[n]--;
-                            if (m[n] == 0)
-                                m.erase(n);
-                        }
-                    }
-                };
+                }
+            };
             if (nums1.size() < nums2.size())
                 solve(nums1, nums2);
             else
@@ -16813,7 +16681,8 @@ namespace Test
         //     4   7
         TreeNode *deleteNode(TreeNode *root, int key)
         {
-            function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool {
+            function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool
+            {
                 *parent = nullptr;
                 *node = root;
                 while (*node != nullptr)
@@ -16829,7 +16698,8 @@ namespace Test
                 return (*node) != nullptr;
             };
             function<bool(TreeNode *, TreeNode **, TreeNode **)> findSuccessor =
-                [&](TreeNode *node, TreeNode **parent, TreeNode **successor) -> bool {
+                [&](TreeNode *node, TreeNode **parent, TreeNode **successor) -> bool
+            {
                 if (node == nullptr || node->right == nullptr)
                     return false;
                 *parent = node;
@@ -17381,7 +17251,8 @@ namespace Test
         }
         int countNodes3(TreeNode *root)
         {
-            function<int(TreeNode *)> count = [&](TreeNode *n) -> int {
+            function<int(TreeNode *)> count = [&](TreeNode *n) -> int
+            {
                 if (n == nullptr)
                     return 0;
                 return 1 + count(n->left) + count(n->right);
@@ -17437,7 +17308,8 @@ namespace Test
         {
             stack<pair<char, long long>> e;
             long long a = 0;
-            function<long long(long long)> op = [&](long long v) -> int {
+            function<long long(long long)> op = [&](long long v) -> int
+            {
                 if (!e.empty() && e.top().first != '(')
                 {
                     char o = e.top().first;
@@ -17491,7 +17363,8 @@ namespace Test
         {
             stack<pair<char, long long>> e;
             long long a = 0;
-            function<long long(long long)> op = [&](long long v) -> int {
+            function<long long(long long)> op = [&](long long v) -> int
+            {
                 if (!e.empty() && e.top().first != '(')
                 {
                     char o = e.top().first;
@@ -18287,7 +18160,8 @@ namespace Test
         {
             if (head == nullptr || head->next == nullptr)
                 return true;
-            function<ListNode *(ListNode *)> reverse = [&](ListNode *h) -> ListNode * {
+            function<ListNode *(ListNode *)> reverse = [&](ListNode *h) -> ListNode *
+            {
                 if (h == nullptr)
                     return nullptr;
                 ListNode *t = h;
@@ -18392,7 +18266,8 @@ namespace Test
             {
                 if (head == nullptr)
                     return nullptr;
-                function<Node *(Node *)> flat = [&](Node *h) -> Node * {
+                function<Node *(Node *)> flat = [&](Node *h) -> Node *
+                {
                     Node *t = h;
                     while (h != nullptr)
                     {
@@ -18635,7 +18510,8 @@ namespace Test
         }
         void reverseString2(vector<char> &s)
         {
-            function<void(int, int)> reverse = [&](int i, int j) {
+            function<void(int, int)> reverse = [&](int i, int j)
+            {
                 if (i >= j)
                     return;
                 swap(s[i], s[j]);
@@ -18916,7 +18792,8 @@ namespace Test
         {
             map<pair<int, long long>, int> m;
             // Use long long because may overflow if it is INT_MAX
-            function<int(int, long long)> count = [&](int i, long long a) -> int {
+            function<int(int, long long)> count = [&](int i, long long a) -> int
+            {
                 // cout << string(i * 2, ' ') << "c(" << i << "," << a << ")" << endl;
                 if (i >= (int)nums.size())
                     return a == 0 ? 1 : 0;
@@ -18932,7 +18809,8 @@ namespace Test
         {
             map<pair<int, long long>, int> m;
             // Use long long because may overflow if it is INT_MAX
-            function<int(int, long long)> count = [&](int i, long long a) -> int {
+            function<int(int, long long)> count = [&](int i, long long a) -> int
+            {
                 // cout << string(i * 2, ' ') << "c(" << i << "," << a << ")" << endl;
                 if (i >= (int)nums.size())
                     return 0;
@@ -18952,7 +18830,8 @@ namespace Test
         int findTargetSumWays3(const vector<int> &nums, int S)
         {
             int c = 0;
-            function<void(int, int)> count = [&](int i, int a) {
+            function<void(int, int)> count = [&](int i, int a)
+            {
                 if (i >= (int)nums.size())
                 {
                     if (a == S)
@@ -19141,7 +19020,8 @@ namespace Test
         // but you can’t invert a binary tree on a whiteboard so f*** off.
         TreeNode *invertTree(TreeNode *root)
         {
-            function<void(TreeNode *)> invert = [&](TreeNode *node) {
+            function<void(TreeNode *)> invert = [&](TreeNode *node)
+            {
                 if (node == nullptr)
                     return;
                 invert(node->left);
@@ -19204,7 +19084,8 @@ namespace Test
             stack<pair<char, long long>> e;
             long long a = 0;
             function<long long(long long, bool)> op =
-                [&](long long v, bool doAddSub) -> long long {
+                [&](long long v, bool doAddSub) -> long long
+            {
                 char o;
                 long long t;
                 if (!e.empty() && (e.top().first == '*' || e.top().first == '/'))
@@ -19268,7 +19149,8 @@ namespace Test
             stack<pair<char, long long>> e;
             long long a = 0;
             function<long long(long long, bool)> op =
-                [&](long long v, bool doAddSub) -> long long {
+                [&](long long v, bool doAddSub) -> long long
+            {
                 char o;
                 long long t;
                 if (!e.empty() && (e.top().first == '*' || e.top().first == '/'))
@@ -19365,13 +19247,14 @@ namespace Test
             if (nums.empty())
                 return ranges;
             function<void(int, int)> output =
-                [&](int x, int y) {
-                    ostringstream r;
-                    r << x;
-                    if (x < y)
-                        r << "->" << y;
-                    ranges.push_back(r.str());
-                };
+                [&](int x, int y)
+            {
+                ostringstream r;
+                r << x;
+                if (x < y)
+                    r << "->" << y;
+                ranges.push_back(r.str());
+            };
             int b = nums[0];
             int e = b;
             for (size_t i = 1; i < nums.size(); i++)
@@ -19581,7 +19464,8 @@ namespace Test
         int countDigitOne(int n)
         {
             map<int, int> m;
-            function<int(int)> count = [&](int x) -> int {
+            function<int(int)> count = [&](int x) -> int
+            {
                 if (x <= 0)
                     return 0;
                 if (x < 10)
@@ -19803,7 +19687,8 @@ namespace Test
                 struct Node *right;
                 Node(int v) : val(v), left(nullptr), right(nullptr) {}
             } *root = nullptr;
-            function<void(int)> insert = [&](int v) {
+            function<void(int)> insert = [&](int v)
+            {
                 struct Node *parent = nullptr;
                 struct Node *node = root;
                 while (node != nullptr)
@@ -19822,7 +19707,8 @@ namespace Test
                 else
                     parent->right = node;
             };
-            function<int()> get_max = [&]() -> int {
+            function<int()> get_max = [&]() -> int
+            {
                 struct Node *node = root;
                 if (node == nullptr)
                     return INT_MIN;
@@ -19830,7 +19716,8 @@ namespace Test
                     node = node->right;
                 return node->val;
             };
-            function<void(int)> delete_val = [&](int v) {
+            function<void(int)> delete_val = [&](int v)
+            {
                 struct Node *parent = nullptr;
                 struct Node *node = root;
                 while (node != nullptr && node->val != v)
@@ -19937,7 +19824,8 @@ namespace Test
         {
             vector<int> output;
             map<pair<int, int>, vector<int>> m;
-            function<void(int, int)> compute = [&](int i, int j) {
+            function<void(int, int)> compute = [&](int i, int j)
+            {
                 if (i > j)
                     return;
                 pair<int, int> p = make_pair(i, j);
@@ -19996,19 +19884,21 @@ namespace Test
         vector<int> diffWaysToCompute2(string input)
         {
             function<void(const string &, const vector<pair<char, int>> &)> print =
-                [&](const string &message, const vector<pair<char, int>> &tokens) {
-                    cout << message << endl;
-                    for (const auto &p : tokens)
-                    {
-                        if (p.first == '0')
-                            cout << p.second;
-                        else
-                            cout << p.first;
-                    }
-                    cout << endl;
-                };
+                [&](const string &message, const vector<pair<char, int>> &tokens)
+            {
+                cout << message << endl;
+                for (const auto &p : tokens)
+                {
+                    if (p.first == '0')
+                        cout << p.second;
+                    else
+                        cout << p.first;
+                }
+                cout << endl;
+            };
             function<int(vector<pair<char, int>> &)> scan =
-                [&](vector<pair<char, int>> &tokens) -> int {
+                [&](vector<pair<char, int>> &tokens) -> int
+            {
                 int a = 0;
                 int countNums = 0;
                 for (const char &c : input)
@@ -20033,7 +19923,8 @@ namespace Test
             int maxParenthesesCount = scan(inputTokens) - 1;
             print("inputTokens:", inputTokens);
             function<int(stack<pair<char, int>> &, int, bool)> check =
-                [&](stack<pair<char, int>> &s, int n, bool doAddSub) -> int {
+                [&](stack<pair<char, int>> &s, int n, bool doAddSub) -> int
+            {
                 while (!s.empty() && s.top().first == '*')
                 {
                     s.pop();
@@ -20056,7 +19947,8 @@ namespace Test
                 return n;
             };
             function<int(const vector<pair<char, int>> &)> compute =
-                [&](const vector<pair<char, int>> &tokens) -> int {
+                [&](const vector<pair<char, int>> &tokens) -> int
+            {
                 stack<pair<char, int>> s;
                 int currentNum = 0;
                 for (const auto &p : tokens)
@@ -20087,7 +19979,8 @@ namespace Test
                 return currentNum;
             };
             function<bool(const vector<pair<char, int>> &)> validate =
-                [&](const vector<pair<char, int>> &tokens) -> bool {
+                [&](const vector<pair<char, int>> &tokens) -> bool
+            {
                 stack<int> s;
                 int n = (int)tokens.size();
                 int i = 0;
@@ -20132,50 +20025,51 @@ namespace Test
             };
             vector<int> output;
             function<void(size_t, int, int, const vector<pair<char, int>> &)> add =
-                [&](size_t i, int l, int r, const vector<pair<char, int>> &ctokens) {
-                    if (i == inputTokens.size())
+                [&](size_t i, int l, int r, const vector<pair<char, int>> &ctokens)
+            {
+                if (i == inputTokens.size())
+                {
+                    if (l == maxParenthesesCount && r == maxParenthesesCount && validate(ctokens))
                     {
-                        if (l == maxParenthesesCount && r == maxParenthesesCount && validate(ctokens))
-                        {
-                            print("", ctokens);
-                            output.push_back(compute(ctokens));
-                        }
-                        return;
+                        print("", ctokens);
+                        output.push_back(compute(ctokens));
                     }
-                    if (inputTokens[i].first == '0')
+                    return;
+                }
+                if (inputTokens[i].first == '0')
+                {
+                    vector<pair<char, int>> tokens1(ctokens);
+                    tokens1.push_back(inputTokens[i]);
+                    add(i + 1, l, r, tokens1);
+                    if (i + 1 < inputTokens.size() && l < maxParenthesesCount)
                     {
-                        vector<pair<char, int>> tokens1(ctokens);
-                        tokens1.push_back(inputTokens[i]);
-                        add(i + 1, l, r, tokens1);
-                        if (i + 1 < inputTokens.size() && l < maxParenthesesCount)
+                        vector<pair<char, int>> tokens2(ctokens);
+                        for (int k = 1; l + k <= maxParenthesesCount; k++)
                         {
-                            vector<pair<char, int>> tokens2(ctokens);
-                            for (int k = 1; l + k <= maxParenthesesCount; k++)
-                            {
-                                tokens2.push_back(make_pair('(', 0));
-                                tokens2.push_back(inputTokens[i]);
-                                add(i + 1, l + k, r, tokens2);
-                                tokens2.pop_back();
-                            }
-                        }
-                        if (0 < i)
-                        {
-                            vector<pair<char, int>> tokens3(ctokens);
-                            tokens3.push_back(inputTokens[i]);
-                            for (int k = 1; r + k <= l; k++)
-                            {
-                                tokens3.push_back(make_pair(')', 0));
-                                add(i + 1, l, r + k, tokens3);
-                            }
+                            tokens2.push_back(make_pair('(', 0));
+                            tokens2.push_back(inputTokens[i]);
+                            add(i + 1, l + k, r, tokens2);
+                            tokens2.pop_back();
                         }
                     }
-                    else
+                    if (0 < i)
                     {
-                        vector<pair<char, int>> tokens(ctokens);
-                        tokens.push_back(inputTokens[i]);
-                        add(i + 1, l, r, tokens);
+                        vector<pair<char, int>> tokens3(ctokens);
+                        tokens3.push_back(inputTokens[i]);
+                        for (int k = 1; r + k <= l; k++)
+                        {
+                            tokens3.push_back(make_pair(')', 0));
+                            add(i + 1, l, r + k, tokens3);
+                        }
                     }
-                };
+                }
+                else
+                {
+                    vector<pair<char, int>> tokens(ctokens);
+                    tokens.push_back(inputTokens[i]);
+                    add(i + 1, l, r, tokens);
+                }
+            };
             vector<pair<char, int>> t;
             add(0, 0, 0, t);
             return output;
@@ -20200,15 +20094,16 @@ namespace Test
             if (s.size() != t.size())
                 return false;
             function<void(const string &, map<char, int> &)> count =
-                [&](const string &w, map<char, int> &m) {
-                    for (const char &c : w)
-                    {
-                        if (m.find(c) == m.end())
-                            m[c] = 1;
-                        else
-                            m[c]++;
-                    }
-                };
+                [&](const string &w, map<char, int> &m)
+            {
+                for (const char &c : w)
+                {
+                    if (m.find(c) == m.end())
+                        m[c] = 1;
+                    else
+                        m[c]++;
+                }
+            };
             map<char, int> a;
             map<char, int> b;
             count(s, a);
@@ -20239,7 +20134,8 @@ namespace Test
         // s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
         string decodeString(const string &s)
         {
-            function<string(size_t &)> decode = [&](size_t &i) -> string {
+            function<string(size_t &)> decode = [&](size_t &i) -> string
+            {
                 if (i >= s.size())
                     return "";
                 ostringstream oss;
@@ -20334,7 +20230,8 @@ namespace Test
                 return image; // no change needed
             int m = (int)image.size();
             int n = (int)image[0].size();
-            function<void(int, int)> flood = [&](int i, int j) {
+            function<void(int, int)> flood = [&](int i, int j)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
                     return;
                 image[i][j] = newColor;
@@ -20355,7 +20252,8 @@ namespace Test
             set<pair<int, int>> visited;
             path.push(make_pair(sr, sc));
             visited.insert(path.top());
-            function<void(int, int)> check = [&](int i, int j) {
+            function<void(int, int)> check = [&](int i, int j)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
                     return;
                 pair<int, int> p = make_pair(i, j);
@@ -20386,7 +20284,8 @@ namespace Test
             set<pair<int, int>> visited;
             front.push(make_pair(sr, sc));
             visited.insert(front.front());
-            function<void(int, int)> check = [&](int i, int j) {
+            function<void(int, int)> check = [&](int i, int j)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n || image[i][j] != c)
                     return;
                 pair<int, int> p = make_pair(i, j);
@@ -20439,7 +20338,8 @@ namespace Test
             vector<vector<int>> d(matrix);
             int m = (int)matrix.size();
             int n = (int)matrix[0].size();
-            function<void(int, int)> search = [&](int i, int j) {
+            function<void(int, int)> search = [&](int i, int j)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n)
                     return;
                 queue<pair<int, int>> current;
@@ -20449,7 +20349,8 @@ namespace Test
                 current.push(p);
                 visited.insert(p);
                 int l = 0;
-                function<void(int, int)> check = [&](int a, int b) {
+                function<void(int, int)> check = [&](int a, int b)
+                {
                     if (a < 0 || a >= m || b < 0 || b >= n)
                         return;
                     pair<int, int> t = make_pair(a, b);
@@ -20539,7 +20440,8 @@ namespace Test
         bool canVisitAllRooms2(const vector<vector<int>> &rooms)
         {
             set<int> visited;
-            function<void(int)> visit = [&](int i) {
+            function<void(int)> visit = [&](int i)
+            {
                 if (i >= (int)rooms.size())
                     return;
                 visited.insert(i);
@@ -20773,29 +20675,30 @@ namespace Test
         {
             vector<string> o;
             function<void(const vector<string> &, const vector<string> &)> solve =
-                [&](const vector<string> &l1, const vector<string> &l2) {
-                    map<string, int> m;
-                    int minIndex = INT_MAX;
-                    for (int i = 0; i < (int)l1.size(); i++)
-                        m[l1[i]] = i;
-                    for (int i = 0; i < (int)l2.size(); i++)
+                [&](const vector<string> &l1, const vector<string> &l2)
+            {
+                map<string, int> m;
+                int minIndex = INT_MAX;
+                for (int i = 0; i < (int)l1.size(); i++)
+                    m[l1[i]] = i;
+                for (int i = 0; i < (int)l2.size(); i++)
+                {
+                    if (m.find(l2[i]) != m.end())
                     {
-                        if (m.find(l2[i]) != m.end())
+                        int j = m[l2[i]] + i;
+                        if (j < minIndex)
                         {
-                            int j = m[l2[i]] + i;
-                            if (j < minIndex)
-                            {
-                                o.clear();
-                                o.push_back(l2[i]);
-                                minIndex = j;
-                            }
-                            else if (j == minIndex)
-                            {
-                                o.push_back(l2[i]);
-                            }
+                            o.clear();
+                            o.push_back(l2[i]);
+                            minIndex = j;
+                        }
+                        else if (j == minIndex)
+                        {
+                            o.push_back(l2[i]);
                         }
                     }
-                };
+                }
+            };
             if (list1.size() < list2.size())
                 solve(list1, list2);
             else
@@ -20883,7 +20786,8 @@ namespace Test
             map<string, int> m;
             map<int, int> c;
             int id = 0;
-            function<int(TreeNode *)> getId = [&](TreeNode *n) -> int {
+            function<int(TreeNode *)> getId = [&](TreeNode *n) -> int
+            {
                 if (n == nullptr)
                     return 0;
                 string k = to_string(n->val) + "," + to_string(getId(n->left)) + "," + to_string(getId(n->right));
@@ -20981,7 +20885,8 @@ namespace Test
         int numJewelsInStones(const string &J, const string &S)
         {
             set<char> j(J.cbegin(), J.cend());
-            return accumulate(S.cbegin(), S.cend(), 0, [&](int c, char s) { return c + (j.find(s) == j.end() ? 0 : 1); });
+            return accumulate(S.cbegin(), S.cend(), 0, [&](int c, char s)
+                              { return c + (j.find(s) == j.end() ? 0 : 1); });
         }
 
         // Top K Frequent Elements
@@ -21001,7 +20906,8 @@ namespace Test
         {
             map<int, int> m;
             vector<int> h;
-            function<bool(int, int)> less = [&](int i, int j) -> bool {
+            function<bool(int, int)> less = [&](int i, int j) -> bool
+            {
                 return m[i] > m[j];
             };
             for (int n : nums)
@@ -21030,7 +20936,8 @@ namespace Test
         {
             map<int, int> m;
             vector<int> h;
-            function<bool(int, int)> less = [&](int i, int j) -> bool {
+            function<bool(int, int)> less = [&](int i, int j) -> bool
+            {
                 return m[i] > m[j];
             };
             for (int n : nums)
@@ -21191,10 +21098,12 @@ namespace Test
                 }
             };
             unique_ptr<Node> root(new Node('\0'));
-            function<char(int, int)> getBit = [&](int n, int p) -> char {
+            function<char(int, int)> getBit = [&](int n, int p) -> char
+            {
                 return (char)((n >> p) & 0x1);
             };
-            function<void(int)> add = [&](int n) {
+            function<void(int)> add = [&](int n)
+            {
                 Node *node = root.get();
                 int i = 0;
                 while (i < 32)
@@ -21209,7 +21118,8 @@ namespace Test
             for (int n : nums)
                 add(n);
             int m = 0;
-            function<void(Node *, Node *, int)> find = [&](Node *n0, Node *n1, int x) {
+            function<void(Node *, Node *, int)> find = [&](Node *n0, Node *n1, int x)
+            {
                 if (n0->next.empty() || n1->next.empty())
                 {
                     m = max(m, x);
@@ -21238,52 +21148,54 @@ namespace Test
         {
             sort(nums.begin(), nums.end());
             function<void(int, int, int, int &, int &, int &, int &)> getBitRange =
-                [&](int b, int e, int i, int &b0, int &e0, int &b1, int &e1) {
-                    b0 = -1;
-                    e0 = -1;
-                    b1 = -1;
-                    e1 = -1;
-                    int x = 0x1 << i;
-                    for (int j = b; j <= e; j++)
+                [&](int b, int e, int i, int &b0, int &e0, int &b1, int &e1)
+            {
+                b0 = -1;
+                e0 = -1;
+                b1 = -1;
+                e1 = -1;
+                int x = 0x1 << i;
+                for (int j = b; j <= e; j++)
+                {
+                    switch ((nums[j] & x) >> i)
                     {
-                        switch ((nums[j] & x) >> i)
-                        {
-                        case 0:
-                            if (b0 == -1)
-                                b0 = j;
-                            e0 = j;
-                            break;
-                        case 1:
-                            if (b1 == -1)
-                                b1 = j;
-                            e1 = j;
-                            break;
-                        }
+                    case 0:
+                        if (b0 == -1)
+                            b0 = j;
+                        e0 = j;
+                        break;
+                    case 1:
+                        if (b1 == -1)
+                            b1 = j;
+                        e1 = j;
+                        break;
                     }
-                };
+                }
+            };
             int m = 0;
             function<void(int, int, int, int, int, int)> find =
-                [&](int b0, int e0, int b1, int e1, int i, int x) {
-                    if (i < 0)
-                    {
-                        m = max(m, x);
-                        return;
-                    }
-                    int b00, e00, b01, e01, b10, e10, b11, e11;
-                    getBitRange(b0, e0, i, b00, e00, b01, e01);
-                    getBitRange(b1, e1, i, b10, e10, b11, e11);
-                    if ((b00 == -1 && b10 == -1) || (b01 == -1 && b11 == -1))
-                    {
-                        find(b0, e0, b1, e1, i - 1, x << 1);
-                    }
-                    else
-                    {
-                        if (b00 != -1 && b11 != -1)
-                            find(b00, e00, b11, e11, i - 1, ((x << 1) ^ 0x1));
-                        if (b01 != -1 && b10 != -1)
-                            find(b01, e01, b10, e10, i - 1, ((x << 1) ^ 0x1));
-                    }
-                };
+                [&](int b0, int e0, int b1, int e1, int i, int x)
+            {
+                if (i < 0)
+                {
+                    m = max(m, x);
+                    return;
+                }
+                int b00, e00, b01, e01, b10, e10, b11, e11;
+                getBitRange(b0, e0, i, b00, e00, b01, e01);
+                getBitRange(b1, e1, i, b10, e10, b11, e11);
+                if ((b00 == -1 && b10 == -1) || (b01 == -1 && b11 == -1))
+                {
+                    find(b0, e0, b1, e1, i - 1, x << 1);
+                }
+                else
+                {
+                    if (b00 != -1 && b11 != -1)
+                        find(b00, e00, b11, e11, i - 1, ((x << 1) ^ 0x1));
+                    if (b01 != -1 && b10 != -1)
+                        find(b01, e01, b10, e10, i - 1, ((x << 1) ^ 0x1));
+                }
+            };
             find(0, (int)nums.size() - 1, 0, (int)nums.size() - 1, 31, 0);
             return m;
         }
@@ -21383,7 +21295,8 @@ namespace Test
             }
             int maxDepth(Node *root)
             {
-                function<int(Node *)> depth = [&](Node *node) -> int {
+                function<int(Node *)> depth = [&](Node *node) -> int
+                {
                     if (node == nullptr)
                         return 0;
                     if (node->children.empty())
@@ -21423,7 +21336,8 @@ namespace Test
         int fib(int N)
         {
             map<int, int> m;
-            function<int(int)> f = [&](int n) -> int {
+            function<int(int)> f = [&](int n) -> int
+            {
                 if (n < 0)
                     return 0;
                 if (n == 1 || n == 0)
@@ -21463,7 +21377,8 @@ namespace Test
         // N+1: 1 2 3 4 5 6 7 8 ... 2(K-1)-1 2(K-1) 2K-1 2K 2(K+1)-1 2(K+1) ... 2^N-1 2^N
         int kthGrammar(int N, int K)
         {
-            function<int(int, int)> g = [&](int n, int k) -> int {
+            function<int(int, int)> g = [&](int n, int k) -> int
+            {
                 if (n == 1)
                     return 0;
                 int b = g(n - 1, (k + 1) >> 1);
@@ -21626,15 +21541,16 @@ namespace Test
             vector<vector<int>> ends(buildings);
             // Sort down boundaries in reverse order so that we can apply similar logic
             // of computing up boundaries
-            sort(ends.begin(), ends.end(), [&](const vector<int> &x, const vector<int> &y) -> bool {
-                if (x[1] > y[1])
-                    return true;
-                if (x[1] == y[1] && x[0] > y[0])
-                    return true;
-                if (x[1] == y[1] && x[0] == y[0] && x[2] > y[2])
-                    return true;
-                return false;
-            });
+            sort(ends.begin(), ends.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 {
+                     if (x[1] > y[1])
+                         return true;
+                     if (x[1] == y[1] && x[0] > y[0])
+                         return true;
+                     if (x[1] == y[1] && x[0] == y[0] && x[2] > y[2])
+                         return true;
+                     return false;
+                 });
             it = ends.begin();
             while (it != ends.end())
             {
@@ -21699,7 +21615,8 @@ namespace Test
         vector<vector<int>> getSkyline2(const vector<vector<int>> &buildings)
         {
             function<vector<vector<int>>(const vector<vector<int>> &, const vector<vector<int>> &)>
-                merge = [&](const vector<vector<int>> &a, const vector<vector<int>> &b) -> vector<vector<int>> {
+                merge = [&](const vector<vector<int>> &a, const vector<vector<int>> &b) -> vector<vector<int>>
+            {
                 if (a.empty())
                     return b;
                 if (b.empty())
@@ -21749,7 +21666,8 @@ namespace Test
                 return c;
             };
             function<vector<vector<int>>(int, int)> solve =
-                [&](int b, int e) -> vector<vector<int>> {
+                [&](int b, int e) -> vector<vector<int>>
+            {
                 if (b > e)
                     return {};
                 if (b == e)
