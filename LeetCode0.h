@@ -6729,6 +6729,213 @@ namespace Test
             return (int)delta;
         }
 
+        // 54. Spiral Matrix
+        // Given a matrix of m x n elements (m rows, n columns), return all elements
+        // of the matrix in spiral order.
+        // Example 1:
+        // Input:
+        // [
+        //  [ 1, 2, 3 ],
+        //  [ 4, 5, 6 ],
+        //  [ 7, 8, 9 ]
+        // ]
+        // Output: [1,2,3,6,9,8,7,4,5]
+        // Example 2:
+        // Input:
+        // [
+        //   [1, 2, 3, 4],
+        //   [5, 6, 7, 8],
+        //   [9,10,11,12]
+        // ]
+        // Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+        vector<int> spiralOrder(const vector<vector<int>> &matrix)
+        {
+            vector<int> result;
+            int d = 0;
+            int r = matrix.size();
+            int c = matrix.empty() ? 0 : matrix[0].size();
+            int i = 0;
+            int j = -1;
+            while (r > 0 && c > 0)
+            {
+                if (d == 0)
+                {
+                    for (int k = 1; k <= c; k++)
+                        result.push_back(matrix[i][j + k]);
+                    j += c;
+                    r--;
+                }
+                else if (d == 1)
+                {
+                    for (int k = 1; k <= r; k++)
+                        result.push_back(matrix[i + k][j]);
+                    i += r;
+                    c--;
+                }
+                else if (d == 2)
+                {
+                    for (int k = 1; k <= c; k++)
+                        result.push_back(matrix[i][j - k]);
+                    j -= c;
+                    r--;
+                }
+                else
+                {
+                    for (int k = 1; k <= r; k++)
+                        result.push_back(matrix[i - k][j]);
+                    i -= r;
+                    c--;
+                }
+                d = (d + 1) % 4;
+            }
+            return result;
+        }
+        vector<int> spiralOrder2(const vector<vector<int>> &matrix)
+        {
+            vector<int> result = vector<int>{};
+            if (matrix.empty() || matrix[0].empty())
+                return result;
+            int h = matrix[0].size();
+            int v = matrix.size();
+            int i = 0;
+            int j = -1;
+            int k;
+            while (h > 0 && v > 0)
+            {
+                for (k = j + 1; k <= j + h; k++)
+                    result.push_back(matrix[i][k]);
+                v--;
+                j = k - 1;
+                if (v == 0)
+                    break;
+                for (k = i + 1; k <= i + v; k++)
+                    result.push_back(matrix[k][j]);
+                h--;
+                i = k - 1;
+                if (h == 0)
+                    break;
+                for (k = j - 1; k >= j - h; k--)
+                    result.push_back(matrix[i][k]);
+                v--;
+                j = k + 1;
+                if (v == 0)
+                    break;
+                for (k = i - 1; k >= i - v; k--)
+                    result.push_back(matrix[k][j]);
+                h--;
+                i = k + 1;
+                if (h == 0)
+                    break;
+            }
+            return result;
+        }
+        vector<int> spiralOrder3(const vector<vector<int>> &matrix)
+        {
+            vector<int> o;
+            if (matrix.empty() || matrix[0].empty())
+                return o;
+            int m = matrix.size();
+            int n = matrix[0].size();
+            int i = 0;
+            int j = -1;
+            while (m > 0 || n > 0)
+            {
+                for (int k = 0; k < n; k++)
+                    o.push_back(matrix[i][++j]);
+                m--;
+                if (m == 0)
+                    break;
+                for (int k = 0; k < m; k++)
+                    o.push_back(matrix[++i][j]);
+                n--;
+                if (n == 0)
+                    break;
+                for (int k = 0; k < n; k++)
+                    o.push_back(matrix[i][--j]);
+                m--;
+                if (m == 0)
+                    break;
+                for (int k = 0; k < m; k++)
+                    o.push_back(matrix[--i][j]);
+                n--;
+                if (n == 0)
+                    break;
+            }
+            return o;
+        }
+        vector<int> spiralOrder4(const vector<vector<int>> &matrix)
+        {
+            vector<int> result = vector<int>{};
+            if (matrix.empty() || matrix[0].empty())
+                return result;
+            function<void(int, int, int, int)> solve = [&](int i, int j, int m, int n)
+            {
+                for (int k = 0; k < n; k++)
+                    result.push_back(matrix[i][j + k]);
+                if (m == 1)
+                    return;
+                for (int k = 1; k < m; k++)
+                    result.push_back(matrix[i + k][j + n - 1]);
+                if (n == 1)
+                    return;
+                for (int k = 1; k < n; k++)
+                    result.push_back(matrix[i + m - 1][j + n - 1 - k]);
+                for (int k = 1; k < m - 1; k++)
+                    result.push_back(matrix[i + m - 1 - k][j]);
+            };
+            int m = matrix.size();
+            int n = matrix[0].size();
+            int i = 0;
+            int j = 0;
+            while (m > 0 && n > 0)
+            {
+                solve(i, j, m, n);
+                i++;
+                j++;
+                m -= 2;
+                n -= 2;
+            }
+            return result;
+        }
+
+        // 55. Jump Game
+        // Given an array of non-negative integers, you are initially positioned at
+        // the first index of the array. Each element in the array represents your
+        // maximum jump length at that position. Determine if you are able to reach
+        // the last index.
+        // Example 1:
+        // Input: [2,3,1,1,4]
+        // Output: true
+        // Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+        // Example 2:
+        // Input: [3,2,1,0,4]
+        // Output: false
+        // Explanation: You will always arrive at index 3 no matter what. Its maximum
+        // jump length is 0, which makes it impossible to reach the last index.
+        bool canJump(const vector<int> &nums)
+        {
+            size_t i = 0;
+            size_t h = nums[0];
+            while (i < nums.size() && i <= h && h + 1 < nums.size())
+            {
+                h = max(h, i + nums[i]);
+                i++;
+            }
+            return h + 1 >= nums.size();
+        }
+        bool canJump2(const vector<int> &nums)
+        {
+            if (nums.empty())
+                return false;
+            int index = nums.size() - 1;
+            for (int i = nums.size() - 2; i >= 0; i--)
+            {
+                if (i + nums[i] >= index)
+                    index = i;
+            }
+            return index == 0;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
