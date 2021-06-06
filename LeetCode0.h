@@ -7105,6 +7105,36 @@ namespace Test
             }
             return result;
         }
+        vector<vector<int>> insert2(const vector<vector<int>> &intervals, vector<int> &newInterval)
+        {
+            function<bool(const vector<int> &, const vector<int> &)>
+                less = [&](const vector<int> &i, const vector<int> &n) -> bool
+            {
+                return i[1] < n[0];
+            };
+            auto l = lower_bound(intervals.begin(), intervals.end(), newInterval, less);
+            auto u = upper_bound(intervals.begin(), intervals.end(), newInterval, less);
+            vector<vector<int>> output;
+            auto it = intervals.begin();
+            while (it != l)
+            {
+                output.push_back(*it);
+                it++;
+            }
+            while (it != u)
+            {
+                newInterval[0] = min(newInterval[0], (*it)[0]);
+                newInterval[1] = max(newInterval[1], (*it)[1]);
+                it++;
+            }
+            output.push_back(newInterval);
+            while (it != intervals.end())
+            {
+                output.push_back(*it);
+                it++;
+            }
+            return output;
+        }
         vector<Interval> InsertMergeSortedInterval(vector<Interval> &intervals,
                                                    Interval newInterval)
         {
@@ -7149,6 +7179,95 @@ namespace Test
                      });
             output.push_back(newInterval);
             return output;
+        }
+
+        // 58. Length of Last Word
+        // Given a string s consists of upper/lower-case alphabets and empty space
+        // characters ' ', return the length of last word (last word means the last
+        // appearing word if we loop from left to right) in the string. If the last
+        // word does not exist, return 0.
+        // Note: A word is defined as a maximal substring consisting of non-space
+        // characters only.
+        // Example:
+        // Input: "Hello World"
+        // Output: 5
+        int lengthOfLastWord(const string &s)
+        {
+            int i = s.size() - 1;
+            while (i >= 0 && s[i] == ' ')
+                i--;
+            int j = 0;
+            while (i >= 0 && s[i] != ' ')
+            {
+                i--;
+                j++;
+            }
+            return j;
+        }
+        int lengthOfLastWord2(const string &s)
+        {
+            int length = 0;
+            size_t i = 0;
+            while (i < s.size())
+            {
+                if (s[i] != ' ')
+                {
+                    size_t j = 0;
+                    while ((i + j) < s.size() && s[i + j] != ' ')
+                        j++;
+                    length = j;
+                    i += j;
+                }
+                else
+                {
+                    i++;
+                }
+            }
+            return length;
+        }
+        int lengthOfLastWord3(const char *s)
+        {
+            if (*s == '\0')
+                return 0;
+            while (*s == ' ')
+                s++;
+            int i = 0;
+            while (*s != '\0')
+            {
+                while (*s != '\0' && *s != ' ')
+                {
+                    i++;
+                    s++;
+                }
+                while (*s == ' ')
+                    s++;
+                if (*s != '\0')
+                    i = 0;
+            }
+            return i;
+        }
+        int lengthOfLastWord4(const string &s)
+        {
+            int length = 0;
+            size_t i = 0;
+            int n = 0; // count every word encountered
+            while (i < s.size())
+            {
+                if (s[i] == ' ')
+                {
+                    if (n > 0)
+                    {
+                        length = n;
+                        n = 0;
+                    }
+                }
+                else
+                {
+                    n++;
+                }
+                i++;
+            }
+            return n > 0 ? n : length;
         }
 
     } // namespace LeetCode
