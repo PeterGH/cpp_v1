@@ -6936,6 +6936,221 @@ namespace Test
             return index == 0;
         }
 
+        // 56. Merge Intervals
+        // Given a collection of intervals, merge all overlapping intervals.
+        // Example 1:
+        // Input: [[1,3],[2,6],[8,10],[15,18]]
+        // Output: [[1,6],[8,10],[15,18]]
+        // Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+        // Example 2:
+        // Input: [[1,4],[4,5]]
+        // Output: [[1,5]]
+        // Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+        vector<vector<int>> merge(vector<vector<int>> &intervals)
+        {
+            vector<vector<int>> result;
+            sort(intervals.begin(), intervals.end(),
+                 [&](const vector<int> &l, const vector<int> &r) -> bool
+                 {
+                     if (l[0] == r[0])
+                         return l[1] < r[1];
+                     return l[0] < r[0];
+                 });
+            for (size_t i = 0; i < intervals.size(); i++)
+            {
+                if (!result.empty() && result.back()[1] >= intervals[i][0])
+                {
+                    result.back()[0] = min(result.back()[0], intervals[i][0]);
+                    result.back()[1] = max(result.back()[1], intervals[i][1]);
+                }
+                else
+                {
+                    result.push_back(intervals[i]);
+                }
+            }
+            return result;
+        }
+        struct Interval
+        {
+            int start;
+            int end;
+            Interval() : start(0), end(0) {}
+            Interval(int s, int e) : start(s), end(e) {}
+        };
+        vector<Interval> merge(vector<Interval> &intervals)
+        {
+            function<bool(const Interval &, const Interval &)> less =
+                [&](const Interval &first, const Interval &second) -> bool
+            {
+                if (first.start == second.start)
+                    return first.end < second.end;
+                return first.start < second.start;
+            };
+            vector<Interval> result = vector<Interval>{};
+            if (intervals.size() == 0)
+                return result;
+            sort(intervals.begin(), intervals.end(), less);
+            Interval v = intervals[0];
+            for (size_t i = 1; i < intervals.size(); i++)
+            {
+                if (v.start <= intervals[i].end && intervals[i].start <= v.end)
+                {
+                    v.start = min(v.start, intervals[i].start);
+                    v.end = max(v.end, intervals[i].end);
+                }
+                else
+                {
+                    result.push_back(v);
+                    v = intervals[i];
+                }
+            }
+            result.push_back(v);
+            return result;
+        }
+        // Comparer Design:
+        // It will produce Runtime Error simply because you provide the sort() with a
+        // wrong comparator.
+        // 1. A correct comparator should have determined behavior, i.e. return the same
+        //    result on same input.
+        // 2. The result should be transitive, i.e., if you return true for a<b and b<c,
+        //    you should return true for a<c
+        // 3. The result should not contain conflicts, e.g., if you return true for a<b,
+        //    you should return false for b<a
+        // 4. return false for both a<b and b<a will means that a == b.
+        // Violating the above rules and trying to pass an invalid comparator to sort()
+        // will result in undefined behavior, usually crash.
+        static bool IntervalLess(const Interval &i1, const Interval &i2)
+        {
+            if (i1.start < i2.start)
+                return true;
+            if (i1.start == i2.start)
+            {
+                // cannot use <=, otherwise violates 3.
+                return i1.end < i2.end;
+            }
+            return false;
+        }
+        vector<Interval> merge2(vector<Interval> &intervals)
+        {
+            vector<Interval> output;
+            int len = intervals.size();
+            if (len == 0)
+                return output;
+            sort(intervals.begin(), intervals.end(), IntervalLess);
+            output.push_back(intervals[0]);
+            int i = 0;
+            for (int j = 1; j < len; j++)
+            {
+                if (output[i].end < intervals[j].start)
+                {
+                    output.push_back(intervals[j]);
+                    i++;
+                }
+                else
+                {
+                    output[i].start = min(output[i].start, intervals[j].start);
+                    output[i].end = max(output[i].end, intervals[j].end);
+                }
+            }
+            return output;
+        }
+
+        // 57. Insert Interval
+        // Given a set of non-overlapping intervals, insert a new interval into
+        // the intervals (merge if necessary). You may assume that the intervals
+        // were initially sorted according to their start times.
+        // Example 1:
+        // Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+        // Output: [[1,5],[6,9]]
+        // Example 2:
+        // Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+        // Output: [[1,2],[3,10],[12,16]]
+        // Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+        vector<vector<int>> insert(const vector<vector<int>> &intervals,
+                                   const vector<int> &newInterval)
+        {
+            vector<vector<int>> result;
+            int l = 0;
+            int h = intervals.size() - 1;
+            while (l <= h)
+            {
+                int m = l + ((h - l) >> 1);
+                if (intervals[m][1] < newInterval[0])
+                {
+                    l = m + 1;
+                }
+                else
+                {
+                    if (l == m)
+                        break;
+                    h = m - 1;
+                }
+            }
+            for (int i = 0; i < l; i++)
+            {
+                result.push_back(intervals[i]);
+            }
+            result.push_back(newInterval);
+            for (int i = l; i < (int)intervals.size(); i++)
+            {
+                if (result.back()[1] < intervals[i][0])
+                {
+                    result.push_back(intervals[i]);
+                }
+                else
+                {
+                    result.back()[0] = min(result.back()[0], intervals[i][0]);
+                    result.back()[1] = max(result.back()[1], intervals[i][1]);
+                }
+            }
+            return result;
+        }
+        vector<Interval> InsertMergeSortedInterval(vector<Interval> &intervals,
+                                                   Interval newInterval)
+        {
+            vector<Interval> output;
+            int len = intervals.size();
+            int i = 0;
+            while (i < len && intervals[i].end < newInterval.start)
+                output.push_back(intervals[i++]);
+            output.push_back(newInterval);
+            int j = i;
+            while (j < len && output[i].end >= intervals[j].start)
+            {
+                output[i].start = min(output[i].start, intervals[j].start);
+                output[i].end = max(output[i].end, intervals[j].end);
+                j++;
+            }
+            while (j < len)
+                output.push_back(intervals[j++]);
+            return output;
+        }
+        // Given a set of non-overlapping NON-SORTED intervals, insert a new interval
+        // into the intervals (merge if necessary). Example 1: Given intervals
+        // [1,3],[6,9], insert and merge [2,5] in as [1,5],[6,9]. Example 2: Given
+        // [1,2],[3,5], [6,7],[8,10],[12,16], insert and merge [4,9] in as
+        // [1,2],[3,10],[12,16]. This is because the new interval [4,9] overlaps with
+        // [3,5],[6,7],[8,10].
+        static vector<Interval> InsertMergeInterval(vector<Interval> &intervals,
+                                                    Interval newInterval)
+        {
+            vector<Interval> output;
+            for_each(intervals.begin(), intervals.end(), [&](Interval i)
+                     {
+                         if (i.end < newInterval.start || newInterval.end < i.start)
+                         {
+                             output.push_back(i);
+                         }
+                         else
+                         {
+                             newInterval.start = min(newInterval.start, i.start);
+                             newInterval.end = max(newInterval.end, i.end);
+                         }
+                     });
+            output.push_back(newInterval);
+            return output;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
