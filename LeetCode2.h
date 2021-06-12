@@ -9,6 +9,89 @@ namespace Test
 {
     namespace LeetCode
     {
+        // 240. Search a 2D Matrix II
+        // Write an efficient algorithm that searches for a value in an m x n matrix.
+        // This matrix has the following properties:
+        // Integers in each row are sorted in ascending from left to right.
+        // Integers in each column are sorted in ascending from top to bottom.
+        // Example:
+        // Consider the following matrix:
+        // [
+        //   [1,   4,  7, 11, 15],
+        //   [2,   5,  8, 12, 19],
+        //   [3,   6,  9, 16, 22],
+        //   [10, 13, 14, 17, 24],
+        //   [18, 21, 23, 26, 30]
+        // ]
+        // Given target = 5, return true.
+        // Given target = 20, return false.
+        bool searchMatrixII(vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return false;
+            int m = matrix.size();
+            int n = matrix[0].size();
+            int i = 0;
+            int j = n - 1;
+            while (i < m && j >= 0)
+            {
+                if (matrix[i][j] < target)
+                    i++;
+                else if (matrix[i][j] > target)
+                    j--;
+                else
+                    return true;
+            }
+            return false;
+        }
+        bool searchMatrixII2(vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return false;
+            function<bool(int, int, int, int)> search =
+                [&](int r0, int r1, int c0, int c1) -> bool
+            {
+                if (r0 > r1 || c0 > c1)
+                    return false;
+                if (r1 - r0 <= 1 && c1 - c0 <= 1)
+                {
+                    for (int i = r0; i <= r1; i++)
+                    {
+                        for (int j = c0; j <= c1; j++)
+                        {
+                            if (matrix[i][j] == target)
+                                return true;
+                        }
+                    }
+                    return false;
+                }
+                int i = r0 + ((r1 - r0) >> 1);
+                int j = c0 + ((c1 - c0) >> 1);
+                if (matrix[i][j] < target)
+                {
+                    if (search(i + 1, r1, j + 1, c1))
+                        return true;
+                }
+                else if (matrix[i][j] > target)
+                {
+                    if (search(r0, i - 1, c0, j - 1))
+                        return true;
+                }
+                else
+                {
+                    return true;
+                }
+                if (search(r0, i, j, c1))
+                    return true;
+                if (search(i, r1, c0, j))
+                    return true;
+                return false;
+            };
+            int m = matrix.size();
+            int n = matrix[0].size();
+            return search(0, m - 1, 0, n - 1);
+        }
+
         // 257. Binary Tree Paths
         // Given a binary tree, return all root-to-leaf paths.
         // Note: A leaf is a node with no children.
@@ -294,7 +377,8 @@ namespace Test
         {
             if (num <= 0)
                 return false;
-            function<int(int, int)> divide = [&](int n, int d) -> int {
+            function<int(int, int)> divide = [&](int n, int d) -> int
+            {
                 while (true)
                 {
                     int r = n / d;
@@ -537,7 +621,8 @@ namespace Test
                 "Seventy",
                 "Eighty",
                 "Ninety"};
-            function<void(int)> convert = [&](int n) {
+            function<void(int)> convert = [&](int n)
+            {
                 int h = n / 100;
                 if (h > 0)
                     oss << lt20[h - 1] << " Hundred";
@@ -603,9 +688,8 @@ namespace Test
         // as the h-index.
         int hIndex(vector<int> &citations)
         {
-            sort(citations.begin(), citations.end(), [&](int x, int y) -> bool {
-                return x > y;
-            });
+            sort(citations.begin(), citations.end(), [&](int x, int y) -> bool
+                 { return x > y; });
             int h = 0;
             for (; h < (int)citations.size(); h++)
             {
@@ -832,38 +916,39 @@ namespace Test
             // use long long instead of int to handle case 2147483648
             // (long long)2147483648 = (int)-2147483648
             function<void(int, const string &, long long, long long)> solve =
-                [&](int i, const string &expression, long long total, long long prev) {
-                    cout << string(i, ' ') << "solve(" << i << ", " << expression << ", " << total << ", " << prev << ")" << endl;
-                    if (i >= (int)num.size())
+                [&](int i, const string &expression, long long total, long long prev)
+            {
+                cout << string(i, ' ') << "solve(" << i << ", " << expression << ", " << total << ", " << prev << ")" << endl;
+                if (i >= (int)num.size())
+                {
+                    if (total == target)
                     {
-                        if (total == target)
-                        {
-                            cout << string(i, ' ') << "output '" << expression << "'" << endl;
-                            output.push_back(expression);
-                        }
-                        return;
+                        cout << string(i, ' ') << "output '" << expression << "'" << endl;
+                        output.push_back(expression);
                     }
-                    long long c = 0;
-                    for (int j = i; j < (int)num.size(); j++)
+                    return;
+                }
+                long long c = 0;
+                for (int j = i; j < (int)num.size(); j++)
+                {
+                    cout << string(i, ' ') << i << ".." << j << endl;
+                    c = 10 * c + num[j] - '0';
+                    string s = to_string(c);
+                    if (i == 0)
                     {
-                        cout << string(i, ' ') << i << ".." << j << endl;
-                        c = 10 * c + num[j] - '0';
-                        string s = to_string(c);
-                        if (i == 0)
-                        {
-                            solve(j + 1, s, c, c);
-                        }
-                        else
-                        {
-                            solve(j + 1, expression + "+" + s, total + c, c);
-                            solve(j + 1, expression + "-" + s, total - c, -c);
-                            long long c1 = prev * c;
-                            solve(j + 1, expression + "*" + s, total - prev + c1, c1);
-                        }
-                        if (num[i] == '0')
-                            break;
+                        solve(j + 1, s, c, c);
                     }
-                };
+                    else
+                    {
+                        solve(j + 1, expression + "+" + s, total + c, c);
+                        solve(j + 1, expression + "-" + s, total - c, -c);
+                        long long c1 = prev * c;
+                        solve(j + 1, expression + "*" + s, total - prev + c1, c1);
+                    }
+                    if (num[i] == '0')
+                        break;
+                }
+            };
             solve(0, "", 0, 0);
             return output;
         }
@@ -1126,7 +1211,8 @@ namespace Test
             int m = board.size();
             int n = board[0].size();
             set<pair<int, int>> updated;
-            function<int(int, int)> isLive = [&](int i, int j) -> int {
+            function<int(int, int)> isLive = [&](int i, int j) -> int
+            {
                 if (0 <= i && i < m && 0 <= j && j < n)
                 {
                     auto p = make_pair(i, j);
@@ -1175,7 +1261,8 @@ namespace Test
                 return;
             int m = board.size();
             int n = board[0].size();
-            function<int(int, int)> isLive = [&](int i, int j) -> int {
+            function<int(int, int)> isLive = [&](int i, int j) -> int
+            {
                 if (0 <= i && i < m && 0 <= j && j < n)
                 {
                     if (board[i][j] == 1 || board[i][j] == -1)
@@ -1358,7 +1445,8 @@ namespace Test
             MedianFinder()
             {
                 count = 0;
-                less = [&](int x, int y) -> bool { return x > y; };
+                less = [&](int x, int y) -> bool
+                { return x > y; };
             }
             void addNum(int num)
             {
@@ -1442,7 +1530,8 @@ namespace Test
             static string serialize(TreeNode *root)
             {
                 ostringstream oss;
-                function<void(TreeNode *)> solve = [&](TreeNode *n) {
+                function<void(TreeNode *)> solve = [&](TreeNode *n)
+                {
                     if (n == nullptr)
                     {
                         oss << "#";
@@ -1460,7 +1549,8 @@ namespace Test
             static TreeNode *deserialize(string data)
             {
                 size_t i = 0;
-                function<TreeNode *()> solve = [&]() -> TreeNode * {
+                function<TreeNode *()> solve = [&]() -> TreeNode *
+                {
                     size_t j = data.find(',', i);
                     string s = data.substr(i, j - i);
                     i = j + 1;
@@ -1736,7 +1826,8 @@ namespace Test
         {
             if (nums.empty())
                 return 0;
-            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
+            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int
+            {
                 if (i >= (int)nums.size())
                     return l;
                 int l1 = 0;
@@ -1751,7 +1842,8 @@ namespace Test
         {
             if (nums.empty())
                 return 0;
-            function<int(int, int)> lis = [&](int i, int p) -> int {
+            function<int(int, int)> lis = [&](int i, int p) -> int
+            {
                 if (i >= (int)nums.size())
                     return 0;
                 int l1 = 0;
@@ -1771,7 +1863,8 @@ namespace Test
             if (nums.empty())
                 return 0;
             map<pair<int, int>, int> m;
-            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int {
+            function<int(int, int, int)> lis = [&](int i, int p, int l) -> int
+            {
                 // cout << string(i, ' ') << "(" << i << "," << p << "," << l << ")" << endl;
                 pair<int, int> t = make_pair(i, p);
                 if (m.find(t) != m.end())

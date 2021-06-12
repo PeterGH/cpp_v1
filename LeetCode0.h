@@ -9022,6 +9022,814 @@ namespace Test
             return d[0];
         }
 
+        // 73. Set Matrix Zeroes
+        // Given a m x n matrix, if an element is 0, set its entire row and column to 0.
+        // Do it in-place.
+        // Example 1:
+        // Input:
+        // [
+        //   [1,1,1],
+        //   [1,0,1],
+        //   [1,1,1]
+        // ]
+        // Output:
+        // [
+        //   [1,0,1],
+        //   [0,0,0],
+        //   [1,0,1]
+        // ]
+        // Example 2:
+        // Input:
+        // [
+        //   [0,1,2,0],
+        //   [3,4,5,2],
+        //   [1,3,1,5]
+        // ]
+        // Output:
+        // [
+        //   [0,0,0,0],
+        //   [0,4,5,0],
+        //   [0,3,1,0]
+        // ]
+        // Follow up:
+        // A straight forward solution using O(mn) space is probably a bad idea.
+        // A simple improvement uses O(m + n) space, but still not the best solution.
+        // Could you devise a constant space solution?
+        void setZeroes(vector<vector<int>> &matrix)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return;
+            bool setFirstRowZero = false;
+            bool setFirstColZero = false;
+            for (size_t j = 0; j < matrix[0].size() && !setFirstRowZero; j++)
+            {
+                if (matrix[0][j] == 0)
+                    setFirstRowZero = true;
+            }
+            for (size_t i = 0; i < matrix.size() && !setFirstColZero; i++)
+            {
+                if (matrix[i][0] == 0)
+                    setFirstColZero = true;
+            }
+            for (size_t i = 0; i < matrix.size(); i++)
+            {
+                for (size_t j = 0; j < matrix[i].size(); j++)
+                {
+                    if (matrix[i][j] == 0)
+                    {
+                        matrix[0][j] = 0;
+                        matrix[i][0] = 0;
+                    }
+                }
+            }
+            for (size_t i = 1; i < matrix.size(); i++)
+            {
+                if (matrix[i][0] == 0)
+                {
+                    for (size_t j = 1; j < matrix[i].size(); j++)
+                        matrix[i][j] = 0;
+                }
+            }
+            for (size_t j = 1; j < matrix[0].size(); j++)
+            {
+                if (matrix[0][j] == 0)
+                {
+                    for (size_t i = 1; i < matrix.size(); i++)
+                        matrix[i][j] = 0;
+                }
+            }
+            if (setFirstRowZero)
+            {
+                for (size_t j = 0; j < matrix[0].size(); j++)
+                    matrix[0][j] = 0;
+            }
+            if (setFirstColZero)
+            {
+                for (size_t i = 0; i < matrix.size(); i++)
+                    matrix[i][0] = 0;
+            }
+        }
+        void setZeroes2(vector<vector<int>> &matrix)
+        {
+            if (matrix.size() == 0 || matrix[0].size() == 0)
+                return;
+            size_t m = matrix.size();
+            size_t n = matrix[0].size();
+            bool zeroFirstColumn = false;
+            bool zeroFirstRow = false;
+            for (size_t i = 0; i < m; i++)
+            {
+                for (size_t j = 0; j < n; j++)
+                {
+                    if (matrix[i][j] == 0)
+                    {
+                        if (i == 0)
+                            zeroFirstRow = true;
+                        if (j == 0)
+                            zeroFirstColumn = true;
+                        matrix[i][0] = 0;
+                        matrix[0][j] = 0;
+                    }
+                }
+            }
+            for (size_t i = 1; i < m; i++)
+            {
+                if (matrix[i][0] == 0)
+                {
+                    for (size_t j = 1; j < n; j++)
+                        matrix[i][j] = 0;
+                }
+            }
+            for (size_t j = 1; j < n; j++)
+            {
+                if (matrix[0][j] == 0)
+                {
+                    for (size_t i = 1; i < m; i++)
+                        matrix[i][j] = 0;
+                }
+            }
+            if (zeroFirstColumn)
+            {
+                for (size_t i = 1; i < m; i++)
+                    matrix[i][0] = 0;
+            }
+            if (zeroFirstRow)
+            {
+                for (size_t j = 1; j < n; j++)
+                    matrix[0][j] = 0;
+            }
+        }
+
+        // 74. Search a 2D Matrix
+        // Write an efficient algorithm that searches for a value in an m x n matrix.
+        // This matrix has the following properties:
+        // Integers in each row are sorted from left to right.
+        // The first integer of each row is greater than the last integer of the
+        // previous row. Example 1: Input: matrix = [
+        //   [1,   3,  5,  7],
+        //   [10, 11, 16, 20],
+        //   [23, 30, 34, 50]
+        // ]
+        // target = 3
+        // Output: true
+        // Example 2:
+        // Input:
+        // matrix = [
+        //   [1,   3,  5,  7],
+        //   [10, 11, 16, 20],
+        //   [23, 30, 34, 50]
+        // ]
+        // target = 13
+        // Output: false
+        bool searchMatrix(const vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.empty() || matrix[0].empty())
+                return false;
+            int i = 0;
+            int j = matrix[0].size() - 1;
+            while (i < (int)matrix.size() && j >= 0)
+            {
+                if (target < matrix[i][j])
+                    j--;
+                else if (target > matrix[i][j])
+                    i++;
+                else
+                    return true;
+            }
+            return false;
+        }
+        bool searchMatrix2(const vector<vector<int>> &matrix, int target)
+        {
+            if (matrix.size() == 0 || matrix[0].size() == 0)
+                return false;
+            int l = 0;
+            int h = matrix.size() - 1;
+            int m;
+            while (l <= h)
+            {
+                m = l + ((h - l) >> 1);
+                if (target == matrix[m][0])
+                    return true;
+                if (target < matrix[m][0])
+                {
+                    if (l == m)
+                        return false;
+                    h = m - 1;
+                }
+                else
+                {
+                    if (l == m)
+                    {
+                        if (target >= matrix[h][0])
+                            m = h;
+                        break;
+                    }
+                    l = m;
+                }
+            }
+            l = 0;
+            h = matrix[m].size() - 1;
+            int n;
+            while (l <= h)
+            {
+                n = l + ((h - l) >> 1);
+                if (target == matrix[m][n])
+                    return true;
+                if (target < matrix[m][n])
+                {
+                    if (l == n)
+                        break;
+                    h = n - 1;
+                }
+                else
+                {
+                    if (n == h)
+                        break;
+                    l = n + 1;
+                }
+            }
+            return false;
+        }
+
+        // 75. Sort Colors
+        // Given an array with n objects colored red, white or blue, sort them in-place
+        // so that objects of the same color are adjacent, with the colors in the order
+        // red, white and blue. Here, we will use the integers 0, 1, and 2 to represent
+        // the color red, white, and blue respectively.
+        // Note: You are not suppose to use the library's sort function for this
+        // problem. Example: Input: [2,0,2,1,1,0] Output: [0,0,1,1,2,2] Follow up: A
+        // rather straight forward solution is a two-pass algorithm using counting sort.
+        // First, iterate the array counting number of 0's, 1's, and 2's, then overwrite
+        // array with total number of 0's, then 1's and followed by 2's.
+        // Could you come up with a one-pass algorithm using only constant space?
+        void sortColors(vector<int> &nums)
+        {
+            int i = -1;
+            int k = nums.size();
+            int j = 0;
+            while (j < k)
+            {
+                switch (nums[j])
+                {
+                case 0:
+                    swap(nums[++i], nums[j]);
+                    if (i == j)
+                        j++;
+                    break;
+                case 1:
+                    j++;
+                    break;
+                case 2:
+                    swap(nums[j], nums[--k]);
+                    break;
+                }
+            }
+        }
+        void sortColors2(vector<int> &nums)
+        {
+            if (nums.size() == 0)
+                return;
+            int i = -1;
+            int j = 0;
+            int k = nums.size();
+            while (j < k)
+            {
+                if (nums[j] == 0)
+                {
+                    if (i < j)
+                    {
+                        i++;
+                        swap(nums[i], nums[j]);
+                    }
+                    else
+                    {
+                        j++;
+                    }
+                }
+                else if (nums[j] == 2)
+                {
+                    if (j < k)
+                    {
+                        k--;
+                        swap(nums[j], nums[k]);
+                    }
+                    else
+                    {
+                        j++;
+                    }
+                }
+                else
+                {
+                    j++;
+                }
+            }
+        }
+        void sortColors3(vector<int> &nums)
+        {
+            if (nums.empty())
+                return;
+            int i = 0;
+            int j = 0;
+            int k = nums.size() - 1;
+            int t;
+            while (i < k)
+            {
+                while (nums[i] == 0)
+                    i++;
+                while (nums[k] == 2)
+                    k--;
+                if (i >= k)
+                    return;
+                // A[i] in {1,2}
+                // A[k] in {0,1}
+                if (nums[i] > nums[k])
+                {
+                    //    A[i] = 1 && A[k] = 0
+                    // || A[i] = 2 && A[k] = {0,1}
+                    t = nums[i];
+                    nums[i] = nums[k];
+                    nums[k] = t;
+                }
+                else
+                {
+                    // A[i] == A[k] == 1
+                    if (j <= i)
+                        j = i + 1;
+                    while (nums[j] == 1)
+                        j++;
+                    if (j >= k)
+                        return;
+                    if (nums[j] == 0)
+                    {
+                        t = nums[i];
+                        nums[i] = nums[j];
+                        nums[j] = t;
+                    }
+                    else
+                    { // A[j] == 2
+                        t = nums[k];
+                        nums[k] = nums[j];
+                        nums[j] = t;
+                    }
+                }
+            }
+        }
+
+        // 76. Minimum Window Substring
+        // Given a string S and a string T, find the minimum window in S which will
+        // contain all the characters in T in complexity O(n).
+        // Example:
+        // Input: S = "ADOBECODEBANC", T = "ABC"
+        // Output: "BANC"
+        // Note: If there is no such window in S that covers all characters in T,
+        // return the empty string "". If there is such window, you are guaranteed
+        // that there will always be only one unique minimum window in S.
+        string minWindow(const string &s, const string &t)
+        {
+            if (t.empty() || s.size() < t.size())
+                return "";
+            map<char, int> mt;
+            for (size_t i = 0; i < t.size(); i++)
+            {
+                if (mt.find(t[i]) == mt.end())
+                    mt[t[i]] = 1;
+                else
+                    mt[t[i]]++;
+            }
+            map<char, int> ms;
+            size_t minIndex = INT_MAX;
+            size_t minLen = INT_MAX;
+            size_t i = 0;
+            size_t j = 0;
+            while (j < s.size())
+            {
+                if (mt.find(s[j]) == mt.end())
+                {
+                    j++;
+                    continue;
+                }
+                if (ms.find(s[j]) == ms.end())
+                    ms[s[j]] = 1;
+                else
+                    ms[s[j]]++;
+                if (ms.size() < mt.size())
+                {
+                    j++;
+                    continue;
+                }
+                bool hasT = true;
+                for (auto it = ms.cbegin(); it != ms.cend(); it++)
+                {
+                    if (it->second < mt[it->first])
+                    {
+                        hasT = false;
+                        break;
+                    }
+                }
+                if (!hasT)
+                {
+                    j++;
+                    continue;
+                }
+                while (ms.find(s[i]) == ms.end() || ms[s[i]] > mt[s[i]])
+                {
+                    if (ms.find(s[i]) != ms.end())
+                        ms[s[i]]--;
+                    i++;
+                }
+                if (j - i + 1 < minLen)
+                {
+                    minIndex = i;
+                    minLen = j - i + 1;
+                }
+                j++;
+            }
+            return minIndex == INT_MAX ? "" : s.substr(minIndex, minLen);
+        }
+        string minWindow2(const string &s, const string &t)
+        {
+            if (s.empty() || t.empty() || s.length() < t.length())
+                return "";
+            map<char, int> countT;
+            for (size_t i = 0; i < t.length(); i++)
+            {
+                if (countT.find(t[i]) == countT.end())
+                    countT[t[i]] = 1;
+                else
+                    countT[t[i]] += 1;
+            }
+            // c1 count should be no less than c2 count
+            auto compare = [&](map<char, int> &c1, map<char, int> &c2) -> bool
+            {
+                if (c1.size() != c2.size())
+                    return false;
+                for (map<char, int>::iterator it = c1.begin(); it != c1.end(); it++)
+                {
+                    if (c2.find(it->first) == c2.end())
+                        return false;
+                    if (c2[it->first] > it->second)
+                        return false;
+                }
+                return true;
+            };
+            map<char, int> countS;
+            queue<pair<char, int>> indices;
+            int begin = -1;
+            int end = (int)s.length();
+            for (int i = 0; i < (int)s.length(); i++)
+            {
+                if (countT.find(s[i]) != countT.end())
+                {
+                    if (countS.find(s[i]) == countS.end())
+                        countS[s[i]] = 1;
+                    else
+                        countS[s[i]] += 1;
+                    // indices contains a range of characters that are also in T
+                    indices.push(make_pair(s[i], i));
+                    // Shorten the range
+                    while (countS[indices.front().first] >
+                           countT[indices.front().first])
+                    {
+                        countS[indices.front().first] -= 1;
+                        indices.pop();
+                    }
+                    if (compare(countS, countT))
+                    {
+                        if (i - indices.front().second < end - begin)
+                        {
+                            begin = indices.front().second;
+                            end = i;
+                        }
+                    }
+                }
+            }
+            if (begin == -1)
+                return "";
+            else
+                return s.substr(begin, end - begin + 1);
+        }
+        string minWindow3(const string &s, const string &t)
+        {
+            if (s.empty() || t.empty() || s.length() < t.length())
+                return "";
+            map<char, int> countT;
+            for (size_t i = 0; i < t.length(); i++)
+            {
+                if (countT.find(t[i]) == countT.end())
+                    countT[t[i]] = 1;
+                else
+                    countT[t[i]] += 1;
+            }
+            map<char, int> countS;
+            int total = 0;
+            queue<pair<char, int>> indices;
+            int begin = -1;
+            int end = (int)s.length();
+            for (int i = 0; i < (int)s.length(); i++)
+            {
+                if (countT.find(s[i]) != countT.end())
+                {
+                    if (countS.find(s[i]) == countS.end())
+                        countS[s[i]] = 1;
+                    else
+                        countS[s[i]] += 1;
+                    // TODO: investigate when and how to decrease total and see
+                    // if can avoid using queue indices.
+                    if (countS[s[i]] <= countT[s[i]])
+                        total++;
+                    indices.push(make_pair(s[i], i));
+                    while (countS[indices.front().first] >
+                           countT[indices.front().first])
+                    {
+                        countS[indices.front().first] -= 1;
+                        indices.pop();
+                    }
+                    if (total == (int)t.length())
+                    {
+                        if (i - indices.front().second < end - begin)
+                        {
+                            begin = indices.front().second;
+                            end = i;
+                        }
+                    }
+                }
+            }
+            if (begin == -1)
+                return "";
+            else
+                return s.substr(begin, end - begin + 1);
+        }
+
+        // 77. Combinations
+        // Given two integers n and k, return all possible combinations of k numbers
+        // out of 1 ... n.
+        // Example:
+        // Input: n = 4, k = 2
+        // Output:
+        // [
+        //   [2,4],
+        //   [3,4],
+        //   [2,3],
+        //   [1,2],
+        //   [1,3],
+        //   [1,4],
+        // ]
+        vector<vector<int>> combine(int n, int k)
+        {
+            vector<vector<int>> result;
+            if (k <= 0 || n <= 0 || k > n)
+                return result;
+            function<void(int, int, vector<int> &)>
+                solve = [&](int i, int c, vector<int> &v)
+            {
+                if (c == 0)
+                {
+                    result.push_back(v);
+                    return;
+                }
+                for (int j = i; j <= n; j++)
+                {
+                    v.push_back(j);
+                    solve(j + 1, c - 1, v);
+                    v.pop_back();
+                }
+            };
+            vector<int> c;
+            solve(1, k, c);
+            return result;
+        }
+        vector<vector<int>> combine2(int n, int k)
+        {
+            vector<vector<int>> result = vector<vector<int>>{};
+            if (k <= 0 || n <= 0 || k > n)
+                return result;
+            function<void(int, int, vector<int> &)>
+                select = [&](int i, int l, vector<int> &c)
+            {
+                if (l == 0)
+                {
+                    result.push_back(c);
+                    return;
+                }
+                for (int j = i; j <= n; j++)
+                {
+                    vector<int> c1(c);
+                    c1.push_back(j);
+                    select(j + 1, l - 1, c1);
+                }
+            };
+            vector<int> c = vector<int>{};
+            select(1, k, c);
+            return result;
+        }
+        // Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+        // then we need s(n, k).
+        // s(n, k) = s(n-1, k-1) + s(n-1, k)
+        // where s(i-1, j-1) contains solutions each of which contains i, and
+        // s(i-1, j) contains solutions each of which does not contain i.
+        vector<vector<int>> combine3(int n, int k)
+        {
+            if (n < k)
+                return vector<vector<int>>{{}};
+            function<void(int, int, map<pair<int, int>, vector<vector<int>>> &)>
+                combine =
+                    [&](int i, int j, map<pair<int, int>, vector<vector<int>>> &s)
+            {
+                pair<int, int> p = make_pair(i, j);
+                s[p] = vector<vector<int>>{};
+                if (i <= 0 || j <= 0 || i < j)
+                {
+                    s[p].push_back(vector<int>{});
+                    return;
+                }
+                if (i == j)
+                {
+                    vector<int> v;
+                    for (int k = 1; k <= j; k++)
+                    {
+                        v.push_back(k);
+                    }
+                    s[p].push_back(v);
+                    return;
+                }
+                pair<int, int> q1 = make_pair(i - 1, j - 1);
+                if (s.find(q1) == s.end())
+                    combine(i - 1, j - 1, s);
+                for_each(s[q1].begin(), s[q1].end(), [&](vector<int> &v)
+                         {
+                             vector<int> ex(v.begin(), v.end());
+                             ex.push_back(i);
+                             s[p].push_back(ex);
+                         });
+                pair<int, int> q2 = make_pair(i - 1, j);
+                if (s.find(q2) == s.end())
+                    combine(i - 1, j, s);
+                for_each(s[q2].begin(), s[q2].end(),
+                         [&](vector<int> &v)
+                         { s[p].push_back(v); });
+            };
+            map<pair<int, int>, vector<vector<int>>> sets;
+            combine(n, k, sets);
+            pair<int, int> p = make_pair(n, k);
+            return sets[p];
+        }
+        // Let s(i, j) be the solution of choosing j numbers out of {1, 2, ..., i}
+        // then we need s(n, k).
+        // s(n, k) = s(n-1, k-1) + s(n-1, k)
+        //
+        // j       1          2          3          4 ......      k-1         k
+        // i 0 s(1,1)
+        //   1 s(2,1)     s(2,2)
+        //   2 s(3,1)     s(3,2)     s(3,3)
+        //   3 s(4,1)     s(4,2)     s(4,3)     s(4,4)
+        //     ......     ......     ......     ......
+        //     ......     ......     ......     ......  ......
+        //     ......     ......     ......     ......  ...... ......
+        //     ......     ......     ......     ......  ...... s(k,k-1)   s(k,k)
+        //     ......     ......     ......     ......  ...... s(k+1,k-1) s(k+1,k)
+        //     ......     ......     ......     ......  ...... ......     ......
+        //     ......     ......     ......     ......  ...... ......     ......
+        // n-k s(n-k+1,1) s(n-k+1,2) ......     ......  ...... ......     ......
+        //                s(n-k+2,2) ......     ......  ...... ......     ......
+        //                           s(n-k+2,3) ......  ...... ......     ......
+        //                                      ......  ...... ......     ......
+        //                                              ...... ......     ......
+        //                                                     s(n-1,k-1) s(n-1,k)
+        //                                                                s(n,k)
+        //
+        vector<vector<int>> combine4(int n, int k)
+        {
+            if (n <= 0 || k <= 0 || n < k)
+                return vector<vector<int>>{{}};
+            // Represent a column
+            vector<vector<vector<int>>> s(n - k + 1, vector<vector<int>>{{}});
+            for (int j = 1; j <= k; j++)
+            {
+                // s[0] = s(0+j, j) = {{1,2,...,j}}
+                s[0][0].push_back(j);
+                for (int i = 1; i <= n - k; i++)
+                {
+                    // s[i] = s(i+j, j)
+                    // Extend s[i] by adding i+j to each of s(i-1+j,j-1)
+                    for_each(s[i].begin(), s[i].end(),
+                             [&](vector<int> &v)
+                             { v.push_back(i + j); });
+                    // Extend s[i] = s(i+j,j) by adding s(i-1+j,j)
+                    for_each(s[i - 1].begin(), s[i - 1].end(),
+                             [&](vector<int> &v)
+                             { s[i].push_back(v); });
+                }
+            }
+            return s[n - k];
+        }
+        vector<vector<int>> combine5(int n, int k)
+        {
+            vector<vector<int>> sets = {vector<int>{}};
+            vector<vector<int>> output = {};
+            for (int i = 1; i <= n; i++)
+            {
+                int size = sets.size();
+                for (int j = 0; j < size; j++)
+                {
+                    if ((int)sets[j].size() < k)
+                    {
+                        vector<int> ex(sets[j].begin(), sets[j].end());
+                        ex.push_back(i);
+                        if ((int)ex.size() == k)
+                            output.push_back(ex);
+                        else
+                            sets.push_back(ex);
+                    }
+                }
+            }
+            return output;
+        }
+        vector<vector<int>> combine6(int n, int k)
+        {
+            function<void(vector<int>, int, int, vector<vector<int>> &)> solve =
+                [&](vector<int> pre, int i, int k1, vector<vector<int>> &s)
+            {
+                if (k1 == 0)
+                {
+                    s.push_back(pre);
+                    return;
+                }
+                if (n - i + 1 == k1)
+                {
+                    // pre contains i - 1 numbers
+                    // There k1 numbers from i to n
+                    for (int j = i; j <= n; j++)
+                        pre.push_back(j);
+                    s.push_back(pre);
+                    return;
+                }
+                for (int j = i; j <= n - k1 + 1; j++)
+                {
+                    vector<int> p(pre.begin(), pre.end());
+                    p.push_back(j);
+                    solve(p, j + 1, k1 - 1, s);
+                }
+            };
+            vector<vector<int>> set = {};
+            solve(vector<int>{}, 1, k, set);
+            return set;
+        }
+
+        // 78. Subsets
+        // Given a set of distinct integers, nums, return all possible subsets (the
+        // power set). Note: The solution set must not contain duplicate subsets.
+        // Example:
+        // Input: nums = [1,2,3]
+        // Output:
+        // [
+        //   [3],
+        //   [1],
+        //   [2],
+        //   [1,2,3],
+        //   [1,3],
+        //   [2,3],
+        //   [1,2],
+        //   []
+        // ]
+        vector<vector<int>> subsets(const vector<int> &nums)
+        {
+            vector<vector<int>> sets = {{}};
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                size_t n = sets.size();
+                for (size_t j = 0; j < n; j++)
+                {
+                    vector<int> v(sets[j]);
+                    v.push_back(nums[i]);
+                    sets.push_back(v);
+                }
+            }
+            return sets;
+        }
+        vector<vector<int>> subsets2(const vector<int> &nums)
+        {
+            vector<vector<int>> sets;
+            function<void(size_t, size_t, vector<int> &)> select =
+                [&](size_t i, size_t k, vector<int> &v)
+            {
+                if (k == 0)
+                {
+                    sets.push_back(v);
+                    return;
+                }
+                for (size_t j = i; j < nums.size(); j++)
+                {
+                    v.push_back(nums[j]);
+                    select(j + 1, k - 1, v);
+                    v.pop_back();
+                }
+            };
+            vector<int> s;
+            for (size_t k = 0; k <= nums.size(); k++)
+                select(0, k, s);
+            return sets;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
