@@ -8902,7 +8902,7 @@ namespace Test
         // d[i][n-1] =
         //     m - 1 - i, delete from w1 if w1[i] == w2[n-1]
         //     1 + min {                 if w1[i] != w2[n-1]
-        //               m - 1 - i,      replace w1[i] with w2[j] and delete the rest from w1
+        //               m - 1 - i,      replace w1[i] with w2[n-1] and delete the rest from w1
         //               d[i+1][n-1] },  delete w1[i] and recurse
         // d[i][j] =
         //     d[i+1][j+1], if w1[i] == w2[j]
@@ -8968,6 +8968,58 @@ namespace Test
                 }
             }
             return d[0][0];
+        }
+        int minDistance4(const string &word1, const string &word2)
+        {
+            int m = word1.size();
+            int n = word2.size();
+            if (m == 0)
+                return n;
+            if (n == 0)
+                return m;
+            vector<int> d(n, 0);
+            d[n - 1] = (word1[m - 1] == word2[n - 1] ? 0 : 1);
+            for (int j = n - 2; j >= 0; j--)
+            {
+                if (word1[m - 1] == word2[j])
+                {
+                    d[j] = n - 1 - j;
+                }
+                else
+                {
+                    d[j] = 1 + min(n - 1 - j, d[j + 1]);
+                }
+            }
+            for (int i = m - 2; i >= 0; i--)
+            {
+                // i    t = d[i][j]    p = d[i][j+1]
+                // i+1  d[i+1][j]      d[i+1][j+1]
+                int p = 0;
+                if (word1[i] == word2[n - 1])
+                {
+                    p = m - 1 - i;
+                }
+                else
+                {
+                    p = 1 + min(m - 1 - i, d[n - 1]);
+                }
+                int t = 0;
+                for (int j = n - 2; j >= 0; j--)
+                {
+                    if (word1[i] == word2[j])
+                    {
+                        t = d[j + 1];
+                    }
+                    else
+                    {
+                        t = 1 + min(p, min(d[j + 1], d[j]));
+                    }
+                    d[j + 1] = p;
+                    p = t;
+                }
+                d[0] = p;
+            }
+            return d[0];
         }
 
     } // namespace LeetCode
