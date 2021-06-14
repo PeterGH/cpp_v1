@@ -10614,6 +10614,743 @@ namespace Test
             return maxArea;
         }
 
+        // 86. Partition List
+        // Given a linked list and a value x, partition it such that all nodes less
+        // than x come before nodes greater than or equal to x. You should preserve
+        // the original relative order of the nodes in each of the two partitions.
+        // Example:
+        // Input: head = 1->4->3->2->5->2, x = 3
+        // Output: 1->2->2->4->3->5
+        ListNode *partition(ListNode *head, int x)
+        {
+            if (head == nullptr)
+                return head;
+            ListNode *p = nullptr; // last node smaller than x
+            if (head->val < x)
+                p = head;
+            while (p != nullptr && p->next != nullptr && p->next->val < x)
+                p = p->next;
+            ListNode *q = p == nullptr ? head : p->next; // last node no smaller than x
+            while (q != nullptr)
+            {
+                if (q->next == nullptr)
+                    break;
+                if (q->next->val >= x)
+                {
+                    q = q->next;
+                    continue;
+                }
+                ListNode *t = q->next;
+                q->next = t->next;
+                if (p == nullptr)
+                {
+                    t->next = head;
+                    head = t;
+                    p = t;
+                }
+                else
+                {
+                    t->next = p->next;
+                    p->next = t;
+                    p = t;
+                }
+            }
+            return head;
+        }
+        ListNode *partition2(ListNode *head, int x)
+        {
+            ListNode *p = nullptr;
+            ListNode *q = nullptr;
+            ListNode *n = head;
+            while (n != nullptr)
+            {
+                if (n->val < x)
+                {
+                    if (p == nullptr)
+                    {
+                        if (n != head)
+                        {
+                            q->next = n->next;
+                            n->next = head;
+                            head = n;
+                            p = n;
+                            n = q->next;
+                        }
+                        else
+                        {
+                            p = n;
+                            n = n->next;
+                        }
+                    }
+                    else
+                    {
+                        if (p->next != n)
+                        {
+                            q->next = n->next;
+                            n->next = p->next;
+                            p->next = n;
+                            p = n;
+                            n = q->next;
+                        }
+                        else
+                        {
+                            p = n;
+                            n = n->next;
+                        }
+                    }
+                }
+                else
+                {
+                    q = n;
+                    n = n->next;
+                }
+            }
+            return head;
+        }
+        ListNode *partition3(ListNode *head, int x)
+        {
+            if (head == nullptr)
+                return head;
+            ListNode *prev = nullptr;
+            if (head->val < x)
+            {
+                prev = head;
+            }
+            ListNode *p = head;
+            while (p->next != nullptr)
+            {
+                if (p->next->val < x)
+                {
+                    if (prev == p)
+                    {
+                        prev = p->next;
+                        p = p->next;
+                    }
+                    else
+                    {
+                        ListNode *next = p->next;
+                        p->next = next->next;
+                        if (prev == nullptr)
+                        {
+                            next->next = head;
+                            head = next;
+                            prev = next;
+                        }
+                        else
+                        {
+                            next->next = prev->next;
+                            prev->next = next;
+                            prev = next;
+                        }
+                    }
+                }
+                else
+                {
+                    p = p->next;
+                }
+            }
+            return head;
+        }
+        ListNode *partition4(ListNode *head, int x)
+        {
+            if (head == nullptr)
+                return nullptr;
+            // p is the last node less than x
+            ListNode *p = head;
+            // q is the last node no less than x
+            ListNode *q = head;
+            if (head->val >= x)
+            {
+                while (q->next != nullptr && q->next->val >= x)
+                    q = q->next;
+                if (q->next == nullptr)
+                {
+                    // every node is equal to or greater than x
+                    return head;
+                }
+                // q->next is less than x
+                ListNode *t = q->next;
+                q->next = t->next;
+                t->next = head;
+                head = t;
+                p = head;
+            }
+            else
+            {
+                while (p->next != nullptr && p->next->val < x)
+                    p = p->next;
+                if (p->next == nullptr)
+                {
+                    // every node is less than x
+                    return head;
+                }
+                q = p->next;
+            }
+            // Now check if q->next should be moved to be after p
+            while (q->next != nullptr)
+            {
+                if (q->next->val < x)
+                {
+                    ListNode *t = q->next;
+                    q->next = t->next;
+                    t->next = p->next;
+                    p->next = t;
+                    p = t;
+                }
+                else
+                {
+                    q = q->next;
+                }
+            }
+            return head;
+        }
+
+        // 87. Scramble String
+        // Given a string s1, we may represent it as a binary tree by partitioning
+        // it to two non-empty substrings recursively.
+        // Below is one possible representation of s1 = "great":
+        //     great
+        //    /    \
+        //   gr    eat
+        //  / \    /  \
+        // g   r  e   at
+        //            / \
+        //           a   t
+        // To scramble the string, we may choose any non-leaf node and swap its two
+        // children. For example, if we choose the node "gr" and swap its two children,
+        // it produces a scrambled string "rgeat".
+        //     rgeat
+        //    /    \
+        //   rg    eat
+        //  / \    /  \
+        // r   g  e   at
+        //            / \
+        //           a   t
+        // We say that "rgeat" is a scrambled string of "great".
+        // Similarly, if we continue to swap the children of nodes "eat" and "at",
+        // it produces a scrambled string "rgtae".
+        //     rgtae
+        //    /    \
+        //   rg    tae
+        //  / \    /  \
+        // r   g  ta  e
+        //        / \
+        //       t   a
+        // We say that "rgtae" is a scrambled string of "great".
+        // Given two strings s1 and s2 of the same length, determine if s2 is a
+        // scrambled string of s1.
+        // Example 1:
+        // Input: s1 = "great", s2 = "rgeat"
+        // Output: true
+        // Example 2:
+        // Input: s1 = "abcde", s2 = "caebd"
+        // Output: false
+        bool isScramble(const string &s1, const string &s2)
+        {
+            if (s1.empty() && s2.empty())
+                return true;
+            function<bool(const map<char, int> &, const map<char, int> &)> areEqual =
+                [&](const map<char, int> &m1, const map<char, int> &m2) -> bool
+            {
+                if (m1.size() != m2.size())
+                    return false;
+                for (auto it = m1.cbegin(); it != m1.cend(); it++)
+                {
+                    if (m2.find(it->first) == m2.end())
+                        return false;
+                    if (m2.at(it->first) != it->second)
+                        return false;
+                }
+                return true;
+            };
+            // Check if s1[i1..j1] is scramble of s2[i2..j2]
+            function<bool(int, int, int, int)> solve = [&](int i1, int j1, int i2,
+                                                           int j2) -> bool
+            {
+                if (j1 - i1 != j2 - i2)
+                    return false;
+                if (i1 == j1 && i2 == j2)
+                    return s1[i1] == s2[i2];
+                if (i1 + 1 == j1 && i2 + 1 == j2)
+                    return (s1[i1] == s2[i2] && s1[j1] == s2[j2]) ||
+                           (s1[i1] == s2[j2] && s1[j1] == s2[i2]);
+                map<char, int> m1;
+                map<char, int> m2;
+                map<char, int> m3;
+                // check s1[i1..(j1 - 1)] with s2[i2..(j2 - 1)] and s2[(i2 + 1)..j2]
+                for (int i = 0; i < j1 - i1; i++)
+                {
+                    if (m1.find(s1[i1 + i]) == m1.end())
+                        m1[s1[i1 + i]] = 1;
+                    else
+                        m1[s1[i1 + i]]++;
+                    if (m2.find(s2[i2 + i]) == m2.end())
+                        m2[s2[i2 + i]] = 1;
+                    else
+                        m2[s2[i2 + i]]++;
+                    if (m3.find(s2[j2 - i]) == m3.end())
+                        m3[s2[j2 - i]] = 1;
+                    else
+                        m3[s2[j2 - i]]++;
+                    if (areEqual(m1, m2))
+                    {
+                        if (solve(i1, i1 + i, i2, i2 + i) &&
+                            solve(i1 + i + 1, j1, i2 + i + 1, j2))
+                            return true;
+                    }
+                    if (areEqual(m1, m3))
+                    {
+                        if (solve(i1, i1 + i, j2 - i, j2) &&
+                            solve(i1 + i + 1, j1, i2, j2 - i - 1))
+                            return true;
+                    }
+                }
+                return false;
+            };
+            return solve(0, (int)s1.size() - 1, 0, (int)s2.size() - 1);
+        }
+        bool isScramble2(const string &s1, const string &s2)
+        {
+            if (s1.length() != s2.length())
+                return false;
+            if (s1.length() == 0)
+                return true;
+            int len = s1.length();
+            map<char, int> m1;
+            map<char, int> m2;
+            for (int i = 0; i < len; i++)
+            {
+                if (m1.find(s1[i]) == m1.end())
+                    m1[s1[i]] = 1;
+                else
+                    m1[s1[i]] += 1;
+                if (m2.find(s2[i]) == m2.end())
+                    m2[s2[i]] = 1;
+                else
+                    m2[s2[i]] += 1;
+                // TODO: do we still need further check once two maps are equal?
+                if (Util::Equal(m1, m2))
+                {
+                    // s1[0..i] and s2[0..i] may be scramble
+                    if (i == 0 || i == 1)
+                    {
+                        // s1[0] and s2[0], or s1[0..1] and s2[0..1] are scramble
+                        if (i == len - 1 || isScramble2(s1.substr(i + 1, len - 1 - i),
+                                                        s2.substr(i + 1, len - 1 - i)))
+                            return true;
+                    }
+                    else if (i < len - 1)
+                    {
+                        if (isScramble2(s1.substr(0, i + 1), s2.substr(0, i + 1)) &&
+                            isScramble2(s1.substr(i + 1, len - 1 - i),
+                                        s2.substr(i + 1, len - 1 - i)))
+                            return true;
+                    }
+                }
+            }
+            m1.clear();
+            m2.clear();
+            for (int i = 0; i < len; i++)
+            {
+                int j = len - 1 - i;
+                if (m1.find(s1[j]) == m1.end())
+                    m1[s1[j]] = 1;
+                else
+                    m1[s1[j]] += 1;
+                if (m2.find(s2[i]) == m2.end())
+                    m2[s2[i]] = 1;
+                else
+                    m2[s2[i]] += 1;
+                if (Util::Equal(m1, m2))
+                {
+                    // s1[len-1-i..len-1] and s2[0..i] may be scramble
+                    if (i == 0 || i == 1)
+                    {
+                        if (i == len - 1 || isScramble2(s1.substr(0, len - 1 - i),
+                                                        s2.substr(i + 1, len - 1 - i)))
+                            return true;
+                    }
+                    else if (i < len - 1)
+                    {
+                        if (isScramble2(s1.substr(0, len - 1 - i),
+                                        s2.substr(i + 1, len - 1 - i)) &&
+                            isScramble2(s1.substr(len - 1 - i, i + 1),
+                                        s2.substr(0, i + 1)))
+                            return true;
+                    }
+                }
+            }
+            return false;
+        }
+        bool isScramble3(const string &s1, const string &s2)
+        {
+            if (s1.length() != s2.length())
+                return false;
+            if (s1.length() == 0)
+                return true;
+            map<pair<int, int>, map<pair<int, int>, bool>> scramble;
+            function<bool(int, int, int, int)> isscramble = [&](int i1, int i2, int j1,
+                                                                int j2) -> bool
+            {
+                // check s1[i1..i2] and s2[j1..j2]
+                pair<int, int> pi = make_pair(i1, i2);
+                pair<int, int> pj = make_pair(j1, j2);
+                if (scramble.find(pi) != scramble.end() &&
+                    scramble[pi].find(pj) != scramble[pi].end())
+                    return scramble[pi][pj];
+                if (scramble.find(pi) == scramble.end())
+                    scramble[pi] = map<pair<int, int>, bool>{};
+                if (scramble[pi].find(pj) == scramble[pi].end())
+                    scramble[pi][pj] = false;
+                map<char, int> m1;
+                map<char, int> m2;
+                for (int i = i1, j = j1; i <= i2 && j <= j2; i++, j++)
+                {
+                    if (m1.find(s1[i]) == m1.end())
+                        m1[s1[i]] = 1;
+                    else
+                        m1[s1[i]] += 1;
+                    if (m2.find(s2[j]) == m2.end())
+                        m2[s2[j]] = 1;
+                    else
+                        m2[s2[j]] += 1;
+                    if (Util::Equal(m1, m2))
+                    {
+                        // s1[i1..i] and s2[j1..j] may be scramble
+                        if (j - j1 <= 1)
+                        {
+                            if (j == j2 || isscramble(i + 1, i2, j + 1, j2))
+                            {
+                                scramble[pi][pj] = true;
+                                return true;
+                            }
+                        }
+                        else if (j < j2)
+                        {
+                            if (isscramble(i1, i, j1, j) &&
+                                isscramble(i + 1, i2, j + 1, j2))
+                            {
+                                scramble[pi][pj] = true;
+                                return true;
+                            }
+                        }
+                    }
+                }
+                m1.clear();
+                m2.clear();
+                for (int i = i2, j = j1; i >= i1 && j <= j2; i--, j++)
+                {
+                    if (m1.find(s1[i]) == m1.end())
+                        m1[s1[i]] = 1;
+                    else
+                        m1[s1[i]] += 1;
+                    if (m2.find(s2[j]) == m2.end())
+                        m2[s2[j]] = 1;
+                    else
+                        m2[s2[j]] += 1;
+                    if (Util::Equal(m1, m2))
+                    {
+                        // s1[i..i2] and s2[j1..j] may be scramble
+                        if (j - j1 <= 1)
+                        {
+                            if (j == j2 || isscramble(i1, i - 1, j + 1, j2))
+                            {
+                                scramble[pi][pj] = true;
+                                return true;
+                            }
+                        }
+                        else if (j < j2)
+                        {
+                            if (isscramble(i1, i - 1, j + 1, j2) &&
+                                isscramble(i, i2, j1, j))
+                            {
+                                scramble[pi][pj] = true;
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            };
+            return isscramble(0, (int)s1.length() - 1, 0, (int)s2.length() - 1);
+        }
+
+        // 88. Merge Sorted Array
+        // Given two sorted integer arrays nums1 and nums2, merge nums2 into nums1
+        // as one sorted array. Note: The number of elements initialized in nums1
+        // and nums2 are m and n respectively. You may assume that nums1 has enough
+        // space (size that is greater or equal to m + n) to hold additional elements
+        // from nums2.
+        // Example:
+        // Input:
+        // nums1 = [1,2,3,0,0,0], m = 3
+        // nums2 = [2,5,6],       n = 3
+        // Output: [1,2,2,3,5,6]
+        void merge(vector<int> &nums1, int m, vector<int> &nums2, int n)
+        {
+            int i = m + n - 1;
+            while (n > 0)
+            {
+                if (m > 0 && nums1[m - 1] > nums2[n - 1])
+                {
+                    nums1[i] = nums1[m - 1];
+                    m--;
+                }
+                else
+                {
+                    nums1[i] = nums2[n - 1];
+                    n--;
+                }
+                i--;
+            }
+        }
+        void merge2(vector<int> &nums1, int m, vector<int> &nums2, int n)
+        {
+            int i = m + n - 1;
+            m--;
+            n--;
+            while (m >= 0 || n >= 0)
+            {
+                if (n < 0)
+                    break;
+                if (m >= 0 && nums1[m] > nums2[n])
+                    nums1[i--] = nums1[m--];
+                else
+                    nums1[i--] = nums2[n--];
+            }
+        }
+        // Another solution: shift elements in nums1 to the end, and then merge
+        // with nums2 starting from the beginning of nums1.
+        void merge3(vector<int> &nums1, int m, vector<int> &nums2, int n)
+        {
+            vector<int>::iterator it1 = nums1.begin();
+            vector<int>::iterator it2 = nums2.begin();
+            int i = 0;
+            int j = 0;
+            while (i < m || j < n)
+            {
+                if (i < m && j < n)
+                {
+                    if (*it1 <= *it2)
+                    {
+                        it1++;
+                        i++;
+                    }
+                    else
+                    {
+                        it1 = nums1.insert(it1, *it2);
+                        it1++;
+                        it2 = nums2.erase(it2);
+                        j++;
+                    }
+                }
+                else if (j < n)
+                {
+                    it1 = nums1.insert(it1, *it2);
+                    it1++;
+                    it2 = nums2.erase(it2);
+                    j++;
+                }
+                else
+                {
+                    it1++;
+                    i++;
+                }
+            }
+            // Remove empty positions in nums1
+            while (it1 != nums1.end())
+                it1 = nums1.erase(it1);
+        }
+        void merge4(vector<int> &nums1, int m, vector<int> &nums2, int n)
+        {
+            if (m < 0 || n < 0)
+                return;
+            int i = 0;
+            int j = 0;
+            while (i < m && j < n)
+            {
+                if (nums1[i] <= nums2[j])
+                    i++;
+                else
+                {
+                    for (int k = m; k > i; k--)
+                    {
+                        nums1[k] = nums1[k - 1];
+                    }
+                    nums1[i] = nums2[j];
+                    m++;
+                    i++;
+                    j++;
+                }
+            }
+            if (j < n)
+            {
+                for (int k = j; k < n; k++)
+                {
+                    nums1[i] = nums2[k];
+                    i++;
+                }
+            }
+        }
+        void merge5(vector<int> &nums1, int m, vector<int> &nums2, int n)
+        {
+            if (m < 0 || n < 0)
+                return;
+            int i = m - 1;
+            int j = n - 1;
+            while (i >= 0 && j >= 0)
+            {
+                if (nums1[i] > nums2[j])
+                {
+                    nums1[i + j + 1] = nums1[i];
+                    i--;
+                }
+                else
+                {
+                    nums1[i + j + 1] = nums2[j];
+                    j--;
+                }
+            }
+            if (j >= 0)
+            {
+                for (int p = j; p >= 0; p--)
+                {
+                    nums1[p] = nums2[p];
+                }
+            }
+        }
+
+        // 89. Gray Code
+        // The gray code is a binary numeral system where two successive values differ
+        // in only one bit. Given a non-negative integer n representing the total number
+        // of bits in the code, print the sequence of gray code. A gray code sequence
+        // must begin with 0.
+        // Example 1:
+        // Input: 2
+        // Output: [0,1,3,2]
+        // Explanation:
+        // 00 - 0
+        // 01 - 1
+        // 11 - 3
+        // 10 - 2
+        // For a given n, a gray code sequence may not be uniquely defined.
+        // For example, [0,2,3,1] is also a valid gray code sequence.
+        // 00 - 0
+        // 10 - 2
+        // 11 - 3
+        // 01 - 1
+        // Example 2:
+        // Input: 0
+        // Output: [0]
+        // Explanation: We define the gray code sequence to begin with 0.
+        // A gray code sequence of n has size = 2^n, which for n = 0 the size is 2^0 = 1.
+        // Therefore, for n = 0 the gray code sequence is [0].
+        vector<int> grayCode(int n)
+        {
+            vector<int> g;
+            if (n < 0)
+                return g;
+            g.push_back(0);
+            int b = 1;
+            for (int i = 0; i < n; i++)
+            {
+                int l = g.size();
+                for (int j = l - 1; j >= 0; j--)
+                    g.push_back(g[j] | b);
+                b = b << 1;
+            }
+            return g;
+        }
+        vector<int> grayCode2(int n)
+        {
+            vector<int> codes = {};
+            if (n <= 0 || n > 8 * (int)sizeof(int))
+                return codes;
+            function<void(int &, int)> toggle = [&](int &code, int position)
+            {
+                code = code ^ (0x1 << position);
+                codes.push_back(code);
+                if (position > 0)
+                {
+                    for (int i = 0; i < position; i++)
+                        toggle(code, i);
+                }
+            };
+            int code = 0;
+            codes.push_back(code);
+            for (int i = 0; i < n; i++)
+                toggle(code, i);
+            return codes;
+        }
+
+        // 90. Subsets II
+        // Given a collection of integers that might contain duplicates, nums, return
+        // all possible subsets (the power set).
+        // Note: The solution set must not contain duplicate subsets.
+        // Example:
+        // Input: [1,2,2]
+        // Output:
+        // [
+        //   [2],
+        //   [1],
+        //   [1,2,2],
+        //   [2,2],
+        //   [1,2],
+        //   []
+        // ]
+        vector<vector<int>> subsetsWithDup(vector<int> &nums)
+        {
+            vector<vector<int>> result = {{}};
+            sort(nums.begin(), nums.end());
+            size_t i = 0;
+            while (i < nums.size())
+            {
+                size_t j = i;
+                while (j + 1 < nums.size() && nums[j + 1] == nums[i])
+                    j++;
+                size_t m = result.size();
+                for (size_t k = 0; k < m; k++)
+                {
+                    vector<int> r(result[k]);
+                    for (size_t t = i; t <= j; t++)
+                    {
+                        r.push_back(nums[t]);
+                        result.push_back(r);
+                    }
+                }
+                i = j + 1;
+            }
+            return result;
+        }
+        vector<vector<int>> subsetsWithDup2(vector<int> &nums)
+        {
+            vector<vector<int>> result = vector<vector<int>>{vector<int>{}};
+            if (nums.size() == 0)
+                return result;
+            sort(nums.begin(), nums.end());
+            size_t i = 0;
+            while (i < nums.size())
+            {
+                size_t j = i;
+                while (j + 1 < nums.size() && nums[j] == nums[j + 1])
+                    j++;
+                vector<int> c;
+                size_t n = result.size();
+                for (size_t k = i; k <= j; k++)
+                {
+                    c.push_back(nums[k]);
+                    for (size_t l = 0; l < n; l++)
+                    {
+                        vector<int> e(result[l]);
+                        e.insert(e.end(), c.begin(), c.end());
+                        result.push_back(e);
+                    }
+                }
+                i = j + 1;
+            }
+            return result;
+        }
+
     } // namespace LeetCode
 } // namespace Test
 
