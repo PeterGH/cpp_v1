@@ -1,5 +1,5 @@
 CXXFLAGS = -g -Wall -Wno-unused-function -Wno-comment
-DEPS = Argument.h LeetCode.h LeetCode0.h LeetCode2.h LeetCode3.h Log.h Test.h Util.h ArgumentTest.h CppTest.h LeetCodeTest.h LogTest.h
+DEPS = Argument.h LeetCode.h LeetCode0.h LeetCode1.h LeetCode2.h LeetCode3.h Log.h Test.h Util.h ArgumentTest.h CppTest.h LeetCodeTest.h LogTest.h
 OBJS = main.o
 TARGET = test
 
