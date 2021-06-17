@@ -979,6 +979,572 @@ namespace Test
             return bst(h, 0, c - 1);
         }
 
+        // 110. Balanced Binary Tree
+        // Given a binary tree, determine if it is height-balanced.
+        // For this problem, a height-balanced binary tree is defined as:
+        // a binary tree in which the left and right subtrees of every node differ
+        // in height by no more than 1.
+        // Example 1:
+        // Given the following tree [3,9,20,null,null,15,7]:
+        //     3
+        //    / \
+        //   9  20
+        //     /  \
+        //    15   7
+        // Return true.
+        // Example 2:
+        // Given the following tree [1,2,2,3,3,null,null,4,4]:
+        //        1
+        //       / \
+        //      2   2
+        //     / \
+        //    3   3
+        //   / \
+        //  4   4
+        // Return false.
+        bool isBalanced(TreeNode *root)
+        {
+            function<bool(TreeNode *, int &)>
+                balanced = [&](TreeNode *n, int &h) -> bool
+            {
+                if (n == nullptr)
+                {
+                    h = 0;
+                    return true;
+                }
+                int hl = 0;
+                if (!balanced(n->left, hl))
+                    return false;
+                int hr = 0;
+                if (!balanced(n->right, hr))
+                    return false;
+                h = 1 + max(hl, hr);
+                return abs(hl - hr) <= 1;
+            };
+            int h = 0;
+            return balanced(root, h);
+        }
+        bool isBalanced2(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            map<TreeNode *, int> m;
+            TreeNode *node = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || node != nullptr)
+            {
+                if (node != nullptr)
+                {
+                    s.push(node);
+                    m[node] = 0;
+                    node = node->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->left != nullptr && t->left == last)
+                        m[t] = m[t->left]; // Record the left height temporarily
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        node = t->right;
+                    }
+                    else
+                    {
+                        s.pop();
+                        int rightHeight = t->right == nullptr ? 0 : m[t->right];
+                        if (abs(m[t] - rightHeight) > 1)
+                            return false;
+                        m[t] = 1 + max(m[t], rightHeight); // Record the real height
+                    }
+                    last = t;
+                }
+            }
+            return true;
+        }
+
+        // 111. Minimum Depth of Binary Tree
+        // Given a binary tree, find its minimum depth.
+        // The minimum depth is the number of nodes along the shortest path
+        // from the root node down to the nearest leaf node.
+        // Note: A leaf is a node with no children.
+        // Example:
+        // Given binary tree [3,9,20,null,null,15,7],
+        //     3
+        //    / \
+        //   9  20
+        //     /  \
+        //    15   7
+        // return its minimum depth = 2.
+        int minDepth(TreeNode *root)
+        {
+            if (root == nullptr)
+                return 0;
+            int m = INT_MAX;
+            function<void(TreeNode *, int)> depth = [&](TreeNode *n, int d)
+            {
+                if (n == nullptr)
+                    return;
+                d++;
+                if (n->left == nullptr && n->right == nullptr)
+                    m = min(m, d);
+                if (n->left != nullptr)
+                    depth(n->left, d);
+                if (n->right != nullptr)
+                    depth(n->right, d);
+            };
+            depth(root, 0);
+            return m;
+        }
+        int minDepth2(TreeNode *root)
+        {
+            if (root == nullptr)
+                return 0;
+            stack<pair<TreeNode *, int>> s;
+            TreeNode *n = root;
+            int m = INT_MAX;
+            int d = 1;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left == nullptr && n->right == nullptr)
+                        m = min(m, d);
+                    s.push(make_pair(n, d));
+                    n = n->left;
+                    d++;
+                }
+                else
+                {
+                    pair<TreeNode *, int> p = s.top();
+                    s.pop();
+                    n = p.first->right;
+                    d = p.second + 1;
+                }
+            }
+            return m;
+        }
+        int minDepth3(TreeNode *root)
+        {
+            if (root == nullptr)
+                return 0;
+            queue<TreeNode *> q;
+            q.push(root);
+            int d = 1;
+            queue<TreeNode *> t;
+            TreeNode *n;
+            while (!q.empty())
+            {
+                n = q.front();
+                q.pop();
+                if (n->left == nullptr && n->right == nullptr)
+                    break;
+                if (n->left != nullptr)
+                    t.push(n->left);
+                if (n->right != nullptr)
+                    t.push(n->right);
+                if (q.empty())
+                {
+                    swap(q, t);
+                    d++;
+                }
+            }
+            return d;
+        }
+        int minDepth4(TreeNode *root)
+        {
+            function<int(TreeNode *, int)>
+                solve = [&](TreeNode *node, int depth) -> int
+            {
+                if (node == nullptr)
+                    return depth;
+                depth++;
+                if (node->left == nullptr)
+                    return solve(node->right, depth);
+                else if (node->right == nullptr)
+                    return solve(node->left, depth);
+                else
+                    return min(solve(node->left, depth), solve(node->right, depth));
+            };
+            return solve(root, 0);
+        }
+
+        // 112. Path Sum
+        // Given a binary tree and a sum, determine if the tree has a root-to-leaf
+        // path such that adding up all the values along the path equals the given sum.
+        // Note: A leaf is a node with no children. Example:
+        // Given the below binary tree and sum = 22,
+        //       5
+        //      / \
+        //     4   8
+        //    /   / \
+        //   11  13  4
+        //  /  \      \
+        // 7    2      1
+        // return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22.
+        bool hasPathSum(TreeNode *root, int sum)
+        {
+            function<bool(TreeNode *, int)> solve = [&](TreeNode *n, int s) -> bool
+            {
+                if (n == nullptr)
+                    return false;
+                s = s + n->val;
+                if (s == sum && n->left == nullptr && n->right == nullptr)
+                    return true;
+                return solve(n->left, s) || solve(n->right, s);
+            };
+            return solve(root, 0);
+        }
+        bool hasPathSum2(TreeNode *root, int sum)
+        {
+            stack<pair<TreeNode *, int>> s;
+            TreeNode *n = root;
+            int t = 0;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    t = t + n->val;
+                    if (n->left == nullptr && n->right == nullptr && t == sum)
+                        return true;
+                    s.push(make_pair(n, t));
+                    n = n->left;
+                }
+                else
+                {
+                    pair<TreeNode *, int> p = s.top();
+                    s.pop();
+                    n = p.first->right;
+                    t = p.second;
+                }
+            }
+            return false;
+        }
+        int pickPathSum(TreeNode *root)
+        {
+            int sum = 0;
+            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s)
+            {
+                if (n == nullptr)
+                    return;
+                s += n->val;
+                if (n->left == nullptr && n->right == nullptr)
+                {
+                    sum = s;
+                    if (rand() < (RAND_MAX >> 1))
+                        return;
+                }
+                solve(n->left, s);
+                solve(n->right, s);
+            };
+            solve(root, 0);
+            return sum;
+        }
+
+        // 113. Path Sum II
+        // Given a binary tree and a sum, find all root-to-leaf paths where each
+        // path's sum equals the given sum. Note: A leaf is a node with no children.
+        // Example: Given the below binary tree and sum = 22,
+        //       5
+        //      / \
+        //     4   8
+        //    /   / \
+        //   11  13  4
+        //  /  \    / \
+        // 7    2  5   1
+        // Return:
+        // [
+        //    [5,4,11,2],
+        //    [5,8,4,5]
+        // ]
+        vector<vector<int>> pathSum(TreeNode *root, int sum)
+        {
+            vector<vector<int>> result;
+            function<void(TreeNode *, int, vector<int> &)> solve =
+                [&](TreeNode *n, int s, vector<int> &v)
+            {
+                if (n == nullptr)
+                    return;
+                s += n->val;
+                v.push_back(n->val);
+                if (s == sum && n->left == nullptr && n->right == nullptr)
+                    result.push_back(v);
+                else
+                {
+                    if (n->left != nullptr)
+                        solve(n->left, s, v);
+                    if (n->right != nullptr)
+                        solve(n->right, s, v);
+                }
+                v.pop_back();
+            };
+            vector<int> w;
+            solve(root, 0, w);
+            return result;
+        }
+        vector<vector<int>> pathSum2(TreeNode *root, int sum)
+        {
+            vector<vector<int>> result;
+            vector<int> v;
+            stack<pair<TreeNode *, int>> s;
+            TreeNode *n = root;
+            int t = 0;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    t += n->val;
+                    v.push_back(n->val);
+                    if (n->left == nullptr && n->right == nullptr && t == sum)
+                        result.push_back(v);
+                    s.push(make_pair(n, t));
+                    n = n->left;
+                }
+                else
+                {
+                    pair<TreeNode *, int> p = s.top();
+                    if (p.first->right != nullptr && last != p.first->right)
+                    {
+                        n = p.first->right;
+                        t = p.second;
+                    }
+                    else
+                    {
+                        last = p.first;
+                        s.pop();
+                        v.pop_back();
+                    }
+                }
+            }
+            return result;
+        }
+        void setPathSum(TreeNode *root, int sum)
+        {
+            function<void(TreeNode *, int)> solve = [&](TreeNode *n, int s)
+            {
+                if (n == nullptr)
+                    return;
+                if (n->left == nullptr && n->right == nullptr)
+                {
+                    if (rand() < (RAND_MAX >> 1))
+                    {
+                        n->val = sum - s;
+                        return;
+                    }
+                }
+                s += n->val;
+                solve(n->left, s);
+                solve(n->right, s);
+            };
+            solve(root, 0);
+        }
+
+        // 114. Flatten Binary Tree to Linked List
+        // Given a binary tree, flatten it to a linked list in-place.
+        // For example, given the following tree:
+        //     1
+        //    / \
+        //   2   5
+        //  / \   \
+        // 3   4   6
+        // The flattened tree should look like:
+        // 1
+        //  \
+        //   2
+        //    \
+        //     3
+        //      \
+        //       4
+        //        \
+        //         5
+        //          \
+        //           6
+        void flatten(TreeNode *root)
+        {
+            function<void(TreeNode *, TreeNode *&, TreeNode *&)> flat =
+                [&](TreeNode *n, TreeNode *&l, TreeNode *&r)
+            {
+                if (n == nullptr)
+                {
+                    l = nullptr;
+                    r = nullptr;
+                    return;
+                }
+                TreeNode *ll = nullptr;
+                TreeNode *lr = nullptr;
+                flat(n->left, ll, lr);
+                TreeNode *rl = nullptr;
+                TreeNode *rr = nullptr;
+                flat(n->right, rl, rr);
+                if (ll == nullptr)
+                {
+                    l = n;
+                    r = rl == nullptr ? n : rr;
+                    return;
+                }
+                lr->right = rl;
+                n->right = ll;
+                n->left = nullptr;
+                l = n;
+                r = rl == nullptr ? lr : rr;
+            };
+            TreeNode *l = nullptr;
+            TreeNode *r = nullptr;
+            flat(root, l, r);
+        }
+        void flatten2(TreeNode *root)
+        {
+            function<TreeNode *(TreeNode *)> solve =
+                [&](TreeNode *node) -> TreeNode *
+            {
+                if (node == nullptr)
+                    return nullptr;
+                if (node->left == nullptr && node->right == nullptr)
+                {
+                    return node;
+                }
+                TreeNode *leftTail = solve(node->left);
+                TreeNode *rightTail = solve(node->right);
+                if (leftTail != nullptr)
+                {
+                    leftTail->right = node->right;
+                    node->right = node->left;
+                    node->left = nullptr;
+                }
+                return rightTail == nullptr ? leftTail : rightTail;
+            };
+            solve(root);
+        }
+        void flatten3(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            map<TreeNode *, TreeNode *> m; // map a node to the tail of list at node
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    m[n] = n;
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        TreeNode *l = t->left;
+                        TreeNode *r = t->right;
+                        if (l != nullptr)
+                        {
+                            m[l]->right = r;
+                            t->right = l;
+                            t->left = nullptr;
+                        }
+                        m[t] = (r == nullptr ? (l == nullptr ? m[t] : m[l]) : m[r]);
+                        s.pop();
+                    }
+                    last = t;
+                }
+            }
+        }
+
+        // 115. Distinct Subsequences
+        // Given a string S and a string T, count the number of distinct subsequences
+        // of S which equals T. A subsequence of a string is a new string which is
+        // formed from the original string by deleting some (can be none) of the
+        // characters without disturbing the relative positions of the remaining
+        // characters. (ie, "ACE" is a subsequence of "ABCDE" while "AEC" is not).
+        // Example 1:
+        // Input: S = "rabbbit", T = "rabbit"
+        // Output: 3
+        // Explanation: As shown below, there are 3 ways you can generate "rabbit" from
+        // S. (The caret symbol ^ means the chosen letters)
+        // rabbbit
+        // ^^^^ ^^
+        // rabbbit
+        // ^^ ^^^^
+        // rabbbit
+        // ^^^ ^^^
+        // Example 2:
+        // Input: S = "babgbag", T = "bag"
+        // Output: 5
+        // Explanation: As shown below, there are 5 ways you can generate "bag" from S.
+        // (The caret symbol ^ means the chosen letters)
+        // babgbag
+        // ^^ ^
+        // babgbag
+        // ^^    ^
+        // babgbag
+        // ^    ^^
+        // babgbag
+        //   ^  ^^
+        // babgbag
+        //     ^^^
+        int numDistinct(const string &s, const string &t)
+        {
+            map<pair<size_t, size_t>, int> m;
+            function<int(size_t, size_t)> solve = [&](size_t i, size_t j) -> int
+            {
+                pair<size_t, size_t> p = make_pair(i, j);
+                if (m.find(p) != m.end())
+                    return m[p];
+                if (j == t.size())
+                {
+                    m[p] = 1;
+                    return m[p];
+                }
+                while (i < s.size() && s[i] != t[j])
+                    i++;
+                if (i == s.size())
+                    m[p] = 0;
+                else
+                    m[p] = solve(i + 1, j + 1) + solve(i + 1, j);
+                return m[p];
+            };
+            return solve(0, 0);
+        }
+        // c(i, j) is the count for s[0..i] and t[0..j]
+        // c(i, j) = 0                              if i < j
+        //         = c(i - 1, j)                    if j == 0 && s[i] != t[j]
+        //         = c(i - 1, j) + 1                if j == 0 && s[i] == t[j]
+        //         = c(i - 1, j)                    if s[i] != t[j]
+        //         = c(i - 1, j - 1) + c(i - 1, j)  if s[i] == t[j]
+        //   t     0        1    ......     n-2        n-1
+        // s 0 c(0,0)   c(0,1)   ...... c(0,n-2)   c(0,n-1)
+        //   1 c(1,0)   c(1,1)   ...... c(1,n-2)   c(1,n-1)
+        //   2 c(2,0)   c(2,1)   ...... c(2,n-2)   c(2,n-1)
+        //     ......
+        // n-2 c(n-2,0) c(n-2,1) ...... c(n-2,n-2) c(n-2,n-1)
+        // n-1 c(n-1,0) c(n-1,1) ...... c(n-1,n-2) c(n-1,n-1)
+        //     ......
+        // m-n c(m-n,0) c(m-n,1) ...... c(m-n,n-2) c(m-n,n-1)
+        //     ......
+        // m-2 c(m-2,0) c(m-2,1) ...... c(m-2,n-2) c(m-2,n-1)
+        // m-1 c(m-1,0) c(m-1,1) ...... c(m-1,n-2) c(m-1,n-1)
+        int numDistinct2(const string &s, const string &t)
+        {
+            if (s.size() < t.size())
+                return 0;
+            vector<unsigned long long> c(t.size(), 0);
+            c[0] = s[0] == t[0] ? 1 : 0;
+            for (int i = 1; i < (int)s.size(); i++)
+            {
+                for (int j = t.size() - 1; j > 0; j--)
+                {
+                    if (s[i] == t[j])
+                        c[j] += c[j - 1];
+                }
+                if (s[i] == t[0])
+                    c[0]++;
+            }
+            return c[t.size() - 1];
+        }
+
         // 144. Binary Tree Preorder Traversal
         // Given a binary tree, return the preorder traversal of its nodes' values.
         // Example:
