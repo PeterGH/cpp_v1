@@ -1545,6 +1545,673 @@ namespace Test
             return c[t.size() - 1];
         }
 
+        // 116. Populating Next Right Pointers in Each Node
+        // You are given a perfect binary tree where all leaves are on the same level,
+        // and every parent has two children. The binary tree has the following
+        // definition: struct Node {
+        //   int val;
+        //   Node *left;
+        //   Node *right;
+        //   Node *next;
+        // }
+        // Populate each next pointer to point to its next right node. If there is no
+        // next right node, the next pointer should be set to NULL. Initially, all next
+        // pointers are set to NULL. Follow up: You may only use constant extra space.
+        // Recursive approach is fine, you may assume implicit stack space does not
+        // count as extra space for this problem. Example 1: Input: root =
+        // [1,2,3,4,5,6,7] Output: [1,#,2,3,#,4,5,6,7,#] Explanation: Given the above
+        // perfect binary tree (Figure A), your function should populate each next
+        // pointer to point to its next right node, just like in Figure B. The
+        // serialized output is in level order as connected by the next pointers, with
+        // '#' signifying the end of each level. Constraints: The number of nodes in the
+        // given tree is less than 4096. -1000 <= node.val <= 1000
+        NodeWithNextLink *connect(NodeWithNextLink *root)
+        {
+            NodeWithNextLink *left = root;
+            while (left != nullptr && left->left != nullptr)
+            {
+                NodeWithNextLink *n = left;
+                while (n != nullptr)
+                {
+                    n->left->next = n->right;
+                    if (n->next != nullptr)
+                        n->right->next = n->next->left;
+                    n = n->next;
+                }
+                left = left->left;
+            }
+            return root;
+        }
+        NodeWithNextLink *connect2(NodeWithNextLink *root)
+        {
+            NodeWithNextLink *leftMost = root;
+            while (leftMost != nullptr && leftMost->left != nullptr)
+            {
+                NodeWithNextLink *node = leftMost;
+                leftMost = leftMost->left;
+                NodeWithNextLink *left = nullptr;
+                while (node != nullptr)
+                {
+                    if (left != nullptr)
+                        left->next = node->left;
+                    node->left->next = node->right;
+                    left = node->right;
+                    node = node->next;
+                }
+            }
+            return root;
+        }
+        NodeWithNextLink *connect3(NodeWithNextLink *root)
+        {
+            if (root != nullptr && root->left != nullptr && root->right != nullptr)
+            {
+                root->left->next = root->right;
+                if (root->next != nullptr)
+                    root->right->next = root->next->left;
+                connect3(root->left);
+                connect3(root->right);
+            }
+            return root;
+        }
+
+        // 117. Populating Next Right Pointers in Each Node II
+        // Given a binary tree
+        // struct Node {
+        //   int val;
+        //   Node *left;
+        //   Node *right;
+        //   Node *next;
+        // }
+        // Populate each next pointer to point to its next right node. If there is no
+        // next right node, the next pointer should be set to NULL. Initially, all next
+        // pointers are set to NULL. Follow up: You may only use constant extra space.
+        // Recursive approach is fine, you may assume implicit stack space does not
+        // count as extra space for this problem. Example 1: Input: root =
+        // [1,2,3,4,5,null,7] Output: [1,#,2,3,#,4,5,7,#] Explanation: Given the above
+        // binary tree (Figure A), your function should populate each next pointer to
+        // point to its next right node, just like in Figure B. The serialized output is
+        // in level order as connected by the next pointers, with '#' signifying the end
+        // of each level. Constraints: The number of nodes in the given tree is less
+        // than 6000. -100 <= node.val <= 100
+        NodeWithNextLink *connectII(NodeWithNextLink *root)
+        {
+            NodeWithNextLink *node = root;
+            while (node != nullptr)
+            {
+                NodeWithNextLink *left = nullptr;
+                NodeWithNextLink *prev = nullptr;
+                while (node != nullptr)
+                {
+                    if (node->left != nullptr)
+                    {
+                        if (left == nullptr)
+                            left = node->left;
+                        if (prev != nullptr)
+                            prev->next = node->left;
+                        prev = node->left;
+                    }
+                    if (node->right != nullptr)
+                    {
+                        if (left == nullptr)
+                            left = node->right;
+                        if (prev != nullptr)
+                            prev->next = node->right;
+                        prev = node->right;
+                    }
+                    node = node->next;
+                }
+                node = left;
+            }
+            return root;
+        }
+        NodeWithNextLink *connectII2(NodeWithNextLink *root)
+        {
+            if (root != nullptr && (root->left != nullptr || root->right != nullptr))
+            {
+                NodeWithNextLink *prev = nullptr;
+                if (root->left != nullptr)
+                    prev = root->left;
+                if (root->right != nullptr)
+                {
+                    if (prev != nullptr)
+                        prev->next = root->right;
+                    prev = root->right;
+                }
+                NodeWithNextLink *n = root->next;
+                while (n != nullptr)
+                {
+                    if (n->left != nullptr)
+                    {
+                        prev->next = n->left;
+                        prev = n->left;
+                    }
+                    if (n->right != nullptr)
+                    {
+                        prev->next = n->right;
+                        prev = n->right;
+                    }
+                    n = n->next;
+                }
+                connectII2(root->left);
+                connectII2(root->right);
+            }
+            return root;
+        }
+        NodeWithNextLink *connectII3(NodeWithNextLink *root)
+        {
+            if (root != nullptr)
+            {
+                NodeWithNextLink *prev = nullptr;
+                NodeWithNextLink *n = root;
+                while (n != nullptr)
+                {
+                    if (n->left != nullptr)
+                    {
+                        if (prev != nullptr)
+                            prev->next = n->left;
+                        prev = n->left;
+                    }
+                    if (n->right != nullptr)
+                    {
+                        if (prev != nullptr)
+                            prev->next = n->right;
+                        prev = n->right;
+                    }
+                    n = n->next;
+                }
+                connectII3(root->left);
+                connectII3(root->right);
+            }
+            return root;
+        }
+
+        // 118. Pascal's Triangle
+        // Given a non-negative integer numRows, generate the first numRows of Pascal's
+        // triangle. In Pascal's triangle, each number is the sum of the two numbers
+        // directly above it. Example: Input: 5 Output:
+        // [
+        //      [1],
+        //     [1,1],
+        //    [1,2,1],
+        //   [1,3,3,1],
+        //  [1,4,6,4,1]
+        // ]
+        vector<vector<int>> generate(int numRows)
+        {
+            vector<vector<int>> result;
+            vector<int> v;
+            for (int i = 1; i <= numRows; i++)
+            {
+                v.push_back(1);
+                for (int j = v.size() - 2; j > 0; j--)
+                    v[j] += v[j - 1];
+                result.push_back(v);
+            }
+            return result;
+        }
+
+        // 119. Pascal's Triangle II
+        // Given a non-negative index k where k ≤ 33, return the kth index row of
+        // the Pascal's triangle. Note that the row index starts from 0.
+        // In Pascal's triangle, each number is the sum of the two numbers directly
+        // above it. Example: Input: 3 Output: [1,3,3,1] Follow up: Could you optimize
+        // your algorithm to use only O(k) extra space?
+        vector<int> getRow(int rowIndex)
+        {
+            vector<int> v = {1};
+            for (int i = 1; i <= rowIndex; i++)
+            {
+                v.push_back(1);
+                for (int j = v.size() - 2; j > 0; j--)
+                    v[j] += v[j - 1];
+            }
+            return v;
+        }
+        vector<int> getRow2(int rowIndex)
+        {
+            vector<int> row;
+            for (int k = 0; k <= rowIndex; k++)
+            {
+                row.push_back(1);
+                for (int i = row.size() - 2; i > 0; i--)
+                {
+                    row[i] += row[i - 1];
+                }
+            }
+            return row;
+        }
+        vector<int> getRow3(int rowIndex)
+        {
+            if (rowIndex <= 0)
+                return vector<int>{1};
+            vector<int> row = getRow3(rowIndex - 1);
+            for (int i = (int)row.size() - 1; i > 0; i--)
+                row[i] += row[i - 1];
+            row.push_back(1);
+            return row;
+        }
+
+        // 120. Triangle
+        // Given a triangle, find the minimum path sum from top to bottom. Each step you
+        // may move to adjacent numbers on the row below.
+        // For example, given the following triangle
+        // [
+        //      [2],
+        //     [3,4],
+        //    [6,5,7],
+        //   [4,1,8,3]
+        // ]
+        // The minimum path sum from top to bottom is 11 (i.e., 2 + 3 + 5 + 1 = 11).
+        // Note: Bonus point if you are able to do this using only O(n) extra space,
+        // where n is the total number of rows in the triangle.
+        int minimumTotal(const vector<vector<int>> &triangle)
+        {
+            vector<int> v(triangle.size(), 0);
+            for (size_t i = 0; i < triangle.size(); i++)
+            {
+                v[i] = triangle[i][i];
+                if (i > 0)
+                    v[i] += v[i - 1];
+                for (int j = i - 1; j > 0; j--)
+                    v[j] = triangle[i][j] + min(v[j - 1], v[j]);
+                if (i > 0)
+                    v[0] += triangle[i][0];
+            }
+            int m = INT_MAX;
+            for (size_t i = 0; i < v.size(); i++)
+                m = min(m, v[i]);
+            return m;
+        }
+        int minimumTotal2(const vector<vector<int>> &triangle)
+        {
+            vector<int> row(triangle[0]);
+            for (size_t i = 1; i < triangle.size(); i++)
+            {
+                size_t n = triangle[i].size();
+                row.push_back(row[n - 2] + triangle[i][n - 1]);
+                for (int j = n - 2; j > 0; j--)
+                    row[j] = triangle[i][j] + min(row[j - 1], row[j]);
+                row[0] += triangle[i][0];
+            }
+            int min = row[0];
+            for (size_t i = 1; i < row.size(); i++)
+            {
+                if (row[i] < min)
+                    min = row[i];
+            }
+            return min;
+        }
+
+        // 121. Best Time to Buy and Sell Stock
+        // Say you have an array for which the ith element is the price of a given stock
+        // on day i. If you were only permitted to complete at most one transaction
+        // (i.e., buy one and sell one share of the stock), design an algorithm to find
+        // the maximum profit. Note that you cannot sell a stock before you buy one.
+        // Example 1:
+        // Input: [7,1,5,3,6,4]
+        // Output: 5
+        // Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6),
+        // profit = 6-1 = 5. Not 7-1 = 6, as selling price needs to be larger than
+        // buying price. Example 2: Input: [7,6,4,3,1] Output: 0 Explanation: In this
+        // case, no transaction is done, i.e. max profit = 0.
+        int maxProfit(const vector<int> &prices)
+        {
+            size_t low = 0;
+            int profit = 0;
+            for (size_t i = 1; i < prices.size(); i++)
+            {
+                if (prices[i] < prices[low])
+                    low = i;
+                else
+                    profit = max(profit, prices[i] - prices[low]);
+            }
+            return profit;
+        }
+
+        // 122. Best Time to Buy and Sell Stock II
+        // Say you have an array for which the ith element is the price of a given
+        // stock on day i. Design an algorithm to find the maximum profit. You may
+        // complete as many transactions as you like (i.e., buy one and sell one share
+        // of the stock multiple times). Note: You may not engage in multiple
+        // transactions at the same time (i.e., you must sell the stock before you buy
+        // again).
+        // Example 1:
+        // Input: [7,1,5,3,6,4]
+        // Output: 7
+        // Explanation: Buy on day 2 (price = 1) and sell on day 3 (price = 5),
+        // profit = 5-1 = 4. Then buy on day 4 (price = 3) and sell on day 5
+        // (price = 6), profit = 6-3 = 3.
+        // Example 2:
+        // Input: [1,2,3,4,5]
+        // Output: 4
+        // Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5),
+        // profit = 5-1 = 4.
+        // Note that you cannot buy on day 1, buy on day 2 and sell them later, as you
+        // are engaging multiple transactions at the same time. You must sell before
+        // buying again. Example 3: Input: [7,6,4,3,1] Output: 0 Explanation: In this
+        // case, no transaction is done, i.e. max profit = 0.
+        int maxProfitII(const vector<int> &prices)
+        {
+            int p = 0;
+            for (size_t i = 1; i < prices.size(); i++)
+                p += (prices[i] > prices[i - 1] ? prices[i] - prices[i - 1] : 0);
+            return p;
+        }
+
+        // 123. Best Time to Buy and Sell Stock III
+        // Say you have an array for which the ith element is the price of a given stock
+        // on day i. Design an algorithm to find the maximum profit. You may complete at
+        // most two transactions. Note: You may not engage in multiple transactions at
+        // the same time (i.e., you must sell the stock before you buy again). Example
+        // 1: Input: [3,3,5,0,0,3,1,4] Output: 6 Explanation: Buy on day 4 (price = 0)
+        // and sell on day 6 (price = 3), profit = 3-0 = 3. Then buy on day 7 (price =
+        // 1) and sell on day 8 (price = 4), profit = 4-1 = 3. Example 2: Input:
+        // [1,2,3,4,5] Output: 4 Explanation: Buy on day 1 (price = 1) and sell on day 5
+        // (price = 5), profit = 5-1 = 4. Note that you cannot buy on day 1, buy on day
+        // 2 and sell them later, as you are engaging multiple transactions at the same
+        // time. You must sell before buying again. Example 3: Input: [7,6,4,3,1]
+        // Output: 0
+        // Explanation: In this case, no transaction is done, i.e. max profit = 0.
+        // Dynamic Programming
+        // Let p[k, j] be the profit when k transactions are done at index j
+        // Let p[j] = prices[j]
+        // p[k, j] = max(p[k, j - 1],
+        //               p[k - 1, j - 2] + p[j] - p[j - 1],
+        //               p[k - 1, j - 3] + p[j] - p[j - 2],
+        //               ......
+        //               p[k - 1, 2(k - 1) - 1] + p[j] - p[2(k - 1)])
+        // For k = 2
+        // p[2, j] = max(p[2, j - 1],
+        //               p[j] - p[j - 1] + p[1, j - 2],
+        //               p[j] - p[j - 2] + p[1, j - 3],
+        //               ......
+        //               p[j] - p[2] + p[1, 1])
+        // p[2, j - 1] = max(p[2, j - 2],
+        //                   p[j - 1] - p[j - 2] + p[1, j - 3],
+        //                   p[j - 1] - p[j - 3] + p[1, j - 4],
+        //                   ......
+        //                   p[j - 1] - p[2] + p[1, 1])
+        // p[1, j] = max(p[1, j - 1],
+        //               p[j] - p[j - 1] + p[0, j - 2],
+        //               p[j] - p[j - 2] + p[0, j - 3],
+        //               ......
+        //               p[j] - p[1] + p[0, 0])
+        //               p[j] - p[0] + p[0, -1])
+        // p[1, j - 1] = max(p[1, j - 2],
+        //                   p[j - 1] - p[j - 2] + p[0, j - 3],
+        //                   p[j - 1] - p[j - 3] + p[0, j - 4],
+        //                   ......
+        //                   p[j - 1] - p[1] + p[0, 0])
+        //                   p[j - 1] - p[0] + p[0, -1])
+        //   j 0
+        //       p[0]   p[1]   p[2]         p[3]         p[4]      ......    p[j-2]          p[j-1]          p[j]
+        // max{ -p[0]  -p[1]  -p[2]        -p[3]        -p[4]      ......   -p[j-2]         -p[j-1]         -p[j] }
+        // k 1        p[1,1] p[1,2]       p[1,3]       p[1,4]      ...... p[1,(j-2)]      p[1,(j-1)]       p[1,j]
+        //              max{ p[1,1]-p[2]  p[1,2]-p[3]  p[1,3]-p[4] ...... p[1,(j-3)]-p[j-2] p[1,(j-2)]-p[j-1] }
+        //   2                            p[2,3]       p[2,4]      ...... p[2,(j-2)]      p[2,(j-1)]        p[2,j]
+        int maxProfitIII(const vector<int> &prices)
+        {
+            if (prices.size() < 2)
+                return 0;
+            int m1 = INT_MIN;
+            int m2 = INT_MIN;
+            int p1 = INT_MIN;
+            int p2 = INT_MIN;
+            for (size_t j = 0; j < prices.size(); j++)
+            {
+                if (j == 0)
+                {
+                    m1 = -prices[0];
+                }
+                else if (j == 1)
+                {
+                    p1 = prices[1] - prices[0];
+                    m1 = max(m1, -prices[1]);
+                }
+                else if (j == 2)
+                {
+                    m2 = p1 - prices[2];
+                    p1 = max(p1, prices[2] + m1);
+                    m1 = max(m1, -prices[2]);
+                }
+                else if (j == 3)
+                {
+                    p2 = prices[3] + m2;
+                    m2 = max(m2, p1 - prices[3]);
+                    p1 = max(p1, prices[3] + m1);
+                    m1 = max(m1, -prices[3]);
+                }
+                else
+                {
+                    p2 = max(p2, prices[j] + m2);
+                    m2 = max(m2, p1 - prices[j]);
+                    p1 = max(p1, prices[j] + m1);
+                    m1 = max(m1, -prices[j]);
+                }
+            }
+            int m = max(p1, p2);
+            return m < 0 ? 0 : m;
+        }
+        int maxProfitIII2(const vector<int> &prices)
+        {
+            if (prices.empty())
+                return 0;
+            vector<vector<int>> p(3, vector<int>(prices.size(), 0));
+            for (size_t j = 1; j < prices.size(); j++)
+            {
+                if (j == 1)
+                {
+                    p[1][1] = prices[1] - prices[0];
+                }
+                else if (j == 2)
+                {
+                    p[1][2] =
+                        max(p[1][1], max(prices[2] - prices[1], prices[2] - prices[0]));
+                }
+                else
+                {
+                    int m = -prices[0];
+                    for (size_t i = 1; i < j; i++)
+                        m = max(m, p[0][i - 1] - prices[i]);
+                    p[1][j] = max(p[1][j - 1], prices[j] + m);
+                    m = INT_MIN;
+                    for (size_t i = 2; i < j; i++)
+                        m = max(m, p[1][i - 1] - prices[i]);
+                    p[2][j] = max(p[2][j - 1], prices[j] + m);
+                }
+            }
+            return max(p[1][prices.size() - 1], p[2][prices.size() - 1]);
+        }
+        int maxProfitIII3(const vector<int> &prices)
+        {
+            if (prices.size() < 2)
+                return 0;
+            // Record the maximum two transactions
+            int buy1 = 0;
+            int sell1 = 0;
+            int buy2 = 0;
+            int sell2 = 0;
+            // Record the maximum transactions
+            int buym = 0;
+            int sellm = 0;
+            // Record the latest potential sell-buy candidate
+            int i = 0;
+            int j = 0;
+            int length = prices.size();
+            while (j < length)
+            {
+                while (j + 1 < length && prices[j] >= prices[j + 1])
+                {
+                    // Find the next local minimum
+                    j++;
+                }
+                if (i < sell2 || prices[i] >= prices[j])
+                {
+                    // i is the minimal in the range [sell2, j]
+                    // [sell2, j] may contain multiple increasing ranges, because
+                    // [i, j] may not overlap with previous [buy2, sell2]
+                    i = j;
+                }
+                while (j + 1 < length && prices[j] < prices[j + 1])
+                {
+                    // Find the next local maximum
+                    j++;
+                }
+                if (i == j)
+                {
+                    j++; // Why this can happen?
+                    continue;
+                }
+                // now input[i..j] is next potential sell-buy candidate.
+                // input[i..j] may contain more than one increasing ranges.
+                if (buy1 == sell1)
+                {
+                    // Get the first two increasing ranges
+                    buy1 = buy2;
+                    sell1 = sell2;
+                    buy2 = i;
+                    sell2 = j;
+                }
+                else
+                {
+                    // Given [buy1, sell1], [buy2, sell2] and [i, j]
+                    // Compute new [buy1, sell1] and [buy2, sell2]
+                    // Need to compare following cases:
+                    // 1. [buy1, sell1], [buy2, sell2]
+                    // 2. [buy1, sell1], [buy2, j]
+                    // 3. [buy1, sell1], [i, j]
+                    // 4. [buy2, sell2], [i, j]
+                    // 5. [buy1, sell2], [i, j]
+                    // Start with case 1
+                    int b1 = buy1;
+                    int s1 = sell1;
+                    int b2 = buy2;
+                    int s2 = sell2;
+                    if (prices[j] > prices[s2])
+                    {
+                        // Covered case 2
+                        s2 = j;
+                    }
+                    if (prices[j] - prices[i] + prices[sellm] - prices[buym] >
+                        prices[s2] - prices[b2] + prices[s1] - prices[b1])
+                    {
+                        // Covered case 3, 4 and 5
+                        b1 = buym;
+                        s1 = sellm;
+                        b2 = i;
+                        s2 = j;
+                    }
+                    buy1 = b1;
+                    sell1 = s1;
+                    buy2 = b2;
+                    sell2 = s2;
+                }
+                if (prices[sell1] - prices[buy1] > prices[sellm] - prices[buym])
+                {
+                    buym = buy1;
+                    sellm = sell1;
+                }
+                if (prices[sell2] - prices[buy2] > prices[sellm] - prices[buym])
+                {
+                    buym = buy2;
+                    sellm = sell2;
+                }
+                if (prices[sell2] - prices[buy1] > prices[sellm] - prices[buym])
+                {
+                    buym = buy1;
+                    sellm = sell2;
+                }
+                j++;
+            }
+            if (prices[sellm] - prices[buym] >=
+                prices[sell2] - prices[buy2] + prices[sell1] - prices[buy1])
+            {
+                return prices[sellm] - prices[buym];
+            }
+            else
+            {
+                return prices[sell1] - prices[buy1] + prices[sell2] - prices[buy2];
+            }
+        }
+        int maxProfitIII4(const vector<int> &prices)
+        {
+            if (prices.size() < 2)
+                return 0;
+            // Find one transaction during input[begin..end]
+            auto maxProfit = [&](int begin, int end, int &buy, int &sell, int &profit)
+            {
+                int min = begin;
+                buy = begin;
+                sell = begin;
+                profit = 0;
+                if (end == begin)
+                    return;
+                for (int i = begin + 1; i <= end; i++)
+                {
+                    if (prices[i] < prices[min])
+                    {
+                        min = i;
+                    }
+                    else
+                    {
+                        if (prices[i] - prices[min] > profit)
+                        {
+                            buy = min;
+                            sell = i;
+                            profit = prices[i] - prices[min];
+                        }
+                    }
+                }
+            };
+            int profit1 = 0;
+            int profit2 = 0;
+            int b1 = 0;
+            int s1 = 0;
+            int p1 = 0;
+            int b2 = 0;
+            int s2 = 0;
+            int p2 = 0;
+            int i = 0;
+            int length = prices.size();
+            while (i < length - 1)
+            {
+                // Increase i so that [0..i] contains one more increasing subarray
+                while (i < length - 1 && prices[i + 1] <= prices[i])
+                    i++;
+                if (i == length - 1)
+                    break;
+                while (i < length - 1 && prices[i + 1] > prices[i])
+                    i++;
+                // Find the max transaction before i
+                maxProfit(b1, i, b1, s1, p1);
+                // Find the max transaction after i
+                if (i > b2)
+                {
+                    // If i <= b2, then no need to reevaluate because b2/s2 is already
+                    // maximum after i
+                    maxProfit(i, length - 1, b2, s2, p2);
+                }
+                if (p1 + p2 > profit1 + profit2)
+                {
+                    profit1 = p1;
+                    profit2 = p2;
+                }
+                i++;
+            }
+            int b3;
+            int s3;
+            int p3;
+            maxProfit(0, length - 1, b3, s3, p3);
+            if (p3 > profit1 + profit2)
+            {
+                return p3;
+            }
+            else
+            {
+                return profit1 + profit2;
+            }
+        }
+
         // 144. Binary Tree Preorder Traversal
         // Given a binary tree, return the preorder traversal of its nodes' values.
         // Example:
