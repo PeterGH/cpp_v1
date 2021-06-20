@@ -2212,6 +2212,119 @@ namespace Test
             }
         }
 
+        // 124. Binary Tree Maximum Path Sum
+        // Given a non-empty binary tree, find the maximum path sum. For this problem,
+        // a path is defined as any sequence of nodes from some starting node to any
+        // node in the tree along the parent-child connections. The path must contain
+        // at least one node and does not need to go through the root.
+        // Example 1:
+        // Input: [1,2,3]
+        //        1
+        //       / \
+        //      2   3
+        // Output: 6
+        // Example 2:
+        // Input: [-10,9,20,null,null,15,7]
+        //    -10
+        //    / \
+        //   9  20
+        //     /  \
+        //    15   7
+        // Output: 42
+        int maxPathSum(TreeNode *root)
+        {
+            function<void(TreeNode *, int &, int &)> solve =
+                [&](TreeNode *n, int &pathSum, int &maxSum)
+            {
+                if (n == nullptr)
+                    return;
+                if (n->left == nullptr && n->right == nullptr)
+                {
+                    pathSum = n->val;
+                    maxSum = n->val;
+                    return;
+                }
+                int leftPathSum = INT_MIN;
+                int leftMaxSum = INT_MIN;
+                if (n->left != nullptr)
+                    solve(n->left, leftPathSum, leftMaxSum);
+                if (leftPathSum < 0)
+                    leftPathSum = 0; // Ignore left path
+                int rightPathSum = INT_MIN;
+                int rightMaxSum = INT_MIN;
+                if (n->right != nullptr)
+                    solve(n->right, rightPathSum, rightMaxSum);
+                if (rightPathSum < 0)
+                    rightPathSum = 0; // Ignore right path
+                if (n->left == nullptr)
+                {
+                    pathSum = n->val + rightPathSum;
+                    maxSum = max(pathSum, rightMaxSum);
+                }
+                else if (n->right == nullptr)
+                {
+                    pathSum = n->val + leftPathSum;
+                    maxSum = max(pathSum, leftMaxSum);
+                }
+                else
+                {
+                    pathSum = n->val + max(leftPathSum, rightPathSum);
+                    maxSum = max(leftPathSum + n->val + rightPathSum,
+                                 max(leftMaxSum, rightMaxSum));
+                }
+            };
+            int p;
+            int m;
+            solve(root, p, m);
+            return m;
+        }
+        int maxPathSum2(TreeNode *root)
+        {
+            stack<TreeNode *> p;
+            map<TreeNode *, pair<int, int>> s; // <path sum at node, max path sum under node>
+            TreeNode *n = root;
+            int m = INT_MIN; // node val may be negative
+            TreeNode *last = n;
+            while (!p.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    s[n] = make_pair<int, int>(0, 0);
+                    p.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = p.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        if (t->left != nullptr)
+                        {
+                            m = max(m, s[t->left].second);
+                        }
+                        if (t->right != nullptr)
+                        {
+                            m = max(m, s[t->right].second);
+                        }
+                        // check the path including t
+                        // left child path or right child path may be negative so ignore if needed
+                        m = max(m,
+                                (t->val + (t->left == nullptr ? 0 : max(0, s[t->left].first)) + (t->right == nullptr ? 0 : max(0, s[t->right].first))));
+                        s[t].second = m;
+                        s[t].first = t->val + max(t->left == nullptr ? 0 : max(0, s[t->left].first),
+                                                  t->right == nullptr ? 0 : max(0, s[t->right].first));
+                        p.pop();
+                    }
+                    last = t;
+                }
+            }
+            return m;
+        }
+
         // 144. Binary Tree Preorder Traversal
         // Given a binary tree, return the preorder traversal of its nodes' values.
         // Example:
@@ -2435,7 +2548,6 @@ namespace Test
             trav(root);
             return v;
         }
-
     }
 }
 

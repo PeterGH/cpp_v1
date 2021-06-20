@@ -450,9 +450,13 @@ void LeetCodeTest::Init1(void)
         auto check = [&](TreeNode *node, long long expect) {
             Print(node);
             long long sum = maxPathSum(node);
+            long long sum2 = maxPathSum2(node);
             Logger().WriteInformation("Sum %lld %s %lld\n", sum,
                                       sum == expect ? "==" : "!=", expect);
+            Logger().WriteInformation("Sum2 %lld %s %lld\n", sum2,
+                                      sum2 == expect ? "==" : "!=", expect);
             ASSERT1(sum == expect);
+            ASSERT1(sum2 == expect);
         };
         {
             TreeNode n1(1);
