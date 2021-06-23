@@ -3832,6 +3832,489 @@ namespace Test
             return t;
         }
 
+        // 136. Single Number
+        // Given a non-empty array of integers, every element appears twice except for
+        // one. Find that single one. Note: Your algorithm should have a linear runtime
+        // complexity. Could you implement it without using extra memory?
+        // Example 1:
+        // Input: [2,2,1]
+        // Output: 1
+        // Example 2:
+        // Input: [4,1,2,1,2]
+        // Output: 4
+        int singleNumber(const vector<int> &nums)
+        {
+            int r = 0;
+            for_each(nums.begin(), nums.end(), [&](int n)
+                     { r ^= n; });
+            return r;
+        }
+        int singleNumber2(const vector<int> &nums)
+        {
+            return accumulate(nums.cbegin(), nums.cend(), 0, [&](int x, int n) -> int
+                              { return x ^ n; });
+        }
+
+        // 137. Single Number II
+        // Given a non-empty array of integers, every element appears three times except
+        // for one, which appears exactly once. Find that single one. Note: Your
+        // algorithm should have a linear runtime complexity. Could you implement it
+        // without using extra memory? Example 1: Input: [2,2,3,2] Output: 3 Example 2:
+        // Input: [0,1,0,1,0,1,99]
+        // Output: 99
+        int singleNumberII(const vector<int> &nums)
+        {
+            int length = nums.size();
+            if (length % 3 != 1)
+                throw invalid_argument("The count of numbers is not 3n+1");
+            int n = 0;
+            int bits = 8 * sizeof(int);
+            for (int i = 0; i < bits; i++)
+            {
+                int count = 0;
+                for (int j = 0; j < length; j++)
+                    count += ((nums[j] >> i) & 0x1);
+                n |= ((count % 3) << i);
+            }
+            return n;
+        }
+        int singleNumberII2(const vector<int> &nums)
+        {
+            int length = nums.size();
+            if (length % 3 != 1)
+                throw invalid_argument("The count of numbers is not 3n+1");
+            int o0 = ~0; // positions that bit 1 occurred 0 or 3 times
+            int o1 = 0;  // positions that bit 1 occurred 1 time
+            int o2 = 0;  // positions that bit 1 occurred 2 times
+            int t = 0;
+            for (int i = 0; i < length; i++)
+            {
+                t = o2; // keep o2 temporarily to calculate o0 later
+                o2 = (o1 & nums[i]) |
+                     (o2 & ~nums[i]); // Update the positions that bit 1 occurred the
+                                      // second time due to input[i], and keep the
+                                      // positions that bit 1 already occurred two times
+                                      // and not affected by input[i]
+                o1 = (o0 & nums[i]) |
+                     (o1 & ~nums[i]); // Update the positions that bit 1 occurred the
+                                      // first time due to input[i], and keep the
+                                      // positions that bit 1 already occurred one time
+                                      // and not affected by input[i]
+                o0 = (t & nums[i]) |
+                     (o0 & ~nums[i]); // Update the positions that bit 1 occurred the
+                                      // third time due to input[i], and keep the
+                                      // positions that bit 1 already occurred zero or
+                                      // three times and not affected by input[i]
+            }
+            return o1;
+        }
+        int singleNumberII3(const vector<int> &nums)
+        {
+            int length = nums.size();
+            if (length % 3 != 1)
+                throw invalid_argument("The count of numbers is not 3n+1");
+            int o1 = 0; // positions that bit 1 occurred 0 or 3 times
+            int o2 = 0; // positions that bit 1 occurred 1 time
+            int o3 = 0; // positions that bit 1 occurred 2 times
+            for (int i = 0; i < length; i++)
+            {
+                o2 |= o1 & nums[i];
+                o1 ^= nums[i];
+                o3 = o1 & o2;
+                o1 &= ~o3;
+                o2 &= ~o3;
+            }
+            return o1;
+        }
+
+        class NodeWithRandomLink
+        {
+        public:
+            struct Node
+            {
+                int val;
+                Node *next;
+                Node *random;
+
+                Node(int _val)
+                {
+                    val = _val;
+                    next = nullptr;
+                    random = nullptr;
+                }
+            };
+            // 138. Copy List with Random Pointer
+            // A linked list is given such that each node contains an additional random
+            // pointer which could point to any node in the list or null. Return a deep
+            // copy of the list. The Linked List is represented in the input/output as a
+            // list of n nodes. Each node is represented as a pair of [val, random_index]
+            // where: val: an integer representing Node.val, and random_index: the index
+            // of the node (range from 0 to n-1) where random pointer points to, or null
+            // if it does not point to any node.
+            // Example 1:
+            // Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+            // Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+            // Example 2:
+            // Input: head = [[1,1],[2,1]]
+            // Output: [[1,1],[2,1]]
+            // Example 3:
+            // Input: head = [[3,null],[3,0],[3,null]]
+            // Output: [[3,null],[3,0],[3,null]]
+            // Example 4:
+            // Input: head = []
+            // Output: []
+            // Explanation: Given linked list is empty (null pointer), so return null.
+            // Constraints: -10000 <= Node.val <= 10000. Node.random is null or pointing
+            // to a node in the linked list. Number of Nodes will not exceed 1000.
+            Node *copyRandomList(Node *head)
+            {
+                map<Node *, Node *> m;
+                function<Node *(Node *)> copy =
+                    [&](Node *n) -> Node *
+                {
+                    if (n == nullptr)
+                        return nullptr;
+                    if (m.find(n) == m.end())
+                    {
+                        m[n] = new Node(n->val);
+                        m[n]->next = copy(n->next);
+                        m[n]->random = copy(n->random);
+                    }
+                    return m[n];
+                };
+                return copy(head);
+            }
+            Node *copyRandomList2(Node *head)
+            {
+                map<Node *, Node *> m;
+                function<Node *(Node *)> copy = [&](Node *n) -> Node *
+                {
+                    if (n == nullptr)
+                        return nullptr;
+                    if (m.find(n) != m.end())
+                        return m[n];
+                    Node *c = new Node(n->val);
+                    m[n] = c; // save it before copying next and random
+                    c->next = copy(n->next);
+                    c->random = copy(n->random);
+                    return c;
+                };
+                return copy(head);
+            }
+            Node *copyRandomList3(Node *head)
+            {
+                map<Node *, Node *> m;
+                function<Node *(Node *)> copy = [&](Node *n) -> Node *
+                {
+                    if (n == nullptr)
+                        return nullptr;
+                    if (m.find(n) == m.end())
+                        m[n] = new Node(n->val);
+                    return m[n];
+                };
+                Node *n = head;
+                while (n != nullptr)
+                {
+                    Node *c = copy(n);
+                    c->next = copy(n->next);
+                    c->random = copy(n->random);
+                    n = n->next;
+                }
+                return head == nullptr ? nullptr : m[head];
+            }
+            Node *copyRandomList4(Node *head)
+            {
+                Node *n = head;
+                while (n != nullptr)
+                {
+                    Node *c = new Node(n->val);
+                    c->next = n->next;
+                    n->next = c;
+                    n = c->next;
+                }
+                n = head;
+                while (n != nullptr)
+                {
+                    if (n->random != nullptr)
+                        n->next->random = n->random->next;
+                    n = n->next->next;
+                }
+                Node *h = nullptr;
+                Node *t = nullptr;
+                n = head;
+                while (n != nullptr)
+                {
+                    if (h == nullptr)
+                        h = n->next;
+                    else
+                        t->next = n->next;
+                    t = n->next;
+                    n->next = t->next;
+                    t->next = nullptr;
+                    n = n->next;
+                }
+                return h;
+            }
+        };
+
+        // 139. Word Break
+        // Given a non-empty string s and a dictionary wordDict containing a list of
+        // non-empty words, determine if s can be segmented into a space-separated
+        // sequence of one or more dictionary words. Note: The same word in the
+        // dictionary may be reused multiple times in the segmentation. You may assume
+        // the dictionary does not contain duplicate words.
+        // Example 1:
+        // Input: s = "leetcode", wordDict = ["leet", "code"]
+        // Output: true
+        // Explanation: Return true because "leetcode" can be segmented as "leet code".
+        // Example 2:
+        // Input: s = "applepenapple", wordDict = ["apple", "pen"]
+        // Output: true
+        // Explanation: Return true because "applepenapple" can be segmented as "apple
+        // pen apple". Note that you are allowed to reuse a dictionary word. Example 3:
+        // Input: s = "catsandog", wordDict = ["cats", "dog", "sand", "and", "cat"]
+        // Output: false
+        bool wordBreak(const string &s, const vector<string> &wordDict)
+        {
+            function<bool(size_t, const string &)>
+                same = [&](size_t i, const string &w) -> bool
+            {
+                if (i + w.size() > s.size())
+                    return false;
+                for (size_t j = 0; j < w.size(); j++)
+                {
+                    if (s[i + j] != w[j])
+                        return false;
+                }
+                return true;
+            };
+            map<size_t, bool> m;
+            function<bool(size_t)> solve = [&](size_t i) -> bool
+            {
+                if (m.find(i) != m.end())
+                    return m[i];
+                if (i == s.size())
+                    m[i] = true;
+                else if (i > s.size())
+                    m[i] = false;
+                else
+                {
+                    bool match = false;
+                    for (size_t j = 0; j < wordDict.size(); j++)
+                    {
+                        if (same(i, wordDict[j]) && solve(i + wordDict[j].size()))
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                    m[i] = match;
+                }
+                return m[i];
+            };
+            return solve(0);
+        }
+        bool wordBreak2(const string &s, const vector<string> &wordDict)
+        {
+            function<bool(size_t, const string &)>
+                same = [&](size_t i, const string &w) -> bool
+            {
+                if (i + w.size() > s.size())
+                    return false;
+                for (size_t j = 0; j < w.size(); j++)
+                {
+                    if (s[i + j] != w[j])
+                        return false;
+                }
+                return true;
+            };
+            set<size_t> m;
+            queue<size_t> q;
+            q.push(0);
+            while (!q.empty())
+            {
+                size_t i = q.front();
+                q.pop();
+                for (size_t j = 0; j < wordDict.size(); j++)
+                {
+                    if (same(i, wordDict[j]))
+                    {
+                        if (i + wordDict[j].size() == s.size())
+                            return true;
+                        if (m.find(i + wordDict[j].size()) == m.end())
+                            q.push(i + wordDict[j].size());
+                    }
+                }
+                m.insert(i);
+            }
+            return false;
+        }
+        bool wordBreak3(const string &s, const vector<string> &wordDict)
+        {
+            if (wordDict.empty())
+                return false;
+            size_t minLength = wordDict[0].size();
+            size_t maxLength = wordDict[0].size();
+            for (size_t i = 1; i < wordDict.size(); i++)
+            {
+                if (wordDict[i].size() < minLength)
+                    minLength = wordDict[i].size();
+                if (wordDict[i].size() > maxLength)
+                    maxLength = wordDict[i].size();
+            }
+            map<size_t, bool> breakable;
+            function<bool(size_t)> solve = [&](size_t i) -> bool
+            {
+                if (breakable.find(i) != breakable.end())
+                    return breakable[i];
+                breakable[i] = false;
+                if (i == s.size())
+                {
+                    breakable[i] = true;
+                }
+                else
+                {
+                    for (size_t j = minLength; j <= min(maxLength, s.size() - i); j++)
+                    {
+                        auto it =
+                            find(wordDict.begin(), wordDict.end(), s.substr(i, j));
+                        if (it != wordDict.end())
+                        {
+                            if (breakable.find(i + j) == breakable.end())
+                                solve(i + j);
+                            if (breakable[i + j])
+                            {
+                                breakable[i] = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return breakable[i];
+            };
+            return solve(0);
+        }
+
+        // 140. Word Break II
+        // Given a non-empty string s and a dictionary wordDict containing a list of
+        // non-empty words, add spaces in s to construct a sentence where each word is
+        // a valid dictionary word. Return all such possible sentences. Note: The same
+        // word in the dictionary may be reused multiple times in the segmentation. You
+        // may assume the dictionary does not contain duplicate words.
+        // Example 1:
+        // Input:
+        // s = "catsanddog"
+        // wordDict = ["cat", "cats", "and", "sand", "dog"]
+        // Output:
+        // [
+        //   "cats and dog",
+        //   "cat sand dog"
+        // ]
+        // Example 2:
+        // Input:
+        // s = "pineapplepenapple"
+        // wordDict = ["apple", "pen", "applepen", "pine", "pineapple"]
+        // Output:
+        // [
+        //   "pine apple pen apple",
+        //   "pineapple pen apple",
+        //   "pine applepen apple"
+        // ]
+        // Explanation: Note that you are allowed to reuse a dictionary word.
+        // Example 3:
+        // Input:
+        // s = "catsandog"
+        // wordDict = ["cats", "dog", "sand", "and", "cat"]
+        // Output:
+        // []
+        vector<string> wordBreakII(const string &s, const vector<string> &wordDict)
+        {
+            function<bool(size_t, const string &)>
+                same = [&](size_t i, const string &w) -> bool
+            {
+                if (i + w.size() > s.size())
+                    return false;
+                for (size_t j = 0; j < w.size(); j++)
+                {
+                    if (s[i + j] != w[j])
+                        return false;
+                }
+                return true;
+            };
+            map<size_t, vector<string>> m;
+            function<void(size_t)> solve = [&](size_t i)
+            {
+                if (i > s.size() || m.find(i) != m.end())
+                    return;
+                m[i] = {};
+                if (i == s.size())
+                    return;
+                for (size_t j = 0; j < wordDict.size(); j++)
+                {
+                    if (same(i, wordDict[j]))
+                    {
+                        size_t k = i + wordDict[j].size();
+                        if (k == s.size())
+                        {
+                            m[i].push_back(wordDict[j]);
+                        }
+                        else
+                        {
+                            solve(k);
+                            for_each(m[k].begin(), m[k].end(), [&](string &r)
+                                     {
+                                         string r1 = wordDict[j];
+                                         r1.append(1, ' ');
+                                         r1.append(r);
+                                         m[i].push_back(r1);
+                                     });
+                        }
+                    }
+                }
+            };
+            solve(0);
+            return m[0];
+        }
+        vector<string> wordBreakII2(const string &s, const vector<string> &wordDict)
+        {
+            function<bool(size_t, const string &)>
+                same = [&](size_t i, const string &w) -> bool
+            {
+                if (i + w.size() > s.size())
+                    return false;
+                for (size_t j = 0; j < w.size(); j++)
+                {
+                    if (s[i + j] != w[j])
+                        return false;
+                }
+                return true;
+            };
+            vector<string> results;
+            queue<pair<size_t, string>> q;
+            q.push(make_pair(0, string()));
+            while (!q.empty())
+            {
+                pair<size_t, string> p = q.front();
+                q.pop();
+                for (size_t i = 0; i < wordDict.size(); i++)
+                {
+                    if (same(p.first, wordDict[i]))
+                    {
+                        size_t k = p.first + wordDict[i].size();
+                        string r = p.second;
+                        if (!r.empty())
+                            r.append(1, ' ');
+                        r.append(wordDict[i]);
+                        if (k == s.size())
+                            results.push_back(r);
+                        else
+                            q.push(make_pair(k, r));
+                    }
+                }
+            }
+            return results;
+        }
+
         // 144. Binary Tree Preorder Traversal
         // Given a binary tree, return the preorder traversal of its nodes' values.
         // Example:
