@@ -6578,6 +6578,488 @@ namespace Test
             return (int)r;
         }
 
+        // 172. Factorial Trailing Zeroes
+        // Given an integer n, return the number of trailing zeroes in n!.
+        // Example 1:
+        // Input: 3
+        // Output: 0
+        // Explanation: 3! = 6, no trailing zero.
+        // Example 2:
+        // Input: 5
+        // Output: 1
+        // Explanation: 5! = 120, one trailing zero.
+        // Note: Your solution should be in logarithmic time complexity.
+        // n! = 1 * 2 * 3 * 4 * 5 * ... * 10 * ... * 15 * ... * n
+        //    = 2^x * 5^y * z
+        // Usually x >= y. So just need to count occurrence of 5.
+        //   n:      1, 2, 3, 4, 5, 6, ..., 2*5, ..., 3*5, ..., n1*5, ..., n
+        // n/5 = n1:             1,    ..., 2,   ..., 3,   ..., n2*5, ..., n1
+        // n1/5 = n2:                                   1, ..., n3*5, ..., n2
+        // n2/5 = n3: ...
+        // ...
+        int trailingZeroes(int n)
+        {
+            int c = 0;
+            while (n >= 5)
+            {
+                n /= 5;
+                c += n;
+            }
+            return c;
+        }
+
+        // 173. Binary Search Tree Iterator
+        // Implement an iterator over a binary search tree (BST). Your iterator will be
+        // initialized with the root node of a BST.
+        // Calling next() will return the next smallest number in the BST.
+        // Example:
+        // BSTIterator iterator = new BSTIterator(root);
+        // iterator.next();    // return 3
+        // iterator.next();    // return 7
+        // iterator.hasNext(); // return true
+        // iterator.next();    // return 9
+        // iterator.hasNext(); // return true
+        // iterator.next();    // return 15
+        // iterator.hasNext(); // return true
+        // iterator.next();    // return 20
+        // iterator.hasNext(); // return false
+        // Note:
+        // next() and hasNext() should run in average O(1) time and uses O(h) memory,
+        // where h is the height of the tree. You may assume that next() call will
+        // always be valid, that is, there will be at least a next smallest number in
+        // the BST when next() is called.
+        class BSTIterator
+        {
+        private:
+            TreeNode *_node;
+            stack<TreeNode *> _s;
+
+        public:
+            BSTIterator(TreeNode *root) { _node = root; }
+            /** @return the next smallest number */
+            int next()
+            {
+                int v;
+                while (!_s.empty() || _node != nullptr)
+                {
+                    if (_node != nullptr)
+                    {
+                        _s.push(_node);
+                        _node = _node->left;
+                    }
+                    else
+                    {
+                        v = _s.top()->val;
+                        _node = _s.top()->right;
+                        _s.pop();
+                        break;
+                    }
+                }
+                return v;
+            }
+            int next2()
+            {
+                while (_node != nullptr)
+                {
+                    _s.push(_node);
+                    _node = _node->left;
+                }
+                TreeNode *t = _s.top();
+                _s.pop();
+                _node = t->right;
+                return t->val;
+            }
+
+            /** @return whether we have a next smallest number */
+            bool hasNext() { return !_s.empty() || _node != nullptr; }
+        };
+
+        // 174. Dungeon Game
+        // The demons had captured the princess (P) and imprisoned her in the
+        // bottom-right corner of a dungeon. The dungeon consists of M x N rooms laid
+        // out in a 2D grid. Our valiant knight (K) was initially positioned in the
+        // top-left room and must fight his way through the dungeon to rescue the
+        // princess. The knight has an initial health point represented by a positive
+        // integer. If at any point his health point drops to 0 or below, he dies
+        // immediately. Some of the rooms are guarded by demons, so the knight loses
+        // health (negative integers) upon entering these rooms; other rooms are either
+        // empty (0's) or contain magic orbs that increase the knight's health (positive
+        // integers). In order to reach the princess as quickly as possible, the knight
+        // decides to move only rightward or downward in each step. Write a function to
+        // determine the knight's minimum initial health so that he is able to rescue
+        // the princess. For example, given the dungeon below, the initial health of the
+        // knight must be at least 7 if he follows the optimal path RIGHT-> RIGHT ->
+        // DOWN -> DOWN. -2 (K) 	-3 	3 -5 	-10 	1 10 	30 	-5 (P)
+        // Note: The knight's health has no upper bound. Any room can contain threats or
+        // power-ups, even the first room the knight enters and the bottom-right room
+        // where the princess is imprisoned.
+        int calculateMinimumHP(const vector<vector<int>> &dungeon)
+        {
+            int m = dungeon.size();
+            int n = dungeon[0].size();
+            vector<int> health(n, 0);
+            for (int i = m - 1; i >= 0; i--)
+            {
+                for (int j = n - 1; j >= 0; j--)
+                {
+                    if (i == m - 1)
+                    {
+                        if (j == n - 1)
+                            health[j] = 1 + (dungeon[i][j] >= 0 ? 0 : -dungeon[i][j]);
+                        else
+                            health[j] = dungeon[i][j] >= health[j + 1]
+                                            ? 1
+                                            : health[j + 1] - dungeon[i][j];
+                    }
+                    else
+                    {
+                        if (j == n - 1)
+                            health[j] = dungeon[i][j] >= health[j]
+                                            ? 1
+                                            : health[j] - dungeon[i][j];
+                        else
+                        {
+                            // min(health[i+1][j],health[i][j+1])
+                            int m = min(health[j], health[j + 1]);
+                            health[j] = dungeon[i][j] > m ? 1 : m - dungeon[i][j];
+                        }
+                    }
+                }
+                // for (int j = 0; j < n; j++) {
+                //     cout << "  " << health[j];
+                // }
+                // cout << endl;
+            }
+            return health[0];
+        }
+
+        // 175. Combine Two Tables
+        // SQL Schema
+        // Table: Person
+        // +-------------+---------+
+        // | Column Name | Type    |
+        // +-------------+---------+
+        // | PersonId    | int     |
+        // | FirstName   | varchar |
+        // | LastName    | varchar |
+        // +-------------+---------+
+        // PersonId is the primary key column for this table.
+        // Table: Address
+        // +-------------+---------+
+        // | Column Name | Type    |
+        // +-------------+---------+
+        // | AddressId   | int     |
+        // | PersonId    | int     |
+        // | City        | varchar |
+        // | State       | varchar |
+        // +-------------+---------+
+        // AddressId is the primary key column for this table.
+        // Write a SQL query for a report that provides the following information for
+        // each person in the Person table, regardless if there is an address for each
+        // of those people:
+        // FirstName, LastName, City, State
+        // # Write your MySQL query statement below
+        // SELECT FirstName, LastName, City, State
+        // FROM Person LEFT JOIN Address ON Person.PersonId = Address.PersonId
+
+        // 179. Largest Number
+        // Given a list of non negative integers, arrange them such that they form the
+        // largest number. Example 1: Input: [10,2] Output: "210" Example 2: Input:
+        // [3,30,34,5,9] Output: "9534330" Note: The result may be very large, so you
+        // need to return a string instead of an integer.
+        string largestNumber(const vector<int> &nums)
+        {
+            vector<string> s;
+            s.resize(nums.size());
+            transform(nums.begin(), nums.end(), s.begin(),
+                      [&](int i)
+                      { return std::to_string(i); });
+            sort(s.begin(), s.end(), [&](const string &a, const string &b) -> bool
+                 {
+                     string ab = a + b;
+                     string ba = b + a;
+                     for (size_t i = 0; i < ab.size(); i++)
+                     {
+                         if (ab[i] > ba[i])
+                             return true;
+                         else if (ab[i] < ba[i])
+                             return false;
+                     }
+                     return false;
+                 });
+            if (s[0] == "0")
+                return "0";
+            ostringstream ss;
+            for_each(s.cbegin(), s.cend(), [&](const string &i)
+                     { ss << i; });
+            return ss.str();
+        }
+        string largestNumber2(const vector<int> &nums)
+        {
+            vector<string> strs;
+            strs.resize(nums.size());
+            transform(nums.begin(), nums.end(), strs.begin(), [&](int i)
+                      {
+                          ostringstream oss;
+                          oss << i;
+                          return oss.str();
+                      });
+            sort(strs.begin(), strs.end(), [&](const string &str1, const string &str2)
+                 {
+                     string str12(str1);
+                     str12.append(str2);
+                     string str21(str2);
+                     str21.append(str1);
+                     return str12.compare(str21) > 0;
+                 });
+            string result;
+            if (strs[0] == "0")
+            {
+                result = "0";
+            }
+            else
+            {
+                for_each(strs.begin(), strs.end(),
+                         [&](const string &str)
+                         { result.append(str); });
+            }
+            return result;
+        }
+
+        // 187. Repeated DNA Sequences
+        // All DNA is composed of a series of nucleotides abbreviated as A, C, G, and T,
+        // for example: "ACGAATTCCG". When studying DNA, it is sometimes useful to
+        // identify repeated sequences within the DNA. Write a function to find all the
+        // 10-letter-long sequences (substrings) that occur more than once in a DNA
+        // molecule. Example: Input: s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT" Output:
+        // ["AAAAACCCCC", "CCCCCAAAAA"]
+        // A is 0x41 = 01000001,
+        // C is 0x43 = 01000011,
+        // G is 0x47 = 01000111,
+        // T is 0x54 = 01000100.
+        // Using bit 3 and 2 to encode each one
+        vector<string> findRepeatedDnaSequences(const string &s)
+        {
+            vector<string> result;
+            map<int, int> m;
+            int t = 0;
+            for (size_t i = 0; i < s.size(); i++)
+            {
+                t = ((t << 2) | (s[i] >> 1 & 0x3)) & 0xFFFFF;
+                if (i >= 9)
+                {
+                    if (m.find(t) == m.end())
+                        m[t] = 1;
+                    else
+                    {
+                        if (m[t] == 1)
+                            result.push_back(s.substr(i - 9, 10));
+                        m[t]++;
+                    }
+                }
+            }
+            return result;
+        }
+        vector<string> findRepeatedDnaSequences2(const string &s)
+        {
+            vector<string> result;
+            for (size_t i = 0; i + 10 < s.size(); i++)
+            {
+                string t = s.substr(i, 10);
+                if (find(result.cbegin(), result.cend(), t) == result.cend())
+                {
+                    size_t j = i + 1;
+                    int stop = false;
+                    while (!stop && j + 10 <= s.size())
+                    {
+                        if (s[i] == s[j])
+                        {
+                            size_t k = 1;
+                            while (k < 10 && s[i + k] == s[j + k])
+                                k++;
+                            if (k == 10)
+                            {
+                                result.push_back(s.substr(i, k));
+                                stop = true;
+                            }
+                        }
+                        j++;
+                    }
+                }
+            }
+            return result;
+        }
+
+        // 188. Best Time to Buy and Sell Stock IV
+        // Say you have an array for which the i-th element is the price of a given
+        // stock on day i. Design an algorithm to find the maximum profit. You may
+        // complete at most k transactions. Note: You may not engage in multiple
+        // transactions at the same time (ie, you must sell the stock before you buy
+        // again). Example 1: Input: [2,4,1], k = 2 Output: 2 Explanation: Buy on day 1
+        // (price = 2) and sell on day 2 (price = 4), profit = 4-2 = 2. Example 2:
+        // Input: [3,2,6,5,0,3], k = 2
+        // Output: 7
+        // Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit =
+        // 6-2 = 4. Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit
+        // = 3-0 = 3. Let p[i] be the price on day i Let P(i,k) be the max profit with k
+        // transactions on day i
+        //            k               1                         2                   3
+        //            ......      k-1                          k
+        // i     p[i]
+        // 0     p[0]     -p[0]
+        // 1     p[1]     -p[1]   P(1,1)     -p[1]+P(1,1)
+        // 2     p[2]     -p[2]   P(2,1)     -p[2]+P(2,1)   P(2,2) -p[2]+P(2,2)
+        // 3     p[3]     -p[3]   P(3,1)     -p[3]+P(3,1)   P(3,2) -p[3]+P(3,2) P(3,3)
+        // 4     p[4]     -p[4]   P(4,1)     -p[4]+P(4,1)   P(4,2) -p[4]+P(4,2) P(4,3)
+        // ......
+        // k-1 p[k-1]   -p[k-1] P(k-1,1) -p[k-1]+P(k-1,1) P(k-1,2) ......
+        // -p[k-1]+P(k-1,k-2) P(k-1,k-1) -p[k-1]+P(k-1,k-1) k     p[k]     -p[k] P(k,1)
+        // -p[k]+P(k,1)   P(k,2) ......     -p[k]+P(k,k-2)   P(k,k-1)     -p[k]+P(k,k-1)
+        // P(k,k) k+1 p[k+1]   -p[k+1] P(k+1,1) -p[k+1]+P[k+1,1] P(k+1,2) ......
+        // -p[k+1]+P(k+1,k-2) P(k+1,k-1) -p[k+1]+P(k+1,k-1) P(k+1,k)
+        // ......
+        // i-1 p[i-1]   -p[i-1] P(i-1,1) -p[i-1]+P(i-1,1) P(i-1,2) ......
+        // -p[i-1]+P(i-1,k-2) P(i-1,k-1) -p[i-1]+P(i-1,k-1) P(i-1,k) i     p[i] P(i,1)
+        // P(i,2) ......                      P(i,k-1)                      P(i,k)
+
+        // P(i,1) = max(P(i-1,1),
+        //              p[i] + max{-p[i-1],
+        //                         -p[i-2],
+        //                         ......
+        //                         -p[2],
+        //                         -p[1],
+        //                         -p[0]}
+        // P(i,2) = max{P(i-1, 2),
+        //              p[i] + max{-p[i-1] + P(i-1, 1),
+        //                         -p[i-2] + P(i-2, 1),
+        //                         ......
+        //                         -p[2] + P(2, 1),
+        //                         -p[1] + P(1, 1)}}
+        // P(i,3) = max{P(i-1, 3),
+        //              p[i] + max{-p[i-1] + P(i-1, 2),
+        //                         -p[i-2] + P(i-2, 2),
+        //                         ......
+        //                         -p[3] + P(3, 2),
+        //                         -p[2] + P(2, 2)}}
+        // ......
+        // P(i,k-1) = max{P(i-1, k-1),
+        //              p[i] + max{-p[i-1] + P(i-1, k-2),
+        //                         -p[i-2] + P(i-2, k-2),
+        //                         ......
+        //                         -p[k-1] + P(k-1, k-2),
+        //                         -p[k-2] + P(k-2, k-2)}}
+        // P(i,k) = max{P(i-1, k),
+        //              p[i] + max{-p[i-1] + P(i-1, k-1),
+        //                         -p[i-2] + P(i-2, k-1),
+        //                         ......
+        //                         -p[k] + P(k, k-1),
+        //                         -p[k-1] + P(k-1, k-1)}}
+        int maxProfit(int k, const vector<int> &prices)
+        {
+            k = min(k, (int)prices.size() - 1);
+            if (k <= 0)
+                return 0;
+            vector<int> c(k, 0);
+            vector<int> p(k, 0);
+            for (int i = 1; i < (int)prices.size(); i++)
+            {
+                for (int j = min(i, k); j > 0; j--)
+                {
+                    if (j == i)
+                    {
+                        if (j == 1)
+                            c[j - 1] = -prices[i - 1];
+                        else
+                            c[j - 1] = -prices[i - 1] + p[j - 2];
+                        p[j - 1] = prices[i] + c[j - 1];
+                    }
+                    else
+                    {
+                        if (j == 1)
+                            c[j - 1] = max(c[j - 1], -prices[i - 1]);
+                        else
+                            c[j - 1] = max(c[j - 1], -prices[i - 1] + p[j - 2]);
+                        p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+                    }
+                }
+            }
+            int m = p[0];
+            for (size_t i = 1; i < p.size(); i++)
+                m = max(m, p[i]);
+            return m > 0 ? m : 0;
+        }
+        int maxProfit2(int k, const vector<int> &prices)
+        {
+            k = min(k, (int)prices.size() - 1);
+            if (k <= 0)
+                return 0;
+            vector<int> c(k, 0);
+            vector<int> p(k, 0);
+            for (int i = 1; i < (int)prices.size(); i++)
+            {
+                for (int j = min(i, k); j > 0; j--)
+                {
+                    if (j == 1)
+                    {
+                        if (j == i)
+                        {
+                            c[j - 1] = -prices[i - 1];
+                            p[j - 1] = prices[i] + c[j - 1];
+                        }
+                        else
+                        {
+                            c[j - 1] = max(c[j - 1], -prices[i - 1]);
+                            p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+                        }
+                    }
+                    else
+                    {
+                        if (j == i)
+                        {
+                            c[j - 1] = -prices[i - 1] + p[j - 2];
+                            p[j - 1] = prices[i] + c[j - 1];
+                        }
+                        else
+                        {
+                            c[j - 1] = max(c[j - 1], -prices[i - 1] + p[j - 2]);
+                            p[j - 1] = max(p[j - 1], prices[i] + c[j - 1]);
+                        }
+                    }
+                }
+            }
+            int m = p[0];
+            for (size_t i = 1; i < p.size(); i++)
+                m = max(m, p[i]);
+            return m > 0 ? m : 0;
+        }
+        int maxProfit3(int k, const vector<int> &prices)
+        {
+            int m = 0;
+            function<void(size_t, int, int)> solve = [&](size_t i, int p, int c)
+            {
+                if (c == 0)
+                {
+                    m = max(m, p);
+                    return;
+                }
+                if (i >= prices.size())
+                    return;
+                for (size_t j = i + 1; j < prices.size(); j++)
+                {
+                    if (prices[i] < prices[j])
+                    {
+                        solve(j + 1, p + prices[j] - prices[i], c - 1);
+                    }
+                }
+                solve(i + 1, p, c);
+            };
+            for (int i = 1; i <= k; i++)
+            {
+                solve(0, 0, i);
+            }
+            return m;
+        }
+
     }
 }
 

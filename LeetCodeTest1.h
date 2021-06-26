@@ -1577,6 +1577,26 @@ void LeetCodeTest::Init1(void)
         }
     });
 
+    Add("188. Best Time to Buy and Sell Stock IV", [&]() {
+        auto check = [&](const vector<int> &v) {
+            for (int k = 1; k < (int)v.size(); k++) {
+                Logger() << v;
+                Logger() << k << " transactions" << std::endl;
+                int m = maxProfit(k, v);
+                int m2 = maxProfit2(k, v);
+                int m3 = maxProfit3(k, v);
+                Logger() << "max profit = " << m << ", " << m2 << ", " << m3 << std::endl;
+                ASSERT1(m == m2);
+                ASSERT1(m == m3);
+            }
+        };
+        for (int i = 0; i < 10; i++) {
+            int n = Random::Int(20, 1);
+            auto v = Random::Vector(n, 1000);
+            check(v);
+        }
+    });
+
     Add("189. Rotate Array", [&]() {
         function<int(int, int)> gcd = [&](int a, int b) -> int {
             if (a < b)
