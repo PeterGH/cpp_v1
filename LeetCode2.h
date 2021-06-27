@@ -584,12 +584,60 @@ namespace Test
             }
             return true;
         }
+        bool canFinish2(int numCourses, const vector<vector<int>> &prerequisites)
+        {
+            map<int, int> indegree;
+            map<int, vector<int>> graph;
+            for (int i = 0; i < numCourses; i++)
+            {
+                indegree[i] = 0;
+            }
+            for (const auto &e : prerequisites)
+            {
+                indegree[e[0]]++;
+                if (graph.find(e[1]) == graph.end())
+                {
+                    graph[e[1]] = vector<int>{};
+                }
+                graph[e[1]].push_back(e[0]);
+            }
+            queue<int> q;
+            size_t c = 0;
+            // start with nodes whose indegree is 0
+            for (int i = 0; i < numCourses; i++)
+            {
+                if (indegree[i] == 0)
+                {
+                    q.push(i);
+                }
+            }
+            while (!q.empty())
+            {
+                int t = q.front();
+                q.pop();
+                c++;
+                for (int n : graph[t])
+                {
+                    // reduce indegree of the neighbor
+                    // add it to the queue if the result is 0
+                    indegree[n]--;
+                    if (indegree[n] == 0)
+                    {
+                        q.push(n);
+                    }
+                }
+            }
+            // If there is a cycle, the node where the cycle begins will not
+            // be added to the queue becaue its indegree will never be reduced
+            // to 0.
+            return c == graph.size();
+        }
         // This BFS is wrong, e.g., for inputs 3 and [[0,1],[0,2],[1,2]]
         //    0
         //   ^ ^
         //  /   \
         // 1 <-- 2
-        bool canFinish2(int numCourses, const vector<vector<int>> &prerequisites)
+        bool canFinish3(int numCourses, const vector<vector<int>> &prerequisites)
         {
             map<int, vector<int>> g;
             for_each(prerequisites.cbegin(), prerequisites.cend(),

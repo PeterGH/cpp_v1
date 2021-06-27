@@ -112,9 +112,9 @@ void LeetCodeTest::Init2(void)
                 Logger() << n << "courses" << std::endl;
                 Logger() << p;
                 bool r = canFinish(n, p);
-                // bool r2 = canFinish2(n, p);
-                // Logger() << "canFinish = " << r << ", " << r2 << std::endl;
-                // ASSERT1(r == r2);
+                bool r2 = canFinish2(n, p);
+                Logger() << "canFinish = " << r << ", " << r2 << std::endl;
+                ASSERT1(r == r2);
             };
             check(3, {{0, 1},
                       {0, 2},
