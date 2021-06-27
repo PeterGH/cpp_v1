@@ -678,6 +678,780 @@ namespace Test
             return true;
         }
 
+        // 208. Implement Trie (Prefix Tree)
+        // Implement a trie with insert, search, and startsWith methods.
+        // Example:
+        // Trie trie = new Trie();
+        // trie.insert("apple");
+        // trie.search("apple");   // returns true
+        // trie.search("app");     // returns false
+        // trie.startsWith("app"); // returns true
+        // trie.insert("app");
+        // trie.search("app");     // returns true
+        // Note: You may assume that all inputs are consist of lowercase letters a-z.
+        // All inputs are guaranteed to be non-empty strings.
+        // Your Trie object will be instantiated and called as such:
+        // Trie* obj = new Trie();
+        // obj->insert(word);
+        // bool param_2 = obj->search(word);
+        // bool param_3 = obj->startsWith(prefix);
+        class Trie
+        {
+        private:
+            class Node
+            {
+            public:
+                vector<Node *> children;
+                string val;
+                bool complete;
+                Node(const string &w, bool c) : val(w), complete(c) {}
+                Node() : Node(string(), true) {}
+                // Try to match word[i..] partially or entirely
+                bool Match(const string &word, size_t i, size_t &j)
+                {
+                    j = 0; // matched characters count
+                    for (j = 0; j < val.size() && i < word.size(); j++, i++)
+                    {
+                        if (word[i] != val[j])
+                            break;
+                    }
+                    return j > 0;
+                }
+            };
+
+            Node *root;
+
+            void Delete(Node *node)
+            {
+                if (node == nullptr)
+                    return;
+                for_each(node->children.begin(), node->children.end(),
+                         [&](Node *n)
+                         { Delete(n); });
+                node->children.clear();
+            }
+
+            // Return the deepest node matching the word partially or entirely
+            // Case 1: Return the root
+            //   word is empty
+            //   word not match any of the children of the root
+            // Case 2: Return a non-root node
+            //   word matches the node entirely (i == word.size(), j is the length of
+            //   the node->val) word matches the node partially (j < the length of the
+            //   node->val, i <= word.size())
+            Node *Search(const string &word, size_t &i, size_t &j)
+            {
+                i = 0; // count the prefix characters of word that are matched
+                j = 0; // count the characters of the node that are matched
+                if (word.empty())
+                    return root;
+                Node *node = root;
+                bool stop = false;
+                while (i < word.size() && !stop)
+                {
+                    stop = true;
+                    for (size_t k = 0; k < node->children.size(); k++)
+                    {
+                        size_t l = 0;
+                        if (node->children[k]->Match(word, i, l))
+                        {
+                            j = l;
+                            i += j;
+                            node = node->children[k];
+                            stop = (j < node->val.size());
+                            break;
+                        }
+                    }
+                }
+                return node;
+            }
+
+        public:
+            Trie() { root = new Node(); }
+
+            ~Trie()
+            {
+                Delete(root);
+                root = nullptr;
+            }
+
+            void insert(string word)
+            {
+                if (word.empty())
+                    return;
+                size_t i = 0;
+                size_t j = 0;
+                Node *node = Search(word, i, j);
+                if (j < node->val.size())
+                {
+                    // split between val[0..(j-1)] and val[j..]
+                    Node *c = new Node(node->val.substr(j), node->complete);
+                    c->children.insert(c->children.end(), node->children.begin(),
+                                       node->children.end());
+                    node->val.resize(j);
+                    node->children.clear();
+                    node->children.push_back(c);
+                    node->complete = (i == word.size());
+                }
+                if (i == word.size())
+                {
+                    if (!node->complete)
+                        node->complete = true;
+                }
+                else
+                {
+                    Node *c = new Node(word.substr(i), true);
+                    node->children.push_back(c);
+                }
+            }
+
+            bool search(string word)
+            {
+                if (word.empty())
+                    return true;
+                size_t i = 0;
+                size_t j = 0;
+                Node *node = Search(word, i, j);
+                return i == word.size() && j == node->val.size() && node->complete;
+            }
+
+            // Returns if there is any word in the trie that starts with the given
+            // prefix.
+            bool startsWith(string prefix)
+            {
+                if (prefix.empty())
+                    return true;
+                size_t i = 0;
+                size_t j = 0;
+                Search(prefix, i, j);
+                return i == prefix.size();
+            }
+        };
+        class Trie2
+        {
+        private:
+            struct Node
+            {
+                vector<Node *> children;
+                char val;
+                bool complete;
+
+                Node(char v, bool c) : val(v), complete(c) {}
+
+                Node() : Node((char)0, true) {}
+            };
+
+            Node *root;
+
+            void Delete(Node *node)
+            {
+                if (node == nullptr)
+                    return;
+                for_each(node->children.begin(), node->children.end(),
+                         [&](Node *n)
+                         { Delete(n); });
+                node->children.clear();
+            }
+
+            Node *Search(const string &word, size_t &i)
+            {
+                i = 0;
+                if (word.empty())
+                    return root;
+                Node *node = root;
+                bool stop = false;
+                while (i < word.size() && !stop)
+                {
+                    stop = true;
+                    for (size_t k = 0; k < node->children.size(); k++)
+                    {
+                        if (word[i] == node->children[k]->val)
+                        {
+                            i++;
+                            node = node->children[k];
+                            stop = false;
+                            break;
+                        }
+                    }
+                }
+                return node;
+            }
+
+        public:
+            Trie2() { root = new Node(); }
+
+            ~Trie2()
+            {
+                Delete(root);
+                root = nullptr;
+            }
+
+            void insert(string word)
+            {
+                if (word.empty())
+                    return;
+                size_t i = 0;
+                Node *node = Search(word, i);
+                while (i < word.size())
+                {
+                    Node *c = new Node(word[i], false);
+                    node->children.push_back(c);
+                    node = c;
+                    i++;
+                }
+                node->complete = true;
+            }
+
+            bool search(string word)
+            {
+                if (word.empty())
+                    return true;
+                size_t i = 0;
+                Node *node = Search(word, i);
+                return i == word.size() && node->complete;
+            }
+
+            // Returns if there is any word in the trie that starts with the given
+            // prefix.
+            bool startsWith(string prefix)
+            {
+                if (prefix.empty())
+                    return true;
+                size_t i = 0;
+                Search(prefix, i);
+                return i == prefix.size();
+            }
+        };
+        class Trie3
+        {
+        private:
+            struct Node
+            {
+                char val;
+                map<char, Node *> children;
+                bool complete;
+                Node(char v)
+                {
+                    val = v;
+                    complete = false;
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = children.begin(); it != children.end(); it++)
+                        delete it->second;
+                    children.clear();
+                }
+            } * root;
+
+        public:
+            /** Initialize your data structure here. */
+            Trie3()
+                : root(new Node('\0'))
+            {
+            }
+
+            ~Trie3()
+            {
+                delete root;
+                root = nullptr;
+            }
+
+            /** Inserts a word into the trie. */
+            void insert(string word)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->children.find(word[i]) == node->children.end())
+                        break;
+                    node = node->children[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->children[word[i]] = new Node(word[i]);
+                    node = node->children[word[i++]];
+                }
+                node->complete = true;
+            }
+
+            /** Returns if the word is in the trie. */
+            bool search(string word)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->children.find(word[i]) == node->children.end())
+                        return false;
+                    node = node->children[word[i++]];
+                }
+                return node->complete;
+            }
+
+            /** Returns if there is any word in the trie that starts with the given prefix. */
+            bool startsWith(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < prefix.size())
+                {
+                    if (node->children.find(prefix[i]) == node->children.end())
+                        return false;
+                    node = node->children[prefix[i++]];
+                }
+                return true;
+            }
+        };
+
+        // Map Sum Pairs
+        // Implement a MapSum class with insert, and sum methods.
+        // For the method insert, you'll be given a pair of (string, integer).
+        // The string represents the key and the integer represents the value.
+        // If the key already existed, then the original key-value pair will
+        // be overridden to the new one. For the method sum, you'll be given a
+        // string representing the prefix, and you need to return the sum of all
+        // the pairs' value whose key starts with the prefix.
+        // Example 1:
+        // Input: insert("apple", 3), Output: Null
+        // Input: sum("ap"), Output: 3
+        // Input: insert("app", 2), Output: Null
+        // Input: sum("ap"), Output: 5
+        class MapSum
+        {
+        private:
+            struct Node
+            {
+                char key;
+                int val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char k, int v, bool c)
+                    : key(k), val(v), complete(c)
+                {
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+            void search(string key, Node *&node, size_t &i)
+            {
+                while (i < key.size())
+                {
+                    if (node->next.find(key[i]) == node->next.end())
+                        break;
+                    node = node->next[key[i++]];
+                }
+            }
+
+        public:
+            MapSum()
+                : root(new Node('\0', 0, true))
+            {
+            }
+            ~MapSum()
+            {
+                delete root;
+                root = nullptr;
+            }
+            void insert(string key, int val)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(key, node, i);
+                while (i < key.size())
+                {
+                    node->next[key[i]] = new Node(key[i], 0, false);
+                    node = node->next[key[i++]];
+                }
+                node->val = val;
+                node->complete = true;
+            }
+            int sum(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(prefix, node, i);
+                if (i < prefix.size())
+                    return 0;
+                stack<Node *> s;
+                int a = 0;
+                s.push(node);
+                while (!s.empty())
+                {
+                    node = s.top();
+                    s.pop();
+                    if (node->complete)
+                        a += node->val;
+                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        s.push(it->second);
+                }
+                return a;
+            }
+        };
+        class MapSum2
+        {
+        private:
+            struct Node
+            {
+                char key;
+                int val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char k, int v, bool c)
+                    : key(k), val(v), complete(c)
+                {
+                }
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+            void search(const string &key, int val, Node *&node, size_t &i, bool insert)
+            {
+                while (i < key.size())
+                {
+                    if (insert)
+                        node->val += val;
+                    if (node->next.find(key[i]) == node->next.end())
+                        return;
+                    node = node->next[key[i++]];
+                }
+                if (insert)
+                    node->val += val;
+            }
+
+        public:
+            MapSum2()
+                : root(new Node('\0', 0, true))
+            {
+            }
+            ~MapSum2()
+            {
+                delete root;
+                root = nullptr;
+            }
+            void insert(const string &key, int val)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(key, val, node, i, true);
+                while (i < key.size())
+                {
+                    node->next[key[i]] = new Node(key[i], val, false);
+                    node = node->next[key[i++]];
+                }
+                node->complete = true;
+            }
+            int sum(string prefix)
+            {
+                Node *node = root;
+                size_t i = 0;
+                search(prefix, 0, node, i, false);
+                if (i < prefix.size())
+                    return 0;
+                return node->val;
+            }
+        };
+
+        // Replace Words
+        // In English, we have a concept called root, which can be followed by some
+        // other words to form another longer word - let's call this word successor.
+        // For example, the root an, followed by other, which can form another word another.
+        // Now, given a dictionary consisting of many roots and a sentence. You need
+        // to replace all the successor in the sentence with the root forming it. If
+        // a successor has many roots can form it, replace it with the root with the
+        // shortest length. You need to output the sentence after the replacement.
+        // Example 1:
+        // Input: dict = ["cat","bat","rat"], sentence = "the cattle was rattled by the battery"
+        // Output: "the cat was rat by the bat"
+        // Constraints:
+        // The input will only have lower-case letters.
+        // 1 <= dict.length <= 1000
+        // 1 <= dict[i].length <= 100
+        // 1 <= sentence words number <= 1000
+        // 1 <= sentence words length <= 1000
+        string replaceWords(const vector<string> &dict, string sentence)
+        {
+            struct Node
+            {
+                char val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char v, bool c) : val(v), complete(c) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } *root = new Node('\0', true);
+            function<void(const string &)> insert = [&](const string &word)
+            {
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->next.find(word[i]) == node->next.end())
+                        break;
+                    node = node->next[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->next[word[i]] = new Node(word[i], false);
+                    node = node->next[word[i++]];
+                }
+                node->complete = true;
+            };
+            function<size_t(size_t)> match = [&](size_t i) -> size_t
+            {
+                Node *node = root;
+                size_t j = i;
+                while (j < sentence.size())
+                {
+                    if (node->next.find(sentence[j]) == node->next.end())
+                        break;
+                    node = node->next[sentence[j++]];
+                    if (node->complete)
+                        break;
+                }
+                return node->complete ? j : i;
+            };
+            for (const string &r : dict)
+                insert(r);
+            size_t i = 0;
+            size_t j = 0;
+            while (j < sentence.size())
+            {
+                if (sentence[j] == ' ')
+                {
+                    if (i++ < j++)
+                        sentence[i - 1] = sentence[j - 1];
+                }
+                else
+                {
+                    size_t k = match(j);
+                    if (j < k)
+                    {
+                        if (i < j)
+                        {
+                            while (j < k)
+                                sentence[i++] = sentence[j++];
+                        }
+                        else
+                        {
+                            j = k;
+                            i = j;
+                        }
+                        while (j < sentence.size() && sentence[j] != ' ')
+                            j++;
+                    }
+                    else
+                    {
+                        while (j < sentence.size() && sentence[j] != ' ')
+                        {
+                            if (i++ < j++)
+                                sentence[i - 1] = sentence[j - 1];
+                        }
+                    }
+                }
+            }
+            delete root;
+            return sentence.substr(0, i);
+        }
+
+        // Add and Search Word - Data structure design
+        // Design a data structure that supports the following two operations:
+        // void addWord(word)
+        // bool search(word)
+        // search(word) can search a literal word or a regular expression string
+        // containing only letters a-z or .. A . means it can represent any one letter.
+        // Example:
+        // addWord("bad")
+        // addWord("dad")
+        // addWord("mad")
+        // search("pad") -> false
+        // search("bad") -> true
+        // search(".ad") -> true
+        // search("b..") -> true
+        // Note: You may assume that all words are consist of lowercase letters a-z.
+        class WordDictionary2
+        {
+        private:
+            struct Node
+            {
+                char val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char v, bool c) : val(v), complete(c) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+
+        public:
+            WordDictionary2()
+            {
+                root = new Node('\0', true);
+            }
+
+            ~WordDictionary2()
+            {
+                if (root != nullptr)
+                    delete root;
+            }
+
+            void Print()
+            {
+                function<void(int, Node *)> print = [&](int i, Node *node)
+                {
+                    cout << string(i, ' ') << node->val << (node->complete ? "/" : " ") << endl;
+                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        print(i + 2, it->second);
+                };
+                print(0, root);
+            }
+
+            void addWord(const string &word)
+            {
+                // cout << "addWord(" << word << ")" << endl;
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->next.find(word[i]) == node->next.end())
+                        break;
+                    node = node->next[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->next[word[i]] = new Node(word[i], false);
+                    node = node->next[word[i++]];
+                }
+                node->complete = true;
+                // Print();
+            }
+
+            bool search(const string &word)
+            {
+                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool
+                {
+                    if (i >= word.size())
+                        return node->complete;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            return false;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            if (find(it->second, i + 1))
+                                return true;
+                        }
+                    }
+                    else if (find(node->next[word[i]], i + 1))
+                    {
+                        return true;
+                    }
+                    return false;
+                };
+                bool f = find(root, 0);
+                // cout << "search(" << word << ") = " << f << endl;
+                return f;
+            }
+
+            bool search2(const string &word)
+            {
+                stack<pair<Node *, size_t>> s;
+                s.push(make_pair(root, 0));
+                bool found = false;
+                while (!s.empty())
+                {
+                    pair<Node *, size_t> t = s.top();
+                    s.pop();
+                    Node *node = t.first;
+                    size_t i = t.second;
+                    // cout << "<'" << node->val << "', " << i << ">" << endl;
+                    if (i == word.size())
+                    {
+                        found = node->complete;
+                        if (found)
+                            break;
+                        else
+                            continue;
+                    }
+                    if (node->next.empty())
+                        continue;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            continue;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            s.push(make_pair(it->second, i + 1));
+                        }
+                    }
+                    else
+                    {
+                        s.push(make_pair(node->next[word[i]], i + 1));
+                    }
+                }
+                // cout << "search2(" << word << ") = " << found << endl;
+                return found;
+            }
+        };
+
+        // 209. Minimum Size Subarray Sum
+        // Given an array of n positive integers and a positive integer s, find the
+        // minimal length of a contiguous subarray of which the sum >= s. If there
+        // isn't one, return 0 instead.
+        // Example:
+        // Input: s = 7, nums = [2,3,1,2,4,3]
+        // Output: 2
+        // Explanation: the subarray [4,3] has the minimal length under the problem
+        // constraint. Follow up: If you have figured out the O(n) solution, try coding
+        // another solution of which the time complexity is O(n log n).
+        int minSubArrayLen(int s, const vector<int> &nums)
+        {
+            int a = 0;
+            size_t i = 0;
+            int m = 0;
+            for (size_t j = 0; j < nums.size(); j++)
+            {
+                a += nums[j];
+                while (a >= s)
+                {
+                    m = min((m == 0 ? nums.size() : m), j - i + 1);
+                    a -= nums[i];
+                    i++;
+                }
+            }
+            return m;
+        }
+        int minSubArrayLen2(int s, const vector<int> &nums)
+        {
+            int l = 0;
+            int c = 0;
+            int i = 0;
+            for (int j = 0; j < (int)nums.size(); j++)
+            {
+                c += nums[j];
+                while (c >= s)
+                {
+                    l = (l == 0 ? j - i + 1 : min(l, j - i + 1));
+                    c -= nums[i++];
+                }
+            }
+            return l;
+        }
+
         // 240. Search a 2D Matrix II
         // Write an efficient algorithm that searches for a value in an m x n matrix.
         // This matrix has the following properties:
