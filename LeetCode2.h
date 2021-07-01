@@ -1472,9 +1472,8 @@ namespace Test
         // graph represented by a list of edges, not adjacency matrices. Read more about
         // how a graph is represented. You may assume that there are no duplicate edges
         // in the input prerequisites.
-        // Topological Sort
-        vector<int> findOrder(int numCourses,
-                              const vector<vector<int>> &prerequisites)
+        // DFS Topological Sort
+        vector<int> findOrder(int numCourses, const vector<vector<int>> &prerequisites)
         {
             map<int, vector<int>> g;
             for_each(prerequisites.cbegin(), prerequisites.cend(),
@@ -1522,6 +1521,97 @@ namespace Test
                          { result.push_back(p.second); });
             }
             return result;
+        }
+        // BFS Topological Sort using indegree counting
+        vector<int> findOrder2(int numCourses, const vector<vector<int>> &prerequisites)
+        {
+            map<int, vector<int>> g;
+            vector<int> indegree(numCourses, 0);
+            for (const auto &e : prerequisites)
+            {
+                if (g.find(e[1]) == g.end())
+                    g[e[1]] = vector<int>();
+                g[e[1]].push_back(e[0]);
+                indegree[e[0]]++;
+            }
+            queue<int> q;
+            for (int i = 0; i < numCourses; i++)
+            {
+                if (indegree[i] == 0)
+                {
+                    q.push(i);
+                }
+            }
+            vector<int> output;
+            int c = 0;
+            while (!q.empty())
+            {
+                int t = q.front();
+                q.pop();
+                output.push_back(t);
+                c++;
+                for (int n : g[t])
+                {
+                    indegree[n]--;
+                    if (indegree[n] == 0)
+                    {
+                        q.push(n);
+                    }
+                }
+            }
+            if (c < numCourses)
+                output.clear();
+            return output;
+        }
+        // BFS Topological Sort using ancestor tracking, not efficient
+        vector<int> findOrder3(int numCourses, const vector<vector<int>> &prerequisites)
+        {
+            map<int, vector<int>> g;
+            for (const auto &e : prerequisites)
+            {
+                if (g.find(e[1]) == g.end())
+                    g[e[1]] = vector<int>();
+                g[e[1]].push_back(e[0]);
+            }
+            vector<int> output;
+            vector<int> rank(numCourses, 0);
+            bool solvable = true;
+            for (int i = 0; i < numCourses && solvable; i++)
+            {
+                queue<int> q;
+                map<int, set<int>> ancestors;
+                q.push(i);
+                ancestors[i] = set<int>();
+                while (!q.empty() && solvable)
+                {
+                    int t = q.front();
+                    q.pop();
+                    for (int j : g[t])
+                    {
+                        if (ancestors[t].find(j) != ancestors[t].end())
+                        {
+                            solvable = false;
+                            break;
+                        }
+                        rank[j] = max(rank[j], rank[t] + 1);
+                        if (ancestors.find(j) == ancestors.end())
+                            ancestors[j] = set<int>();
+                        ancestors[j].insert(ancestors[t].begin(), ancestors[t].end());
+                        ancestors[j].insert(t);
+                        q.push(j);
+                    }
+                }
+            }
+            if (solvable)
+            {
+                int j = 0;
+                output.resize(numCourses, 0);
+                generate(output.begin(), output.end(), [&]()
+                         { return j++; });
+                sort(output.begin(), output.end(), [&](int x, int y) -> bool
+                     { return rank[x] < rank[y]; });
+            }
+            return output;
         }
 
         // 240. Search a 2D Matrix II
