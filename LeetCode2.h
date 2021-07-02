@@ -1265,149 +1265,6 @@ namespace Test
             return sentence.substr(0, i);
         }
 
-        // Add and Search Word - Data structure design
-        // Design a data structure that supports the following two operations:
-        // void addWord(word)
-        // bool search(word)
-        // search(word) can search a literal word or a regular expression string
-        // containing only letters a-z or .. A . means it can represent any one letter.
-        // Example:
-        // addWord("bad")
-        // addWord("dad")
-        // addWord("mad")
-        // search("pad") -> false
-        // search("bad") -> true
-        // search(".ad") -> true
-        // search("b..") -> true
-        // Note: You may assume that all words are consist of lowercase letters a-z.
-        class WordDictionary2
-        {
-        private:
-            struct Node
-            {
-                char val;
-                bool complete;
-                map<char, Node *> next;
-                Node(char v, bool c) : val(v), complete(c) {}
-                ~Node()
-                {
-                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
-                        delete it->second;
-                    next.clear();
-                }
-            } * root;
-
-        public:
-            WordDictionary2()
-            {
-                root = new Node('\0', true);
-            }
-
-            ~WordDictionary2()
-            {
-                if (root != nullptr)
-                    delete root;
-            }
-
-            void Print()
-            {
-                function<void(int, Node *)> print = [&](int i, Node *node)
-                {
-                    cout << string(i, ' ') << node->val << (node->complete ? "/" : " ") << endl;
-                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
-                        print(i + 2, it->second);
-                };
-                print(0, root);
-            }
-
-            void addWord(const string &word)
-            {
-                // cout << "addWord(" << word << ")" << endl;
-                Node *node = root;
-                size_t i = 0;
-                while (i < word.size())
-                {
-                    if (node->next.find(word[i]) == node->next.end())
-                        break;
-                    node = node->next[word[i++]];
-                }
-                while (i < word.size())
-                {
-                    node->next[word[i]] = new Node(word[i], false);
-                    node = node->next[word[i++]];
-                }
-                node->complete = true;
-                // Print();
-            }
-
-            bool search(const string &word)
-            {
-                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool
-                {
-                    if (i >= word.size())
-                        return node->complete;
-                    if (node->next.find(word[i]) == node->next.end())
-                    {
-                        if (word[i] != '.')
-                            return false;
-                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
-                        {
-                            if (find(it->second, i + 1))
-                                return true;
-                        }
-                    }
-                    else if (find(node->next[word[i]], i + 1))
-                    {
-                        return true;
-                    }
-                    return false;
-                };
-                bool f = find(root, 0);
-                // cout << "search(" << word << ") = " << f << endl;
-                return f;
-            }
-
-            bool search2(const string &word)
-            {
-                stack<pair<Node *, size_t>> s;
-                s.push(make_pair(root, 0));
-                bool found = false;
-                while (!s.empty())
-                {
-                    pair<Node *, size_t> t = s.top();
-                    s.pop();
-                    Node *node = t.first;
-                    size_t i = t.second;
-                    // cout << "<'" << node->val << "', " << i << ">" << endl;
-                    if (i == word.size())
-                    {
-                        found = node->complete;
-                        if (found)
-                            break;
-                        else
-                            continue;
-                    }
-                    if (node->next.empty())
-                        continue;
-                    if (node->next.find(word[i]) == node->next.end())
-                    {
-                        if (word[i] != '.')
-                            continue;
-                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
-                        {
-                            s.push(make_pair(it->second, i + 1));
-                        }
-                    }
-                    else
-                    {
-                        s.push(make_pair(node->next[word[i]], i + 1));
-                    }
-                }
-                // cout << "search2(" << word << ") = " << found << endl;
-                return found;
-            }
-        };
-
         // 209. Minimum Size Subarray Sum
         // Given an array of n positive integers and a positive integer s, find the
         // minimal length of a contiguous subarray of which the sum >= s. If there
@@ -1612,6 +1469,355 @@ namespace Test
                      { return rank[x] < rank[y]; });
             }
             return output;
+        }
+
+        // 211. Add and Search Word - Data structure design
+        // Design a data structure that supports the following two operations:
+        // void addWord(word)
+        // bool search(word)
+        // search(word) can search a literal word or a regular expression string
+        // containing only letters a-z or .. A . means it can represent any one letter.
+        // Example:
+        // addWord("bad")
+        // addWord("dad")
+        // addWord("mad")
+        // search("pad") -> false
+        // search("bad") -> true
+        // search(".ad") -> true
+        // search("b..") -> true
+        // Note: You may assume that all words are consist of lowercase letters a-z.
+        // Your WordDictionary object will be instantiated and called as such:
+        // WordDictionary* obj = new WordDictionary();
+        // obj->addWord(word);
+        // bool param_2 = obj->search(word);
+        class WordDictionary
+        {
+        private:
+            struct Node
+            {
+                char val;
+                vector<Node *> children;
+                bool valid;
+                Node(char v, bool b) : val(v), valid(b) {}
+                Node() : Node(0, true) {}
+            };
+            Node *root;
+            void Delete(Node *n)
+            {
+                if (n != nullptr)
+                {
+                    for_each(n->children.begin(), n->children.end(),
+                             [&](Node *c)
+                             { Delete(c); });
+                    n->children.clear();
+                }
+            }
+
+        public:
+            WordDictionary() { root = new Node(); }
+            ~WordDictionary()
+            {
+                Delete(root);
+                root = nullptr;
+            }
+            void addWord(const string &word)
+            {
+                size_t i = 0;
+                function<Node *(Node *, size_t &)>
+                    match = [&](Node *node, size_t &i) -> Node *
+                {
+                    if (i == word.size())
+                        return node;
+                    for (size_t j = 0; j < node->children.size(); j++)
+                    {
+                        Node *c = node->children[j];
+                        if (c->val == word[i])
+                        {
+                            i++;
+                            return match(c, i);
+                        }
+                    }
+                    return node;
+                };
+                Node *node = match(root, i);
+                for (; i < word.size(); i++)
+                {
+                    Node *c = new Node(word[i], i + 1 == word.size());
+                    node->children.push_back(c);
+                    node = c;
+                }
+            }
+            bool search(const string &word)
+            {
+                function<bool(Node *, size_t)>
+                    match = [&](Node *node, size_t i) -> bool
+                {
+                    if (i == word.size())
+                        return node->valid;
+                    for (size_t j = 0; j < node->children.size(); j++)
+                    {
+                        Node *c = node->children[j];
+                        if (word[i] == '.' || word[i] == c->val)
+                        {
+                            if (match(c, i + 1))
+                                return true;
+                        }
+                    }
+                    return false;
+                };
+                return match(root, 0);
+            }
+        };
+        class WordDictionary2
+        {
+        private:
+            struct Node
+            {
+                char val;
+                bool complete;
+                map<char, Node *> next;
+                Node(char v, bool c) : val(v), complete(c) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            } * root;
+
+        public:
+            WordDictionary2()
+            {
+                root = new Node('\0', true);
+            }
+
+            ~WordDictionary2()
+            {
+                if (root != nullptr)
+                    delete root;
+            }
+
+            void Print()
+            {
+                function<void(int, Node *)> print = [&](int i, Node *node)
+                {
+                    cout << string(i, ' ') << node->val << (node->complete ? "/" : " ") << endl;
+                    for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        print(i + 2, it->second);
+                };
+                print(0, root);
+            }
+
+            void addWord(const string &word)
+            {
+                // cout << "addWord(" << word << ")" << endl;
+                Node *node = root;
+                size_t i = 0;
+                while (i < word.size())
+                {
+                    if (node->next.find(word[i]) == node->next.end())
+                        break;
+                    node = node->next[word[i++]];
+                }
+                while (i < word.size())
+                {
+                    node->next[word[i]] = new Node(word[i], false);
+                    node = node->next[word[i++]];
+                }
+                node->complete = true;
+                // Print();
+            }
+
+            bool search(const string &word)
+            {
+                function<bool(Node *, size_t)> find = [&](Node *node, size_t i) -> bool
+                {
+                    if (i >= word.size())
+                        return node->complete;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            return false;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            if (find(it->second, i + 1))
+                                return true;
+                        }
+                    }
+                    else if (find(node->next[word[i]], i + 1))
+                    {
+                        return true;
+                    }
+                    return false;
+                };
+                bool f = find(root, 0);
+                // cout << "search(" << word << ") = " << f << endl;
+                return f;
+            }
+
+            bool search2(const string &word)
+            {
+                stack<pair<Node *, size_t>> s;
+                s.push(make_pair(root, 0));
+                bool found = false;
+                while (!s.empty())
+                {
+                    pair<Node *, size_t> t = s.top();
+                    s.pop();
+                    Node *node = t.first;
+                    size_t i = t.second;
+                    // cout << "<'" << node->val << "', " << i << ">" << endl;
+                    if (i == word.size())
+                    {
+                        found = node->complete;
+                        if (found)
+                            break;
+                        else
+                            continue;
+                    }
+                    if (node->next.empty())
+                        continue;
+                    if (node->next.find(word[i]) == node->next.end())
+                    {
+                        if (word[i] != '.')
+                            continue;
+                        for (map<char, Node *>::iterator it = node->next.begin(); it != node->next.end(); it++)
+                        {
+                            s.push(make_pair(it->second, i + 1));
+                        }
+                    }
+                    else
+                    {
+                        s.push(make_pair(node->next[word[i]], i + 1));
+                    }
+                }
+                // cout << "search2(" << word << ") = " << found << endl;
+                return found;
+            }
+        };
+
+        // 212. Word Search II
+        // Given a 2D board and a list of words from the dictionary, find all words in
+        // the board. Each word must be constructed from letters of sequentially
+        // adjacent cell, where "adjacent" cells are those horizontally or vertically
+        // neighboring. The same letter cell may not be used more than once in a word.
+        // Example:
+        // Input:
+        // board = [
+        //   ['o','a','a','n'],
+        //   ['e','t','a','e'],
+        //   ['i','h','k','r'],
+        //   ['i','f','l','v']
+        // ]
+        // words = ["oath","pea","eat","rain"]
+        // Output: ["eat","oath"]
+        // Note: All inputs are consist of lowercase letters a-z. The values of words
+        // are distinct.
+        vector<string> findWords(const vector<vector<char>> &board,
+                                 const vector<string> &words)
+        {
+            vector<string> result;
+            if (board.empty() || board[0].empty())
+                return result;
+            int m = board.size();
+            int n = board[0].size();
+            set<pair<int, int>> path;
+            function<bool(int, int, const string &, int)> find =
+                [&](int i, int j, const string &word, size_t k) -> bool
+            {
+                if (k == word.size())
+                    return true;
+                if (i < 0 || i >= m || j < 0 || j >= n || board[i][j] != word[k])
+                    return false;
+                pair<int, int> p = make_pair(i, j);
+                if (path.find(p) != path.end())
+                    return false;
+                path.insert(p);
+                bool found = find(i - 1, j, word, k + 1) ||
+                             find(i + 1, j, word, k + 1) ||
+                             find(i, j - 1, word, k + 1) || find(i, j + 1, word, k + 1);
+                path.erase(p);
+                return found;
+            };
+            for_each(words.cbegin(), words.cend(), [&](const string &w)
+                     {
+                         bool found = false;
+                         for (int i = 0; i < m && !found; i++)
+                         {
+                             for (int j = 0; j < n && !found; j++)
+                             {
+                                 if (find(i, j, w, 0))
+                                     found = true;
+                             }
+                         }
+                         if (found)
+                             result.push_back(w);
+                     });
+            return result;
+        }
+        vector<string> findWords2(const vector<vector<char>> &board, const vector<string> &words)
+        {
+            struct Node
+            {
+                char val;
+                int index;
+                map<char, Node *> next;
+                Node(char v, int i = -1) : val(v), index(i) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            };
+            unique_ptr<Node> root(new Node('\0'));
+            function<void(int)> add = [&](int i)
+            {
+                const string &w = words[i];
+                Node *node = root.get();
+                size_t j = 0;
+                while (j < w.size() && node->next.find(w[j]) != node->next.end())
+                    node = node->next[w[j++]];
+                while (j < w.size())
+                {
+                    node->next[w[j]] = new Node(w[j]);
+                    node = node->next[w[j++]];
+                }
+                node->index = i;
+            };
+            for (int i = 0; i < (int)words.size(); i++)
+                add(i);
+            set<string> found; // use set because a word may appear more than once in the board
+            function<void(int, int, Node *, set<pair<int, int>> &)> find =
+                [&](int i, int j, Node *node, set<pair<int, int>> &visited)
+            {
+                if (i < 0 || i >= (int)board.size() || j < 0 || j >= (int)board[i].size() || node == nullptr)
+                    return;
+                if (node->next.find(board[i][j]) == node->next.end())
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (visited.find(p) != visited.end())
+                    return;
+                node = node->next[board[i][j]];
+                if (node->index >= 0)
+                    found.insert(words[node->index]);
+                visited.insert(p);
+                find(i - 1, j, node, visited);
+                find(i, j + 1, node, visited);
+                find(i + 1, j, node, visited);
+                find(i, j - 1, node, visited);
+                visited.erase(p);
+            };
+            set<pair<int, int>> visited;
+            for (int i = 0; i < (int)board.size(); i++)
+            {
+                for (int j = 0; j < (int)board[i].size(); j++)
+                {
+                    find(i, j, root.get(), visited);
+                }
+            }
+            vector<string> result(found.cbegin(), found.cend());
+            return result;
         }
 
         // 240. Search a 2D Matrix II
