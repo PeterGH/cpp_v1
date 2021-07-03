@@ -41,37 +41,38 @@ namespace Test
                 }
             }
             function<void(size_t, string, int, int, const queue<char> &)> remove =
-                [&](size_t i, string v, int l, int r, const queue<char> &q) {
-                    while (i < s.size() && s[i] != '(' && s[i] != ')')
-                    {
-                        v.append(1, s[i++]);
-                    }
-                    if (i >= s.size())
-                    {
-                        // Need to remove duplicates
-                        if (l == r && q.empty() && find(output.begin(), output.end(), v) == output.end())
-                            output.push_back(v);
-                        return;
-                    }
-                    // If we have "))" and need to remove one ')', the logic below will generate duplicates.
-                    // Same will happen if need to remove two ')'s from ")))".
-                    if (!q.empty() && s[i] == q.front())
-                    {
-                        queue<char> q1(q);
-                        q1.pop();
-                        remove(i + 1, v, l, r, q1);
-                    }
-                    if (s[i] == '(')
-                    {
-                        v.append(1, '(');
-                        remove(i + 1, v, l + 1, r, q);
-                    }
-                    else if (l > r)
-                    {
-                        v.append(1, ')');
-                        remove(i + 1, v, l, r + 1, q);
-                    }
-                };
+                [&](size_t i, string v, int l, int r, const queue<char> &q)
+            {
+                while (i < s.size() && s[i] != '(' && s[i] != ')')
+                {
+                    v.append(1, s[i++]);
+                }
+                if (i >= s.size())
+                {
+                    // Need to remove duplicates
+                    if (l == r && q.empty() && find(output.begin(), output.end(), v) == output.end())
+                        output.push_back(v);
+                    return;
+                }
+                // If we have "))" and need to remove one ')', the logic below will generate duplicates.
+                // Same will happen if need to remove two ')'s from ")))".
+                if (!q.empty() && s[i] == q.front())
+                {
+                    queue<char> q1(q);
+                    q1.pop();
+                    remove(i + 1, v, l, r, q1);
+                }
+                if (s[i] == '(')
+                {
+                    v.append(1, '(');
+                    remove(i + 1, v, l + 1, r, q);
+                }
+                else if (l > r)
+                {
+                    v.append(1, ')');
+                    remove(i + 1, v, l, r + 1, q);
+                }
+            };
             queue<char> e(d);
             string o;
             remove(0, o, 0, 0, e);
@@ -96,47 +97,48 @@ namespace Test
                 }
             }
             function<void(size_t, string, int, int, const queue<char> &)> remove =
-                [&](size_t i, string v, int l, int r, const queue<char> &q) {
-                    while (i < s.size() && s[i] != '(' && s[i] != ')')
+                [&](size_t i, string v, int l, int r, const queue<char> &q)
+            {
+                while (i < s.size() && s[i] != '(' && s[i] != ')')
+                {
+                    v.append(1, s[i++]);
+                }
+                if (i >= s.size())
+                {
+                    if (l == r && q.empty())
+                        output.push_back(v);
+                    return;
+                }
+                if (!q.empty() && s[i] == q.front())
+                {
+                    queue<char> q1(q);
+                    q1.pop();
+                    remove(i + 1, v, l, r, q1);
+                    while (i + 1 < s.size() && s[i] == s[i + 1])
                     {
-                        v.append(1, s[i++]);
-                    }
-                    if (i >= s.size())
-                    {
-                        if (l == r && q.empty())
-                            output.push_back(v);
-                        return;
-                    }
-                    if (!q.empty() && s[i] == q.front())
-                    {
-                        queue<char> q1(q);
-                        q1.pop();
-                        remove(i + 1, v, l, r, q1);
-                        while (i + 1 < s.size() && s[i] == s[i + 1])
+                        i++;
+                        v.append(1, s[i]);
+                        if (s[i] == '(')
                         {
-                            i++;
-                            v.append(1, s[i]);
-                            if (s[i] == '(')
-                            {
-                                l++;
-                            }
-                            else
-                            {
-                                r++;
-                            }
+                            l++;
+                        }
+                        else
+                        {
+                            r++;
                         }
                     }
-                    if (s[i] == '(')
-                    {
-                        v.append(1, '(');
-                        remove(i + 1, v, l + 1, r, q);
-                    }
-                    else if (l > r)
-                    {
-                        v.append(1, ')');
-                        remove(i + 1, v, l, r + 1, q);
-                    }
-                };
+                }
+                if (s[i] == '(')
+                {
+                    v.append(1, '(');
+                    remove(i + 1, v, l + 1, r, q);
+                }
+                else if (l > r)
+                {
+                    v.append(1, ')');
+                    remove(i + 1, v, l, r + 1, q);
+                }
+            };
             queue<char> e(d);
             string o;
             remove(0, o, 0, 0, e);
@@ -1147,7 +1149,8 @@ namespace Test
             }
             int height = INT_MAX;
             vector<int> roots;
-            function<void(int)> bfs = [&](int node) {
+            function<void(int)> bfs = [&](int node)
+            {
                 cout << "bfs(" << node << ")" << endl;
                 queue<int> current;
                 queue<int> next;
@@ -1236,12 +1239,14 @@ namespace Test
         {
             map<pair<int, int>, int> m;
             int n = nums.size();
-            function<int(int)> get = [&](int i) -> int {
+            function<int(int)> get = [&](int i) -> int
+            {
                 if (i < 0 || i >= n)
                     return 1;
                 return nums[i];
             };
-            function<int(int, int)> solve = [&](int i, int j) -> int {
+            function<int(int, int)> solve = [&](int i, int j) -> int
+            {
                 if (i > j)
                     return 0;
                 pair<int, int> p = make_pair(i, j);
@@ -1262,12 +1267,14 @@ namespace Test
         {
             int n = nums.size();
             vector<vector<int>> m(n, vector<int>(n, -1)); // faster than using a map
-            function<int(int)> get = [&](int i) -> int {
+            function<int(int)> get = [&](int i) -> int
+            {
                 if (i < 0 || i >= n)
                     return 1;
                 return nums[i];
             };
-            function<int(int, int)> solve = [&](int i, int j) -> int {
+            function<int(int, int)> solve = [&](int i, int j) -> int
+            {
                 if (i > j)
                     return 0;
                 if (m[i][j] < 0)
@@ -1287,12 +1294,14 @@ namespace Test
         {
             int n = nums.size();
             vector<vector<int>> m(n, vector<int>(n, -1));
-            function<int(int)> getN = [&](int i) -> int {
+            function<int(int)> getN = [&](int i) -> int
+            {
                 if (i < 0 || i >= n)
                     return 1;
                 return nums[i];
             };
-            function<int(int, int)> getM = [&](int i, int j) -> int {
+            function<int(int, int)> getM = [&](int i, int j) -> int
+            {
                 if (i > j)
                     return 0;
                 return m[i][j];
@@ -1352,7 +1361,8 @@ namespace Test
             for (size_t i = 0; i < primes.size(); i++)
                 index[primes[i]] = i;
             function<bool(const pair<long long, long long> &, const pair<long long, long long> &)>
-                greater = [&](const pair<long long, long long> &x, const pair<long long, long long> &y) -> bool {
+                greater = [&](const pair<long long, long long> &x, const pair<long long, long long> &y) -> bool
+            {
                 return x.first > y.first;
             };
             vector<pair<long long, long long>> v;
@@ -1424,21 +1434,23 @@ namespace Test
         vector<int> countSmaller(const vector<int> &nums)
         {
             function<void(const string &, const vector<int> &)>
-                pv = [&](const string &s, const vector<int> &v) {
-                    cout << s << ": {";
-                    for (size_t i = 0; i < v.size(); i++)
-                    {
-                        if (i > 0)
-                            cout << ",";
-                        cout << v[i];
-                    }
-                    cout << "}" << endl;
-                };
+                pv = [&](const string &s, const vector<int> &v)
+            {
+                cout << s << ": {";
+                for (size_t i = 0; i < v.size(); i++)
+                {
+                    if (i > 0)
+                        cout << ",";
+                    cout << v[i];
+                }
+                cout << "}" << endl;
+            };
             vector<int> counts(nums.size(), 0);
             vector<int> index(nums.size(), 0);
             for (int i = 0; i < (int)nums.size(); i++)
                 index[i] = i;
-            function<void(int, int, int)> mergeRange = [&](int low, int median, int high) {
+            function<void(int, int, int)> mergeRange = [&](int low, int median, int high)
+            {
                 cout << "merge(" << low << "," << median << "," << high << ")" << endl;
                 if (low >= high)
                     return;
@@ -1469,7 +1481,8 @@ namespace Test
                 pv("index", index);
                 pv("counts", counts);
             };
-            function<void(int, int)> sortRange = [&](int low, int high) {
+            function<void(int, int)> sortRange = [&](int low, int high)
+            {
                 cout << "sort(" << low << "," << high << ")" << endl;
                 if (low >= high)
                     return;
@@ -1543,7 +1556,8 @@ namespace Test
         int maxProduct(vector<string> &words)
         {
             function<bool(const set<char> &, const set<char> &)>
-                hasCommonLetter = [&](const set<char> &a, const set<char> &b) -> bool {
+                hasCommonLetter = [&](const set<char> &a, const set<char> &b) -> bool
+            {
                 auto i = a.begin();
                 auto j = b.begin();
                 while (i != a.end() && j != b.end())
@@ -1657,7 +1671,8 @@ namespace Test
             int n1 = nums1.size();
             int n2 = nums2.size();
             function<bool(const vector<int> &, const vector<int> &)>
-                greater = [&](const vector<int> &v1, const vector<int> &v2) -> bool {
+                greater = [&](const vector<int> &v1, const vector<int> &v2) -> bool
+            {
                 if (v1.size() < v2.size())
                     return false;
                 if (v1.size() > v2.size())
@@ -1676,52 +1691,53 @@ namespace Test
                 return false;
             };
             function<void(int, int, vector<int> &)>
-                solve = [&](int i, int j, vector<int> &v) {
-                    cout << string(i + j, ' ') << "f(" << i << ", " << j << ", {";
-                    for (size_t i = 0; i < v.size(); i++)
-                    {
-                        if (i > 0)
-                            cout << ", ";
-                        cout << v[i];
-                    }
-                    cout << "})" << endl;
+                solve = [&](int i, int j, vector<int> &v)
+            {
+                cout << string(i + j, ' ') << "f(" << i << ", " << j << ", {";
+                for (size_t i = 0; i < v.size(); i++)
+                {
+                    if (i > 0)
+                        cout << ", ";
+                    cout << v[i];
+                }
+                cout << "})" << endl;
 
-                    if ((int)v.size() > k)
-                        return;
-                    if ((int)v.size() == k)
+                if ((int)v.size() > k)
+                    return;
+                if ((int)v.size() == k)
+                {
+                    if (greater(v, m))
                     {
-                        if (greater(v, m))
-                        {
-                            m.assign(v.begin(), v.end());
-                            print("max", m);
-                        }
-                        return;
+                        m.assign(v.begin(), v.end());
+                        print("max", m);
                     }
-                    if (!m.empty())
+                    return;
+                }
+                if (!m.empty())
+                {
+                    for (size_t l = 0; l < v.size(); l++)
                     {
-                        for (size_t l = 0; l < v.size(); l++)
-                        {
-                            if (v[l] < m[l])
-                                return;
-                            else if (v[l] > m[l])
-                                break;
-                        }
+                        if (v[l] < m[l])
+                            return;
+                        else if (v[l] > m[l])
+                            break;
                     }
-                    if (i < n1)
-                    {
-                        v.push_back(nums1[i]);
-                        solve(i + 1, j, v);
-                        v.pop_back();
-                        solve(i + 1, j, v);
-                    }
-                    if (j < n2)
-                    {
-                        v.push_back(nums2[j]);
-                        solve(i, j + 1, v);
-                        v.pop_back();
-                        solve(i, j + 1, v);
-                    }
-                };
+                }
+                if (i < n1)
+                {
+                    v.push_back(nums1[i]);
+                    solve(i + 1, j, v);
+                    v.pop_back();
+                    solve(i + 1, j, v);
+                }
+                if (j < n2)
+                {
+                    v.push_back(nums2[j]);
+                    solve(i, j + 1, v);
+                    v.pop_back();
+                    solve(i, j + 1, v);
+                }
+            };
             vector<int> t;
             solve(0, 0, t);
             return m;
@@ -1729,7 +1745,8 @@ namespace Test
         vector<int> maxNumber2(const vector<int> &nums1, const vector<int> &nums2, int k)
         {
             function<vector<int>(const vector<int> &, int)>
-                max1 = [&](const vector<int> &v, int l) -> vector<int> {
+                max1 = [&](const vector<int> &v, int l) -> vector<int>
+            {
                 vector<int> r;
                 int n = v.size();
                 for (int i = 0; i < n; i++)
@@ -1743,7 +1760,8 @@ namespace Test
                 return r;
             };
             function<vector<int>(const vector<int> &, const vector<int> &)>
-                max2 = [&](const vector<int> &v1, const vector<int> &v2) -> vector<int> {
+                max2 = [&](const vector<int> &v1, const vector<int> &v2) -> vector<int>
+            {
                 vector<int> r;
                 auto b1 = v1.begin();
                 auto e1 = v1.end();
@@ -1770,7 +1788,8 @@ namespace Test
             };
             vector<int> m;
             function<bool(const vector<int> &, const vector<int> &)>
-                greater = [&](const vector<int> &x, const vector<int> &y) -> bool {
+                greater = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
                 if (x.size() > y.size())
                     return true;
                 if (x.size() < y.size())
@@ -1824,7 +1843,8 @@ namespace Test
         int coinChange(const vector<int> &coins, int amount)
         {
             map<pair<size_t, int>, int> m;
-            function<int(size_t, int)> count = [&](size_t i, int a) -> int {
+            function<int(size_t, int)> count = [&](size_t i, int a) -> int
+            {
                 cout << string(i, ' ') << "c(" << i << "," << a << ")" << endl;
                 pair<size_t, int> p = make_pair(i, a);
                 if (m.find(p) == m.end())
@@ -1866,7 +1886,8 @@ namespace Test
         int coinChange2(const vector<int> &coins, int amount)
         {
             vector<int> change(amount, 0);
-            function<int(int)> count = [&](int a) -> int {
+            function<int(int)> count = [&](int a) -> int
+            {
                 if (a < 0)
                     return -1;
                 if (a == 0)
@@ -2074,7 +2095,8 @@ namespace Test
             vector<long long> r(nums.begin(), nums.end());
             // r[i] = sum(nums[0..i]);
             partial_sum(r.begin(), r.end(), r.begin());
-            function<int(int, int)> mergeSort = [&](int b, int e) -> int {
+            function<int(int, int)> mergeSort = [&](int b, int e) -> int
+            {
                 if (b > e)
                     return 0;
                 if (b == e)
@@ -2283,7 +2305,8 @@ namespace Test
             int r = 0;
             int m = matrix.size();
             int n = matrix[0].size();
-            function<void(int, int, int, int)> walk = [&](int i, int j, int p, int l) {
+            function<void(int, int, int, int)> walk = [&](int i, int j, int p, int l)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n)
                     return;
                 int e = matrix[i][j];
@@ -2312,7 +2335,8 @@ namespace Test
             int m = matrix.size();
             int n = matrix[0].size();
             map<pair<int, int>, int> l; // max length at a point
-            function<int(int, int, int)> length = [&](int i, int j, int p) {
+            function<int(int, int, int)> length = [&](int i, int j, int p)
+            {
                 if (i < 0 || i >= m || j < 0 || j >= n)
                     return 0;
                 int e = matrix[i][j];
@@ -2368,7 +2392,8 @@ namespace Test
         int minPatches(const vector<int> &nums, int n)
         {
             function<bool(size_t, int, const vector<int> &)>
-                has = [&](size_t i, int t, const vector<int> &v) -> bool {
+                has = [&](size_t i, int t, const vector<int> &v) -> bool
+            {
                 if (i >= v.size())
                     return t == 0;
                 if (t == 0)
@@ -2408,7 +2433,8 @@ namespace Test
         int minPatches2(const vector<int> &nums, int n)
         {
             function<bool(size_t, int, const vector<int> &, map<pair<size_t, int>, bool> &)>
-                has = [&](size_t i, int t, const vector<int> &v, map<pair<size_t, int>, bool> &m) -> bool {
+                has = [&](size_t i, int t, const vector<int> &v, map<pair<size_t, int>, bool> &m) -> bool
+            {
                 if (i >= v.size())
                     return t == 0;
                 if (t == 0)
@@ -2544,7 +2570,8 @@ namespace Test
         // Follow up: Find an algorithm without reconstructing the tree.
         bool isValidSerialization(const string &preorder)
         {
-            function<bool(size_t &)> check = [&](size_t &i) -> bool {
+            function<bool(size_t &)> check = [&](size_t &i) -> bool
+            {
                 if (i >= preorder.size())
                     return false;
                 if (preorder[i] == '#')
@@ -2571,18 +2598,19 @@ namespace Test
             if (preorder.empty())
                 return false;
             function<void(int, int, const vector<int> &)>
-                print = [&](int c, int i, const vector<int> &s) {
-                    cout << "c=" << c << " p[" << c << "]='" << (c == -1 ? '#' : preorder[c - 1]) << "' ";
-                    cout << "i=" << i << " p[" << i << "]='" << preorder[i] << "' ";
-                    cout << "s={";
-                    for (size_t j = 0; j < s.size(); j++)
-                    {
-                        if (j > 0)
-                            cout << ",";
-                        cout << preorder[s[j] - 1]; // s[j];
-                    }
-                    cout << "}" << endl;
-                };
+                print = [&](int c, int i, const vector<int> &s)
+            {
+                cout << "c=" << c << " p[" << c << "]='" << (c == -1 ? '#' : preorder[c - 1]) << "' ";
+                cout << "i=" << i << " p[" << i << "]='" << preorder[i] << "' ";
+                cout << "s={";
+                for (size_t j = 0; j < s.size(); j++)
+                {
+                    if (j > 0)
+                        cout << ",";
+                    cout << preorder[s[j] - 1]; // s[j];
+                }
+                cout << "}" << endl;
+            };
             int n = preorder.size();
             int i = 0;
             vector<int> s;
@@ -2690,6 +2718,359 @@ namespace Test
                 i--;
             }
             return s.empty();
+        }
+
+        // 349. Intersection of Two Arrays
+        // Given two arrays, write a function to compute their intersection.
+        // Example 1:
+        // Input: nums1 = [1,2,2,1], nums2 = [2,2]
+        // Output: [2]
+        // Example 2:
+        // Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+        // Output: [9,4]
+        // Note: Each element in the result must be unique. The result can be in any
+        // order.
+        vector<int> intersection(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> result;
+            function<void(vector<int> &, vector<int> &)>
+                solve = [&](vector<int> &n1, vector<int> &n2)
+            {
+                for (int i = 0; i < (int)n1.size(); i++)
+                {
+                    if (i > 0 && n1[i - 1] == n1[i])
+                        continue;
+                    int b = 0;
+                    int e = (int)n2.size() - 1;
+                    while (b <= e)
+                    {
+                        int m = b + ((e - b) >> 1);
+                        if (n2[m] < n1[i])
+                            b = m + 1;
+                        else if (n2[m] > n1[i])
+                            e = m - 1;
+                        else
+                        {
+                            result.push_back(n1[i]);
+                            break;
+                        }
+                    }
+                }
+            };
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            if (nums1.size() < nums2.size())
+                solve(nums1, nums2);
+            else
+                solve(nums2, nums1);
+            return result;
+        }
+        vector<int> intersection2(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> result;
+            set<int> s1(nums1.cbegin(), nums1.cend());
+            set<int> s2(nums2.cbegin(), nums2.cend());
+            result.resize(min(s1.size(), s2.size()));
+            auto it = set_intersection(s1.cbegin(), s1.cend(), s2.cbegin(), s2.cend(),
+                                       result.begin());
+            result.resize(it - result.begin());
+            return result;
+        }
+        vector<int> intersection3(const vector<int> &nums1, const vector<int> &nums2)
+        {
+            vector<int> o;
+            function<void(const vector<int> &, const vector<int> &)> solve =
+                [&](const vector<int> &n1, const vector<int> &n2)
+            {
+                set<int> s(n1.cbegin(), n1.cend());
+                set<int> u;
+                for (int n : n2)
+                {
+                    if (s.find(n) != s.end() && u.find(n) == u.end())
+                    {
+                        o.push_back(n);
+                        u.insert(n);
+                    }
+                }
+            };
+            if (nums1.size() < nums2.size())
+                solve(nums1, nums2);
+            else
+                solve(nums2, nums1);
+            return o;
+        }
+        vector<int> intersection4(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> o;
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            size_t i = 0;
+            size_t j = 0;
+            while (i < nums1.size() && j < nums2.size())
+            {
+                if (nums1[i] < nums2[j])
+                    i++;
+                else if (nums1[i] > nums2[j])
+                    j--;
+                else
+                {
+                    o.push_back(nums1[i]);
+                    while (i + 1 < nums1.size() && nums1[i] == nums1[i + 1])
+                        i++;
+                    i++;
+                    while (j + 1 < nums2.size() && nums2[j] == nums2[j + 1])
+                        j++;
+                    j++;
+                }
+            }
+            return o;
+        }
+
+        // 350. Intersection of Two Arrays II
+        // Given two arrays, write a function to compute their intersection.
+        // Example 1:
+        // Input: nums1 = [1,2,2,1], nums2 = [2,2]
+        // Output: [2,2]
+        // Example 2:
+        // Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+        // Output: [4,9]
+        // Note: Each element in the result should appear as many times as it shows in
+        // both arrays. The result can be in any order.
+        // Follow up:
+        // What if the given array is already sorted? How would you optimize your
+        // algorithm? What if nums1's size is small compared to nums2's size? Which
+        // algorithm is better? What if elements of nums2 are stored on disk, and the
+        // memory is limited such that you cannot load all elements into the memory at
+        // once?
+        vector<int> intersectII(const vector<int> &nums1, const vector<int> &nums2)
+        {
+            function<map<int, int>(const vector<int> &)> count =
+                [&](const vector<int> &n) -> map<int, int>
+            {
+                map<int, int> m;
+                for (int x : n)
+                {
+                    if (m.find(x) == m.end())
+                        m[x] = 1;
+                    else
+                        m[x]++;
+                }
+                return m;
+            };
+            map<int, int> m1 = count(nums1);
+            map<int, int> m2 = count(nums2);
+            vector<int> result;
+            for (auto it = m1.begin(); it != m1.end(); it++)
+            {
+                if (m2.find(it->first) != m2.end())
+                    result.insert(result.end(), min(it->second, m2[it->first]),
+                                  it->first);
+            }
+            return result;
+        }
+        vector<int> intersectII2(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> result;
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            result.resize(min(nums1.size(), nums2.size()));
+            auto it = set_intersection(nums1.cbegin(), nums1.cend(), nums2.cbegin(),
+                                       nums2.cend(), result.begin());
+            result.resize(it - result.begin());
+            return result;
+        }
+        vector<int> intersectII3(const vector<int> &nums1, const vector<int> &nums2)
+        {
+            vector<int> o;
+            function<void(const vector<int> &, const vector<int> &)> solve =
+                [&](const vector<int> &n1, const vector<int> &n2)
+            {
+                map<int, int> m;
+                for (int n : n1)
+                {
+                    if (m.find(n) == m.end())
+                        m[n] = 1;
+                    else
+                        m[n]++;
+                }
+                for (int n : n2)
+                {
+                    if (m.find(n) != m.end())
+                    {
+                        o.push_back(n);
+                        m[n]--;
+                        if (m[n] == 0)
+                            m.erase(n);
+                    }
+                }
+            };
+            if (nums1.size() < nums2.size())
+                solve(nums1, nums2);
+            else
+                solve(nums2, nums1);
+            return o;
+        }
+        vector<int> intersectII4(vector<int> &nums1, vector<int> &nums2)
+        {
+            vector<int> o;
+            sort(nums1.begin(), nums1.end());
+            sort(nums2.begin(), nums2.end());
+            size_t i = 0;
+            size_t j = 0;
+            while (i < nums1.size() && j < nums2.size())
+            {
+                if (nums1[i] < nums2[j])
+                    i++;
+                else if (nums1[i] > nums2[j])
+                    j++;
+                else
+                {
+                    o.push_back(nums1[i]);
+                    i++;
+                    j++;
+                }
+            }
+            return o;
+        }
+
+        // 367. Valid Perfect Square
+        // Given a positive integer num, write a function which returns True if num is a
+        // perfect square else False. Note: Do not use any built-in library function
+        // such as sqrt. Example 1: Input: 16 Output: true Example 2: Input: 14 Output:
+        // false
+        bool isPerfectSquare(int num)
+        {
+            long long x = num;
+            long long b = 1;
+            long long e = x;
+            while (b <= e)
+            {
+                long long m = b + ((e - b) >> 1);
+                long long s = m * m;
+                if (s < x)
+                    b = m + 1;
+                else if (s > x)
+                    e = m - 1;
+                else
+                    return true;
+            }
+            return false;
+        }
+        bool isPerfectSquare2(int num)
+        {
+            long long x = num;
+            long long b = 1;
+            long long e = x;
+            while (b < e)
+            {
+                long long m = b + ((e - b) >> 1);
+                long long s = m * m;
+                if (s < x)
+                    b = m + 1;
+                else if (s > x)
+                    e = m;
+                else
+                    return true;
+            }
+            return b == e && b * b == x;
+        }
+        bool isPerfectSquare3(int num)
+        {
+            long long x = num;
+            long long b = 1;
+            long long e = x;
+            while (b + 1 < e)
+            {
+                long long m = b + ((e - b) >> 1);
+                long long s = m * m;
+                if (s < x)
+                    b = m;
+                else if (s > x)
+                    e = m;
+                else
+                    return true;
+            }
+            if (b <= e)
+            {
+                if (b * b == x)
+                    return true;
+                if (b < e && e * e == x)
+                    return true;
+            }
+            return false;
+        }
+
+        // 374. Guess Number Higher or Lower
+        // We are playing the Guess Game. The game is as follows:
+        // I pick a number from 1 to n. You have to guess which number I picked.
+        // Every time you guess wrong, I'll tell you whether the number is higher or
+        // lower. You call a pre-defined API guess(int num) which returns 3 possible
+        // results: -1 : My number is lower
+        //  1 : My number is higher
+        //  0 : Congrats! You got it!
+        // Example :
+        // Input: n = 10, pick = 6
+        // Output: 6
+        int guess(int x, int pick)
+        {
+            if (pick < x)
+                return -1;
+            else if (pick > x)
+                return 1;
+            else
+                return 0;
+        }
+        int guessNumber(int n, int pick)
+        {
+            int b = 1;
+            int e = n;
+            int m = b;
+            while (b <= e)
+            {
+                m = b + ((e - b) >> 1);
+                int c = guess(m, pick);
+                if (c == -1)
+                    e = m - 1;
+                else if (c == 1)
+                    b = m + 1;
+                else
+                    break;
+            }
+            return m;
+        }
+        int guessNumber2(int n, int pick)
+        {
+            int b = 1;
+            int e = n;
+            while (b < e)
+            {
+                int m = b + ((e - b) >> 1);
+                int c = guess(m, pick);
+                if (c == -1)
+                    e = m;
+                else if (c == 1)
+                    b = m + 1;
+                else
+                    return m;
+            }
+            return b;
+        }
+        int guessNumber3(int n, int pick)
+        {
+            int b = 1;
+            int e = n;
+            while (b + 1 < e)
+            {
+                int m = b + ((e - b) >> 1);
+                int c = guess(m, pick);
+                if (c == -1)
+                    e = m;
+                else if (c == 1)
+                    b = m;
+                else
+                    return m;
+            }
+            return guess(b, pick) == 0 ? b : e;
         }
 
     }

@@ -2016,6 +2016,237 @@ namespace Test
             return max(b1, b2);
         }
 
+        // 214. Shortest Palindrome
+        // Given a string s, you are allowed to convert it to a palindrome by adding
+        // characters in front of it. Find and return the shortest palindrome you can
+        // find by performing this transformation.
+        // Example 1:
+        // Input: "aacecaaa"
+        // Output: "aaacecaaa"
+        // Example 2:
+        // Input: "abcd"
+        // Output: "dcbabcd"
+        string shortestPalindrome(const string &s)
+        {
+            string r(s);
+            reverse(r.begin(), r.end());
+            // Find the prefix of s which is also a suffix of r
+            // s[0]...s[c-1]s[c]...#...s[c]s[c-1]...s[0]
+            // s[0]...s[c-1] is a palindrome if it matches s[c-1]...s[0]
+            string w = s + "#" + r;
+            // Using KMP
+            vector<int> p(w.size(), 0);
+            int c = 0; // prefix length is 0 at w[0]
+            for (int i = 1; i < (int)w.size(); i++)
+            {
+                // prefix of w[0..(i-1)] is w[0..(c-1)]
+                // check w[c] and w[i]
+                while (c > 0 && w[c] != w[i])
+                    c = p[c - 1];
+                if (w[c] == w[i])
+                    c++;
+                p[i] = c;
+            }
+            int n = p[w.size() - 1];
+            string t = s.substr(n);
+            reverse(t.begin(), t.end());
+            string o = t + s;
+            return o;
+        }
+        string shortestPalindrome2(const string &s)
+        {
+            if (s.empty())
+                return s;
+            string r(s);
+            reverse(r.begin(), r.end());
+            string w = s + r; // eliminate the extra '#'
+            vector<int> p(w.size(), 0);
+            int c = 0;
+            for (int i = 1; i < (int)w.size(); i++)
+            {
+                // Need an extra check if c exceeds the length of s
+                while (c > 0 && (w[c] != w[i] || c >= (int)s.size()))
+                    c = p[c - 1];
+                if (w[c] == w[i])
+                    c++;
+                p[i] = c;
+            }
+            int n = p[w.size() - 1];
+            string t = s.substr(n);
+            reverse(t.begin(), t.end());
+            string o = t + s;
+            return o;
+        }
+        string shortestPalindrome3(const string &s)
+        {
+            if (s.empty())
+                return s;
+            int n = s.size();
+            int m = n << 1; // eliminate the extra string w
+            vector<int> p(m, 0);
+            int c = 0;
+            for (int i = 1; i < m; i++)
+            {
+                // map w[i] back to s[j]
+                int j = i < n ? i : m - i - 1;
+                while (c > 0 && (s[c] != s[j] || c >= n))
+                    c = p[c - 1];
+                if (s[c] == s[j])
+                    c++;
+                p[i] = c;
+            }
+            string t = s.substr(p[m - 1]);
+            reverse(t.begin(), t.end());
+            string o = t + s;
+            return o;
+        }
+        string shortestPalindrome4(const string &s)
+        {
+            int i = (int)s.size() - 1;
+            while (i >= 0)
+            {
+                int j = 0;
+                int k = i;
+                while (j <= k)
+                {
+                    if (s[j] != s[k])
+                        break;
+                    j++;
+                    k--;
+                }
+                if (j > k)
+                {
+                    // s[0..i] is a palindrome
+                    break;
+                }
+                else
+                {
+                    i--;
+                }
+            }
+            string t = s.substr(i + 1);
+            reverse(t.begin(), t.end());
+            return t + s;
+        }
+
+        // 215. Kth Largest Element in an Array
+        // Find the kth largest element in an unsorted array. Note that it is the kth
+        // largest element in the sorted order, not the kth distinct element.
+        // Example 1:
+        // Input: [3,2,1,5,6,4] and k = 2
+        // Output: 5
+        // Example 2:
+        // Input: [3,2,3,1,2,4,5,5,6] and k = 4
+        // Output: 4
+        // Note: You may assume k is always valid, 1 <= k <= array's length.
+        int findKthLargest(vector<int> &nums, int k)
+        {
+            int b = 0;
+            int e = (int)nums.size() - 1;
+            while (b <= e)
+            {
+                int i = b;
+                int j = e - 1;
+                while (i <= j)
+                {
+                    if (nums[i] < nums[e])
+                    {
+                        swap(nums[i], nums[j]);
+                        j--;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                // i > j and nums[i] < nums[e]
+                swap(nums[i], nums[e]);
+                if (i - b + 1 < k)
+                {
+                    k -= (i - b + 1);
+                    b = i + 1;
+                }
+                else if (i - b + 1 > k)
+                {
+                    e = i - 1;
+                }
+                else
+                {
+                    return nums[i];
+                }
+            }
+            return nums[b];
+        }
+        int findKthLargest2(vector<int> &nums, int k)
+        {
+            sort(nums.begin(), nums.end(), [&](int a, int b) -> bool
+                 { return a > b; });
+            return nums[k - 1];
+        }
+        int findKthLargest3(const vector<int> &nums, int k)
+        {
+            priority_queue<int> q;
+            for (int n : nums)
+                q.push(n);
+            for (int i = 0; i < k - 1; i++)
+                q.pop();
+            return q.top();
+        }
+
+        // 216. Combination Sum III
+        // Find all possible combinations of k numbers that add up to a number n, given
+        // that only numbers from 1 to 9 can be used and each combination should be a
+        // unique set of numbers. Note: All numbers will be positive integers. The
+        // solution set must not contain duplicate combinations.
+        // Example 1:
+        // Input: k = 3, n = 7
+        // Output: [[1,2,4]]
+        // Example 2:
+        // Input: k = 3, n = 9
+        // Output: [[1,2,6], [1,3,5], [2,3,4]]
+        vector<vector<int>> combinationSum3(int k, int n)
+        {
+            vector<vector<int>> result;
+            vector<int> s;
+            function<void(int, int, int)> solve = [&](int i, int c, int t)
+            {
+                if (c == 0 && t == 0)
+                {
+                    result.push_back(s);
+                    return;
+                }
+                for (int j = i; j <= 9 && j <= t; j++)
+                {
+                    s.push_back(j);
+                    solve(j + 1, c - 1, t - j);
+                    s.pop_back();
+                }
+            };
+            solve(1, k, n);
+            return result;
+        }
+        vector<vector<int>> combinationSum32(int k, int n)
+        {
+            vector<pair<vector<int>, int>> s;
+            vector<vector<int>> output;
+            s.push_back(make_pair(vector<int>(), 0));
+            for (int i = 1; i <= 9; i++)
+            {
+                int l = s.size();
+                for (int j = 0; j < l; j++)
+                {
+                    auto p = s[j];
+                    p.first.push_back(i);
+                    p.second += i;
+                    if ((int)p.first.size() == k && p.second == n)
+                        output.push_back(p.first);
+                    if ((int)p.first.size() < k)
+                        s.push_back(p);
+                }
+            }
+            return output;
+        }
+
         // 240. Search a 2D Matrix II
         // Write an efficient algorithm that searches for a value in an m x n matrix.
         // This matrix has the following properties:
