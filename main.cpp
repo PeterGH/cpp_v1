@@ -10,6 +10,8 @@
 #include "LeetCodeTest1.h"
 #include "LeetCodeTest2.h"
 #include "LeetCodeTest3.h"
+#include "LeetCodeTest6.h"
+#include "LeetCodeTest7.h"
 #include "LogTest.h"
 #include "StringTest.h"
 //#include "StructureTest.h"
