@@ -2247,6 +2247,600 @@ namespace Test
             return output;
         }
 
+        // 220. Contains Duplicate III
+        // Given an array of integers, find out whether there are two distinct indices i
+        // and j in the array such that the absolute difference between nums[i] and nums[j]
+        // is at most t and the absolute difference between i and j is at most k.
+        // Example 1:
+        // Input: nums = [1,2,3,1], k = 3, t = 0
+        // Output: true
+        // Example 2:
+        // Input: nums = [1,0,1,1], k = 1, t = 2
+        // Output: true
+        // Example 3:
+        // Input: nums = [1,5,9,1,5,9], k = 2, t = 3
+        // Output: false
+        // Hint #1
+        // Time complexity O(n logk) - This will give an indication that sorting is involved
+        // for k elements.
+        // Hide Hint #2
+        // Use already existing state to evaluate next state - Like, a set of k sorted
+        // numbers are only needed to be tracked. When we are processing the next number
+        // in array, then we can utilize the existing sorted state and it is not necessary
+        // to sort next overlapping set of k numbers again.
+        class ContainsDuplicateIII
+        {
+        private:
+            struct Node
+            {
+                int val;
+                set<int> indices;
+                Node *left;
+                Node *right;
+                Node(int v, int i)
+                    : val(v), indices({i}), left(nullptr), right(nullptr)
+                {
+                }
+            };
+
+            Node *root;
+
+            bool insert(int v, int i, int k, int t)
+            {
+                bool result = false;
+                Node *parent = nullptr;
+                Node *node = root;
+                while (node != nullptr)
+                {
+                    parent = node;
+                    if (abs((long long)node->val - (long long)v) <= (long long)t)
+                    {
+                        for (int j : node->indices)
+                        {
+                            if (abs(i - j) <= k)
+                            {
+                                result = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (node->val > v)
+                    {
+                        node = node->left;
+                    }
+                    else if (node->val < v)
+                    {
+                        node = node->right;
+                    }
+                    else
+                    {
+                        node->indices.insert(i);
+                        return result;
+                    }
+                }
+                node = new Node(v, i);
+                if (parent == nullptr)
+                    root = node;
+                else if (parent->val > v)
+                    parent->left = node;
+                else
+                    parent->right = node;
+                return result;
+            }
+
+            void deleteNode(int v, int i)
+            {
+                Node *parent = nullptr;
+                Node *node = root;
+                while (node != nullptr && node->val != v)
+                {
+                    parent = node;
+                    if (node->val > v)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                if (node == nullptr)
+                    return;
+                node->indices.erase(i);
+                if (!node->indices.empty())
+                    return;
+                if (node->right == nullptr)
+                {
+                    if (parent == nullptr)
+                        root = node->left;
+                    else if (parent->left == node)
+                        parent->left = node->left;
+                    else
+                        parent->right = node->left;
+                    node->left = nullptr;
+                    delete node;
+                    node = nullptr;
+                    return;
+                }
+                Node *nextParent = node;
+                Node *next = node->right;
+                while (next->left != nullptr)
+                {
+                    nextParent = next;
+                    next = next->left;
+                }
+                if (nextParent->right == next)
+                    nextParent->right = next->right;
+                else
+                    nextParent->left = next->right;
+                next->left = node->left;
+                next->right = node->right;
+                if (parent == nullptr)
+                    root = next;
+                else if (parent->left == node)
+                    parent->left = next;
+                else
+                    parent->right = next;
+                node->left = nullptr;
+                node->right = nullptr;
+                delete node;
+                node = nullptr;
+            }
+
+            void deleteTree(Node *node)
+            {
+                if (node == nullptr)
+                    return;
+                deleteTree(node->left);
+                node->left = nullptr;
+                deleteTree(node->right);
+                node->right = nullptr;
+                delete node;
+            }
+
+        public:
+            bool containsNearbyAlmostDuplicate(vector<int> &nums, int k, int t)
+            {
+                bool result = false;
+                root = nullptr;
+                for (int i = 0; i < (int)nums.size(); i++)
+                {
+                    if (i > k)
+                        deleteNode(nums[i - k - 1], i - k - 1);
+                    if (insert(nums[i], i, k, t))
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+                deleteTree(root);
+                return result;
+            }
+
+            bool containsNearbyAlmostDuplicate2(vector<int> &nums, int k, int t)
+            {
+                map<int, int> m;
+                for (int i = 0; i < (int)nums.size(); i++)
+                {
+                    if (m.find(nums[i]) == m.end())
+                        m[nums[i]] = 1;
+                    else
+                        m[nums[i]]++;
+                    if (i > k)
+                    {
+                        if (m[nums[i - k - 1]] == 1)
+                            m.erase(nums[i - k - 1]);
+                        else
+                            m[nums[i - k - 1]]--;
+                    }
+                    for (map<int, int>::iterator it = m.begin(); it != m.end(); it++)
+                    {
+                        if (it->second > 1 && t >= 0)
+                            return true;
+                        map<int, int>::iterator it2 = it;
+                        it2++;
+                        if (it2 == m.end())
+                            break;
+                        if ((long long)it2->first - (long long)it->first <= (long long)t)
+                            return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+        // 235. Lowest Common Ancestor of a Binary Search Tree
+        // Given a binary search tree (BST), find the lowest common ancestor (LCA) of
+        // two given nodes in the BST. According to the definition of LCA on Wikipedia:
+        // "The lowest common ancestor is defined between two nodes p and q as the lowest
+        // node in T that has both p and q as descendants (where we allow a node to be
+        // a descendant of itself)."
+        // Given binary search tree:  root = [6,2,8,0,4,7,9,null,null,3,5]
+        // Example 1:
+        // Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+        // Output: 6
+        // Explanation: The LCA of nodes 2 and 8 is 6.
+        // Example 2:
+        // Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+        // Output: 2
+        // Explanation: The LCA of nodes 2 and 4 is 2, since a node can be a descendant
+        // of itself according to the LCA definition.
+        TreeNode *lowestCommonAncestorBST(TreeNode *root, TreeNode *p, TreeNode *q)
+        {
+            TreeNode *node = root;
+            while (node != nullptr)
+            {
+                if (node->val > p->val && node->val > q->val)
+                    node = node->left;
+                else if (node->val < p->val && node->val < q->val)
+                    node = node->right;
+                else
+                    break;
+            }
+            return node;
+        }
+
+        // Search in a Binary Search Tree
+        // Given the root node of a binary search tree (BST) and a value. You need to
+        // find the node in the BST that the node's value equals the given value. Return
+        // the subtree rooted with that node. If such node doesn't exist, you should
+        // return NULL. For example, Given the tree:
+        //         4
+        //        / \
+        //       2   7
+        //      / \
+        //     1   3
+        // And the value to search: 2
+        // You should return this subtree:
+        //       2
+        //      / \   
+        //     1   3
+        // In the example above, if we want to search the value 5, since there is no node
+        // with value 5, we should return NULL.
+        TreeNode *searchBST(TreeNode *root, int val)
+        {
+            TreeNode *n = root;
+            while (n != nullptr)
+            {
+                if (n->val == val)
+                    break;
+                if (n->val > val)
+                    n = n->left;
+                else
+                    n = n->right;
+            }
+            return n;
+        }
+        TreeNode *searchBST2(TreeNode *root, int val)
+        {
+            if (root == nullptr || root->val == val)
+                return root;
+            return val < root->val ? searchBST2(root->left, val) : searchBST2(root->right, val);
+        }
+
+        // Insert into a Binary Search Tree
+        // Given the root node of a binary search tree (BST) and a value to be inserted
+        // into the tree, insert the value into the BST. Return the root node of the BST
+        // after the insertion. It is guaranteed that the new value does not exist in the
+        // original BST. Note that there may exist multiple valid ways for the insertion,
+        // as long as the tree remains a BST after insertion. You can return any of them.
+        // For example, Given the tree:
+        //         4
+        //        / \
+        //       2   7
+        //      / \
+        //     1   3
+        // And the value to insert: 5
+        // You can return this binary search tree:
+        //          4
+        //        /   \
+        //       2     7
+        //      / \   /
+        //     1   3 5
+        // This tree is also valid:
+        //          5
+        //        /   \
+        //       2     7
+        //      / \   
+        //     1   3
+        //          \
+        //           4
+        TreeNode *insertIntoBST(TreeNode *root, int val)
+        {
+            TreeNode *p = nullptr;
+            TreeNode *n = root;
+            while (n != nullptr)
+            {
+                p = n;
+                if (n->val > val)
+                    n = n->left;
+                else
+                    n = n->right;
+            }
+            n = new TreeNode(val);
+            if (p == nullptr)
+            {
+                root = n;
+            }
+            else
+            {
+                if (p->val > val)
+                    p->left = n;
+                else
+                    p->right = n;
+            }
+            return root;
+        }
+
+        // Delete Node in a BST
+        // Given a root node reference of a BST and a key, delete the node with the given
+        // key in the BST. Return the root node reference (possibly updated) of the BST.
+        // Basically, the deletion can be divided into two stages:
+        // Search for a node to remove.
+        // If the node is found, delete the node.
+        // Note: Time complexity should be O(height of tree).
+        // Example:
+        // root = [5,3,6,2,4,null,7]
+        // key = 3
+        //     5
+        //    / \
+        //   3   6
+        //  / \   \
+        // 2   4   7
+        // Given key to delete is 3. So we find the node with value 3 and delete it.
+        // One valid answer is [5,4,6,2,null,null,7], shown in the following BST.
+        //     5
+        //    / \
+        //   4   6
+        //  /     \
+        // 2       7
+        // Another valid answer is [5,2,6,null,4,null,7].
+        //     5
+        //    / \
+        //   2   6
+        //    \   \
+        //     4   7
+        TreeNode *deleteNode(TreeNode *root, int key)
+        {
+            function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool
+            {
+                *parent = nullptr;
+                *node = root;
+                while (*node != nullptr)
+                {
+                    if ((*node)->val == key)
+                        break;
+                    *parent = *node;
+                    if ((*node)->val > key)
+                        *node = (*node)->left;
+                    else
+                        *node = (*node)->right;
+                }
+                return (*node) != nullptr;
+            };
+            function<bool(TreeNode *, TreeNode **, TreeNode **)> findSuccessor =
+                [&](TreeNode *node, TreeNode **parent, TreeNode **successor) -> bool
+            {
+                if (node == nullptr || node->right == nullptr)
+                    return false;
+                *parent = node;
+                *successor = node->right;
+                while ((*successor)->left != nullptr)
+                {
+                    *parent = *successor;
+                    *successor = (*successor)->left;
+                }
+                return true;
+            };
+            TreeNode *parent = nullptr;
+            TreeNode *node = nullptr;
+            if (!findNode(&parent, &node))
+                return root;
+            TreeNode *successorParent = nullptr;
+            TreeNode *successor = nullptr;
+            if (!findSuccessor(node, &successorParent, &successor))
+            {
+                if (node == root)
+                    root = node->left;
+                else if (node == parent->left)
+                    parent->left = node->left;
+                else if (node == parent->right)
+                    parent->right = node->left;
+                node->left = nullptr;
+                delete node;
+                node = nullptr;
+                return root;
+            }
+            TreeNode *successorChild = successor->right;
+            if (successor == successorParent->left)
+                successorParent->left = successorChild;
+            else if (successor == successorParent->right)
+                successorParent->right = successorChild;
+            successor->right = nullptr;
+            successor->left = node->left;
+            successor->right = node->right;
+            node->left = nullptr;
+            node->right = nullptr;
+            if (node == root)
+                root = successor;
+            else if (node == parent->left)
+                parent->left = successor;
+            else if (node == parent->right)
+                parent->right = successor;
+            delete node;
+            node = nullptr;
+            return root;
+        }
+
+        // Kth Largest Element in a Stream
+        // Design a class to find the kth largest element in a stream. Note that it is
+        // the kth largest element in the sorted order, not the kth distinct element.
+        // Your KthLargest class will have a constructor which accepts an integer k and
+        // an integer array nums, which contains initial elements from the stream. For
+        // each call to the method KthLargest.add, return the element representing the
+        // kth largest element in the stream.
+        // Example:
+        // int k = 3;
+        // int[] arr = [4,5,8,2];
+        // KthLargest kthLargest = new KthLargest(3, arr);
+        // kthLargest.add(3);   // returns 4
+        // kthLargest.add(5);   // returns 5
+        // kthLargest.add(10);  // returns 5
+        // kthLargest.add(9);   // returns 8
+        // kthLargest.add(4);   // returns 8
+        // Note: You may assume that nums' length >= k-1 and k >= 1.
+        class KthLargest
+        {
+        private:
+            struct Node
+            {
+                int val;
+                Node *left;
+                Node *right;
+                int count; // count nodes under this one including this one
+                Node(int v) : val(v), left(nullptr), right(nullptr), count(1) {}
+            };
+            Node *_root;
+            int _k;
+
+            void insert(int v)
+            {
+                Node *parent = nullptr;
+                Node *node = _root;
+                while (node != nullptr)
+                {
+                    parent = node;
+                    parent->count++;
+                    if (node->val > v)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                node = new Node(v);
+                if (parent == nullptr)
+                    _root = node;
+                else if (parent->val > v)
+                    parent->left = node;
+                else
+                    parent->right = node;
+            }
+
+            int find(int k)
+            {
+                Node *node = _root;
+                while (node != nullptr)
+                {
+                    int rightCount = node->count - (node->left == nullptr ? 0 : node->left->count);
+                    if (rightCount < k)
+                    {
+                        node = node->left;
+                        k -= rightCount;
+                    }
+                    else if (rightCount > k)
+                    {
+                        node = node->right;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if (node == nullptr)
+                    throw runtime_error("Not found");
+                return node->val;
+            }
+
+        public:
+            KthLargest(int k, vector<int> &nums)
+                : _root(nullptr), _k(k)
+            {
+                for (int n : nums)
+                    insert(n);
+            }
+
+            int add(int val)
+            {
+                insert(val);
+                return find(_k);
+            }
+        };
+
+        // 236. Lowest Common Ancestor of a Binary Tree
+        // Given a binary tree, find the lowest common ancestor (LCA) of two given nodes
+        // in the tree. According to the definition of LCA on Wikipedia: “The lowest
+        // common ancestor is defined between two nodes p and q as the lowest node in T
+        // that has both p and q as descendants (where we allow a node to be a
+        // descendant of itself).” Given the following binary tree:  root =
+        // [3,5,1,6,2,0,8,null,null,7,4] Example 1: Input: root =
+        // [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1 Output: 3 Explanation: The LCA of
+        // nodes 5 and 1 is 3. Example 2: Input: root = [3,5,1,6,2,0,8,null,null,7,4], p
+        // = 5, q = 4 Output: 5 Explanation: The LCA of nodes 5 and 4 is 5, since a node
+        // can be a descendant of itself according to the LCA definition. Note: All of
+        // the nodes' values will be unique. p and q are different and both values will
+        // exist in the binary tree.
+        TreeNode *lowestCommonAncestor(TreeNode *root, TreeNode *p, TreeNode *q)
+        {
+            if (root == nullptr || p == nullptr || q == nullptr)
+                return nullptr;
+            TreeNode *left = lowestCommonAncestor(root->left, p, q);
+            TreeNode *right = lowestCommonAncestor(root->right, p, q);
+            if (left != nullptr && right != nullptr)
+                return root;
+            if (left != nullptr)
+            {
+                if (root == p || root == q)
+                    return root;
+                else
+                    return left;
+            }
+            if (right != nullptr)
+            {
+                if (root == p || root == q)
+                    return root;
+                else
+                    return right;
+            }
+            return (root == p || root == q) ? root : nullptr;
+        }
+        TreeNode *lowestCommonAncestor2(TreeNode *root, TreeNode *p, TreeNode *q)
+        {
+            stack<pair<TreeNode *, int>> s;
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    // If found one then mark it
+                    s.push(make_pair(n, (n == p || n == q) ? 1 : 0));
+                    n = n->left;
+                }
+                else
+                {
+                    pair<TreeNode *, int> p = s.top();
+                    if (p.first->right != nullptr && p.first->right != last)
+                    {
+                        n = p.first->right;
+                    }
+                    else
+                    {
+                        s.pop();
+                        if (p.second == 1)
+                        {
+                            if (s.top().second == 1)
+                            {
+                                // Two nodes are found
+                                return s.top().first;
+                            }
+                            else
+                            {
+                                // Only one found
+                                s.top().second = 1;
+                            }
+                        }
+                        last = p.first;
+                    }
+                }
+            }
+            return nullptr;
+        }
+
         // 240. Search a 2D Matrix II
         // Write an efficient algorithm that searches for a value in an m x n matrix.
         // This matrix has the following properties:
