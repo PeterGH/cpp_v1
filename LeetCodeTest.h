@@ -39,5 +39,31 @@ void LeetCodeTest::Init(void)
     Init3();
     Init6();
     Init7();
+
+    Add("Find Pivot Index", [&]()
+        {
+            auto check = [&](const vector<int> &v)
+            {
+                Logger() << v;
+                int i = pivotIndex(v);
+                int i2 = pivotIndex2(v);
+                Logger() << "pivotIndex: " << i << ", " << i2 << endl;
+                ASSERT1(i == i2);
+            };
+            check({1, 7, 3, 6, 5, 6});
+            check({1, 2, 3});
+            check({1});
+            check({1, -1});
+            check({1, 1, -1});
+            check({1, -1, -1});
+            // check({-627, -39, -497, 501, -826, -791, -975, -94, 958, -750, 800, 564, -779, 395, 328, 755, 864, 6, -628, -217, -422, 706, -618, 640, 886, -91, -680, -135, -527, -398, -695, -597, 563, -635, 904, 294, -426, 486, -800, -912, 737, 1000, 209, 515, -49, -463, -173, -629, 100, -244, 155, 678, -538, 537, -125, 905, -998, 195, -231, -524, 354, -369, -121, -83, -4, -660, 768, 127, 826, 525, -228, 562, 525, 982, -366, -968});
+            for (int i = 0; i < 100; i++)
+            {
+                int n = Random::Int(100, 1);
+                // vector<int> v = Random::Vector(n, 1000, -1000);
+                vector<int> v = Random::Vector(n, 100, 0);
+                check(v);
+            }
+        });
 }
 #endif

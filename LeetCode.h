@@ -1562,6 +1562,87 @@ namespace Test
                 return nums.size() - 1;
             return -1;
         }
+        // wrong
+        int pivotIndex2(const vector<int> &nums)
+        {
+            if (nums.empty())
+                return -1;
+            int i = 0;
+            int j = nums.size() - 1;
+            int l = nums[i];
+            int r = nums[j];
+            while (i < j)
+            {
+                // cout << "i=" << i << " l=" << l << " j=" << j << " r=" << r << endl;
+                if (l == r)
+                {
+                    if (i + 1 == j)
+                        return -1;
+                    if (i + 2 == j)
+                        return i + 1;
+                }
+                int a = abs(l + nums[i + 1] - r);
+                int b = abs(l - r - nums[j - 1]);
+                if (a < b)
+                {
+                    l += nums[++i];
+                }
+                else
+                {
+                    r += nums[--j];
+                }
+            }
+            // cout << "i=" << i << " l=" << l << " j=" << j << " r=" << r << endl;
+            if (l == r)
+                return i;
+            int t = l + r - nums[i];
+            if (t == nums[0])
+                return 0;
+            if (t == nums[nums.size() - 1])
+                return nums.size() - 1;
+            return -1;
+        }
+        // wrong
+        int pivotIndex3(const vector<int> &nums)
+        {
+            if (nums.empty())
+                return -1;
+            int i = 0;
+            int j = nums.size() - 1;
+            int l = nums[i];
+            int r = nums[j];
+            while (i < j)
+            {
+                if (l < r)
+                {
+                    l += nums[++i];
+                }
+                else if (l > r)
+                {
+                    r += nums[--j];
+                }
+                else if (i + 2 == j)
+                {
+                    return i + 1;
+                }
+                else if (i + 1 == j)
+                {
+                    return -1;
+                }
+                else
+                {
+                    r += nums[--j];
+                }
+            }
+            if (l == r)
+                return i;
+            int t = l + r - nums[i];
+            if (t == nums[0])
+                return 0;
+            if (t == nums[nums.size() - 1])
+                return nums.size() - 1;
+            return -1;
+        }
 
         // Largest Number At Least Twice of Others
         // In a given integer array nums, there is always exactly one largest element.
