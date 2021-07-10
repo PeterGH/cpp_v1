@@ -65,5 +65,47 @@ void LeetCodeTest::Init(void)
                 check(v);
             }
         });
+
+    Add("Open the Lock", [&]()
+        {
+            auto check = [&](const vector<string> &deadends, const string &target)
+            {
+                Logger() << deadends;
+                Logger() << "0000 => " << target << ": ";
+                int c = openLock(deadends, target);
+                int c2 = -1; // openLock2(deadends, target);
+                Logger() << c << ", " << c2 << " steps" << endl;
+            };
+            // check({"8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"}, "8888");
+            check({"0201", "0101", "0102", "1212", "2002"}, "0202");
+            check({"8888"}, "0009");
+            check({"0000"}, "8888");
+        });
+
+    Add("Target Sum", [&]()
+        {
+            auto check = [&](const vector<int> &v, int t)
+            {
+                Logger() << v;
+                Logger() << "target sum: " << t << endl;
+                int c = findTargetSumWays(v, t);
+                int c2 = findTargetSumWays2(v, t);
+                int c3 = findTargetSumWays3(v, t);
+                int c4 = findTargetSumWays4(v, t);
+                Logger() << "Count ways: " << c << ", " << c2 << ", " << c3 << ", " << c4 << endl;
+                ASSERT1(c == c2);
+                ASSERT1(c == c3);
+                ASSERT1(c == c4);
+            };
+            check({1, 1, 1, 1, 1}, 3);
+            check({1, 0}, 1);
+            for (int i = 0; i < 100; i++)
+            {
+                int n = Random::Int(10, 1);
+                vector<int> v = Random::Vector(n, 10);
+                int t = Random::Int(100, -100);
+                check(v, t);
+            }
+        });
 }
 #endif

@@ -407,42 +407,6 @@ void LeetCodeTest::Init2(void)
             }
         });
 
-    Add("Open the Lock", [&]()
-        {
-            auto check = [&](const vector<string> &deadends, const string &target)
-            {
-                Logger() << deadends;
-                Logger() << "0000 => " << target << ": ";
-                int c = openLock(deadends, target);
-                Logger() << c << " steps" << endl;
-            };
-            check({"8887", "8889", "8878", "8898", "8788", "8988", "7888", "9888"}, "8888");
-        });
-
-    Add("Target Sum", [&]()
-        {
-            auto check = [&](const vector<int> &v, int t)
-            {
-                Logger() << v;
-                Logger() << "target sum: " << t << endl;
-                int c = findTargetSumWays(v, t);
-                int c2 = findTargetSumWays2(v, t);
-                int c3 = findTargetSumWays3(v, t);
-                Logger() << "Count ways: " << c << ", " << c2 << ", " << c3 << endl;
-                ASSERT1(c == c2);
-                ASSERT1(c == c3);
-            };
-            check({1, 1, 1, 1, 1}, 3);
-            check({1, 0}, 1);
-            for (int i = 0; i < 100; i++)
-            {
-                int n = Random::Int(10, 1);
-                vector<int> v = Random::Vector(n, 10);
-                int t = Random::Int(100, -100);
-                check(v, t);
-            }
-        });
-
     Add("Find Duplicate Subtrees", [&]()
         {
             auto check = [&](TreeNode *t)

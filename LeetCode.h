@@ -1990,6 +1990,36 @@ namespace Test
             }
             return -1;
         }
+        // wrong, DFS complexity too high because it explores every possible path
+        int openLock2(const vector<string> &deadends, const string &target)
+        {
+            set<string> deadendset(deadends.begin(), deadends.end());
+            int m = INT_MAX;
+            set<string> visited;
+            function<void(const string &s, int c)> solve = [&](const string &s, int c)
+            {
+                cout << string(c, ' ') << s << ", " << c << endl;
+                if (deadendset.find(s) != deadendset.end())
+                    return;
+                if (s == target)
+                {
+                    m = min(m, c);
+                    return;
+                }
+                visited.insert(s);
+                for (int i = 0; i < 4; i++)
+                {
+                    string n = s;
+                    n[i] = '0' + ((s[i] - '0' + 9) % 10);
+                    solve(n, c + 1);
+                    n[i] = '0' + ((s[i] - '0' + 1) % 10);
+                    solve(n, c + 1);
+                }
+                visited.erase(s);
+            };
+            solve("0000", 0);
+            return m == INT_MAX ? -1 : m;
+        }
 
         // Daily Temperatures
         // Given a list of daily temperatures T, return a list such that, for each day
@@ -2105,6 +2135,29 @@ namespace Test
                 count(i + 1, a + nums[i]);
             };
             count(0, 0);
+            return c;
+        }
+        int findTargetSumWays4(const vector<int> &nums, int S)
+        {
+            int c = 0;
+            queue<pair<int, long long>> q;
+            q.push(make_pair(0, nums[0]));
+            q.push(make_pair(0, -nums[0]));
+            while (!q.empty())
+            {
+                auto p = q.front();
+                q.pop();
+                if (p.first + 1 == (int)nums.size())
+                {
+                    if (p.second == S)
+                        c++;
+                }
+                else
+                {
+                    q.push(make_pair(p.first + 1, p.second + nums[p.first + 1]));
+                    q.push(make_pair(p.first + 1, p.second - nums[p.first + 1]));
+                }
+            }
             return c;
         }
 
