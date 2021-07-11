@@ -2918,6 +2918,222 @@ namespace Test
             return a;
         }
 
+        // 225. Implement Stack using Queues
+        // Implement the following operations of a stack using queues.
+        // push(x) -- Push element x onto stack.
+        // pop() -- Removes the element on top of the stack.
+        // top() -- Get the top element.
+        // empty() -- Return whether the stack is empty.
+        // Example:
+        // MyStack stack = new MyStack();
+        // stack.push(1);
+        // stack.push(2);
+        // stack.top();   // returns 2
+        // stack.pop();   // returns 2
+        // stack.empty(); // returns false
+        class MyStack
+        {
+        private:
+            queue<int> q0;
+            queue<int> q1;
+            void flush(queue<int> &from, queue<int> &to)
+            {
+                while (from.size() > 1)
+                {
+                    to.push(from.front());
+                    from.pop();
+                }
+            }
+
+        public:
+            /** Initialize your data structure here. */
+            MyStack()
+            {
+            }
+
+            /** Push element x onto stack. */
+            void push(int x)
+            {
+                if (q1.empty())
+                    q0.push(x);
+                else
+                    q1.push(x);
+            }
+
+            /** Removes the element on top of the stack and returns that element. */
+            int pop()
+            {
+                int v;
+                if (q1.empty())
+                {
+                    flush(q0, q1);
+                    v = q0.front();
+                    q0.pop();
+                }
+                else
+                {
+                    flush(q1, q0);
+                    v = q1.front();
+                    q1.pop();
+                }
+                return v;
+            }
+
+            /** Get the top element. */
+            int top()
+            {
+                int v;
+                if (q1.empty())
+                {
+                    flush(q0, q1);
+                    v = q0.front();
+                    q1.push(v);
+                    q0.pop();
+                }
+                else
+                {
+                    flush(q1, q0);
+                    v = q1.front();
+                    q0.push(v);
+                    q1.pop();
+                }
+                return v;
+            }
+
+            /** Returns whether the stack is empty. */
+            bool empty()
+            {
+                return q0.empty() && q1.empty();
+            }
+        };
+
+        // 226. Invert Binary Tree
+        // Invert a binary tree.
+        // Example:
+        // Input:
+        //      4
+        //    /   \
+        //   2     7
+        //  / \   / \
+        // 1   3 6   9
+        // Output:
+        //      4
+        //    /   \
+        //   7     2
+        //  / \   / \
+        // 9   6 3   1
+        // Trivia:
+        // This problem was inspired by this original tweet by Max Howell:
+        // Google: 90% of our engineers use the software you wrote (Homebrew),
+        // but you can’t invert a binary tree on a whiteboard so f*** off.
+        TreeNode *invertTree(TreeNode *root)
+        {
+            function<void(TreeNode *)> invert = [&](TreeNode *node)
+            {
+                if (node == nullptr)
+                    return;
+                invert(node->left);
+                invert(node->right);
+                swap(node->left, node->right);
+            };
+            invert(root);
+            return root;
+        }
+        TreeNode *invertTree2(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            TreeNode *last = nullptr;
+            TreeNode *n = root;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        swap(t->left, t->right);
+                        s.pop();
+                    }
+                    last = t;
+                }
+            }
+            return root;
+        }
+
+        // 232. Implement Queue using Stacks
+        // Implement the following operations of a queue using stacks.
+        // push(x) -- Push element x to the back of queue.
+        // pop() -- Removes the element from in front of queue.
+        // peek() -- Get the front element.
+        // empty() -- Return whether the queue is empty.
+        // Example:
+        // MyQueue queue = new MyQueue();
+        // queue.push(1);
+        // queue.push(2);
+        // queue.peek();  // returns 1
+        // queue.pop();   // returns 1
+        // queue.empty(); // returns false
+        class MyQueue
+        {
+        private:
+            stack<int> back;
+            stack<int> front;
+            void flush()
+            {
+                if (front.empty())
+                {
+                    while (!back.empty())
+                    {
+                        front.push(back.top());
+                        back.pop();
+                    }
+                }
+            }
+
+        public:
+            /** Initialize your data structure here. */
+            MyQueue()
+            {
+            }
+
+            /** Push element x to the back of queue. */
+            void push(int x)
+            {
+                back.push(x);
+            }
+
+            /** Removes the element from in front of queue and returns that element. */
+            int pop()
+            {
+                flush();
+                int v = front.top();
+                front.pop();
+                return v;
+            }
+
+            /** Get the front element. */
+            int peek()
+            {
+                flush();
+                return front.top();
+            }
+
+            /** Returns whether the queue is empty. */
+            bool empty()
+            {
+                return front.empty() && back.empty();
+            }
+        };
+
         // 234. Palindrome Linked List
         // Given a singly linked list, determine if it is a palindrome.
         // Example 1:
