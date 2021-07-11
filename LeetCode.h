@@ -2161,162 +2161,290 @@ namespace Test
             return c;
         }
 
-        // 233. Number of Digit One
-        // Given an integer n, count the total number of digit 1 appearing in
-        // all non-negative integers less than or equal to n.
-        // Example 1:
-        // Input: n = 13
-        // Output: 6
-        // Example 2:
-        // Input: n = 0
-        // Output: 0
-        // Constraints:
-        // 0 <= n <= 2 * 10^9
-        // Given a number CBA:
-        // F(CBA) = F(C00 - 1) + F(BA) + C == 1 ? (BA + 1) : 0
-        // i.e., the total count is count over range [0, C00) + count over range [C00, CBA]
-        int countDigitOne(int n)
+        // Search in a Binary Search Tree
+        // Given the root node of a binary search tree (BST) and a value. You need to
+        // find the node in the BST that the node's value equals the given value. Return
+        // the subtree rooted with that node. If such node doesn't exist, you should
+        // return NULL. For example, Given the tree:
+        //         4
+        //        / \
+        //       2   7
+        //      / \
+        //     1   3
+        // And the value to search: 2
+        // You should return this subtree:
+        //       2
+        //      / \   
+        //     1   3
+        // In the example above, if we want to search the value 5, since there is no node
+        // with value 5, we should return NULL.
+        TreeNode *searchBST(TreeNode *root, int val)
         {
-            map<int, int> m;
-            function<int(int)> count = [&](int x) -> int
+            TreeNode *n = root;
+            while (n != nullptr)
             {
-                if (x <= 0)
-                    return 0;
-                if (x < 10)
-                    return 1;
-                if (m.find(x) != m.end())
-                    return m[x];
-                int y = 1;
-                int h = x;
-                while (h >= 10)
-                {
-                    h /= 10;
-                    y *= 10;
-                }
-                // h is the highest digit
-                y *= h;
-                int z = x - y;
-                int c = count(y - 1);
-                c += count(z);
-                if (h == 1)
-                    c += (z + 1);
-                m[x] = c;
-                return c;
-            };
-            return count(n);
-        }
-
-        // 237. Delete Node in a Linked List
-        // Write a function to delete a node in a singly-linked list.
-        // You will not be given access to the head of the list, instead
-        // you will be given access to the node to be deleted directly.
-        // It is guaranteed that the node to be deleted is not a tail node in the list.
-        // Example 1:
-        // Input: head = [4,5,1,9], node = 5
-        // Output: [4,1,9]
-        // Explanation: You are given the second node with value 5, the linked
-        // list should become 4 -> 1 -> 9 after calling your function.
-        // Example 2:
-        // Input: head = [4,5,1,9], node = 1
-        // Output: [4,5,9]
-        // Explanation: You are given the third node with value 1, the linked
-        // list should become 4 -> 5 -> 9 after calling your function.
-        // Example 3:
-        // Input: head = [1,2,3,4], node = 3
-        // Output: [1,2,4]
-        // Example 4:
-        // Input: head = [0,1], node = 0
-        // Output: [1]
-        // Example 5:
-        // Input: head = [-3,5,-99], node = -3
-        // Output: [5,-99]
-        // Constraints:
-        // The number of the nodes in the given list is in the range [2, 1000].
-        // -1000 <= Node.val <= 1000
-        // The value of each node in the list is unique.
-        // The node to be deleted is in the list and is not a tail node
-        void deleteNode(ListNode *node)
-        {
-            if (node == nullptr || node->next == nullptr)
-                return;
-            node->val = node->next->val;
-            ListNode *n = node->next;
-            node->next = n->next;
-            delete n;
-        }
-        void deleteNode2(ListNode *node)
-        {
-            if (node == nullptr)
-                return;
-            while (node->next != nullptr)
-            {
-                node->val = node->next->val;
-                if (node->next->next == nullptr)
-                {
-                    delete node->next;
-                    node->next = nullptr;
-                }
+                if (n->val == val)
+                    break;
+                if (n->val > val)
+                    n = n->left;
                 else
-                {
-                    node = node->next;
-                }
+                    n = n->right;
             }
+            return n;
+        }
+        TreeNode *searchBST2(TreeNode *root, int val)
+        {
+            if (root == nullptr || root->val == val)
+                return root;
+            return val < root->val ? searchBST2(root->left, val) : searchBST2(root->right, val);
         }
 
-        // 238. Product of Array Except Self
-        // Given an array nums of n integers where n > 1,  return an array output such
-        // that output[i] is equal to the product of all the elements of nums except nums[i].
+        // Insert into a Binary Search Tree
+        // Given the root node of a binary search tree (BST) and a value to be inserted
+        // into the tree, insert the value into the BST. Return the root node of the BST
+        // after the insertion. It is guaranteed that the new value does not exist in the
+        // original BST. Note that there may exist multiple valid ways for the insertion,
+        // as long as the tree remains a BST after insertion. You can return any of them.
+        // For example, Given the tree:
+        //         4
+        //        / \
+        //       2   7
+        //      / \
+        //     1   3
+        // And the value to insert: 5
+        // You can return this binary search tree:
+        //          4
+        //        /   \
+        //       2     7
+        //      / \   /
+        //     1   3 5
+        // This tree is also valid:
+        //          5
+        //        /   \
+        //       2     7
+        //      / \   
+        //     1   3
+        //          \
+        //           4
+        TreeNode *insertIntoBST(TreeNode *root, int val)
+        {
+            TreeNode *p = nullptr;
+            TreeNode *n = root;
+            while (n != nullptr)
+            {
+                p = n;
+                if (n->val > val)
+                    n = n->left;
+                else
+                    n = n->right;
+            }
+            n = new TreeNode(val);
+            if (p == nullptr)
+            {
+                root = n;
+            }
+            else
+            {
+                if (p->val > val)
+                    p->left = n;
+                else
+                    p->right = n;
+            }
+            return root;
+        }
+
+        // Delete Node in a BST
+        // Given a root node reference of a BST and a key, delete the node with the given
+        // key in the BST. Return the root node reference (possibly updated) of the BST.
+        // Basically, the deletion can be divided into two stages:
+        // Search for a node to remove.
+        // If the node is found, delete the node.
+        // Note: Time complexity should be O(height of tree).
         // Example:
-        // Input:  [1,2,3,4]
-        // Output: [24,12,8,6]
-        // Constraint: It is guaranteed that the product of the elements of any prefix
-        // or suffix of the array (including the whole array) fits in a 32 bit integer.
-        // Note: Please solve it without division and in O(n).
-        // Follow up:
-        // Could you solve it with constant space complexity?
-        // (The output array does not count as extra space for the purpose of space complexity analysis.)
-        vector<int> productExceptSelf(vector<int> &nums)
+        // root = [5,3,6,2,4,null,7]
+        // key = 3
+        //     5
+        //    / \
+        //   3   6
+        //  / \   \
+        // 2   4   7
+        // Given key to delete is 3. So we find the node with value 3 and delete it.
+        // One valid answer is [5,4,6,2,null,null,7], shown in the following BST.
+        //     5
+        //    / \
+        //   4   6
+        //  /     \
+        // 2       7
+        // Another valid answer is [5,2,6,null,4,null,7].
+        //     5
+        //    / \
+        //   2   6
+        //    \   \
+        //     4   7
+        TreeNode *deleteNode(TreeNode *root, int key)
         {
-            vector<int> output(nums);
+            function<bool(TreeNode **, TreeNode **)> findNode = [&](TreeNode **parent, TreeNode **node) -> bool
+            {
+                *parent = nullptr;
+                *node = root;
+                while (*node != nullptr)
+                {
+                    if ((*node)->val == key)
+                        break;
+                    *parent = *node;
+                    if ((*node)->val > key)
+                        *node = (*node)->left;
+                    else
+                        *node = (*node)->right;
+                }
+                return (*node) != nullptr;
+            };
+            function<bool(TreeNode *, TreeNode **, TreeNode **)> findSuccessor =
+                [&](TreeNode *node, TreeNode **parent, TreeNode **successor) -> bool
+            {
+                if (node == nullptr || node->right == nullptr)
+                    return false;
+                *parent = node;
+                *successor = node->right;
+                while ((*successor)->left != nullptr)
+                {
+                    *parent = *successor;
+                    *successor = (*successor)->left;
+                }
+                return true;
+            };
+            TreeNode *parent = nullptr;
+            TreeNode *node = nullptr;
+            if (!findNode(&parent, &node))
+                return root;
+            TreeNode *successorParent = nullptr;
+            TreeNode *successor = nullptr;
+            if (!findSuccessor(node, &successorParent, &successor))
+            {
+                if (node == root)
+                    root = node->left;
+                else if (node == parent->left)
+                    parent->left = node->left;
+                else if (node == parent->right)
+                    parent->right = node->left;
+                node->left = nullptr;
+                delete node;
+                node = nullptr;
+                return root;
+            }
+            TreeNode *successorChild = successor->right;
+            if (successor == successorParent->left)
+                successorParent->left = successorChild;
+            else if (successor == successorParent->right)
+                successorParent->right = successorChild;
+            successor->right = nullptr;
+            successor->left = node->left;
+            successor->right = node->right;
+            node->left = nullptr;
+            node->right = nullptr;
+            if (node == root)
+                root = successor;
+            else if (node == parent->left)
+                parent->left = successor;
+            else if (node == parent->right)
+                parent->right = successor;
+            delete node;
+            node = nullptr;
+            return root;
+        }
 
-            for (int i = 0; i < (int)nums.size(); i++)
-            {
-                if (i == 0)
-                    output[0] = 1;
-                else
-                    output[i] = output[i - 1] * nums[i - 1];
-            }
-            int a = 1;
-            for (int i = (int)nums.size() - 2; i >= 0; i--)
-            {
-                a *= nums[i + 1];
-                output[i] *= a;
-            }
-            return output;
-        }
-        // Let M[i..j] = I[i] * I[i+1] * ... * I[j]
-        // I[i]  I[0]      I[1]      I[2]      ...... I[i]        ...... I[n-1]
-        // L[i]  1         M[0..0]   M[0..1]   ...... M[0..i-1]   ...... M[0..n-2]
-        // R[i]  M[1..n-1] M[2..n-1] M[3..n-1] ...... M[i+1..n-1] ...... 1
-        // O[i] = L[i] * R[i]
-        vector<int> productExceptSelf2(vector<int> &nums)
+        // Kth Largest Element in a Stream
+        // Design a class to find the kth largest element in a stream. Note that it is
+        // the kth largest element in the sorted order, not the kth distinct element.
+        // Your KthLargest class will have a constructor which accepts an integer k and
+        // an integer array nums, which contains initial elements from the stream. For
+        // each call to the method KthLargest.add, return the element representing the
+        // kth largest element in the stream.
+        // Example:
+        // int k = 3;
+        // int[] arr = [4,5,8,2];
+        // KthLargest kthLargest = new KthLargest(3, arr);
+        // kthLargest.add(3);   // returns 4
+        // kthLargest.add(5);   // returns 5
+        // kthLargest.add(10);  // returns 5
+        // kthLargest.add(9);   // returns 8
+        // kthLargest.add(4);   // returns 8
+        // Note: You may assume that nums' length >= k-1 and k >= 1.
+        class KthLargest
         {
-            vector<int> output(nums.size(), 1);
-            int l = 1;
-            int r = 1;
-            int n = nums.size();
-            for (int i = 0; i < n; i++)
+        private:
+            struct Node
             {
-                // At loop i, output[i] *= left (= multiplication of input[0..i-1])
-                // At loop length - 1 - i, output[i] *= right (= multiplication of
-                // input[i+1..length-1])
-                output[i] *= l;
-                output[n - 1 - i] *= r;
-                l *= nums[i];
-                r *= nums[n - 1 - i];
+                int val;
+                Node *left;
+                Node *right;
+                int count; // count nodes under this one including this one
+                Node(int v) : val(v), left(nullptr), right(nullptr), count(1) {}
+            };
+            Node *_root;
+            int _k;
+
+            void insert(int v)
+            {
+                Node *parent = nullptr;
+                Node *node = _root;
+                while (node != nullptr)
+                {
+                    parent = node;
+                    parent->count++;
+                    if (node->val > v)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                node = new Node(v);
+                if (parent == nullptr)
+                    _root = node;
+                else if (parent->val > v)
+                    parent->left = node;
+                else
+                    parent->right = node;
             }
-            return output;
-        }
+
+            int find(int k)
+            {
+                Node *node = _root;
+                while (node != nullptr)
+                {
+                    int rightCount = node->count - (node->left == nullptr ? 0 : node->left->count);
+                    if (rightCount < k)
+                    {
+                        node = node->left;
+                        k -= rightCount;
+                    }
+                    else if (rightCount > k)
+                    {
+                        node = node->right;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if (node == nullptr)
+                    throw runtime_error("Not found");
+                return node->val;
+            }
+
+        public:
+            KthLargest(int k, vector<int> &nums)
+                : _root(nullptr), _k(k)
+            {
+                for (int n : nums)
+                    insert(n);
+            }
+
+            int add(int val)
+            {
+                insert(val);
+                return find(_k);
+            }
+        };
 
         // 239. Sliding Window Maximum
         // You are given an array of integers nums, there is a sliding window of size k
