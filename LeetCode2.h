@@ -3847,6 +3847,190 @@ namespace Test
             return output;
         }
 
+        // 239. Sliding Window Maximum
+        // You are given an array of integers nums, there is a sliding window of size k
+        // which is moving from the very left of the array to the very right. You can
+        // only see the k numbers in the window. Each time the sliding window moves right
+        // by one position. Return the max sliding window.
+        // Example 1:
+        // Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+        // Output: [3,3,5,5,6,7]
+        // Explanation:
+        // Window position                Max
+        // ---------------               -----
+        // [1  3  -1] -3  5  3  6  7       3
+        //  1 [3  -1  -3] 5  3  6  7       3
+        //  1  3 [-1  -3  5] 3  6  7       5
+        //  1  3  -1 [-3  5  3] 6  7       5
+        //  1  3  -1  -3 [5  3  6] 7       6
+        //  1  3  -1  -3  5 [3  6  7]      7
+        // Example 2:
+        // Input: nums = [1], k = 1
+        // Output: [1]
+        // Example 3:
+        // Input: nums = [1,-1], k = 1
+        // Output: [1,-1]
+        // Example 4:
+        // Input: nums = [9,11], k = 2
+        // Output: [11]
+        // Example 5:
+        // Input: nums = [4,-2], k = 2
+        // Output: [4]
+        // Constraints:
+        // 1 <= nums.length <= 10^5
+        // -10^4 <= nums[i] <= 10^4
+        // 1 <= k <= nums.length
+        vector<int> maxSlidingWindow(vector<int> &nums, int k)
+        {
+            vector<int> output;
+            deque<int> q;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                while (!q.empty() && nums[q.back()] <= nums[i])
+                    q.pop_back();
+                q.push_back(i);
+                while (q.front() + k <= i)
+                    q.pop_front();
+                if (k - 1 <= (int)i)
+                    output.push_back(nums[q.front()]);
+            }
+            return output;
+        }
+        vector<int> maxSlidingWindow2(vector<int> &nums, int k)
+        {
+            vector<int> output;
+            int m = 0;
+            // Start from 0 so it covers the input with only one element
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (k <= i && m + k <= i)
+                {
+                    m = i - k + 1;
+                    for (int j = i - k + 2; j <= i; j++)
+                    {
+                        if (nums[m] <= nums[j])
+                            m = j;
+                    }
+                }
+                else if (nums[m] <= nums[i])
+                {
+                    m = i;
+                }
+                if (k - 1 <= i)
+                    output.push_back(nums[m]);
+            }
+            return output;
+        }
+        vector<int> maxSlidingWindow3(vector<int> &nums, int k)
+        {
+            struct Node
+            {
+                int val;
+                struct Node *left;
+                struct Node *right;
+                Node(int v) : val(v), left(nullptr), right(nullptr) {}
+            } *root = nullptr;
+            function<void(int)> insert = [&](int v)
+            {
+                struct Node *parent = nullptr;
+                struct Node *node = root;
+                while (node != nullptr)
+                {
+                    parent = node;
+                    if (v < node->val)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                node = new Node(v);
+                if (parent == nullptr)
+                    root = node;
+                else if (v < parent->val)
+                    parent->left = node;
+                else
+                    parent->right = node;
+            };
+            function<int()> get_max = [&]() -> int
+            {
+                struct Node *node = root;
+                if (node == nullptr)
+                    return INT_MIN;
+                while (node->right != nullptr)
+                    node = node->right;
+                return node->val;
+            };
+            function<void(int)> delete_val = [&](int v)
+            {
+                struct Node *parent = nullptr;
+                struct Node *node = root;
+                while (node != nullptr && node->val != v)
+                {
+                    parent = node;
+                    if (v < node->val)
+                        node = node->left;
+                    else
+                        node = node->right;
+                }
+                if (node == nullptr)
+                    return;
+                if (node->right == nullptr)
+                {
+                    if (parent == nullptr)
+                        root = node->left;
+                    else if (parent->left == node)
+                        parent->left = node->left;
+                    else
+                        parent->right = node->left;
+                    node->left = nullptr;
+                    delete node;
+                    return;
+                }
+                struct Node *next = node->right;
+                if (next->left == nullptr)
+                {
+                    next->left = node->left;
+                    if (parent == nullptr)
+                        root = next;
+                    else if (parent->left == node)
+                        parent->left = next;
+                    else
+                        parent->right = next;
+                    node->left = nullptr;
+                    node->right = nullptr;
+                    delete node;
+                    return;
+                }
+                struct Node *next_parent = nullptr;
+                while (next->left != nullptr)
+                {
+                    next_parent = next;
+                    next = next->left;
+                }
+                next_parent->left = next->right;
+                next->left = node->left;
+                next->right = node->right;
+                if (parent == nullptr)
+                    root = next;
+                else if (parent->left == node)
+                    parent->left = next;
+                else
+                    parent->right = next;
+                node->left = nullptr;
+                node->right = nullptr;
+                delete node;
+            };
+            vector<int> output;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (k <= i)
+                    delete_val(nums[i - k]);
+                insert(nums[i]);
+                if (k - 1 <= i)
+                    output.push_back(get_max());
+            }
+            return output;
+        }
+
         // 240. Search a 2D Matrix II
         // Write an efficient algorithm that searches for a value in an m x n matrix.
         // This matrix has the following properties:
@@ -3928,6 +4112,293 @@ namespace Test
             int m = matrix.size();
             int n = matrix[0].size();
             return search(0, m - 1, 0, n - 1);
+        }
+
+        // 241. Different Ways to Add Parentheses
+        // Given a string of numbers and operators, return all possible results
+        // from computing all the different possible ways to group numbers and
+        // operators. The valid operators are +, - and *.
+        // Example 1:
+        // Input: "2-1-1"
+        // Output: [0, 2]
+        // Explanation:
+        // ((2-1)-1) = 0
+        // (2-(1-1)) = 2
+        // Example 2:
+        // Input: "2*3-4*5"
+        // Output: [-34, -14, -10, -10, 10]
+        // Explanation:
+        // (2*(3-(4*5))) = -34
+        // ((2*3)-(4*5)) = -14
+        // ((2*(3-4))*5) = -10
+        // (2*((3-4)*5)) = -10
+        // (((2*3)-4)*5) = 10
+        // Adding parentheses is equivalent to building an AST.
+        // (2-1)-1
+        //      -
+        //     / \
+        //    -   1
+        //   / \
+        //  2   1
+        // 2-(1-1)
+        //   -
+        //  / \
+        // 2   -
+        //    / \
+        //   1   1
+        vector<int> diffWaysToCompute(string input)
+        {
+            vector<int> output;
+            map<pair<int, int>, vector<int>> m;
+            function<void(int, int)> compute = [&](int i, int j)
+            {
+                if (i > j)
+                    return;
+                pair<int, int> p = make_pair(i, j);
+                if (m.find(p) != m.end())
+                    return;
+                int a = 0;
+                bool isNum = true;
+                vector<int> o;
+                for (int k = i; k <= j; k++)
+                {
+                    if ('0' <= input[k] && input[k] <= '9')
+                    {
+                        a = 10 * a + input[k] - '0';
+                    }
+                    else
+                    {
+                        isNum = false;
+                        compute(i, k - 1);
+                        compute(k + 1, j);
+                        pair<int, int> p1 = make_pair(i, k - 1);
+                        pair<int, int> p2 = make_pair(k + 1, j);
+                        if (m.find(p1) != m.end() && m.find(p2) != m.end())
+                        {
+                            for (int x : m[p1])
+                            {
+                                for (int y : m[p2])
+                                {
+                                    switch (input[k])
+                                    {
+                                    case '+':
+                                        o.push_back(x + y);
+                                        break;
+                                    case '-':
+                                        o.push_back(x - y);
+                                        break;
+                                    case '*':
+                                        o.push_back(x * y);
+                                        break;
+                                    default:
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (isNum)
+                    m[p].push_back(a);
+                else
+                    m[p] = o;
+            };
+            int n = (int)input.size();
+            compute(0, n - 1);
+            return m[make_pair(0, n - 1)];
+        }
+        vector<int> diffWaysToCompute2(string input)
+        {
+            function<void(const string &, const vector<pair<char, int>> &)> print =
+                [&](const string &message, const vector<pair<char, int>> &tokens)
+            {
+                cout << message << endl;
+                for (const auto &p : tokens)
+                {
+                    if (p.first == '0')
+                        cout << p.second;
+                    else
+                        cout << p.first;
+                }
+                cout << endl;
+            };
+            function<int(vector<pair<char, int>> &)> scan =
+                [&](vector<pair<char, int>> &tokens) -> int
+            {
+                int a = 0;
+                int countNums = 0;
+                for (const char &c : input)
+                {
+                    if ('0' <= c && c <= '9')
+                    {
+                        a = 10 * a + c - '0';
+                    }
+                    else if (c == '+' || c == '-' || c == '*')
+                    {
+                        countNums++;
+                        tokens.push_back(make_pair('0', a));
+                        tokens.push_back(make_pair(c, 0));
+                        a = 0;
+                    }
+                }
+                countNums++;
+                tokens.push_back(make_pair('0', a));
+                return countNums;
+            };
+            vector<pair<char, int>> inputTokens;
+            int maxParenthesesCount = scan(inputTokens) - 1;
+            print("inputTokens:", inputTokens);
+            function<int(stack<pair<char, int>> &, int, bool)> check =
+                [&](stack<pair<char, int>> &s, int n, bool doAddSub) -> int
+            {
+                while (!s.empty() && s.top().first == '*')
+                {
+                    s.pop();
+                    n *= s.top().second;
+                    s.pop();
+                }
+                if (doAddSub)
+                {
+                    while (!s.empty() && s.top().first != '(')
+                    {
+                        char op = s.top().first;
+                        s.pop();
+                        if (op == '+')
+                            n = s.top().second + n;
+                        else
+                            n = s.top().second - n;
+                        s.pop();
+                    }
+                }
+                return n;
+            };
+            function<int(const vector<pair<char, int>> &)> compute =
+                [&](const vector<pair<char, int>> &tokens) -> int
+            {
+                stack<pair<char, int>> s;
+                int currentNum = 0;
+                for (const auto &p : tokens)
+                {
+                    if (p.first == '(')
+                    {
+                        s.push(p);
+                    }
+                    else if (p.first == '0')
+                    {
+                        currentNum = p.second;
+                    }
+                    else
+                    {
+                        currentNum = check(s, currentNum, (p.first == '+' || p.first == '-' || p.first == ')'));
+                        if (p.first == ')')
+                        {
+                            s.pop();
+                        }
+                        else
+                        {
+                            s.push(make_pair('0', currentNum));
+                            s.push(p);
+                        }
+                    }
+                }
+                currentNum = check(s, currentNum, true);
+                return currentNum;
+            };
+            function<bool(const vector<pair<char, int>> &)> validate =
+                [&](const vector<pair<char, int>> &tokens) -> bool
+            {
+                stack<int> s;
+                int n = (int)tokens.size();
+                int i = 0;
+                int j;
+                while (i < n)
+                {
+                    if (tokens[i].first == '(')
+                    {
+                        j = i;
+                        while (j + 1 < n && tokens[j + 1].first == '(')
+                            j++;
+                        s.push(j - i + 1);
+                        i = j + 1;
+                    }
+                    else if (tokens[i].first == ')')
+                    {
+                        j = i;
+                        while (j + 1 < n && tokens[j + 1].first == ')')
+                            j++;
+                        int c = j - i + 1;
+                        while (!s.empty() && s.top() == 1)
+                        {
+                            s.pop();
+                            c--;
+                        }
+                        if ((s.empty() && c > 0) || (!s.empty() && s.top() > 1 && c > 1) || (!s.empty() && s.top() < c))
+                            return false;
+                        if (!s.empty())
+                        {
+                            s.top() -= c;
+                            if (s.top() == 0)
+                                s.pop();
+                        }
+                        i = j + 1;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+                return true;
+            };
+            vector<int> output;
+            function<void(size_t, int, int, const vector<pair<char, int>> &)> add =
+                [&](size_t i, int l, int r, const vector<pair<char, int>> &ctokens)
+            {
+                if (i == inputTokens.size())
+                {
+                    if (l == maxParenthesesCount && r == maxParenthesesCount && validate(ctokens))
+                    {
+                        print("", ctokens);
+                        output.push_back(compute(ctokens));
+                    }
+                    return;
+                }
+                if (inputTokens[i].first == '0')
+                {
+                    vector<pair<char, int>> tokens1(ctokens);
+                    tokens1.push_back(inputTokens[i]);
+                    add(i + 1, l, r, tokens1);
+                    if (i + 1 < inputTokens.size() && l < maxParenthesesCount)
+                    {
+                        vector<pair<char, int>> tokens2(ctokens);
+                        for (int k = 1; l + k <= maxParenthesesCount; k++)
+                        {
+                            tokens2.push_back(make_pair('(', 0));
+                            tokens2.push_back(inputTokens[i]);
+                            add(i + 1, l + k, r, tokens2);
+                            tokens2.pop_back();
+                        }
+                    }
+                    if (0 < i)
+                    {
+                        vector<pair<char, int>> tokens3(ctokens);
+                        tokens3.push_back(inputTokens[i]);
+                        for (int k = 1; r + k <= l; k++)
+                        {
+                            tokens3.push_back(make_pair(')', 0));
+                            add(i + 1, l, r + k, tokens3);
+                        }
+                    }
+                }
+                else
+                {
+                    vector<pair<char, int>> tokens(ctokens);
+                    tokens.push_back(inputTokens[i]);
+                    add(i + 1, l, r, tokens);
+                }
+            };
+            vector<pair<char, int>> t;
+            add(0, 0, 0, t);
+            return output;
         }
 
         // 257. Binary Tree Paths
