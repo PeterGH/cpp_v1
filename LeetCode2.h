@@ -3899,6 +3899,35 @@ namespace Test
         vector<int> maxSlidingWindow2(vector<int> &nums, int k)
         {
             vector<int> output;
+            class compless
+            {
+            private:
+                const vector<int> &n;
+
+            public:
+                compless(const vector<int> &v) : n(v) {}
+                bool operator()(const int &i, const int &j) const
+                {
+                    return n[i] < n[j];
+                }
+            };
+            typedef std::priority_queue<int, std::vector<int>, compless> q_type;
+            q_type q = q_type(compless(nums));
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                q.push(i);
+                if (i >= k - 1)
+                {
+                    while (q.top() < i - k + 1)
+                        q.pop();
+                    output.push_back(nums[q.top()]);
+                }
+            }
+            return output;
+        }
+        vector<int> maxSlidingWindow3(vector<int> &nums, int k)
+        {
+            vector<int> output;
             int m = 0;
             // Start from 0 so it covers the input with only one element
             for (int i = 0; i < (int)nums.size(); i++)
@@ -3921,7 +3950,7 @@ namespace Test
             }
             return output;
         }
-        vector<int> maxSlidingWindow3(vector<int> &nums, int k)
+        vector<int> maxSlidingWindow4(vector<int> &nums, int k)
         {
             struct Node
             {
