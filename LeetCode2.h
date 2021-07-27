@@ -4430,6 +4430,66 @@ namespace Test
             return output;
         }
 
+        // 242. Valid Anagram
+        // Given two strings s and t , write a function to determine
+        // if t is an anagram of s.
+        // Example 1:
+        // Input: s = "anagram", t = "nagaram"
+        // Output: true
+        // Example 2:
+        // Input: s = "rat", t = "car"
+        // Output: false
+        // Note:
+        // You may assume the string contains only lowercase alphabets.
+        // Follow up:
+        // What if the inputs contain unicode characters?
+        // How would you adapt your solution to such case?
+        bool isAnagram(string s, string t)
+        {
+            if (s.size() != t.size())
+                return false;
+            function<void(const string &, map<char, int> &)> count =
+                [&](const string &w, map<char, int> &m)
+            {
+                for (const char &c : w)
+                {
+                    if (m.find(c) == m.end())
+                        m[c] = 1;
+                    else
+                        m[c]++;
+                }
+            };
+            map<char, int> a;
+            map<char, int> b;
+            count(s, a);
+            count(t, b);
+            if (a.size() != b.size())
+                return false;
+            for (const auto &p : a)
+            {
+                if (b.find(p.first) == b.end())
+                    return false;
+                if (b[p.first] != p.second)
+                    return false;
+            }
+            return true;
+        }
+        bool isAnagram2(string s, string t)
+        {
+            if (s.size() != t.size())
+                return false;
+            string s1 = s;
+            string t1 = t;
+            sort(s1.begin(), s1.end());
+            sort(t1.begin(), t1.end());
+            for (size_t i = 0; i < s1.size(); i++)
+            {
+                if (s1[i] != t1[i])
+                    return false;
+            }
+            return true;
+        }
+
         // 257. Binary Tree Paths
         // Given a binary tree, return all root-to-leaf paths.
         // Note: A leaf is a node with no children.
