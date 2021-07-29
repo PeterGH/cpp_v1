@@ -40,6 +40,24 @@ namespace Test
             cout << "}" << endl;
         }
 
+        template <class T>
+        static void print(const vector<vector<T>> &v)
+        {
+            cout << "{" << endl;
+            for (size_t i = 0; i < v.size(); i++)
+            {
+                cout << " {";
+                for (size_t j = 0; j < v[i].size(); j++)
+                {
+                    if (j > 0)
+                        cout << ", ";
+                    cout << v[i][j];
+                }
+                cout << "}" << endl;
+            }
+            cout << "}" << endl;
+        }
+
         static void GetMedianIndex(int i, int j, int &lowMedianIndex, int &highMedianIndex)
         {
             lowMedianIndex = -1;
@@ -2711,6 +2729,60 @@ namespace Test
                 for (int j = 0; j < n; j++)
                 {
                     search(i, j);
+                }
+            }
+            return d;
+        }
+        vector<vector<int>> updateMatrix2(const vector<vector<int>> &matrix)
+        {
+            vector<vector<int>> d(matrix.size(), vector<int>(matrix[0].size(), INT_MAX));
+            int m = (int)matrix.size();
+            int n = (int)matrix[0].size();
+            function<void(int, int)> update = [&](int i, int j)
+            {
+                if (i < 0 || i >= m || j < 0 || j >= n || matrix[i][j] != 0)
+                    return;
+                // cout << "update(" << i << ", " << j << ")" << endl;
+                queue<pair<int, int>> current;
+                queue<pair<int, int>> next;
+                set<pair<int, int>> visited;
+                auto p = make_pair(i, j);
+                current.push(p);
+                visited.insert(p);
+                int l = 0;
+                function<void(int, int)> check = [&](int x, int y)
+                {
+                    if (x < 0 || x >= m || y < 0 || y >= n)
+                        return;
+                    auto t = make_pair(x, y);
+                    if (visited.find(t) == visited.end())
+                    {
+                        next.push(t);
+                        visited.insert(t);
+                    }
+                };
+                while (!current.empty())
+                {
+                    p = current.front();
+                    current.pop();
+                    d[p.first][p.second] = min(d[p.first][p.second], l);
+                    check(p.first - 1, p.second);
+                    check(p.first + 1, p.second);
+                    check(p.first, p.second - 1);
+                    check(p.first, p.second + 1);
+                    if (current.empty())
+                    {
+                        l++;
+                        current.swap(next);
+                    }
+                }
+                // print(d);
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    update(i, j);
                 }
             }
             return d;

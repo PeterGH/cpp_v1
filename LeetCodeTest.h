@@ -107,5 +107,25 @@ void LeetCodeTest::Init(void)
                 check(v, t);
             }
         });
+
+    Add("01 Matrix", [&]()
+        {
+            auto check = [&](const vector<vector<int>> &v)
+            {
+                Logger() << v;
+                auto d = updateMatrix(v);
+                auto d2 = updateMatrix2(v);
+                Logger() << d;
+                Logger() << d2;
+                ASSERT1(Util::Compare(d, d2) == 0);
+            };
+            for (int i = 0; i < 100; i++)
+            {
+                int m = Random::Int(20, 1);
+                int n = Random::Int(20, 1);
+                auto v = Random::Grid(m, n, 1, 0);
+                check(v);
+            }
+        });
 }
 #endif
