@@ -2247,6 +2247,59 @@ namespace Test
             return output;
         }
 
+        // 217. Contains Duplicate
+        // Given an array of integers, find if the array contains any duplicates.
+        // Your function should return true if any value appears at least twice
+        // in the array, and it should return false if every element is distinct.
+        // Example 1:
+        // Input: [1,2,3,1]
+        // Output: true
+        // Example 2:
+        // Input: [1,2,3,4]
+        // Output: false
+        // Example 3:
+        // Input: [1,1,1,3,3,4,3,2,4,2]
+        // Output: true
+        bool containsDuplicate(const vector<int> &nums)
+        {
+            set<int> s;
+            for (int n : nums)
+            {
+                if (s.find(n) != s.end())
+                    return true;
+                s.insert(n);
+            }
+            return false;
+        }
+
+        // 219. Contains Duplicate II
+        // Given an array of integers and an integer k, find out whether there are two
+        // distinct indices i and j in the array such that nums[i] = nums[j] and the
+        // absolute difference between i and j is at most k.
+        // Example 1:
+        // Input: nums = [1,2,3,1], k = 3
+        // Output: true
+        // Example 2:
+        // Input: nums = [1,0,1,1], k = 1
+        // Output: true
+        // Example 3:
+        // Input: nums = [1,2,3,1,2,3], k = 2
+        // Output: false
+        bool containsNearbyDuplicate(const vector<int> &nums, int k)
+        {
+            set<int> s;
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                if (s.find(nums[i]) == s.end())
+                    s.insert(nums[i]);
+                else
+                    return true;
+                if (i >= k)
+                    s.erase(nums[i - k]);
+            }
+            return false;
+        }
+
         // 220. Contains Duplicate III
         // Given an array of integers, find out whether there are two distinct indices i
         // and j in the array such that the absolute difference between nums[i] and nums[j]
@@ -2432,11 +2485,14 @@ namespace Test
                     for (map<int, int>::iterator it = m.begin(); it != m.end(); it++)
                     {
                         if (it->second > 1 && t >= 0)
-                            return true;
+                            return true; // there are two identical numbers whose difference is zero
                         map<int, int>::iterator it2 = it;
                         it2++;
                         if (it2 == m.end())
                             break;
+                        // No need to increase it2 if difference between *it and *it2 is greater than t
+                        // because all numbers after it2 will be greater than t for sure since
+                        // map is an ordered structure.
                         if ((long long)it2->first - (long long)it->first <= (long long)t)
                             return true;
                     }

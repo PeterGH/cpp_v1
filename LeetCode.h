@@ -3021,31 +3021,6 @@ namespace Test
             }
         };
 
-        // 217. Contains Duplicate
-        // Given an array of integers, find if the array contains any duplicates.
-        // Your function should return true if any value appears at least twice
-        // in the array, and it should return false if every element is distinct.
-        // Example 1:
-        // Input: [1,2,3,1]
-        // Output: true
-        // Example 2:
-        // Input: [1,2,3,4]
-        // Output: false
-        // Example 3:
-        // Input: [1,1,1,3,3,4,3,2,4,2]
-        // Output: true
-        bool containsDuplicate(const vector<int> &nums)
-        {
-            set<int> s;
-            for (int n : nums)
-            {
-                if (s.find(n) != s.end())
-                    return true;
-                s.insert(n);
-            }
-            return false;
-        }
-
         // Minimum Index Sum of Two Lists
         // Suppose Andy and Doris want to choose a restaurant for dinner, and
         // they both have a list of favorite restaurants represented by strings.
@@ -3131,34 +3106,6 @@ namespace Test
             return -1;
         }
 
-        // 219. Contains Duplicate II
-        // Given an array of integers and an integer k, find out whether there are two
-        // distinct indices i and j in the array such that nums[i] = nums[j] and the
-        // absolute difference between i and j is at most k.
-        // Example 1:
-        // Input: nums = [1,2,3,1], k = 3
-        // Output: true
-        // Example 2:
-        // Input: nums = [1,0,1,1], k = 1
-        // Output: true
-        // Example 3:
-        // Input: nums = [1,2,3,1,2,3], k = 2
-        // Output: false
-        bool containsNearbyDuplicate(const vector<int> &nums, int k)
-        {
-            set<int> s;
-            for (int i = 0; i < (int)nums.size(); i++)
-            {
-                if (s.find(nums[i]) == s.end())
-                    s.insert(nums[i]);
-                else
-                    return true;
-                if (i >= k)
-                    s.erase(nums[i - k]);
-            }
-            return false;
-        }
-
         // Find Duplicate Subtrees
         // Given a binary tree, return all duplicate subtrees. For each kind of duplicate
         // subtrees, you only need to return the root node of any one of them.
@@ -3181,8 +3128,8 @@ namespace Test
         vector<TreeNode *> findDuplicateSubtrees(TreeNode *root)
         {
             vector<TreeNode *> dup;
-            map<string, int> m;
-            map<int, int> c;
+            map<string, int> m; // subtree -> id
+            map<int, int> c; // id -> count
             int id = 0;
             function<int(TreeNode *)> getId = [&](TreeNode *n) -> int
             {
