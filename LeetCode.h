@@ -3251,6 +3251,7 @@ namespace Test
         {
             map<int, int> m;
             vector<int> h;
+            // use less to make h a min heap
             function<bool(int, int)> less = [&](int i, int j) -> bool
             {
                 return m[i] > m[j];
