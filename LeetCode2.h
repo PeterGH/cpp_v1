@@ -2272,6 +2272,225 @@ namespace Test
             return false;
         }
 
+        // 218. The Skyline Problem
+        // A city's skyline is the outer contour of the silhouette formed by all the
+        // buildings in that city when viewed from a distance. Now suppose you are
+        // given the locations and height of all the buildings as shown on a cityscape
+        // photo (Figure A), write a program to output the skyline formed by these
+        // buildings collectively (Figure B). The geometric information of each building
+        // is represented by a triplet of integers [Li, Ri, Hi], where Li and Ri are the
+        // x coordinates of the left and right edge of the ith building, respectively,
+        // and Hi is its height. It is guaranteed that 0 <= Li, Ri <= INT_MAX, 0 < Hi <= INT_MAX,
+        // and Ri - Li > 0. You may assume all buildings are perfect rectangles grounded
+        // on an absolutely flat surface at height 0. For instance, the dimensions of
+        // all buildings in Figure A are recorded as: [ [2 9 10], [3 7 15], [5 12 12],
+        // [15 20 10], [19 24 8] ]. The output is a list of "key points" (red dots in
+        // Figure B) in the format of [ [x1,y1], [x2, y2], [x3, y3], ... ] that uniquely
+        // defines a skyline. A key point is the left endpoint of a horizontal line
+        // segment. Note that the last key point, where the rightmost building ends,
+        // is merely used to mark the termination of the skyline, and always has zero
+        // height. Also, the ground in between any two adjacent buildings should be
+        // considered part of the skyline contour. For instance, the skyline in Figure
+        // B should be represented as:[ [2 10], [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ].
+        // Notes: he number of buildings in any input list is guaranteed to be in the
+        // range [0, 10000]. The input list is already sorted in ascending order by the
+        // left x position Li. The output list must be sorted by the x position. There
+        // must be no consecutive horizontal lines of equal height in the output skyline.
+        // For instance, [...[2 3], [4 5], [7 5], [11 5], [12 7]...] is not acceptable;
+        // the three lines of height 5 should be merged into one in the final output as
+        // such: [...[2 3], [4 5], [12 7], ...]
+        vector<vector<int>> getSkyline(const vector<vector<int>> &buildings)
+        {
+            // First compute up boundaries
+            vector<vector<int>> up;
+            vector<vector<int>> begins(buildings); // already sorted by up boundaries
+            vector<vector<int>>::iterator it = begins.begin();
+            while (it != begins.end())
+            {
+                // For all the ranges with the same up boundary,
+                // compute the max height at the boundary.
+                int b = it->operator[](0);
+                int h = it->operator[](2);
+                while (it + 1 != begins.end() && (it + 1)->operator[](0) == b)
+                {
+                    ++it;
+                    h = max(h, it->operator[](2));
+                }
+                // Current up boundary is valid if it is higher than all the previous heights
+                bool valid = true;
+                it = begins.begin();
+                while (it != begins.end() && it->operator[](0) <= b)
+                {
+                    if (it->operator[](1) < b)
+                    {
+                        // The range is not covering b
+                        it = begins.erase(it);
+                    }
+                    else
+                    {
+                        // The range cover b
+                        if (it->operator[](2) > h || (it->operator[](0) < b && it->operator[](2) == h))
+                        {
+                            // Current up boundary not valid since a previous range
+                            // is higher
+                            valid = false;
+                        }
+                        ++it;
+                    }
+                }
+                if (valid)
+                {
+                    up.push_back({b, h});
+                }
+            }
+            // Compute the down boundaries
+            vector<vector<int>> down;
+            vector<vector<int>> ends(buildings);
+            // Sort down boundaries in reverse order so that we can apply similar logic
+            // of computing up boundaries
+            sort(ends.begin(), ends.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 {
+                     if (x[1] > y[1])
+                         return true;
+                     if (x[1] == y[1] && x[0] > y[0])
+                         return true;
+                     if (x[1] == y[1] && x[0] == y[0] && x[2] > y[2])
+                         return true;
+                     return false;
+                 });
+            it = ends.begin();
+            while (it != ends.end())
+            {
+                // For all the ranges with the same down boundary,
+                // compute the max height at the down boundary.
+                int e = it->operator[](1);
+                int h = it->operator[](2);
+                while ((it + 1) != ends.end() && (it + 1)->operator[](1) == e)
+                {
+                    ++it;
+                    h = max(h, it->operator[](2));
+                }
+                // Compute the max height among all the ranges before e
+                it = ends.begin();
+                int m = 0;
+                while (it != ends.end() && it->operator[](1) >= e)
+                {
+                    if (it->operator[](0) > e)
+                    {
+                        // The range is not covering e
+                        it = ends.erase(it);
+                    }
+                    else
+                    {
+                        // The range cover e
+                        if (it->operator[](1) > e)
+                            m = max(m, it->operator[](2));
+                        ++it;
+                    }
+                }
+                if (m < h)
+                {
+                    down.insert(down.begin(), {e, m});
+                }
+            }
+            vector<vector<int>> skyline;
+            size_t i = 0;
+            size_t j = 0;
+            while (i < up.size() || j < down.size())
+            {
+                if (i < up.size() && j < down.size())
+                {
+                    if (up[i][0] < down[j][0])
+                    {
+                        skyline.push_back(up[i++]);
+                    }
+                    else // must be up[i][0] > down[j][0] because a boundary cannot be both up and down
+                    {
+                        skyline.push_back(down[j++]);
+                    }
+                }
+                else if (i < up.size())
+                {
+                    skyline.push_back(up[i++]);
+                }
+                else
+                {
+                    skyline.push_back(down[j++]);
+                }
+            }
+            return skyline;
+        }
+        vector<vector<int>> getSkyline2(const vector<vector<int>> &buildings)
+        {
+            function<vector<vector<int>>(const vector<vector<int>> &, const vector<vector<int>> &)>
+                merge = [&](const vector<vector<int>> &a, const vector<vector<int>> &b) -> vector<vector<int>>
+            {
+                if (a.empty())
+                    return b;
+                if (b.empty())
+                    return a;
+                vector<vector<int>> c;
+                int ha = 0;
+                int hb = 0;
+                size_t i = 0;
+                size_t j = 0;
+                int h;
+                while (i < a.size() || j < b.size())
+                {
+                    if (i < a.size() && j < b.size())
+                    {
+                        if (a[i][0] < b[j][0])
+                        {
+                            h = max(a[i][1], hb);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{a[i][0], h});
+                            ha = a[i++][1];
+                        }
+                        else if (a[i][0] > b[j][0])
+                        {
+                            h = max(ha, b[j][1]);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{b[j][0], h});
+                            hb = b[j++][1];
+                        }
+                        else
+                        {
+                            h = max(a[i][1], b[j][1]);
+                            if (c.empty() || c.back()[1] != h)
+                                c.push_back(vector<int>{a[i][0], h});
+                            ha = a[i++][1];
+                            hb = b[j++][1];
+                        }
+                    }
+                    else if (i < a.size())
+                    {
+                        c.push_back(a[i++]);
+                    }
+                    else
+                    {
+                        c.push_back(b[j++]);
+                    }
+                };
+                return c;
+            };
+            function<vector<vector<int>>(int, int)> solve =
+                [&](int b, int e) -> vector<vector<int>>
+            {
+                if (b > e)
+                    return {};
+                if (b == e)
+                    return vector<vector<int>>{
+                        {buildings[b][0], buildings[b][2]},
+                        {buildings[b][1], 0}};
+                int m = b + ((e - b) >> 1);
+                vector<vector<int>> v1 = solve(b, m);
+                vector<vector<int>> v2 = solve(m + 1, e);
+                vector<vector<int>> v = merge(v1, v2);
+                return v;
+            };
+            return solve(0, (int)buildings.size() - 1);
+        }
+
         // 219. Contains Duplicate II
         // Given an array of integers and an integer k, find out whether there are two
         // distinct indices i and j in the array such that nums[i] = nums[j] and the
