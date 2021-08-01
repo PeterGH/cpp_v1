@@ -2720,6 +2720,127 @@ namespace Test
             return s.empty();
         }
 
+        // 332. Reconstruct Itinerary
+        // You are given a list of airline tickets where tickets[i] = [fromi, toi]
+        // represent the departure and the arrival airports of one flight. Reconstruct
+        // the itinerary in order and return it. All of the tickets belong to a man
+        // who departs from "JFK", thus, the itinerary must begin with "JFK". If there
+        // are multiple valid itineraries, you should return the itinerary that has the
+        // smallest lexical order when read as a single string. For example, the itinerary
+        // ["JFK", "LGA"] has a smaller lexical order than ["JFK", "LGB"]. You may assume
+        // all tickets form at least one valid itinerary. You must use all the tickets
+        // once and only once.
+        // Example 1:
+        // Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+        // Output: ["JFK","MUC","LHR","SFO","SJC"]
+        // Example 2:
+        // Input: tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+        // Output: ["JFK","ATL","JFK","SFO","ATL","SFO"]
+        // Explanation: Another possible reconstruction is ["JFK","SFO","ATL","JFK","ATL","SFO"]
+        // but it is larger in lexical order.
+        // Constraints:
+        // 1 <= tickets.length <= 300
+        // tickets[i].length == 2
+        // fromi.length == 3
+        // toi.length == 3
+        // fromi and toi consist of uppercase English letters.
+        // fromi != toi
+        vector<string> findItinerary(vector<vector<string>> &tickets)
+        {
+            map<string, vector<string>> g;
+            for (const auto &t : tickets)
+            {
+                if (g.find(t[0]) == g.end())
+                    g[t[0]] = vector<string>();
+                g[t[0]].push_back(t[1]);
+            }
+            for (auto &t : g)
+            {
+                // sort destinations so the search will be in the lexical order
+                sort(t.second.begin(), t.second.end());
+            }
+            vector<string> output;
+            function<bool(const string &)> solve = [&](const string &c) -> bool
+            {
+                output.push_back(c);
+                if (g[c].empty())
+                {
+                    for (const auto &t : g)
+                    {
+                        if (!t.second.empty())
+                        {
+                            output.pop_back();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                auto it = g[c].begin();
+                while (it != g[c].end())
+                {
+                    string t = *it;
+                    it = g[c].erase(it);
+                    if (solve(t))
+                    {
+                        return true;
+                    }
+                    g[c].insert(it, t);
+                    it++;
+                }
+                output.pop_back();
+                return false;
+            };
+            solve("JFK");
+            return output;
+        }
+        vector<string> findItinerary2(vector<vector<string>> &tickets)
+        {
+            map<string, vector<string>> g;
+            for (const auto &t : tickets)
+            {
+                if (g.find(t[0]) == g.end())
+                    g[t[0]] = vector<string>();
+                g[t[0]].push_back(t[1]);
+            }
+            for (auto &t : g)
+            {
+                sort(t.second.begin(), t.second.end());
+            }
+            vector<string> output;
+            function<bool(const string &)> solve = [&](const string &c) -> bool
+            {
+                if (g[c].empty())
+                {
+                    for (const auto &t : g)
+                    {
+                        if (!t.second.empty())
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                auto it = g[c].begin();
+                while (it != g[c].end())
+                {
+                    string t = *it;
+                    it = g[c].erase(it);
+                    output.push_back(t);
+                    if (solve(t))
+                    {
+                        return true;
+                    }
+                    output.pop_back();
+                    g[c].insert(it, t);
+                    it++;
+                }
+                return false;
+            };
+            output.push_back("JFK");
+            solve("JFK");
+            return output;
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
