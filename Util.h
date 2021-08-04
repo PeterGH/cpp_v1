@@ -189,6 +189,8 @@ static bool Contain(const map<T, int> &m1, const map<T, int> &m2)
 template <class T>
 static bool Equal(const map<T, int> &m1, const map<T, int> &m2)
 {
+    if (m1.size() != m2.size())
+        return false;
     for (auto it = m2.cbegin(); it != m2.cend(); it++)
     {
         if (m1.find(it->first) == m1.end())

@@ -6425,6 +6425,107 @@ namespace Test
             return decimal;
         }
 
+        // 167. Two Sum II - Input array is sorted
+        // Given an array of integers that is already sorted in ascending order, find
+        // two numbers such that they add up to a specific target number. The function
+        // twoSum should return indices of the two numbers such that they add up to the
+        // target, where index1 must be less than index2. Note: Your returned answers
+        // (both index1 and index2) are not zero-based. You may assume that each input
+        // would have exactly one solution and you may not use the same element twice.
+        // Example:
+        // Input: numbers = [2,7,11,15], target = 9
+        // Output: [1,2]
+        // Explanation: The sum of 2 and 7 is 9. Therefore index1 = 1, index2 = 2.
+        vector<int> twoSumII(const vector<int> &numbers, int target)
+        {
+            int i = 0;
+            int j = numbers.size() - 1;
+            while (i < j)
+            {
+                int t = numbers[i] + numbers[j];
+                if (t < target)
+                    i++;
+                else if (t > target)
+                    j--;
+                else
+                    break;
+            }
+            return {i + 1, j + 1};
+        }
+        static vector<pair<int, int>> twoSumSortedMultiSolutions(vector<int> &nums,
+                                                                 int target)
+        {
+            vector<pair<int, int>> result;
+            function<int(int, int, int)> search = [&](int v, int b, int e) -> int
+            {
+                while (b <= e)
+                {
+                    int m = b + ((e - b) >> 1);
+                    if (v < nums[m])
+                        e = m - 1;
+                    else if (v > nums[m])
+                        b = m + 1;
+                    else if (b == m)
+                        return m;
+                    else
+                        e = m;
+                }
+                return -1;
+            };
+            for (int i = 0; i < (int)nums.size(); i++)
+            {
+                int second = target - nums[i];
+                int j = search(second, i + 1, nums.size() - 1);
+                if (j == -1)
+                    continue;
+                do
+                {
+                    result.push_back(make_pair(i, j));
+                    j++;
+                } while (j < (int)nums.size() && nums[j] == second);
+            }
+            return result;
+        }
+        static vector<pair<int, int>> twoSumSortedMultiSolutions2(vector<int> &nums,
+                                                                  int target)
+        {
+            vector<pair<int, int>> result;
+            int i = 0;
+            int j = nums.size() - 1;
+            while (i < j)
+            {
+                int sum = nums[i] + nums[j];
+                if (sum < target)
+                    i++;
+                else if (sum > target)
+                    j--;
+                else
+                {
+                    int p = i;
+                    while (p + 1 <= j && nums[p + 1] == nums[p])
+                        p++;
+                    int q = j;
+                    while (i <= q - 1 && nums[q - 1] == nums[q])
+                        q--;
+                    if (p < q)
+                    {
+                        for (int r = i; r <= p; r++)
+                            for (int s = q; s <= j; s++)
+                                result.push_back(make_pair(r, s));
+                    }
+                    else // p == j && q == i
+                    {
+                        for (int r = i; r < j; r++)
+                            for (int s = r + 1; s <= j; s++)
+                                result.push_back(make_pair(r, s));
+                    }
+                    i = p + 1;
+                    j = q - 1;
+                }
+            }
+            return result;
+        }
+
         // 168. Excel Sheet Column Title
         // Given a positive integer, return its corresponding column title as appear in
         // an Excel sheet. For example:
