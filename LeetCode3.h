@@ -2841,6 +2841,154 @@ namespace Test
             return output;
         }
 
+        // 334. Increasing Triplet Subsequence
+        // Given an integer array nums, return true if there exists a triple of indices
+        // (i, j, k) such that i < j < k and nums[i] < nums[j] < nums[k]. If no such
+        // indices exists, return false.
+        // Example 1:
+        // Input: nums = [1,2,3,4,5]
+        // Output: true
+        // Explanation: Any triplet where i < j < k is valid.
+        // Example 2:
+        // Input: nums = [5,4,3,2,1]
+        // Output: false
+        // Explanation: No triplet exists.
+        // Example 3:
+        // Input: nums = [2,1,5,0,4,6]
+        // Output: true
+        // Explanation: The triplet (3, 4, 5) is valid because nums[3] == 0 < nums[4] == 4 < nums[5] == 6.
+        // Constraints:
+        // 1 <= nums.length <= 5 * 10^5
+        // -2^31 <= nums[i] <= 2^31 - 1
+        // Follow up: Could you implement a solution that runs in O(n) time complexity and O(1) space complexity?
+        bool increasingTriplet(vector<int> &nums)
+        {
+            if (nums.size() < 3)
+                return false;
+            int n = nums.size();
+            vector<int> c(n, 0);
+            int m = nums[0];
+            for (int i = 1; i < n; i++)
+            {
+                if (m < nums[i])
+                {
+                    // There is some j such that nums[j] < nums[i]
+                    c[i]++;
+                }
+                else
+                {
+                    m = nums[i];
+                }
+            }
+            m = nums[n - 1];
+            for (int i = n - 2; i >= 0; i--)
+            {
+                if (nums[i] < m)
+                {
+                    if (c[i] == 1)
+                    {
+                        // There some j and k such that nums[j] < nums[i] < nums[k]
+                        return true;
+                    }
+                }
+                else
+                {
+                    m = nums[i];
+                }
+            }
+            return false;
+        }
+        bool increasingTriplet2(vector<int> &nums)
+        {
+            vector<int> s;
+            // possible states:
+            // 1. s has only one number
+            // 2. s has two numbers, s[0] < s[1]
+            // 3. s has three numbers, s[2] < s[0] < s[1]
+            for (int n : nums)
+            {
+                if (s.empty())
+                {
+                    s.push_back(n);
+                }
+                else if (s.back() >= n)
+                {
+                    if (s.size() == 1)
+                    {
+                        // s[0] >= n, so just replace it
+                        s[0] = n;
+                    }
+                    else if (s.size() == 2)
+                    {
+                        if (s[0] < n)
+                        {
+                            // s[0] < n <= s[1], so replace s[1]
+                            s[1] = n;
+                        }
+                        else
+                        {
+                            // n < s[0] < s[1], so keep s[0] and s[1] as candidates
+                            s.push_back(n);
+                        }
+                    }
+                    else
+                    {
+                        // n <= s[2] < s[0] < s[1], so replace s[2]
+                        s[2] = n;
+                    }
+                }
+                else
+                {
+                    if (s.size() == 1)
+                    {
+                        // s[0] < n
+                        s.push_back(n);
+                    }
+                    else if (s.size() == 2)
+                    {
+                        // s[0] < s[1] < n
+                        return true;
+                    }
+                    else
+                    {
+                        int t = s[2];
+                        if (s[1] < n)
+                        {
+                            // s[2] < s[0] < s[1] < n
+                            return true;
+                        }
+                        else
+                        {
+                            // s[2] < s[0] < s[1]
+                            // n <= s[1]
+                            // s[2] and n make the better candicates
+                            s.clear();
+                            s.push_back(t);
+                            s.push_back(n);
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        bool increasingTriplet3(vector<int> &nums)
+        {
+            if (nums.size() < 3)
+                return false;
+            int m1 = INT_MAX;
+            int m2 = INT_MAX;
+            for (int n : nums)
+            {
+                if (n <= m1)
+                    m1 = n;
+                else if (n <= m2)
+                    m2 = n;
+                else
+                    return true;
+            }
+            return false;
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
