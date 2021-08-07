@@ -2989,6 +2989,113 @@ namespace Test
             return false;
         }
 
+        // 335. Self Crossing
+        // You are given an array of integers distance.
+        // You start at point (0,0) on an X-Y plane and you move distance[0] meters to the north,
+        // then distance[1] meters to the west, distance[2] meters to the south, distance[3]
+        // meters to the east, and so on. In other words, after each move, your direction changes
+        // counter-clockwise.
+        // Return true if your path crosses itself, and false if it does not.
+        // Example 1:
+        // Input: distance = [2,1,1,2]
+        //      <-----^
+        //      |     |
+        //      |     |
+        //      v-----|---->
+        //            |
+        // Output: true
+        // Example 2:
+        // Input: distance = [1,2,3,4]
+        //       <-----^
+        //       |     |
+        //       |
+        //       |
+        //       v------------------>
+        // Output: false
+        // Example 3:
+        // Input: distance = [1,1,1,1]
+        //       <-----^
+        //       |     |
+        //       |     |
+        //       v----->
+        // Output: true
+        // Constraints:
+        // 1 <= distance.length <= 10^5
+        // 1 <= distance[i] <= 10^5
+        bool isSelfCrossing(vector<int> &distance)
+        {
+            // The pattern formed is an outward spiral, followed by an inward spiral.
+            // Once the inward spiral has started, we cannot start spiralling out, if
+            // it does then it intersects itself. Both of the spirals obviously do not
+            // intersect themselves, so all we need to check is if they intersect each
+            // other. The first edge which is part of the inward spiral (smaller than
+            // the edge along the same axis N-S or E-W) is called the contracting edge.
+            // Outward spiral
+            //       <----^
+            //       |    |
+            //       |
+            //       v-------->
+            // Inward spiral
+            //   <--------^
+            //   |        |
+            //   |        |
+            //   v----->  |
+            //            |
+            int s = -1; // start of contracting phase
+            int n = distance.size();
+            for (int i = 2; i < n; i++)
+            {
+                if (distance[i] >= distance[i - 2] && s != -1)
+                {
+                    return true; // Expand after contract
+                }
+                else if (distance[i] <= distance[i - 2] && s == -1)
+                {
+                    s = i; // Contract start
+                }
+            }
+            if (s == -1)
+                return false; // No contract
+            // Need both case 2 and 4 to ensure crossing
+            //   Case 1: No crossing
+            //   <-----------------^
+            //   |                 |
+            //   |                 |
+            //   |          ------->
+            //   v------>
+            //       s
+            //   Case 2: Crossing
+            //   <-----------------^
+            //   |                 |
+            //   |                 |
+            //   |     ------------>
+            //   v---------->
+            //       s
+            //   Case3: No crossing
+            //   <-----------------^
+            //   |                 |
+            //   |                 |
+            //   |      ----------->
+            //   |
+            //   |           ^
+            //   |           |
+            //   v----------->
+            //         s
+            //   Case4: Crossing
+            //   <-----------------^
+            //   |           ^     |
+            //   |           |     |
+            //   |      ----------->
+            //   |           |
+            //   |           |
+            //   |           |
+            //   v----------->
+            //         s
+            if ((s >= 0 ? distance[s] : 0) + (s >= 4 ? distance[s - 4] : 0) < (s >= 2 ? distance[s - 2] : 0))
+                return false;
+            return ((s < n - 1 ? distance[s + 1] : 0) + (s >= 3 ? distance[s - 3] : 0) >= (s >= 1 ? distance[s - 1] : 0));
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
