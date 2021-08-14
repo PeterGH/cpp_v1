@@ -3095,6 +3095,163 @@ namespace Test
                 return false;
             return ((s < n - 1 ? distance[s + 1] : 0) + (s >= 3 ? distance[s - 3] : 0) >= (s >= 1 ? distance[s - 1] : 0));
         }
+        bool isSelfCrossing2(vector<int> &distance)
+        {
+            // Check the pattern is an expanding mode followed by a contracting mode
+            // Once found the start of contracting mode, verify it continues to contract
+            // until the end. There are two cases to set the initial limit for the
+            // contrating lines.
+            // Case1:
+            //     <---------^
+            //     |         |
+            //     |
+            //     |                 ^ --
+            //     |                 | p1: contracting mode start
+            //     |                 |
+            //     v-----------------> --
+            //     |<-----  p0  ---->|
+            // Case2:
+            //     <---------^
+            //     |         |
+            //     |         |       ^ --
+            //     |                 |
+            //     |                 |  p1: contracting mode start
+            //     |                 |
+            //     v-----------------> --
+            //               |<- p0->|
+            // In both cases, p0 and p1 will be the initial limits to check the
+            // contracing lines.
+            vector<int> prev = {0, 0}; // limits for contracting lines
+            vector<int> diff = {0, 0}; // used to compute the initial limits
+            size_t i = 0;
+            while (i < distance.size())
+            {
+                if (distance[i] < diff[0])
+                {
+                    // Case1 above
+                    prev[0] = prev[1];
+                    prev[1] = distance[i++];
+                    break;
+                }
+                else if (distance[i] <= prev[0])
+                {
+                    // Case2 above
+                    prev[0] = diff[1];
+                    prev[1] = distance[i++];
+                    break;
+                }
+                else
+                {
+                    // update diff such that
+                    // diff[0] = d[i-1] - d[i-3]
+                    // diff[1] = d[i] - d[i-2]
+                    diff[0] = diff[1];
+                    diff[1] = distance[i] - prev[0];
+                    // update prev such that
+                    // prev[0] = d[i-1]
+                    // prev[1] = d[i]
+                    prev[0] = prev[1];
+                    prev[1] = distance[i++];
+                }
+            }
+            // From now on contraction should continue
+            while (i < distance.size())
+            {
+                if (distance[i] >= prev[0])
+                {
+                    return true;
+                }
+                else
+                {
+                    prev[0] = prev[1];
+                    prev[1] = distance[i++];
+                }
+            }
+            return false;
+        }
+        bool isSelfCrossing3(vector<int> &distance)
+        {
+            // Case1
+            //        i-2
+            //     <-----------^
+            //     |           |
+            // i-1 |           | i-3
+            //     |           |
+            //     |           |
+            //     v---------------->
+            //         i       |
+            //   x[i] >= x[i-2] && x[i-1] <= x[i-3]
+            //
+            //       i-3    ^
+            //     <--------|--^
+            //     |        |  |
+            // i-2 |       i|  |
+            //     |        |  |
+            //     |        |  |
+            //     v-------->
+            //       i-1  |
+            //   x[i] >= x[i-2] && x[i-1] <= x[i-3]
+            //
+            // Case 2
+            //         i-3
+            //     <------------^
+            //     |            | i-4
+            //     |            |
+            // i-2 |            ^
+            //     |            | i
+            //     |            |
+            //     v------------>
+            //         i-1
+            //    x[i-1] == x[i-3] && x[i] + x[i-4] >= x[i-2]
+            //
+            //       i-4     i
+            //     <------^<-----^
+            //     |      |      |
+            //     |      |      |
+            // i-3 |             | i-1
+            //     |             |
+            //     |             |
+            //     v------------->
+            //           i-2
+            //    x[i-1] == x[i-3] && x[i] + x[i-4] >= x[i-2]
+            //
+            // Case 3
+            //       i-4
+            //     <------^
+            //     |      |  i
+            //     |    <-|------^
+            // i-3 |  i-5 |      | i-1
+            //     |             |
+            //     |             |
+            //     v------------->
+            //           i-2
+            //    x[i-1] <= x[i-3] && x[i-2] >= x[i-4]
+            //    && x[i] + x[i-4] >= x[i-2] && x[i-1] + x[i-5] >= x[i-3]
+            //
+            //              i-1
+            //            <------^
+            //            |      |
+            //       i-5  | i    |
+            //     <------|--    | i-2
+            //     |      v      |
+            // i-4 |             |
+            //     |             |
+            //     v------------->
+            //           i-3
+            //    x[i-1] <= x[i-3] && x[i-2] >= x[i-4]
+            //    && x[i] + x[i-4] >= x[i-2] && x[i-1] + x[i-5] >= x[i-3]
+            const vector<int> &x = distance;
+            for (size_t i = 3; i < x.size(); i++)
+            {
+                if (x[i] >= x[i - 2] && x[i - 1] <= x[i - 3])
+                    return true;
+                if (i >= 4 && x[i - 1] == x[i - 3] && x[i] + x[i - 4] >= x[i - 2])
+                    return true;
+                if (i >= 5 && x[i - 1] <= x[i - 3] && x[i - 2] >= x[i - 4] && x[i] + x[i - 4] >= x[i - 2] && x[i - 1] + x[i - 5] >= x[i - 3])
+                    return true;
+            }
+            return false;
+        }
 
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
