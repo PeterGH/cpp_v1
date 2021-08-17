@@ -3253,6 +3253,206 @@ namespace Test
             return false;
         }
 
+        // 336. Palindrome Pairs
+        // Given a list of unique words, find all pairs of distinct indices (i, j)
+        // in the given list, so that the concatenation of the two words, i.e.
+        // words[i] + words[j] is a palindrome.
+        // Example 1:
+        // Input: ["abcd","dcba","lls","s","sssll"]
+        // Output: [[0,1],[1,0],[3,2],[2,4]]
+        // Explanation: The palindromes are ["dcbaabcd","abcddcba","slls","llssssll"]
+        // Example 2:
+        // Input: ["bat","tab","cat"]
+        // Output: [[0,1],[1,0]]
+        // Explanation: The palindromes are ["battab","tabbat"]
+        // Example 3:
+        // Input: ["a", ""]
+        // Output: [[0,1],[1,0]]
+        // Example 4:
+        // Input: ["a","b","c","ab","ac","aa"]
+        // Expected: [[3,0],[1,3],[4,0],[2,4],[5,0],[0,5]]
+        vector<vector<int>> palindromePairs(const vector<string> &words)
+        {
+            struct Node
+            {
+                char val;
+                vector<int> completeIndices;
+                vector<int> childIndices;
+                bool complete;
+                map<char, Node *> next;
+                Node(char v, bool c) : val(v), complete(c) {}
+                ~Node()
+                {
+                    for (map<char, Node *>::iterator it = next.begin(); it != next.end(); it++)
+                        delete it->second;
+                    next.clear();
+                }
+            };
+            unique_ptr<Node> before(new Node('\0', false));
+            unique_ptr<Node> after(new Node('\0', false));
+            function<void(int)> add = [&](int j)
+            {
+                Node *node = before.get();
+                int i = 0;
+                const string &w = words[j];
+                while (i < (int)w.size())
+                {
+                    if (node->next.find(w[i]) == node->next.end())
+                        break;
+                    node->childIndices.push_back(j);
+                    node = node->next[w[i++]];
+                }
+                while (i < (int)w.size())
+                {
+                    node->next[w[i]] = new Node(w[i], false);
+                    node->childIndices.push_back(j);
+                    node = node->next[w[i++]];
+                }
+                node->childIndices.push_back(j);
+                node->completeIndices.push_back(j);
+                node->complete = true;
+                node = after.get();
+                i = (int)w.size() - 1;
+                while (i >= 0)
+                {
+                    if (node->next.find(w[i]) == node->next.end())
+                        break;
+                    node->childIndices.push_back(j);
+                    node = node->next[w[i--]];
+                }
+                while (i >= 0)
+                {
+                    node->next[w[i]] = new Node(w[i], false);
+                    node->childIndices.push_back(j);
+                    node = node->next[w[i--]];
+                }
+                node->childIndices.push_back(j);
+                node->completeIndices.push_back(j);
+                node->complete = true;
+            };
+            function<bool(const string &, int, int)> isPalindrome = [&](const string &w, int i, int j) -> bool
+            {
+                while (i < j)
+                {
+                    if (w[i++] != w[j--])
+                        return false;
+                }
+                return true;
+            };
+            vector<vector<int>> result;
+            function<void(int)> findBefore = [&](int j)
+            {
+                Node *node = before.get();
+                const string &w = words[j];
+                int i = (int)w.size() - 1;
+                while (i >= 0)
+                {
+                    if (node->complete)
+                    {
+                        if (isPalindrome(w, 0, i))
+                        {
+                            for (int k : node->completeIndices)
+                                result.push_back(vector<int>{k, j});
+                        }
+                    }
+                    if (node->next.find(w[i]) == node->next.end())
+                        break;
+                    node = node->next[w[i--]];
+                }
+                if (i < 0)
+                {
+                    for (int k : node->childIndices)
+                    {
+                        if (isPalindrome(words[k], (int)w.size(), (int)words[k].size() - 1))
+                            result.push_back(vector<int>{k, j});
+                    }
+                }
+            };
+            function<void(int)> findAfter = [&](int j)
+            {
+                Node *node = after.get();
+                const string &w = words[j];
+                int i = 0;
+                while (i < (int)w.size())
+                {
+                    if (node->complete)
+                    {
+                        if (isPalindrome(w, i, (int)w.size() - 1))
+                        {
+                            for (int k : node->completeIndices)
+                                result.push_back(vector<int>{j, k});
+                        }
+                    }
+                    if (node->next.find(w[i]) == node->next.end())
+                        break;
+                    node = node->next[w[i++]];
+                }
+                if (i >= (int)w.size())
+                {
+                    for (int k : node->childIndices)
+                    {
+                        if (isPalindrome(words[k], 0, (int)words[k].size() - (int)w.size() - 1))
+                            result.push_back(vector<int>{j, k});
+                    }
+                }
+            };
+            for (int i = 0; i < (int)words.size(); i++)
+            {
+                findBefore(i);
+                findAfter(i);
+                add(i);
+            }
+            return result;
+        }
+        vector<vector<int>> palindromePairs2(const vector<string> &words)
+        {
+            vector<vector<int>> output;
+            map<string, int> m;
+            for (int i = 0; i < (int)words.size(); i++)
+            {
+                string w = words[i];
+                reverse(w.begin(), w.end());
+                m[w] = i;
+            }
+            function<bool(const string &)>
+                isPalindrome = [&](const string &w) -> bool
+            {
+                int i = 0;
+                int j = (int)w.size() - 1;
+                while (i < j)
+                {
+                    if (w[i++] != w[j--])
+                        return false;
+                }
+                return true;
+            };
+            for (int i = 0; i < (int)words.size(); i++)
+            {
+                for (int j = 0; j < (int)words[i].size(); j++)
+                {
+                    string l = words[i].substr(0, j);
+                    string r = words[i].substr(j);
+                    if (isPalindrome(r) && m.find(l) != m.end() && m[l] != i)
+                    {
+                        output.push_back({i, m[l]});
+                        if (l.empty())
+                        {
+                            output.push_back({m[l], i});
+                        }
+                    }
+                    if (isPalindrome(l) && m.find(r) != m.end() && m[r] != i)
+                    {
+                        output.push_back({m[r], i});
+                        if (r.empty())
+                        {
+                            output.push_back({i, m[r]});
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
