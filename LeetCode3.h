@@ -3481,10 +3481,12 @@ namespace Test
                     return 0;
                 if (s)
                 {
+                    // select n
                     return n->val + solve(n->left, false) + solve(n->right, false);
                 }
                 else
                 {
+                    // n is not selected
                     int m = solve(n->left, false) + solve(n->right, false);
                     m = max(m, solve(n->left, true) + solve(n->right, false));
                     m = max(m, solve(n->left, false) + solve(n->right, true));
@@ -3493,6 +3495,82 @@ namespace Test
                 }
             };
             return max(solve(root, false), solve(root, true));
+        }
+        int rob2(TreeNode *root)
+        {
+            function<void(TreeNode *, int &, int &)>
+                solve = [&](TreeNode *n, int &a, int &b)
+            {
+                a = 0; // max if n is not selected
+                b = 0; // max if n is selected
+                if (n == nullptr)
+                    return;
+                int a1, b1, a2, b2;
+                solve(n->left, a1, b1);
+                solve(n->right, a2, b2);
+                a = max(a, a1 + a2);
+                a = max(a, a1 + b2);
+                a = max(a, a2 + b1);
+                a = max(a, b1 + b2);
+                b = n->val + a1 + a2;
+            };
+            int x, y;
+            solve(root, x, y);
+            return max(x, y);
+        }
+        int rob3(TreeNode *root)
+        {
+            map<TreeNode *, vector<int>> m;
+            stack<TreeNode *> s;
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    m[n] = {0, 0};
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right != nullptr && t->right != last)
+                    {
+                        n = t->right;
+                    }
+                    else
+                    {
+                        int a1 = 0;
+                        int b1 = 0;
+                        int a2 = 0;
+                        int b2 = 0;
+                        if (t->left != nullptr)
+                        {
+                            a1 = m[t->left][0];
+                            b1 = m[t->left][1];
+                        }
+                        if (t->right != nullptr)
+                        {
+                            a2 = m[t->right][0];
+                            b2 = m[t->right][1];
+                        }
+                        int a = 0;
+                        a = max(a, a1 + a2);
+                        a = max(a, a1 + b2);
+                        a = max(a, b1 + a2);
+                        a = max(a, b1 + b2);
+                        int b = t->val + a1 + a2;
+                        m[t][0] = a;
+                        m[t][1] = b;
+                        s.pop();
+                    }
+                    last = t;
+                }
+            }
+            if (root == nullptr)
+                return 0;
+            return max(m[root][0], m[root][1]);
         }
 
         // 349. Intersection of Two Arrays
