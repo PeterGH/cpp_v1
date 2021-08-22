@@ -4688,6 +4688,78 @@ namespace Test
             trav(root);
             return v;
         }
+        vector<int> postorderTraversal5(TreeNode *root)
+        {
+            vector<int> output;
+            if (root == nullptr)
+                return output;
+            stack<TreeNode *> s;
+            TreeNode *last = nullptr;
+            s.push(root);
+            while (!s.empty())
+            {
+                TreeNode *n = s.top();
+                if (n->right == nullptr)
+                {
+                    if (n->left == nullptr || n->left == last)
+                    {
+                        output.push_back(n->val);
+                        s.pop();
+                        last = n;
+                    }
+                    else
+                    {
+                        s.push(n->left);
+                    }
+                }
+                else if (n->right == last)
+                {
+                    output.push_back(n->val);
+                    s.pop();
+                    last = n;
+                }
+                else
+                {
+                    s.push(n->right);
+                    if (n->left != nullptr && n->left != last)
+                    {
+                        s.push(n->left);
+                    }
+                }
+            }
+            return output;
+        }
+        vector<int> postorderTraversal6(TreeNode *root)
+        {
+            vector<int> output;
+            if (root == nullptr)
+                return output;
+            stack<TreeNode *> s;
+            TreeNode *last = nullptr;
+            s.push(root);
+            while (!s.empty())
+            {
+                TreeNode *n = s.top();
+                if ((n->right != nullptr && n->right == last) || (n->right == nullptr && (n->left == nullptr || n->left == last)))
+                {
+                    output.push_back(n->val);
+                    last = n;
+                    s.pop();
+                }
+                else
+                {
+                    if (n->right != nullptr)
+                    {
+                        s.push(n->right);
+                    }
+                    if (n->left != nullptr)
+                    {
+                        s.push(n->left);
+                    }
+                }
+            }
+            return output;
+        }
 
         // 146. LRU Cache
         // Design and implement a data structure for Least Recently Used (LRU) cache.
