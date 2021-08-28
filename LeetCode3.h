@@ -3573,6 +3573,130 @@ namespace Test
             return max(m[root][0], m[root][1]);
         }
 
+        // 338. Counting Bits
+        // Given an integer n, return an array ans of length n + 1 such that for
+        // each i (0 <= i <= n), ans[i] is the number of 1's in the binary representation of i.
+        // Example 1:
+        // Input: n = 2
+        // Output: [0,1,1]
+        // Explanation:
+        // 0 --> 0
+        // 1 --> 1
+        // 2 --> 10
+        // Example 2:
+        // Input: n = 5
+        // Output: [0,1,1,2,1,2]
+        // Explanation:
+        // 0 --> 0
+        // 1 --> 1
+        // 2 --> 10
+        // 3 --> 11
+        // 4 --> 100
+        // 5 --> 101
+        // Constraints:
+        // 0 <= n <= 10^5
+        // Follow up:
+        // It is very easy to come up with a solution with a runtime of O(n log n).
+        // Can you do it in linear time O(n) and possibly in a single pass?
+        // Can you do it without using any built-in function (i.e., like __builtin_popcount in C++)?
+        vector<int> countBits(int n)
+        {
+            function<int(int)> count = [&](int x) -> int
+            {
+                int c = 0;
+                while (x != 0)
+                {
+                    c++;
+                    x &= x - 1;
+                }
+                return c;
+            };
+            vector<int> output(n + 1);
+            for (int i = 0; i <= n; i++)
+            {
+                output[i] = count(i);
+            }
+            return output;
+        }
+        // o     x
+        // 0     0
+        // 1     1 = 1 + o[0]
+        // 2    10 = 1 + o[0]
+        // 3    11 = 1 + o[2]
+        // 4   100 = 1 + o[0]
+        // 5   101 = 1 + o[4]
+        // 6   110 = 1 + o[4]
+        // 7   111 = 1 + o[6]
+        // 8  1000 = 1 + o[8]
+        // 9  1001 = 1 + o[8]
+        // 10 1010 = 1 + o[8]
+        // 11 1011 = 1 + o[10]
+        // 12 1100 = 1 + o[8]
+        vector<int> countBits2(int n)
+        {
+            vector<int> output(n + 1, 0);
+            for (int i = 1; i <= n; i++)
+            {
+                for (int b = 0x1; b <= INT_MAX; b = b << 1)
+                {
+                    if ((i & b) == b)
+                    {
+                        output[i] = output[i - b] + 1;
+                        break;
+                    }
+                }
+            }
+            return output;
+        }
+        //  i        r  b  o
+        //  0     0  0  2  0
+        //  1     1  1     1
+        //  2    10  0  2  1
+        //  3    11  1     2
+        //  4   100  0  4  1
+        //  5   101  1     2
+        //  6   110  2     2
+        //  7   111  3     3
+        //  8  1000  0  8  1
+        //  9  1001  1     2
+        // 10  1010  2     2
+        vector<int> countBits3(int n)
+        {
+            vector<int> output(n + 1, 0);
+            int b = 2;
+            for (int i = 1; i <= n; i++)
+            {
+
+                int r = i % b;
+                if (r == 0)
+                {
+                    b = i; // square number has only one bit set
+                    output[i] = 1;
+                }
+                else
+                {
+                    // 0x1A has one more bit that 0x0A
+                    output[i] = output[r] + 1;
+                }
+            }
+            return output;
+        }
+        vector<int> countBits4(int n)
+        {
+            vector<int> output(n + 1, 0);
+            for (int i = 1; i <= n; i++)
+            {
+                // 0xA0 has the same bit count as 0xA
+                // 0xA1 has one more bit than 0xA
+                output[i] = output[i >> 1];
+                if (i % 2 == 1)
+                {
+                    output[i]++;
+                }
+            }
+            return output;
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
