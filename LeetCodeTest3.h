@@ -140,7 +140,7 @@ void LeetCodeTest::Init3(void)
 
     Add("341. Flatten Nested List Iterator", [&]()
         {
-            auto check = [&](vector<NestedListIterator::NestedInteger> &list, const vector<int> &e)
+            auto check = [&](const vector<NestedListIterator::NestedInteger> &list, const vector<int> &e)
             {
                 NestedListIterator::NestedIterator it(list);
                 vector<int> r;
@@ -148,6 +148,7 @@ void LeetCodeTest::Init3(void)
                 {
                     r.push_back(it.next());
                 }
+                Logger() << r;
                 ASSERT1(0 == Util::Compare(r, e));
             };
             {

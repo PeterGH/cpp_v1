@@ -3763,10 +3763,10 @@ namespace Test
             class NestedIterator
             {
             private:
-                stack<pair<vector<NestedInteger>::iterator, vector<NestedInteger>::iterator>> _s;
+                stack<pair<vector<NestedInteger>::const_iterator, vector<NestedInteger>::const_iterator>> _s;
 
             public:
-                NestedIterator(vector<NestedInteger> &nestedList)
+                NestedIterator(const vector<NestedInteger> &nestedList)
                 {
                     _s.push(make_pair(nestedList.begin(), nestedList.end()));
                 }
@@ -3775,7 +3775,7 @@ namespace Test
                 {
                     while (!_s.top().first->isInteger())
                     {
-                        pair<vector<NestedInteger>::iterator, vector<NestedInteger>::iterator> p = make_pair(_s.top().first->getList().begin(), _s.top().first->getList().end());
+                        auto p = make_pair(_s.top().first->getList().begin(), _s.top().first->getList().end());
                         _s.top().first++;
                         _s.push(p);
                     }
@@ -3798,7 +3798,7 @@ namespace Test
                         }
                         else
                         {
-                            pair<vector<NestedInteger>::iterator, vector<NestedInteger>::iterator> p = make_pair(_s.top().first->getList().begin(), _s.top().first->getList().end());
+                            auto p = make_pair(_s.top().first->getList().begin(), _s.top().first->getList().end());
                             _s.top().first++;
                             _s.push(p);
                         }
