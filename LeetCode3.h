@@ -3829,6 +3829,163 @@ namespace Test
             return ((n & 0x55555555) != 0) && ((n & (n - 1)) == 0);
         }
 
+        // 343. Integer Break
+        // Given an integer n, break it into the sum of k positive integers,
+        // where k >= 2, and maximize the product of those integers.
+        // Return the maximum product you can get.
+        // Example 1:
+        // Input: n = 2
+        // Output: 1
+        // Explanation: 2 = 1 + 1, 1 × 1 = 1.
+        // Example 2:
+        // Input: n = 10
+        // Output: 36
+        // Explanation: 10 = 3 + 3 + 4, 3 × 3 × 4 = 36.
+        // Constraints:
+        // 2 <= n <= 58
+        int integerBreak(int n)
+        {
+            map<int, long long> m;
+            function<long long(int, bool)> solve = [&](int x, bool b) -> long long
+            {
+                if (x == 1)
+                    return 1;
+                if (m.find(x) != m.end())
+                    return m[x];
+                // b == true, must break x so let y start with 1.
+                // b == false, should consider the case when x is not broken, so let y start with x.
+                long long y = b ? 1 : x;
+                for (int i = 1; i < x; i++)
+                {
+                    y = max(y, i * solve(x - i, false));
+                }
+                m[x] = y;
+                return y;
+            };
+            return solve(n, true);
+        }
+        int integerBreak2(int n)
+        {
+            // m[n] = max{n,
+            //            m[1] * (n-1),
+            //            m[2] * (n-2),
+            //            m[3] * (n-3),
+            //            ......
+            //            m[n-2] * 2,
+            //            m[n-1] * 1}
+            vector<long long> m(n);
+            for (int x = 1; x <= n; x++)
+            {
+                long long y = (x < n) ? x : 1;
+                for (int i = 1; i < x; i++)
+                {
+                    y = max(y, m[i - 1] * (x - i));
+                }
+                m[x - 1] = y;
+            }
+            return m[n - 1];
+        }
+        int integerBreak3(int n)
+        {
+            // m[n] = max{m[0] * m[n],
+            //            m[1] * m[n-1],
+            //            m[2] * m[n-2],
+            //            ......
+            //            m[n-2] * m[2],
+            //            m[n-1] * m[1]}
+            vector<long long> m(n);
+            for (int x = 1; x <= n; x++)
+            {
+                long long y = (x < n) ? x : 1;
+                int t = x >> 1;
+                for (int i = 1; i <= t; i++)
+                {
+                    y = max(y, m[i - 1] * m[x - i - 1]);
+                }
+                m[x - 1] = y;
+            }
+            return m[n - 1];
+        }
+        int integerBreak4(int n)
+        {
+            // The optimal solution should strike a perfect balance between the length k
+            // of the integer partition and the size of each component we are pulling out.
+            // For example consider the possibilities when n = 17:
+            // 17 = 2 + 2 + 2 + 2 + 2 + 2 + 2 + 2 + 1 (2 ^ 8 * 1)
+            // 17 = 3 + 3 + 3 + 3 + 3 + 2 (3 ^ 5 * 2)
+            // 17 = 4 + 4 + 4 + 4 + 1 (4 ^ 4 * 1)
+            // 17 = 5 + 5 + 5 + 2 (5 ^ 3 * 2)
+            // ...
+            // The bigger the number m we pull out of n to partition it the less times we
+            // can do it, meaning a lower exponent m is raised to when we do the multiplication
+            // at the end. However, the smaller m is, the more of it that we can partition out
+            // of n leading to a bigger exponent, but at the expense of the base it is being raised to.
+            // So we must ask ourselves, what is the optimal number x that we can equally partition
+            // n into while also achieving the greatest exponential expression. Essentially what we
+            // are asking is: Find x such that x ^ (n / x) is maximized.
+            // This x just so happens to be e therefore the answer to this question: integerBreak(n)
+            // for large n should be approximately e^(n/e).
+            // Let us look at some numerical examples to make sure:
+            // NOTE: It is better to show how good the approximation is using the inverse relation
+            // (n ~ e * ln(integerBreak(n))) rather than integerBreak(n) ~ e^(n/e) because of how
+            // sensitive exponential functions are to their input.
+            // n   integerBreak(n)     n ~ e * ln(integerBreak(n))
+            // --  ---------------     ---------------------------
+            // 10  36                  9.7410
+            // 15  243                 14.9316
+            // 20  1458                19.8021
+            // 25  8748                24.6727
+            // 30  59049               29.8634
+            // 35  354294              34.7339
+            // 40  2125764             39.6044
+            // 45  14348907            44.7951
+            // 50  86093442            49.6656
+            // 55  516560652           54.5360
+            // As you can see integerBreak(n) ~ e^(n/e) is a very good approximation.
+            // Given that this optimization problem is constrained to the integers, partitioning n with e
+            // is not possible. Therefore, we must optimize x^(n/x) with the restriction that x is an integer.
+            // Therefore x must either be 2 or 3 since we know the maximum occurs in between at x = e
+            // Computing the two possibilities:
+            // 2^(1/2) = 1.414213562
+            // 3^(1/3) = 1.44224957
+            // We see that x = 3 is larger and therefore pulling out as many 3s as possible from n will
+            // strike the perfect balance between the length of the sum k and the base of the exponent
+            // we are using to compute the maximum product for the integers which make up the partition of n
+            // Therefore in cases where n > 4 we should always decompose n in the following way:
+            // n = 3 * q + r
+            // When 3 perfectly divides n or in other words: r = 0 : integerBreak(n) = 3 ^ (n / 3)
+            // When 3 does not perfectly divide n and has a remainder of 1 or in other words: r = 1:
+            // We do the following manipulation:
+            // n = 3 * q + 1
+            // n = 3 * (q - 1 + 1) + 1
+            // n = 3 * (q - 1) + 3 * 1 + 1
+            // n = 3 * (q - 1) + 4
+            // Therefore, we break n into (q - 1) partitions of 3 followed by a 4 leading to: 4 * 3 ^ (n / 3 - 1) as the answer.
+            // Factoring out the subtraction in the exponent we get:
+            // integerBreak(n) = (4 / 3) * 3 ^ (n / 3)
+            // This is always going to be bigger than what we would have if we did not do any manipulation
+            // which have been: 1 * 3 ^ (n / 3) because 4/3 > 1. In code, I leave the subtraction inside the
+            // exponent, so that the final multiplication is between two integers rather than two floats as
+            // integer multiplication is much faster than floating point. For the sake of proof, however, I
+            // use the expression above since it shows how the manipulation leads to a product that is 33.333%
+            // bigger than what you would have gotten without it.
+            // Finally, when 3 does not perfectly divide n and has a remainder of 2 or in other words: r = 2:
+            // We fit n to the following form.
+            // n = 3 * q + 2
+            // If we did the same manipulation steps as above we can end up with n = 3*(q - 1) + 5 which would lead to an answer:
+            // (5/3) * 3 ^ (n / 3) however not doing the manipulation would give us 2 * 3 ^ (n / 3) which is
+            // always bigger simply because 2 > 5/3.
+            // Therefore in the r = 2 case:
+            // integerBreak(n) = 2 * 3 ^ (n / 3)
+            if (n == 2 || n == 3)
+                return n - 1;
+            if (n % 3 == 0)
+                return pow(3, n / 3);
+            if (n % 3 == 1)
+                return pow(3, (n / 3) - 1) * 4;
+            return pow(3, n / 3) * 2;
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
