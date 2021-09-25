@@ -3986,6 +3986,30 @@ namespace Test
             return pow(3, n / 3) * 2;
         }
 
+        // 44. Reverse String
+        // Write a function that reverses a string.
+        // The input string is given as an array of characters s.
+        // Example 1:
+        // Input: s = ["h","e","l","l","o"]
+        // Output: ["o","l","l","e","h"]
+        // Example 2:
+        // Input: s = ["H","a","n","n","a","h"]
+        // Output: ["h","a","n","n","a","H"]
+        // Constraints:
+        // 1 <= s.length <= 10^5
+        // s[i] is a printable ascii character.
+        // Follow up: Do not allocate extra space for another array.
+        // You must do this by modifying the input array in-place with O(1) extra memory.
+        void reverseString(vector<char> &s)
+        {
+            int i = 0;
+            int j = s.size() - 1;
+            while (i < j)
+            {
+                swap(s[i++], s[j--]);
+            }
+        }
+
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
         // Example 1:
