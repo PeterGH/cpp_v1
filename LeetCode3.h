@@ -4131,6 +4131,60 @@ namespace Test
             h.resize(k);
             return h;
         }
+        vector<int> topKFrequent3(vector<int> &nums, int k)
+        {
+            map<int, int> m;
+            vector<int> o;
+            for (int n : nums)
+            {
+                if (m.find(n) == m.end())
+                {
+                    m[n] = 1;
+                    o.push_back(n);
+                }
+                else
+                {
+                    m[n]++;
+                }
+            }
+            int l = 0;
+            int h = o.size() - 1;
+            int c = k;
+            while (l < h)
+            {
+                int i = l;
+                int j = h - 1;
+                while (i <= j)
+                {
+                    if (m[o[i]] > m[o[h]])
+                    {
+                        i++;
+                    }
+                    else
+                    {
+                        swap(o[i], o[j--]);
+                    }
+                }
+                swap(o[i], o[h]);
+                int t = i - l + 1;
+                // make sure l or h change to avoid infinite loop when o[h] is min or max
+                if (t < c)
+                {
+                    l = i + 1;
+                    c -= t;
+                }
+                else if (t > c)
+                {
+                    h = i - 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            o.resize(k);
+            return o;
+        }
 
         // 349. Intersection of Two Arrays
         // Given two arrays, write a function to compute their intersection.
