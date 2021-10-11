@@ -4399,6 +4399,124 @@ namespace Test
             return o;
         }
 
+        // 352. Data Stream as Disjoint Intervals
+        // Given a data stream input of non-negative integers a1, a2, ..., an,
+        // summarize the numbers seen so far as a list of disjoint intervals.
+        // Implement the SummaryRanges class:
+        // SummaryRanges() Initializes the object with an empty stream.
+        // void addNum(int val) Adds the integer val to the stream.
+        // int[][] getIntervals() Returns a summary of the integers in the stream
+        // currently as a list of disjoint intervals [starti, endi].
+        // Example 1:
+        // Input
+        // ["SummaryRanges", "addNum", "getIntervals", "addNum", "getIntervals",
+        // "addNum", "getIntervals", "addNum", "getIntervals", "addNum", "getIntervals"]
+        // [[], [1], [], [3], [], [7], [], [2], [], [6], []]
+        // Output
+        // [null, null, [[1, 1]], null, [[1, 1], [3, 3]], null, [[1, 1], [3, 3], [7, 7]],
+        // null, [[1, 3], [7, 7]], null, [[1, 3], [6, 7]]]
+        // Explanation
+        // SummaryRanges summaryRanges = new SummaryRanges();
+        // summaryRanges.addNum(1);      // arr = [1]
+        // summaryRanges.getIntervals(); // return [[1, 1]]
+        // summaryRanges.addNum(3);      // arr = [1, 3]
+        // summaryRanges.getIntervals(); // return [[1, 1], [3, 3]]
+        // summaryRanges.addNum(7);      // arr = [1, 3, 7]
+        // summaryRanges.getIntervals(); // return [[1, 1], [3, 3], [7, 7]]
+        // summaryRanges.addNum(2);      // arr = [1, 2, 3, 7]
+        // summaryRanges.getIntervals(); // return [[1, 3], [7, 7]]
+        // summaryRanges.addNum(6);      // arr = [1, 2, 3, 6, 7]
+        // summaryRanges.getIntervals(); // return [[1, 3], [6, 7]]
+        // Constraints:
+        // 0 <= val <= 10^4
+        // At most 3 * 10^4 calls will be made to addNum and getIntervals.
+        // Follow up: What if there are lots of merges and the number of disjoint intervals
+        // is small compared to the size of the data stream?
+        class SummaryRanges
+        {
+        private:
+            vector<vector<int>> intervals;
+
+        public:
+            SummaryRanges()
+            {
+            }
+
+            void addNum(int val)
+            {
+                int i = 0;
+                int j = intervals.size() - 1;
+                int m;
+                while (i + 1 < j)
+                {
+                    m = i + ((j - i) >> 1);
+                    if (intervals[m][1] < val)
+                    {
+                        i = m;
+                    }
+                    else if (val < intervals[m][0])
+                    {
+                        j = m;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                if (intervals.empty())
+                {
+                    intervals.push_back({val, val});
+                }
+                else if (val < intervals[i][0])
+                {
+                    if (val + 1 == intervals[i][0])
+                    {
+                        intervals[i][0] = val;
+                    }
+                    else
+                    {
+                        intervals.insert(intervals.begin() + i, {val, val});
+                    }
+                }
+                else if (intervals[i][1] < val && val < intervals[j][0])
+                {
+                    if (intervals[i][1] + 1 == val && val + 1 == intervals[j][0])
+                    {
+                        intervals[i][1] = intervals[j][1];
+                        intervals.erase(intervals.begin() + j);
+                    }
+                    else if (intervals[i][1] + 1 == val)
+                    {
+                        intervals[i][1] = val;
+                    }
+                    else if (val + 1 == intervals[j][0])
+                    {
+                        intervals[j][0] = val;
+                    }
+                    else
+                    {
+                        intervals.insert(intervals.begin() + j, {val, val});
+                    }
+                }
+                else if (intervals[j][1] < val)
+                {
+                    if (intervals[j][1] + 1 == val)
+                    {
+                        intervals[j][1] = val;
+                    }
+                    else
+                    {
+                        intervals.insert(intervals.begin() + j + 1, {val, val});
+                    }
+                }
+            }
+
+            vector<vector<int>> getIntervals()
+            {
+                return intervals;
+            }
+        };
+
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
         // perfect square else False. Note: Do not use any built-in library function
