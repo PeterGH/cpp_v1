@@ -4517,6 +4517,70 @@ namespace Test
             }
         };
 
+        // 354. Russian Doll Envelopes
+        // You are given a 2D array of integers envelopes where envelopes[i] = [wi, hi]
+        // represents the width and the height of an envelope.
+        // One envelope can fit into another if and only if both the width and height of
+        // one envelope are greater than the other envelope's width and height.
+        // Return the maximum number of envelopes you can Russian doll (i.e., put one inside the other).
+        // Note: You cannot rotate an envelope.
+        // Example 1:
+        // Input: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+        // Output: 3
+        // Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+        // Example 2:
+        // Input: envelopes = [[1,1],[1,1],[1,1]]
+        // Output: 1
+        // Constraints:
+        // 1 <= envelopes.length <= 5000
+        // envelopes[i].length == 2
+        // 1 <= wi, hi <= 10^4
+        int maxEnvelopes(vector<vector<int>> &envelopes)
+        {
+            function<bool(const vector<int> &, const vector<int> &)>
+                less1 = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
+                if (x[0] < y[0])
+                    return true;
+                if (x[0] == y[0] && x[1] < y[1])
+                    return true;
+                return false;
+            };
+            function<bool(const vector<int> &, const vector<int> &)>
+                less2 = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
+                if (x[0] < y[0] && x[1] < y[1])
+                    return true;
+                return false;
+            };
+            sort(envelopes.begin(), envelopes.end(), less1);
+            vector<int> n(envelopes.size(), 1);
+            int m = 1;
+            for (int i = 1; i < (int)envelopes.size(); i++)
+            {
+                int j = 0;
+                int k = i - 1;
+                while (j < k)
+                {
+                    int l = j + ((k - j) >> 1);
+                    if (less2(envelopes[l], envelopes[i]))
+                    {
+                        j = l + 1;
+                    }
+                    else
+                    {
+                        k = l;
+                    }
+                }
+                if (less2(envelopes[j], envelopes[i]))
+                    n[i] = n[j] + 1;
+                else if (j > 0)
+                    n[i] = n[j - 1] + 1;
+                m = max(m, n[i]);
+            }
+            return m;
+        }
+
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
         // perfect square else False. Note: Do not use any built-in library function

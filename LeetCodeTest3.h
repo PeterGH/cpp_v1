@@ -165,6 +165,21 @@ void LeetCodeTest::Init3(void)
                 check(l, {1, 1, 2, 1, 1});
             }
         });
+
+    Add("354. Russian Doll Envelopes", [&]()
+        {
+            auto check = [&](vector<vector<int>> &v, int e)
+            {
+                Logger() << v;
+                int c = maxEnvelopes(v);
+                Logger() << c << ", " << e << endl;
+                ASSERT1(c == e);
+            };
+            {
+                vector<vector<int>> v = {{2, 100}, {3, 200}, {4, 300}, {5, 500}, {5, 400}, {5, 250}, {6, 370}, {6, 360}, {7, 380}};
+                check(v, 5);
+            }
+        });
 }
 
 #endif
