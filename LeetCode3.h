@@ -3986,30 +3986,6 @@ namespace Test
             return pow(3, n / 3) * 2;
         }
 
-        // 44. Reverse String
-        // Write a function that reverses a string.
-        // The input string is given as an array of characters s.
-        // Example 1:
-        // Input: s = ["h","e","l","l","o"]
-        // Output: ["o","l","l","e","h"]
-        // Example 2:
-        // Input: s = ["H","a","n","n","a","h"]
-        // Output: ["h","a","n","n","a","H"]
-        // Constraints:
-        // 1 <= s.length <= 10^5
-        // s[i] is a printable ascii character.
-        // Follow up: Do not allocate extra space for another array.
-        // You must do this by modifying the input array in-place with O(1) extra memory.
-        void reverseString(vector<char> &s)
-        {
-            int i = 0;
-            int j = s.size() - 1;
-            while (i < j)
-            {
-                swap(s[i++], s[j--]);
-            }
-        }
-
         // 345. Reverse Vowels of a String
         // Given a string s, reverse only all the vowels in the string and return it.
         // The vowels are 'a', 'e', 'i', 'o', and 'u', and they can appear in both cases.
@@ -4535,6 +4511,7 @@ namespace Test
         // 1 <= envelopes.length <= 5000
         // envelopes[i].length == 2
         // 1 <= wi, hi <= 10^4
+        // Longest Increasing Subsequence
         int maxEnvelopes(vector<vector<int>> &envelopes)
         {
             function<bool(const vector<int> &, const vector<int> &)>
@@ -4554,6 +4531,62 @@ namespace Test
                 return false;
             };
             sort(envelopes.begin(), envelopes.end(), less1);
+            vector<int> m(1, 0);
+            for (size_t i = 1; i < envelopes.size(); i++)
+            {
+                int l = 0;
+                int h = m.size();
+                while (l < h)
+                {
+                    int k = l + ((h - l) >> 1);
+                    if (less2(envelopes[m[k]], envelopes[i]))
+                    {
+                        l = k + 1;
+                    }
+                    else
+                    {
+                        h = k;
+                    }
+                }
+                if (l >= m.size())
+                {
+                    m.push_back(i);
+                }
+                else
+                {
+                    // m[l] = i;
+                }
+            }
+            return m.size();
+        }
+        // wrong
+        int maxEnvelopes2(vector<vector<int>> &envelopes)
+        {
+            function<bool(const vector<int> &, const vector<int> &)>
+                less1 = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
+                if (x[0] < y[0])
+                    return true;
+                if (x[0] == y[0] && x[1] < y[1])
+                    return true;
+                return false;
+            };
+            function<bool(const vector<int> &, const vector<int> &)>
+                less2 = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
+                if (x[0] < y[0] && x[1] < y[1])
+                    return true;
+                return false;
+            };
+            sort(envelopes.begin(), envelopes.end(), less1);
+            cout << "{";
+            for (size_t i = 0; i < envelopes.size(); i++)
+            {
+                if (i > 0)
+                    cout << ", ";
+                cout << "{" << envelopes[i][0] << ", " << envelopes[i][1] << "}";
+            }
+            cout << "}" << endl;
             vector<int> n(envelopes.size(), 1);
             int m = 1;
             for (int i = 1; i < (int)envelopes.size(); i++)
@@ -4578,6 +4611,14 @@ namespace Test
                     n[i] = n[j - 1] + 1;
                 m = max(m, n[i]);
             }
+            cout << "{";
+            for (size_t i = 0; i < n.size(); i++)
+            {
+                if (i > 0)
+                    cout << ", ";
+                cout << n[i];
+            }
+            cout << "}" << endl;
             return m;
         }
 
