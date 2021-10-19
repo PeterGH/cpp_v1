@@ -4517,9 +4517,37 @@ namespace Test
             function<bool(const vector<int> &, const vector<int> &)>
                 less1 = [&](const vector<int> &x, const vector<int> &y) -> bool
             {
-                if (x[0] < y[0])
+                if (x[1] < y[1])
                     return true;
-                if (x[0] == y[0] && x[1] < y[1])
+                if (x[0] < y[0] && x[1] == y[1])
+                    return true;
+                return false;
+            };
+            sort(envelopes.begin(), envelopes.end(), less1);
+            vector<int> m(envelopes.size(), 1);
+            int r = 1;
+            for (size_t i = 1; i < envelopes.size(); i++)
+            {
+                for (size_t j = 0; j < i; j++)
+                {
+                    if (envelopes[j][0] < envelopes[i][0] && envelopes[j][1] < envelopes[i][1])
+                    {
+                        m[i] = max(m[i], m[j] + 1);
+                    }
+                }
+                r = max(r, m[i]);
+            }
+            return r;
+        }
+        // wrong
+        int maxEnvelopes2(vector<vector<int>> &envelopes)
+        {
+            function<bool(const vector<int> &, const vector<int> &)>
+                less1 = [&](const vector<int> &x, const vector<int> &y) -> bool
+            {
+                if (x[1] < y[1])
+                    return true;
+                if (x[0] < y[0] && x[1] == y[1])
                     return true;
                 return false;
             };
@@ -4552,15 +4580,15 @@ namespace Test
                 {
                     m.push_back(i);
                 }
-                else
+                else if (envelopes[m[l]] > envelopes[i])
                 {
-                    // m[l] = i;
+                    m[l] = i;
                 }
             }
             return m.size();
         }
         // wrong
-        int maxEnvelopes2(vector<vector<int>> &envelopes)
+        int maxEnvelopes3(vector<vector<int>> &envelopes)
         {
             function<bool(const vector<int> &, const vector<int> &)>
                 less1 = [&](const vector<int> &x, const vector<int> &y) -> bool
