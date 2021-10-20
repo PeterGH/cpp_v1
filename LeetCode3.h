@@ -4539,7 +4539,6 @@ namespace Test
             }
             return r;
         }
-        // wrong
         int maxEnvelopes2(vector<vector<int>> &envelopes)
         {
             function<bool(const vector<int> &, const vector<int> &)>
@@ -4559,7 +4558,9 @@ namespace Test
                 return false;
             };
             sort(envelopes.begin(), envelopes.end(), less1);
-            vector<int> m(1, 0);
+            // m[k] is a set of indices {x} such that there is a lenght k+1 in envelopes[0..x]
+            // Initially length 1 is at envelopes[0] 
+            vector<vector<int>> m(1, {0});
             for (size_t i = 1; i < envelopes.size(); i++)
             {
                 int l = 0;
@@ -4567,7 +4568,17 @@ namespace Test
                 while (l < h)
                 {
                     int k = l + ((h - l) >> 1);
-                    if (less2(envelopes[m[k]], envelopes[i]))
+                    bool isless = false;
+                    for (size_t j = 0; j < m[k].size(); j++)
+                    {
+                        if (less2(envelopes[m[k][j]], envelopes[i]))
+                        {
+                            // envelopes[i] extends the length at envelopes[m[k][j]] by 1
+                            isless = true;
+                            break;
+                        }
+                    }
+                    if (isless)
                     {
                         l = k + 1;
                     }
@@ -4576,13 +4587,13 @@ namespace Test
                         h = k;
                     }
                 }
-                if (l >= m.size())
+                if (l >= (int)m.size())
                 {
-                    m.push_back(i);
+                    m.push_back({(int)i});
                 }
-                else if (envelopes[m[l]] > envelopes[i])
+                else
                 {
-                    m[l] = i;
+                    m[l].push_back((int)i);
                 }
             }
             return m.size();

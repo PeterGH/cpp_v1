@@ -171,9 +171,13 @@ void LeetCodeTest::Init3(void)
             auto check = [&](vector<vector<int>> &v, int e)
             {
                 Logger() << v;
-                int c = maxEnvelopes(v);
-                Logger() << c << ", " << e << endl;
+                vector<vector<int>> v1(v);
+                int c = maxEnvelopes(v1);
+                vector<vector<int>> v2(v);
+                int c2 = maxEnvelopes2(v2);
+                Logger() << c << ", " << c2 << ", " << e << endl;
                 ASSERT1(c == e);
+                ASSERT1(c2 == e);
             };
             {
                 vector<vector<int>> v = {{2, 100}, {3, 200}, {4, 300}, {5, 500}, {5, 400}, {5, 250}, {6, 370}, {6, 360}, {7, 380}};
