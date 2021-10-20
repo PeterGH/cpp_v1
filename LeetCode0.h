@@ -637,7 +637,7 @@ namespace Test
         {
             vector<vector<int>> result;
             sort(nums.begin(), nums.end());
-            vector<vector<int>> tuple(1, vector<int>{});
+            vector<vector<int>> tuple(1, vector<int>{}); // contain tuples of less than 4 numbers
             size_t i = 0;
             while (i < nums.size())
             {
@@ -645,11 +645,11 @@ namespace Test
                 while (j + 1 < nums.size() && nums[j + 1] == nums[j])
                     j++;
                 // nums[i..j] are the same
-                size_t m = tuple.size();
+                size_t m = tuple.size(); // will try to extend m tuples, i.e., tuple[0..(m-1)]
                 vector<int> c;
                 for (size_t k = i; k <= j && k < i + 4; k++)
                 {
-                    c.push_back(nums[k]);
+                    c.push_back(nums[k]); // contain nums[i..k]
                     for (size_t l = 0; l < m; l++)
                     {
                         vector<int> v = tuple[l];
@@ -669,6 +669,51 @@ namespace Test
                 i = j + 1;
             }
             return result;
+        }
+        // wrong
+        vector<vector<int>> fourSum6(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            int n = nums.size();
+            if (n < 4)
+                return output;
+            vector<int> c(1, 0);
+            long long s = nums[0];
+            while (!c.empty())
+            {
+                int l = c.size();
+                if (l == 4 && s == target)
+                {
+                    output.push_back(c);
+                }
+                int j = c[l - 1];
+                if (j == n - 1)
+                {
+                    c.pop_back();
+                    if (c.empty())
+                        break;
+                    s -= nums[j];
+                    l--;
+                    j = c[l - 1];
+                    s -= nums[j];
+                    j++;
+                    c[l - 1] = j;
+                    s += nums[j];
+                }
+                if (l < 4)
+                {
+                    c.push_back(j + 1);
+                    s += nums[j + 1];
+                }
+                else
+                {
+                    s -= nums[j];
+                    j++;
+                    c[l - 1] = j;
+                    s += nums[j];
+                }
+            }
+            return output;
         }
 
         // 4Sum II
