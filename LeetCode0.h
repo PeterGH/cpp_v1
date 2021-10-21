@@ -670,47 +670,170 @@ namespace Test
             }
             return result;
         }
-        // wrong
         vector<vector<int>> fourSum6(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
             int n = nums.size();
             if (n < 4)
                 return output;
+            sort(nums.begin(), nums.end());
+            set<vector<int>> s;
+            vector<int> c;
+            int i = 0;
+            int last = -1;
+            while (!c.empty() || i != n)
+            {
+                if (i != n)
+                {
+                    if (c.size() < 4 && last != n)
+                    {
+                        c.push_back(i);
+                    }
+                    else
+                    {
+                        c.back() = i;
+                    }
+                    if (c.size() == 4)
+                    {
+                        if (accumulate(c.begin(), c.end(), 0, [&](int x, int j) -> int
+                                       { return x + nums[j]; }) == target)
+                        {
+                            vector<int> o;
+                            for (int j : c)
+                            {
+                                o.push_back(nums[j]);
+                            }
+                            s.insert(o);
+                        }
+                    }
+                    last = i;
+                    i++;
+                }
+                else
+                {
+                    last = i;
+                    c.pop_back();
+                    if (!c.empty())
+                        i = c.back() + 1;
+                }
+            }
+            output.insert(output.begin(), s.begin(), s.end());
+            return output;
+        }
+        vector<vector<int>> fourSum7(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            int n = nums.size();
+            if (n < 4)
+                return output;
+            sort(nums.begin(), nums.end());
+            function<int(int)> next = [&](int i) -> int
+            {
+                while (i + 1 < n && nums[i] == nums[i + 1])
+                    i++;
+                return i + 1;
+            };
+            set<vector<int>> s;
+            vector<int> c;
+            int i = 0;
+            int last = -1;
+            while (!c.empty() || i != n)
+            {
+                if (i != n)
+                {
+                    if (c.size() < 4 && last != n)
+                    {
+                        c.push_back(i);
+                    }
+                    else
+                    {
+                        c.back() = i;
+                    }
+                    if (c.size() == 4)
+                    {
+                        if (accumulate(c.begin(), c.end(), 0, [&](int x, int j) -> int
+                                       { return x + nums[j]; }) == target)
+                        {
+                            vector<int> o;
+                            for (int j : c)
+                            {
+                                o.push_back(nums[j]);
+                            }
+                            s.insert(o);
+                        }
+                    }
+                    last = i;
+                    i++;
+                }
+                else
+                {
+                    last = i;
+                    c.pop_back();
+                    if (!c.empty())
+                        i = next(c.back());
+                }
+            }
+            output.insert(output.begin(), s.begin(), s.end());
+            return output;
+        }
+        // wrong
+        vector<vector<int>> fourSum8(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            int n = nums.size();
+            if (n < 4)
+                return output;
+            function<int(int)> next = [&](int i) -> int
+            {
+                while (i + 1 < n && nums[i] == nums[i + 1])
+                    i++;
+                return i + 1;
+            };
             vector<int> c(1, 0);
             long long s = nums[0];
             while (!c.empty())
             {
-                int l = c.size();
-                if (l == 4 && s == target)
+                if (c.size() == 4 && s == target)
                 {
-                    output.push_back(c);
+                    vector<int> o;
+                    for (int i : c)
+                    {
+                        o.push_back(nums[i]);
+                    }
+                    output.push_back(o);
                 }
-                int j = c[l - 1];
-                if (j == n - 1)
+                if (c.back() == n - 1)
                 {
+                    s -= nums[c.back()];
                     c.pop_back();
                     if (c.empty())
                         break;
-                    s -= nums[j];
-                    l--;
-                    j = c[l - 1];
-                    s -= nums[j];
-                    j++;
-                    c[l - 1] = j;
-                    s += nums[j];
+                    c.back() = next(c.back());
+                    if (c.back() == n)
+                    {
+                        c.back() = n - 1;
+                    }
+                    else
+                    {
+                        s += nums[c.back()] - nums[c.back() - 1];
+                    }
                 }
-                if (l < 4)
+                else if (c.size() < 4)
                 {
-                    c.push_back(j + 1);
-                    s += nums[j + 1];
+                    c.push_back(c.back() + 1);
+                    s += nums[c.back()];
                 }
                 else
                 {
-                    s -= nums[j];
-                    j++;
-                    c[l - 1] = j;
-                    s += nums[j];
+                    c.back() = next(c.back());
+                    if (c.back() == n)
+                    {
+                        c.back() = n - 1;
+                    }
+                    else
+                    {
+                        s += nums[c.back()] - nums[c.back() - 1];
+                    }
                 }
             }
             return output;
