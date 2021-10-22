@@ -670,6 +670,17 @@ namespace Test
             }
             return result;
         }
+        // Find 4 indices from 0 to n-1 such that the sum of the 4 numbers sum up to target
+        // Search indice tree
+        // ()----------------------------------------
+        // |                                  |     |
+        // 0----------------------------------1 .. n-1
+        // |                                  |
+        // 1--------------------------  2 ..  2 ..
+        // |          |              |  |     |
+        // 2--------  3-------- ..  n-1 3 ..  3 ..
+        // | |     |  | |     |         |     |
+        // 3 4 .. n-1 4 5 .. n-1        4 ..  5 ..
         vector<vector<int>> fourSum6(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
@@ -677,7 +688,6 @@ namespace Test
             if (n < 4)
                 return output;
             sort(nums.begin(), nums.end());
-            set<vector<int>> s;
             vector<int> c;
             int i = 0;
             int last = -1;
@@ -687,97 +697,40 @@ namespace Test
                 {
                     if (c.size() < 4 && last != n)
                     {
-                        c.push_back(i);
+                        c.push_back(i++);
                     }
                     else
                     {
-                        c.back() = i;
+                        c.back() = i++;
+                        if (nums[c.back()] == nums[c.back() - 1])
+                            continue; // dedup
                     }
+                    last = c.back();
                     if (c.size() == 4)
                     {
-                        if (accumulate(c.begin(), c.end(), 0, [&](int x, int j) -> int
-                                       { return x + nums[j]; }) == target)
+                        if (nums[c[0]] + nums[c[1]] + nums[c[2]] + nums[c[3]] == target)
                         {
                             vector<int> o;
                             for (int j : c)
                             {
                                 o.push_back(nums[j]);
                             }
-                            s.insert(o);
+                            output.push_back(o);
                         }
                     }
-                    last = i;
-                    i++;
                 }
                 else
                 {
-                    last = i;
+                    last = i; // == n
                     c.pop_back();
                     if (!c.empty())
                         i = c.back() + 1;
                 }
             }
-            output.insert(output.begin(), s.begin(), s.end());
-            return output;
-        }
-        vector<vector<int>> fourSum7(vector<int> &nums, int target)
-        {
-            vector<vector<int>> output;
-            int n = nums.size();
-            if (n < 4)
-                return output;
-            sort(nums.begin(), nums.end());
-            function<int(int)> next = [&](int i) -> int
-            {
-                while (i + 1 < n && nums[i] == nums[i + 1])
-                    i++;
-                return i + 1;
-            };
-            set<vector<int>> s;
-            vector<int> c;
-            int i = 0;
-            int last = -1;
-            while (!c.empty() || i != n)
-            {
-                if (i != n)
-                {
-                    if (c.size() < 4 && last != n)
-                    {
-                        c.push_back(i);
-                    }
-                    else
-                    {
-                        c.back() = i;
-                    }
-                    if (c.size() == 4)
-                    {
-                        if (accumulate(c.begin(), c.end(), 0, [&](int x, int j) -> int
-                                       { return x + nums[j]; }) == target)
-                        {
-                            vector<int> o;
-                            for (int j : c)
-                            {
-                                o.push_back(nums[j]);
-                            }
-                            s.insert(o);
-                        }
-                    }
-                    last = i;
-                    i++;
-                }
-                else
-                {
-                    last = i;
-                    c.pop_back();
-                    if (!c.empty())
-                        i = next(c.back());
-                }
-            }
-            output.insert(output.begin(), s.begin(), s.end());
             return output;
         }
         // wrong
-        vector<vector<int>> fourSum8(vector<int> &nums, int target)
+        vector<vector<int>> fourSum7(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
             int n = nums.size();
