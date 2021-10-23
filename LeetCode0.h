@@ -700,11 +700,11 @@ namespace Test
             return result;
         }
         // Find 4 indices from 0 to n-1 such that the sum of the 4 numbers sum up to target
-        // Search indice tree
+        // DFS indice tree
         // ()----------------------------------------
         // |                                  |     |
-        // 0----------------------------------1 .. n-1
-        // |                                  |
+        // 0-----------------------------     1 .. n-1
+        // |                            |     |
         // 1--------------------------  2 ..  2 ..
         // |          |              |  |     |
         // 2--------  3-------- ..  n-1 3 ..  3 ..
@@ -758,8 +758,86 @@ namespace Test
             }
             return output;
         }
-        // wrong
+        // BFS indices tree
         vector<vector<int>> fourSum8(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            int n = nums.size();
+            if (n < 4)
+                return output;
+            sort(nums.begin(), nums.end());
+            queue<pair<vector<int>, int>> c;
+            for (int i = 0; i < n; i++)
+            {
+                if (i == 0 || nums[i - 1] != nums[i])
+                {
+                    c.push(make_pair(vector<int>{i}, nums[i]));
+                }
+            }
+            while (!c.empty())
+            {
+                pair<vector<int>, int> p = c.front();
+                c.pop();
+                if (p.first.size() < 4)
+                {
+                    for (int i = p.first.back() + 1; i < n; i++)
+                    {
+                        if (i == p.first.back() + 1 || nums[i - 1] != nums[i])
+                        {
+                            auto q = p;
+                            q.first.push_back(i);
+                            q.second += nums[i];
+                            c.push(q);
+                        }
+                    }
+                }
+                else if (p.second == target)
+                {
+                    vector<int> o;
+                    for (int i : p.first)
+                    {
+                        o.push_back(nums[i]);
+                    }
+                    output.push_back(o);
+                }
+            }
+            return output;
+        }
+        vector<vector<int>> fourSum9(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            size_t n = nums.size();
+            if (n < 4)
+                return output;
+            sort(nums.begin(), nums.end());
+            for (size_t a = 0; a + 3 < n; a++)
+            {
+                if (a > 0 && nums[a - 1] == nums[a])
+                    continue;
+                for (size_t b = a + 1; b + 2 < n; b++)
+                {
+                    if (b > a + 1 && nums[b - 1] == nums[b])
+                        continue;
+                    for (size_t c = b + 1; c + 1 < n; c++)
+                    {
+                        if (c > b + 1 && nums[c - 1] == nums[c])
+                            continue;
+                        for (size_t d = c + 1; d < n; d++)
+                        {
+                            if (d > c + 1 && nums[d - 1] == nums[d])
+                                continue;
+                            if (nums[a] + nums[b] + nums[c] + nums[d] == target)
+                            {
+                                output.push_back(vector<int>{nums[a], nums[b], nums[c], nums[d]});
+                            }
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+        // wrong
+        vector<vector<int>> fourSum10(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
             int n = nums.size();

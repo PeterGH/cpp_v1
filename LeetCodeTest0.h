@@ -444,6 +444,10 @@ void LeetCodeTest::Init0(void)
                 vector<vector<int>> o6 = fourSum6(m6, t);
                 vector<int> m7(n);
                 vector<vector<int>> o7 = fourSum7(m7, t);
+                vector<int> m8(n);
+                vector<vector<int>> o8 = fourSum8(m8, t);
+                vector<int> m9(n);
+                vector<vector<int>> o9 = fourSum9(m9, t);
                 Util::SortGrid(o);
                 Logger() << o;
                 Util::SortGrid(o2);
@@ -458,12 +462,18 @@ void LeetCodeTest::Init0(void)
                 Logger() << o6;
                 Util::SortGrid(o7);
                 Logger() << o7;
+                Util::SortGrid(o8);
+                Logger() << o8;
+                Util::SortGrid(o9);
+                Logger() << o9;
                 ASSERT1(0 == Util::Compare(o, o2));
                 ASSERT1(0 == Util::Compare(o, o3));
                 ASSERT1(0 == Util::Compare(o, o4));
                 ASSERT1(0 == Util::Compare(o, o5));
                 ASSERT1(0 == Util::Compare(o, o6));
                 ASSERT1(0 == Util::Compare(o, o7));
+                ASSERT1(0 == Util::Compare(o, o8));
+                ASSERT1(0 == Util::Compare(o, o9));
             };
             check(vector<int>{633, -649, -975, 409, -678, 624, -976, -460, -102,
                               -983, 120, 202, 75, 826, -339, -709, 620, 204},
