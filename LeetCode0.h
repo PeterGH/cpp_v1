@@ -506,8 +506,37 @@ namespace Test
             }
             return vector<vector<int>>(ans.begin(), ans.end());
         }
+        vector<vector<int>> fourSum3(vector<int> &nums, int target)
+        {
+            vector<vector<int>> output;
+            sort(nums.begin(), nums.end());
+            function<void(size_t, int, vector<int> &)>
+                solve = [&](size_t i, int t, vector<int> &c)
+            {
+                if (c.size() == 4)
+                {
+                    if (t == 0)
+                        output.push_back(c);
+                    return;
+                }
+                // cannot add nums[i] > t because there can be negative numbers
+                // i >= nums.size() || nums[i] > t)
+                if (i >= nums.size())
+                    return;
+                c.push_back(nums[i]);
+                solve(i + 1, t - nums[i], c);
+                c.pop_back();
+                while (i + 1 < nums.size() && nums[i] == nums[i + 1])
+                    i++;
+                i++;
+                solve(i, t, c);
+            };
+            vector<int> a;
+            solve(0, target, a);
+            return output;
+        }
         // [TODO] Generalize to X-Sum
-        vector<vector<int>> fourSum3(vector<int> &num, int target)
+        vector<vector<int>> fourSum4(vector<int> &num, int target)
         {
             if (num.size() < 4)
                 return vector<vector<int>>{};
@@ -584,7 +613,7 @@ namespace Test
             solve(num, 0, target, vector<int>{}, o);
             return o;
         }
-        vector<vector<int>> fourSum4(vector<int> &num, int target)
+        vector<vector<int>> fourSum5(vector<int> &num, int target)
         {
             if (num.size() < 4)
                 return vector<vector<int>>{};
@@ -633,7 +662,7 @@ namespace Test
             solve(num, 0, 4, target, vector<int>{}, o);
             return o;
         }
-        vector<vector<int>> fourSum5(vector<int> &nums, int target)
+        vector<vector<int>> fourSum6(vector<int> &nums, int target)
         {
             vector<vector<int>> result;
             sort(nums.begin(), nums.end());
@@ -681,7 +710,7 @@ namespace Test
         // 2--------  3-------- ..  n-1 3 ..  3 ..
         // | |     |  | |     |         |     |
         // 3 4 .. n-1 4 5 .. n-1        4 ..  5 ..
-        vector<vector<int>> fourSum6(vector<int> &nums, int target)
+        vector<vector<int>> fourSum7(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
             int n = nums.size();
@@ -730,7 +759,7 @@ namespace Test
             return output;
         }
         // wrong
-        vector<vector<int>> fourSum7(vector<int> &nums, int target)
+        vector<vector<int>> fourSum8(vector<int> &nums, int target)
         {
             vector<vector<int>> output;
             int n = nums.size();
