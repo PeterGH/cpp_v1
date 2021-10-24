@@ -4559,7 +4559,7 @@ namespace Test
             };
             sort(envelopes.begin(), envelopes.end(), less1);
             // m[k] is a set of indices {x} such that there is a lenght k+1 in envelopes[0..x]
-            // Initially length 1 is at envelopes[0] 
+            // Initially length 1 is at envelopes[0]
             vector<vector<int>> m(1, {0});
             for (size_t i = 1; i < envelopes.size(); i++)
             {
@@ -4660,6 +4660,160 @@ namespace Test
             cout << "}" << endl;
             return m;
         }
+
+        // 355. Design Twitter
+        // Design a simplified version of Twitter where users can post tweets,
+        // follow/unfollow another user, and is able to see the 10 most recent
+        // tweets in the user's news feed.
+        // Implement the Twitter class:
+        // Twitter() Initializes your twitter object.
+        // void postTweet(int userId, int tweetId) Composes a new tweet with ID
+        // tweetId by the user userId. Each call to this function will be made
+        // with a unique tweetId.
+        // List<Integer> getNewsFeed(int userId) Retrieves the 10 most recent
+        // tweet IDs in the user's news feed. Each item in the news feed must be
+        // posted by users who the user followed or by the user themself. Tweets
+        // must be ordered from most recent to least recent.
+        // void follow(int followerId, int followeeId) The user with ID followerId
+        // started following the user with ID followeeId.
+        // void unfollow(int followerId, int followeeId) The user with ID followerId
+        // started unfollowing the user with ID followeeId.
+        // Example 1:
+        // Input
+        // ["Twitter", "postTweet", "getNewsFeed", "follow", "postTweet", "getNewsFeed", "unfollow", "getNewsFeed"]
+        // [[], [1, 5], [1], [1, 2], [2, 6], [1], [1, 2], [1]]
+        // Output
+        // [null, null, [5], null, null, [6, 5], null, [5]]
+        // Explanation
+        // Twitter twitter = new Twitter();
+        // twitter.postTweet(1, 5); // User 1 posts a new tweet (id = 5).
+        // twitter.getNewsFeed(1);  // User 1's news feed should return a list with 1 tweet id -> [5]. return [5]
+        // twitter.follow(1, 2);    // User 1 follows user 2.
+        // twitter.postTweet(2, 6); // User 2 posts a new tweet (id = 6).
+        // twitter.getNewsFeed(1);  // User 1's news feed should return a list with 2 tweet ids -> [6, 5]. Tweet id 6 should precede tweet id 5 because it is posted after tweet id 5.
+        // twitter.unfollow(1, 2);  // User 1 unfollows user 2.
+        // twitter.getNewsFeed(1);  // User 1's news feed should return a list with 1 tweet id -> [5], since user 1 is no longer following user 2.
+        // Constraints:
+        // 1 <= userId, followerId, followeeId <= 500
+        // 0 <= tweetId <= 10^4
+        // All the tweets have unique IDs.
+        // At most 3 * 10^4 calls will be made to postTweet, getNewsFeed, follow, and unfollow.
+        class Twitter
+        {
+        private:
+            map<int, set<int>> followersOf;
+            map<int, vector<pair<int, int>>> tweets; // tweets by user
+            map<int, vector<tuple<int, int, int>>> news; // tweets from other users
+            int time;
+            int getTime()
+            {
+                return time++;
+            }
+
+        public:
+            Twitter()
+            {
+                time = 0;
+            }
+
+            void postTweet(int userId, int tweetId)
+            {
+                int t = getTime();
+                // push to own queue
+                auto &u = tweets[userId];
+                u.push_back(make_pair(tweetId, t));
+                while (u.size() > 10)
+                {
+                    u.erase(u.begin());
+                }
+                // push to followers queues
+                for (int follower : followersOf[userId])
+                {
+                    auto &f = news[follower];
+                    f.push_back(make_tuple(userId, tweetId, t));
+                    while (f.size() > 10)
+                    {
+                        f.erase(f.begin());
+                    }
+                }
+            }
+
+            vector<int> getNewsFeed(int userId)
+            {
+                vector<int> feed;
+                // merge from own queue and the news from others
+                const auto &t = tweets[userId];
+                const auto &n = news[userId];
+                int i = t.size() - 1;
+                int j = n.size() - 1;
+                while (feed.size() < 10 && (i >= 0 || j >= 0))
+                {
+                    if (i >= 0 && j >= 0)
+                    {
+                        if (t[i].second > get<2>(n[j]))
+                        {
+                            feed.push_back(t[i].first);
+                            i--;
+                        }
+                        else
+                        {
+                            feed.push_back(get<1>(n[j]));
+                            j--;
+                        }
+                    }
+                    else if (i >= 0)
+                    {
+                        feed.push_back(t[i].first);
+                        i--;
+                    }
+                    else if (j >= 0)
+                    {
+                        feed.push_back(get<1>(n[j]));
+                        j--;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return feed;
+            }
+
+            void follow(int followerId, int followeeId)
+            {
+                if (!followersOf[followeeId].insert(followerId).second)
+                    return;
+                // pull from followee own queue
+                auto &n = news[followerId];
+                auto it = n.begin();
+                for (const auto &p : tweets[followeeId])
+                {
+                    while (it != n.end() && get<2>(*it) < p.second)
+                    {
+                        it++;
+                    }
+                    it = n.insert(it, make_tuple(followeeId, p.first, p.second));
+                }
+            }
+
+            void unfollow(int followerId, int followeeId)
+            {
+                followersOf[followeeId].erase(followerId);
+                auto &n = news[followerId];
+                auto it = n.begin();
+                while (it != n.end())
+                {
+                    if (get<0>(*it) == followeeId)
+                    {
+                        it = n.erase(it);
+                    }
+                    else
+                    {
+                        it++;
+                    }
+                }
+            }
+        };
 
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
