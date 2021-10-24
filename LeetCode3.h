@@ -4700,9 +4700,95 @@ namespace Test
         // At most 3 * 10^4 calls will be made to postTweet, getNewsFeed, follow, and unfollow.
         class Twitter
         {
+            // pull model
+        private:
+            map<int, set<int>> followBy;
+            map<int, vector<pair<int, int>>> news;
+            int time;
+            int getTime()
+            {
+                return time++;
+            }
+            vector<pair<int, int>> merge(const vector<pair<int, int>> &x, const vector<pair<int, int>> &y)
+            {
+                vector<pair<int, int>> o;
+                size_t i = 0;
+                size_t j = 0;
+                while (o.size() < 10 && (i < x.size() || j < y.size()))
+                {
+                    if (i < x.size() && j < y.size())
+                    {
+                        if (x[i].second > y[j].second)
+                        {
+                            o.push_back(x[i++]);
+                        }
+                        else
+                        {
+                            o.push_back(y[j++]);
+                        }
+                    }
+                    else if (i < x.size())
+                    {
+                        o.push_back(x[i++]);
+                    }
+                    else if (j < y.size())
+                    {
+                        o.push_back(y[j++]);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return o;
+            }
+
+        public:
+            Twitter()
+            {
+                time = 0;
+            }
+
+            void postTweet(int userId, int tweetId)
+            {
+                int t = getTime();
+                vector<pair<int, int>> &n = news[userId];
+                n.insert(n.begin(), make_pair(tweetId, t));
+            }
+
+            vector<int> getNewsFeed(int userId)
+            {
+                vector<pair<int, int>> feed = news[userId];
+                if (feed.size() > 10)
+                    feed.resize(10);
+                for (int fid : followBy[userId])
+                {
+                    feed = merge(feed, news[fid]);
+                }
+                vector<int> out;
+                for (size_t i = 0; i < feed.size(); i++)
+                {
+                    out.push_back(feed[i].first);
+                }
+                return out;
+            }
+
+            void follow(int followerId, int followeeId)
+            {
+                followBy[followerId].insert(followeeId);
+            }
+
+            void unfollow(int followerId, int followeeId)
+            {
+                followBy[followerId].erase(followeeId);
+            }
+        };
+        class Twitter2
+        {
+            // push model
         private:
             map<int, set<int>> followersOf;
-            map<int, vector<pair<int, int>>> tweets; // tweets by user
+            map<int, vector<pair<int, int>>> tweets;     // tweets by user
             map<int, vector<tuple<int, int, int>>> news; // tweets from other users
             int time;
             int getTime()
@@ -4711,7 +4797,7 @@ namespace Test
             }
 
         public:
-            Twitter()
+            Twitter2()
             {
                 time = 0;
             }
