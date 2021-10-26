@@ -4901,6 +4901,48 @@ namespace Test
             }
         };
 
+        // 357. Count Numbers with Unique Digits
+        // Given an integer n, return the count of all numbers with unique digits, x, where 0 <= x < 10^n.
+        // Example 1:
+        // Input: n = 2
+        // Output: 91
+        // Explanation: The answer should be the total numbers in the range of 0 ≤ x < 100, excluding 11,22,33,44,55,66,77,88,99
+        // Example 2:
+        // Input: n = 0
+        // Output: 1
+        // Constraints:
+        // 0 <= n <= 8
+        // Consider n digits:
+        // d_{n-1} d_{n-2} d_{n-3} ... d_2 d_1 d_0
+        // Let c(x) = 9 * (9 - 1) * (9 - 2) * ... * (9 - x + 2) * (9 - x + 1)
+        // c(x - 1) = 9 * (9 - 1) * (9 - 2) * ... * (9 - x + 2)
+        // so c(x) = c(x - 1) * (9 - x + 1)
+        // c(0) = 1
+        // c(1) = c(0) * 9
+        // case             count            explanation
+        // No 0 in {d_i}    c(n)
+        // 1 zero           n * c(n-1)
+        // 2 zeros          (n-1) * c(n-2)   d_{n-1} = 0, rest digits have one zero
+        // 3 zeros          (n-2) * c(n-3)   d_{n-1} d_{n-2} = 0 0, rest digits have one zero
+        // ...
+        // n-1 zeros        2 * c(1)         d_{n-1} ... d_2 = 0 ... 0, d_1 or d_0 is the last zero
+        // n zeros          1                d_{n-1} ... d_0 = 0 ... 0 = 0
+        int countNumbersWithUniqueDigits(int n)
+        {
+            if (n == 0)
+                return 1;
+            int c = 1; // c(0)
+            int s = 1; // n zeros
+            for (int i = 1; i < n; i++)
+            {
+                c *= 9 - i + 1;
+                s += (i + 1) * c;
+            }
+            c *= 9 - n + 1;
+            s += c;
+            return s;
+        }
+
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
         // perfect square else False. Note: Do not use any built-in library function
