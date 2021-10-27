@@ -4914,6 +4914,31 @@ namespace Test
         // 0 <= n <= 8
         // Consider n digits:
         // d_{n-1} d_{n-2} d_{n-3} ... d_2 d_1 d_0
+        // Let c(n) be the solution
+        // when d_{n-1} = 0, count is c(n-1)
+        // when d_{n-1} != 0, count is 9*(10-1)*(10-2)*..*(10-n+1)
+        // so c(n) = c(n-1) + 9*(10-1)*(10-2)*..*(10-n+1)
+        // #digits   count
+        // 0         1
+        // 1         1 + 9 = 10
+        // 2         10 + 9 * 9
+        // 3         91 + 9 * 9 * 8
+        int countNumbersWithUniqueDigits(int n)
+        {
+            if (n == 0)
+                return 1;
+            int c = 1;
+            int k = 9;
+            for (int i = 1; i <= n; i++)
+            {
+                if (i > 1)
+                    k *= (10 - i + 1);
+                c = c + k;
+            }
+            return c;
+        }
+        // Consider n digits:
+        // d_{n-1} d_{n-2} d_{n-3} ... d_2 d_1 d_0
         // Let c(x) = 9 * (9 - 1) * (9 - 2) * ... * (9 - x + 2) * (9 - x + 1)
         // c(x - 1) = 9 * (9 - 1) * (9 - 2) * ... * (9 - x + 2)
         // so c(x) = c(x - 1) * (9 - x + 1)
@@ -4927,7 +4952,7 @@ namespace Test
         // ...
         // n-1 zeros        2 * c(1)         d_{n-1} ... d_2 = 0 ... 0, d_1 or d_0 is the last zero
         // n zeros          1                d_{n-1} ... d_0 = 0 ... 0 = 0
-        int countNumbersWithUniqueDigits(int n)
+        int countNumbersWithUniqueDigits2(int n)
         {
             if (n == 0)
                 return 1;
