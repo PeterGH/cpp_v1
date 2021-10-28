@@ -4968,6 +4968,94 @@ namespace Test
             return s;
         }
 
+        // 363. Max Sum of Rectangle No Larger Than K
+        // Given an m x n matrix matrix and an integer k, return the max sum of a rectangle
+        // in the matrix such that its sum is no larger than k.
+        // It is guaranteed that there will be a rectangle with a sum no larger than k.
+        // Example 1:
+        // Input: matrix = [[1,0,1],[0,-2,3]], k = 2
+        // Output: 2
+        // Explanation: Because the sum of the blue rectangle [[0, 1], [-2, 3]] is 2,
+        // and 2 is the max number no larger than k (k = 2).
+        // Example 2:
+        // Input: matrix = [[2,2,-1]], k = 3
+        // Output: 3
+        // Constraints:
+        // m == matrix.length
+        // n == matrix[i].length
+        // 1 <= m, n <= 100
+        // -100 <= matrix[i][j] <= 100
+        // -10^5 <= k <= 10^5
+        // Follow up: What if the number of rows is much larger than the number of columns?
+        int maxSumSubmatrix(vector<vector<int>> &matrix, int k)
+        {
+            int m = matrix.size();
+            int n = matrix[0].size();
+            vector<vector<int>> a(m, vector<int>(n, 0));
+            int s = INT_MIN;
+            int t;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (i == 0)
+                    {
+                        if (j == 0)
+                        {
+                            a[i][j] = matrix[i][j];
+                        }
+                        else
+                        {
+                            a[i][j] = a[i][j - 1] + matrix[i][j];
+                        }
+                        for (int y = 0; y <= j; y++)
+                        {
+                            if (y == 0)
+                                t = a[i][j];
+                            else
+                                t = a[i][j] - a[i][y - 1];
+                            if (t <= k)
+                                s = max(s, t);
+                        }
+                    }
+                    else if (j == 0)
+                    {
+                        a[i][j] = a[i - 1][j] + matrix[i][j];
+                        for (int x = 0; x <= i; x++)
+                        {
+                            if (x == 0)
+                                t = a[i][j];
+                            else
+                                t = a[i][j] - a[x - 1][j];
+                            if (t <= k)
+                                s = max(s, t);
+                        }
+                    }
+                    else
+                    {
+                        a[i][j] = a[i][j - 1] + a[i - 1][j] - a[i - 1][j - 1] + matrix[i][j];
+                        for (int x = 0; x <= i; x++)
+                        {
+                            for (int y = 0; y <= j; y++)
+                            {
+                                if (x == 0 && y == 0)
+                                    t = a[i][j];
+                                else if (x == 0)
+                                    t = a[i][j] - a[i][y - 1];
+                                else if (y == 0)
+                                    t = a[i][j] - a[x - 1][j];
+                                else
+                                    t = a[i][j] - a[i][y - 1] - a[x - 1][j] + a[x - 1][y - 1];
+                                if (t <= k)
+                                    s = max(s, t);
+                            }
+                        }
+                    }
+                }
+            }
+            return s;
+        }
+
         // 367. Valid Perfect Square
         // Given a positive integer num, write a function which returns True if num is a
         // perfect square else False. Note: Do not use any built-in library function
