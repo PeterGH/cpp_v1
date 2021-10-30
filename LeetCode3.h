@@ -4987,7 +4987,7 @@ namespace Test
         // -100 <= matrix[i][j] <= 100
         // -10^5 <= k <= 10^5
         // Follow up: What if the number of rows is much larger than the number of columns?
-        int maxSumSubmatrix(vector<vector<int>> &matrix, int k)
+        int maxSumSubmatrix(const vector<vector<int>> &matrix, int k)
         {
             int m = matrix.size();
             int n = matrix[0].size();
@@ -5055,7 +5055,7 @@ namespace Test
             }
             return s;
         }
-        int maxSumSubmatrix2(vector<vector<int>> &matrix, int k)
+        int maxSumSubmatrix2(const vector<vector<int>> &matrix, int k)
         {
             int m = matrix.size();
             int n = matrix[0].size();
@@ -5083,6 +5083,56 @@ namespace Test
                         // Find lowest x in set such that v - k <= x, i.e., v - x <= k
                         // If v <= k, i.e., sum matrix[0..r][i..j] <= k, v - k <= 0 and the set is
                         // initialized with 0, so it will point to 0 and v will be considered.
+                        auto it = c.lower_bound(v - k);
+                        if (it != c.end())
+                        {
+                            s = max(s, v - *it);
+                        }
+                        c.insert(v);
+                    }
+                }
+            }
+            return s;
+        }
+        int maxSumSubmatrix3(const vector<vector<int>> &matrix, int k)
+        {
+            int m = matrix.size();
+            int n = matrix[0].size();
+            vector<vector<int>> a(m, vector<int>(n, 0));
+            for (int i = 0; i < m; i++)
+            {
+                a[i][0] = matrix[i][0];
+                for (int j = 1; j < n; j++)
+                    a[i][j] = a[i][j - 1] + matrix[i][j];
+            }
+            int s = INT_MIN;
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = i; j < n; j++)
+                {
+                    // Kadane algorithm first O(m)
+                    vector<int> row(m, 0);
+                    int x = INT_MIN;
+                    int v = 0;
+                    for (int r = 0; r < m; r++)
+                    {
+                        row[r] = (i == 0 ? a[r][j] : a[r][j] - a[r][i - 1]);
+                        v = max(row[r], v + row[r]);
+                        x = max(x, v);
+                    }
+                    if (x <= k)
+                    {
+                        // max submatrix sum match the criteria
+                        s = max(s, x);
+                        continue;
+                    }
+                    // now use binary search O(m*log(m))
+                    set<int> c;
+                    v = 0;
+                    c.insert(v);
+                    for (int r = 0; r < m; r++)
+                    {
+                        v += row[r];
                         auto it = c.lower_bound(v - k);
                         if (it != c.end())
                         {
