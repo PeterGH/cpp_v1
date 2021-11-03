@@ -3819,6 +3819,87 @@ namespace Test
             }
         }
 
+        // Slide a window across an input, output the maximum on every move.
+        static void MaxInSlidingWindow(const int *input, int length, int window,
+                                       vector<int> &output)
+        {
+            if (input == nullptr)
+                throw invalid_argument("input is a nullptr");
+            if (length <= 0)
+                throw invalid_argument(String::Format("length %d is invalid", length));
+            if (window <= 0 || window > length)
+                throw invalid_argument(String::Format(
+                    "window %d is out of range (0, %d]", window, length));
+
+            priority_queue<pair<int, int>> heap; // Default it is a max-heap
+
+            for (int i = 0; i < window; i++)
+            {
+                heap.push(make_pair(input[i], i));
+            }
+
+            output.push_back(heap.top().first);
+
+            for (int i = window; i < length; i++)
+            {
+                // The size of heap may be more than the window size.
+                // Consider one case where the input contains increasing numbers.
+                // But the top of heap is always the max within the current window.
+
+                while (!heap.empty() && heap.top().second <= i - window)
+                {
+                    heap.pop();
+                }
+
+                heap.push(make_pair(input[i], i));
+                output.push_back(heap.top().first);
+            }
+        }
+        static void MaxInSlidingWindow2(const int *input, int length, int window,
+                                        vector<int> &output)
+        {
+            if (input == nullptr)
+                throw invalid_argument("input is a nullptr");
+            if (length <= 0)
+                throw invalid_argument(String::Format("length %d is invalid", length));
+            if (window <= 0 || window > length)
+                throw invalid_argument(String::Format(
+                    "window %d is out of range (0, %d]", window, length));
+
+            deque<int> queue;
+
+            // Establish the baseline:
+            // 1. queue contains the latest k elements where k <= window
+            // 2. queue is sorted and the maximum is queue.front()
+            // 3. queue.back() is the latest element
+            // 4. queue.front() is the oldest element
+            // so effectively the queue contains a decreasing sequence between [max, i]
+            for (int i = 0; i < window; i++)
+            {
+                while (!queue.empty() && input[i] >= input[queue.back()])
+                {
+                    queue.pop_back();
+                }
+                queue.push_back(i);
+            }
+
+            output.push_back(input[queue.front()]);
+
+            for (int i = window; i < length; i++)
+            {
+                while (!queue.empty() && input[i] >= input[queue.back()])
+                {
+                    queue.pop_back();
+                }
+                while (!queue.empty() && queue.front() <= i - window)
+                {
+                    queue.pop_front();
+                }
+                queue.push_back(i);
+                output.push_back(input[queue.front()]);
+            }
+        }
+
     } // namespace LeetCode
 
     namespace sql
