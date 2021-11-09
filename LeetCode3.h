@@ -5253,6 +5253,90 @@ namespace Test
             return false;
         }
 
+        // 368. Largest Divisible Subset
+        // Given a set of distinct positive integers nums, return the largest subset answer
+        // such that every pair (answer[i], answer[j]) of elements in this subset satisfies:
+        // answer[i] % answer[j] == 0, or
+        // answer[j] % answer[i] == 0
+        // If there are multiple solutions, return any of them.
+        // Example 1:
+        // Input: nums = [1,2,3]
+        // Output: [1,2]
+        // Explanation: [1,3] is also accepted.
+        // Example 2:
+        // Input: nums = [1,2,4,8]
+        // Output: [1,2,4,8]
+        // Constraints:
+        // 1 <= nums.length <= 1000
+        // 1 <= nums[i] <= 2 * 10^9
+        // All the integers in nums are unique.
+        vector<int> largestDivisibleSubset(vector<int> &nums)
+        {
+            function<int(const vector<int> &, int)> pos = [&](const vector<int> &v, int e) -> int
+            {
+                int l = 0;
+                int h = v.size();
+                while (l < h)
+                {
+                    int m = l + ((h - l) >> 1);
+                    if ((e % v[m]) == 0)
+                    {
+                        l = m + 1;
+                    }
+                    else
+                    {
+                        h = m;
+                    }
+                }
+                if (l < (int)v.size() && (e % v[l]) == 0)
+                    return l + 1;
+                return l;
+            };
+            vector<vector<int>> sets;
+            sort(nums.begin(), nums.end());
+            int a = -1;
+            int b = 0;
+            for (int e : nums)
+            {
+                if (sets.empty())
+                {
+                    sets.push_back(vector<int>(1, e));
+                    // current largest subset is sets[0] with length 1
+                    a = 0;
+                    b = 1;
+                    continue;
+                }
+                int i = 0;
+                int j = 0;
+                for (int k = 0; k < (int)sets.size(); k++)
+                {
+                    int t = pos(sets[k], e);
+                    if (t > j)
+                    {
+                        i = k;
+                        j = t;
+                    }
+                }
+                if (j == (int)sets[i].size())
+                {
+                    sets[i].push_back(e);
+                    if (j + 1 > b)
+                    {
+                        a = i;
+                        b = j + 1;
+                    }
+                }
+                else
+                {
+                    vector<int> v;
+                    v.insert(v.begin(), sets[i].begin(), sets[i].begin() + j);
+                    v.push_back(e);
+                    sets.push_back(v);
+                }
+            }
+            return sets[a];
+        }
+
         // 374. Guess Number Higher or Lower
         // We are playing the Guess Game. The game is as follows:
         // I pick a number from 1 to n. You have to guess which number I picked.
