@@ -219,7 +219,7 @@ static bool Equal(const map<int, vector<int>> &m1,
 template <class T>
 struct VectorLess : std::less<T>
 {
-    bool operator()(const vector<T> &v1, const vector<T> &v2)
+    bool operator()(const vector<T> &v1, const vector<T> &v2) const
     {
         return Compare(v1, v2) == -1;
     }
