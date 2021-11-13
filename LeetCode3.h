@@ -5272,6 +5272,41 @@ namespace Test
         // All the integers in nums are unique.
         vector<int> largestDivisibleSubset(vector<int> &nums)
         {
+            sort(nums.begin(), nums.end());
+            vector<int> output;
+            vector<int> count(nums.size(), 1);
+            vector<int> prev(nums.size(), -1);
+            int maxCount = 0;
+            int maxIndex = 0;
+            for (int i = 1; i < (int)nums.size(); i++)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (nums[i] % nums[j] == 0)
+                    {
+                        if (count[i] <= count[j])
+                        {
+                            count[i] = count[j] + 1;
+                            prev[i] = j;
+                        }
+                    }
+                }
+                if (count[i] > maxCount)
+                {
+                    maxCount = count[i];
+                    maxIndex = i;
+                }
+            }
+            int k = maxIndex;
+            while (k != -1)
+            {
+                output.insert(output.begin(), nums[k]);
+                k = prev[k];
+            }
+            return output;
+        }
+        vector<int> largestDivisibleSubset2(vector<int> &nums)
+        {
             function<int(const vector<int> &, int)> pos = [&](const vector<int> &v, int e) -> int
             {
                 int l = 0;
