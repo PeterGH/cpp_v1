@@ -4553,6 +4553,17 @@ namespace Test
         // [-1,-1]
         vector<int> searchRange(const vector<int> &nums, int target)
         {
+            auto b = lower_bound(nums.begin(), nums.end(), target);
+            auto e = upper_bound(nums.begin(), nums.end(), target);
+            vector<int> range(2, -1);
+            if (b != nums.end() && *b == target)
+                range[0] = b - nums.begin();
+            if (e != nums.begin() && *(e - 1) == target)
+                range[1] = e - nums.begin() - 1;
+            return range;
+        }
+        vector<int> searchRange2(const vector<int> &nums, int target)
+        {
             vector<int> range = {-1, -1};
             bool foundFirst = false;
             int l = 0;
@@ -4599,7 +4610,7 @@ namespace Test
             }
             return range;
         }
-        vector<int> searchRange2(const vector<int> &nums, int target)
+        vector<int> searchRange3(const vector<int> &nums, int target)
         {
             vector<int> range = {-1, -1};
             bool foundFirst = false;
@@ -4652,7 +4663,7 @@ namespace Test
             }
             return range;
         }
-        vector<int> searchRange3(const vector<int> &nums, int target)
+        vector<int> searchRange4(const vector<int> &nums, int target)
         {
             if (nums.empty())
                 return {-1, -1};
@@ -4682,7 +4693,7 @@ namespace Test
             range[1] = (nums[h] == target ? h : (nums[l] == target ? l : -1));
             return range;
         }
-        vector<int> searchRange4(const vector<int> &nums, int target)
+        vector<int> searchRange5(const vector<int> &nums, int target)
         {
             if (nums.empty())
                 return vector<int>{-1, -1};
