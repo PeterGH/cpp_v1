@@ -5372,6 +5372,48 @@ namespace Test
             return sets[a];
         }
 
+        // 371. Sum of Two Integers
+        // Given two integers a and b, return the sum of the two integers without using the operators + and -.
+        // Example 1:
+        // Input: a = 1, b = 2
+        // Output: 3
+        // Example 2:
+        // Input: a = 2, b = 3
+        // Output: 5
+        // Constraints:
+        // -1000 <= a, b <= 1000
+        int getSum(int a, int b)
+        {
+            // key is a_i|b_i|c_i
+            // a_i is bit i of a
+            // b_i is bit i of b
+            // c_i is the carry bit at position i
+            // value is {output bit at i, carry bit at i}
+            map<int, pair<int, int>> m = {
+                {0, {0, 0}},
+                {1, {1, 0}},
+                {2, {1, 0}},
+                {3, {0, 1}},
+                {4, {1, 0}},
+                {5, {0, 1}},
+                {6, {0, 1}},
+                {7, {1, 1}}};
+            int l = sizeof(int) << 3;
+            int n = 0;
+            int c = 0;
+            // operator >> is arithmatic: negative stays negative
+            // so cannot tell whether shift is done by checking while (x != 0),
+            // have to loop all bits of x.
+            for (int i = 0; i < l; i++)
+            {
+                int k = (((a >> i) & 0x1) << 2) | (((b >> i) & 0x1) << 1) | c;
+                pair<int, int> v = m[k];
+                n |= v.first << i;
+                c = v.second;
+            }
+            return n;
+        }
+
         // 374. Guess Number Higher or Lower
         // We are playing the Guess Game. The game is as follows:
         // I pick a number from 1 to n. You have to guess which number I picked.
