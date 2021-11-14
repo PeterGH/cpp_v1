@@ -5084,6 +5084,17 @@ namespace Test
             }
             return nums.size();
         }
+        int missingNumber2(vector<int> &nums)
+        {
+            int x = 0;
+            int i = 0;
+            for (; i < (int)nums.size(); i++)
+            {
+                x ^= i;
+                x ^= nums[i];
+            }
+            return x ^ i;
+        }
 
         // 273. Integer to English Words
         // Convert a non-negative integer num to its English words representation.

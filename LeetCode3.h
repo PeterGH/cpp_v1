@@ -5382,7 +5382,33 @@ namespace Test
         // Output: 5
         // Constraints:
         // -1000 <= a, b <= 1000
+        // a = 0x01
+        // b = 0x02
+        // a ^ b = 0x03
+        // (a & b) << 1 = 0x00
+        // a = 0x05
+        // b = 0x03
+        // a ^ b = 0x06
+        // (a & b) << 1 = 0x02
+        // a = -1 = 0xFFFFFFFF
+        // b = -2 = 0xFFFFFFFE
+        // a ^ b = 0x00000001
+        // (a & b) << 1 = 0xFFFFFFFC
+        // a + b = -3 = 0xFFFFFFFD
         int getSum(int a, int b)
+        {
+            // use uint because left shift cannot handle negative
+            uint x = a;
+            uint y = b;
+            while (y != 0)
+            {
+                uint t = x ^ y;
+                y = (x & y) << 1; // carry bits
+                x = t;
+            }
+            return x;
+        }
+        int getSum2(int a, int b)
         {
             // key is a_i|b_i|c_i
             // a_i is bit i of a

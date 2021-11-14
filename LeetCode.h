@@ -3900,6 +3900,21 @@ namespace Test
             }
         }
 
+        // x = 0b00001100
+        // -x = = ~x + 1 = 0b11110100
+        int lastBit(int x)
+        {
+            return x & (-x);
+        }
+        int lastBit2(int x)
+        {
+            return x & ~(x - 1);
+        }
+        int lastBit3(int x)
+        {
+            return x ^ (x & (x - 1));
+        }
+
     } // namespace LeetCode
 
     namespace sql
