@@ -5440,6 +5440,65 @@ namespace Test
             return n;
         }
 
+        // 372. Super Pow
+        // Your task is to calculate ab mod 1337 where a is a positive integer
+        // and b is an extremely large positive integer given in the form of an array.
+        // Example 1:
+        // Input: a = 2, b = [3]
+        // Output: 8
+        // Example 2:
+        // Input: a = 2, b = [1,0]
+        // Output: 1024
+        // Example 3:
+        // Input: a = 1, b = [4,3,3,8,5,2]
+        // Output: 1
+        // Example 4:
+        // Input: a = 2147483647, b = [2,0,0]
+        // Output: 1198
+        // Constraints:
+        // 1 <= a <= 2^31 - 1
+        // 1 <= b.length <= 2000
+        // 0 <= b[i] <= 9
+        // b does not contain leading zeros.
+        // Observations:
+        // x = a * k + b
+        // y = c * k + d
+        // (x * y) mod k = (b * d) mod k
+        // x^n mod k = (x mod k)^n mod k
+        // a^(b_n * 10^n + b_(n-1) * 10^(n-1) + ... + b_1 * 10 + b_0)
+        // = a^(b_n * 10^(n-1) + b_(n-1) * 10^(n-2) + ... + b_1)^10 * a^b_0
+        // = (a^(b_n * 10^(n-2) + b_(n-1) * 10^(n-3) + ... + b_2)^10  * a^b_1)^10 * a^b_0
+        // ......
+        // = ((...((a^b_n^10 * a^b_(n-1))^10 * a^b_(n-2))^10 * a^b_(n-3)...)^10 * a^b_1)^10 * a^b_0
+        int superPow(int a, vector<int> &b)
+        {
+            const int m = 1337;
+            function<int(int, int)> pow = [&](int x, int e) -> int
+            {
+                x %= m;
+                int y = 1;
+                for (int i = 0; i < e; i++)
+                {
+                    y *= x;
+                    y %= m;
+                }
+                return y;
+            };
+            function<int(int, int)> mul = [&](int x, int y) -> int
+            {
+                x %= m;
+                y %= m;
+                return ((x * y) % m);
+            };
+            int n = 1;
+            for (size_t i = 0; i < b.size(); i++)
+            {
+                n = pow(n, 10);
+                n = mul(n, pow(a, b[i]));
+            }
+            return n;
+        }
+
         // 374. Guess Number Higher or Lower
         // We are playing the Guess Game. The game is as follows:
         // I pick a number from 1 to n. You have to guess which number I picked.
