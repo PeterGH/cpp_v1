@@ -5827,6 +5827,106 @@ namespace Test
             return c[0][n - 1];
         }
 
+        // 376. Wiggle Subsequence
+        // A wiggle sequence is a sequence where the differences between successive numbers
+        // strictly alternate between positive and negative. The first difference (if one
+        // exists) may be either positive or negative. A sequence with one element and a
+        // sequence with two non-equal elements are trivially wiggle sequences.
+        // For example, [1, 7, 4, 9, 2, 5] is a wiggle sequence because the differences
+        // (6, -3, 5, -7, 3) alternate between positive and negative.
+        // In contrast, [1, 4, 7, 2, 5] and [1, 7, 4, 5, 5] are not wiggle sequences. The
+        // first is not because its first two differences are positive, and the second is not
+        // because its last difference is zero.
+        // A subsequence is obtained by deleting some elements (possibly zero) from the original
+        // sequence, leaving the remaining elements in their original order.
+        // Given an integer array nums, return the length of the longest wiggle subsequence of nums.
+        // Example 1:
+        // Input: nums = [1,7,4,9,2,5]
+        // Output: 6
+        // Explanation: The entire sequence is a wiggle sequence with differences (6, -3, 5, -7, 3).
+        // Example 2:
+        // Input: nums = [1,17,5,10,13,15,10,5,16,8]
+        // Output: 7
+        // Explanation: There are several subsequences that achieve this length.
+        // One is [1, 17, 10, 13, 10, 16, 8] with differences (16, -7, 3, -3, 6, -8).
+        // Example 3:
+        // Input: nums = [1,2,3,4,5,6,7,8,9]
+        // Output: 2
+        // Constraints:
+        // 1 <= nums.length <= 1000
+        // 0 <= nums[i] <= 1000
+        // Follow up: Could you solve this in O(n) time?
+        int wiggleMaxLength(vector<int> &nums)
+        {
+            int m = 0;
+            function<void(size_t, vector<int> &)>
+                wiggle = [&](size_t i, vector<int> &v)
+            {
+                if (i >= nums.size())
+                {
+                    m = max(m, (int)v.size());
+                    return;
+                }
+                int n = v.size();
+                if ((n == 0) || (n == 1 && v[n - 1] != nums[i]) || (n >= 2 && v[n - 2] < v[n - 1] && v[n - 1] > nums[i]) || (n >= 2 && v[n - 2] > v[n - 1] && v[n - 1] < nums[i]))
+                {
+                    v.push_back(nums[i]);
+                    wiggle(i + 1, v);
+                    v.pop_back();
+                }
+                wiggle(i + 1, v);
+            };
+            vector<int> r;
+            wiggle(0, r);
+            return m;
+        }
+        // wrong. e.g.
+        // [33,53,12,64,50,41,45,21,97,35,47,92,39,0,93,55,40,46,69,42,6,95,51,68,72,9,32,84,34,64,6,2,26,98,3,43,30,60,3,68,82,9,97,19,27,98,99,4,30,96,37,9,78,43,64,4,65,30,84,90,87,64,18,50,60,1,40,32,48,50,76,100,57,29,63,53,46,57,93,98,42,80,82,9,41,55,69,84,82,79,30,79,18,97,67,23,52,38,74,15]
+        // Output: 57
+        // Expected: 67
+        int wiggleMaxLength2(vector<int> &nums)
+        {
+            vector<int> v;
+            for (int n : nums)
+            {
+                int c = v.size();
+                if (c == 0)
+                {
+                    v.push_back(n);
+                }
+                else if (c == 1)
+                {
+                    if (v[0] != n)
+                    {
+                        v.push_back(n);
+                    }
+                }
+                else if (v[c - 2] < v[c - 1])
+                {
+                    if (v[c - 1] <= n)
+                    {
+                        v[c - 1] = n;
+                    }
+                    else
+                    {
+                        v.push_back(n);
+                    }
+                }
+                else if (v[c - 2] > v[c - 1])
+                {
+                    if (v[c - 1] >= n)
+                    {
+                        v[c - 1] == n;
+                    }
+                    else
+                    {
+                        v.push_back(n);
+                    }
+                }
+            }
+            return v.size();
+        }
+
     }
 }
 
