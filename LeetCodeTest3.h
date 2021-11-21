@@ -184,6 +184,21 @@ void LeetCodeTest::Init3(void)
                 check(v, 5);
             }
         });
+
+    Add("377. Combination Sum IV", [&]()
+        {
+            auto check = [&](const vector<int> &v, int t)
+            {
+                Logger() << v;
+                Logger() << "Target: " << t << endl;
+                vector<int> v1(v);
+                int c = LeetCode::combinationSumIV(v1, t);
+                Logger() << "Count: " << c << endl;
+            };
+            check({1, 2, 3}, 4);
+            check({3,1,2,4}, 4);
+            check({1,2,3}, 32);
+        });
 }
 
 #endif

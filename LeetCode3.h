@@ -5928,10 +5928,6 @@ namespace Test
             }
             return max(up[nums.size() - 1], down[nums.size() - 1]);
         }
-        // wrong. e.g.
-        // [33,53,12,64,50,41,45,21,97,35,47,92,39,0,93,55,40,46,69,42,6,95,51,68,72,9,32,84,34,64,6,2,26,98,3,43,30,60,3,68,82,9,97,19,27,98,99,4,30,96,37,9,78,43,64,4,65,30,84,90,87,64,18,50,60,1,40,32,48,50,76,100,57,29,63,53,46,57,93,98,42,80,82,9,41,55,69,84,82,79,30,79,18,97,67,23,52,38,74,15]
-        // Output: 57
-        // Expected: 67
         int wiggleMaxLength4(vector<int> &nums)
         {
             vector<int> v;
@@ -5964,7 +5960,7 @@ namespace Test
                 {
                     if (v[c - 1] >= n)
                     {
-                        v[c - 1] == n;
+                        v[c - 1] = n;
                     }
                     else
                     {
@@ -5975,6 +5971,74 @@ namespace Test
             return v.size();
         }
 
+        // 377. Combination Sum IV
+        // Given an array of distinct integers nums and a target integer target,
+        // return the number of possible combinations that add up to target.
+        // The answer is guaranteed to fit in a 32-bit integer.
+        // Example 1:
+        // Input: nums = [1,2,3], target = 4
+        // Output: 7
+        // Explanation:
+        // The possible combination ways are:
+        // (1, 1, 1, 1)
+        // (1, 1, 2)
+        // (1, 2, 1)
+        // (1, 3)
+        // (2, 1, 1)
+        // (2, 2)
+        // (3, 1)
+        // Note that different sequences are counted as different combinations.
+        // Example 2:
+        // Input: nums = [9], target = 3
+        // Output: 0
+        // Constraints:
+        // 1 <= nums.length <= 200
+        // 1 <= nums[i] <= 1000
+        // All the elements of nums are unique.
+        // 1 <= target <= 1000
+        // Follow up: What if negative numbers are allowed in the given array?
+        // How does it change the problem? What limitation we need to add to the
+        // question to allow negative numbers?
+        int combinationSumIV(vector<int> &nums, int target)
+        {
+            function<int(const vector<int> &)> perm = [&](const vector<int> &v) -> int
+            {
+                vector<int> v1(v);
+                sort(v1.begin(), v1.end());
+                int c = 1;
+                while (next_permutation(v1.begin(), v1.end()))
+                    c++;
+                return c;
+            };
+            int m = 0;
+            sort(nums.begin(), nums.end());
+            function<void(size_t, int, vector<int> &)>
+                comb = [&](size_t i, int t, vector<int> &v)
+            {
+                cout << "c(" << i << ", " << t << ", {";
+                for (size_t j = 0; j < v.size(); j++) {
+                    if (j > 0)
+                        cout << ", ";
+                    cout << v[j];
+                }
+                cout << "})" << endl;
+                if (t == 0)
+                {
+                    m += perm(v);
+                    cout << "m = " << m << endl;
+                    return;
+                }
+                if (i >= nums.size() || t < 0 || t < nums[i])
+                    return;
+                v.push_back(nums[i]);
+                comb(i, t - nums[i], v);
+                v.pop_back();
+                comb(i + 1, t, v);
+            };
+            vector<int> w;
+            comb(0, target, w);
+            return m;
+        }
     }
 }
 
