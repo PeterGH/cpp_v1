@@ -6016,7 +6016,8 @@ namespace Test
                 comb = [&](size_t i, int t, vector<int> &v)
             {
                 cout << "c(" << i << ", " << t << ", {";
-                for (size_t j = 0; j < v.size(); j++) {
+                for (size_t j = 0; j < v.size(); j++)
+                {
                     if (j > 0)
                         cout << ", ";
                     cout << v[j];
@@ -6039,6 +6040,23 @@ namespace Test
             comb(0, target, w);
             return m;
         }
+        int combinationSumIV2(vector<int> &nums, int target)
+        {
+            vector<unsigned int> d(target + 1);
+            d[0] = 1;
+            sort(nums.begin(), nums.end());
+            for (int i = 1; i <= target; i++)
+            {
+                for (auto n : nums)
+                {
+                    if (i < n)
+                        break;
+                    d[i] += d[i - n];
+                }
+            }
+            return d.back();
+        }
+
     }
 }
 

@@ -193,11 +193,14 @@ void LeetCodeTest::Init3(void)
                 Logger() << "Target: " << t << endl;
                 vector<int> v1(v);
                 int c = LeetCode::combinationSumIV(v1, t);
-                Logger() << "Count: " << c << endl;
+                vector<int> v2(v);
+                int c2 = LeetCode::combinationSumIV2(v2, t);
+                Logger() << "Count: " << c << ", " << c2 << endl;
+                ASSERT1(c == c2);
             };
             check({1, 2, 3}, 4);
-            check({3,1,2,4}, 4);
-            check({1,2,3}, 32);
+            check({3, 1, 2, 4}, 4);
+            check({1, 2, 3}, 32);
         });
 }
 
