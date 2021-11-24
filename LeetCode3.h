@@ -6057,6 +6057,81 @@ namespace Test
             return d.back();
         }
 
+        // 378. Kth Smallest Element in a Sorted Matrix
+        // Given an n x n matrix where each of the rows and columns is sorted in
+        // ascending order, return the kth smallest element in the matrix.
+        // Note that it is the kth smallest element in the sorted order, not the kth distinct element.
+        // You must find a solution with complexity better than O(n2).
+        // Example 1:
+        // Input: matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8
+        // Output: 13
+        // Explanation: The elements in the matrix are [1,5,9,10,11,12,13,13,15],
+        // and the 8th smallest number is 13
+        // Example 2:
+        // Input: matrix = [[-5]], k = 1
+        // Output: -5
+        // Constraints:
+        // n == matrix.length == matrix[i].length
+        // 1 <= n <= 300
+        // -10^9 <= matrix[i][j] <= 10^9
+        // All the rows and columns of matrix are guaranteed to be sorted in non-decreasing order.
+        // 1 <= k <= n^2
+        // Follow up: Could you solve the problem in O(n) time complexity?
+        // http://www.cse.yorku.ca/~andy/pubs/X+Y.pdf
+        // Selection in X+Y and matrices with sorted rows and columns
+        // A. Mirzaian and E. Arjomandi
+        int kthSmallest(const vector<vector<int>> &matrix, int k)
+        {
+            function<bool(const pair<int, int> &, const pair<int, int> &)>
+                comp = [&](const pair<int, int> &x, const pair<int, int> &y) -> bool
+            {
+                return matrix[x.first][x.second] > matrix[y.first][y.second];
+            };
+            // min heap
+            priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(comp)> q(comp);
+            int n = matrix.size();
+            for (int i = 0; i < n; i++)
+            {
+                q.push(make_pair(i, 0));
+            }
+            int j = 0;
+            pair<int, int> t;
+            while (j < k)
+            {
+                t = q.top();
+                q.pop();
+                if (t.second + 1 < n)
+                    q.push(make_pair(t.first, t.second + 1));
+                j++;
+            }
+            return matrix[t.first][t.second];
+        }
+        int kthSmallest2(const vector<vector<int>> &matrix, int k)
+        {
+            int n = matrix.size();
+            int l = matrix[0][0];
+            int h = matrix[n - 1][n - 1];
+            while (l < h)
+            {
+                int m = l + ((h - l) >> 1);
+                int c = 0; // count numbers <= m
+                for (int i = 0; i < n; i++)
+                {
+                    auto it = upper_bound(matrix[i].begin(), matrix[i].end(), m);
+                    c += it - matrix[i].begin();
+                }
+                if (c < k)
+                {
+                    l = m + 1;
+                }
+                else
+                {
+                    h = m;
+                }
+            }
+            return l;
+        }
+
     }
 }
 
