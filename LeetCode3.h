@@ -6132,6 +6132,158 @@ namespace Test
             return l;
         }
 
+        // 380. Insert Delete GetRandom O(1)
+        // Implement the RandomizedSet class:
+        // RandomizedSet() Initializes the RandomizedSet object.
+        // bool insert(int val) Inserts an item val into the set if not present.
+        // Returns true if the item was not present, false otherwise.
+        // bool remove(int val) Removes an item val from the set if present.
+        // Returns true if the item was present, false otherwise.
+        // int getRandom() Returns a random element from the current set of elements
+        // (it is guaranteed that at least one element exists when this method is called).
+        // Each element must have the same probability of being returned.
+        // You must implement the functions of the class such that each
+        // function works in average O(1) time complexity.
+        // Example 1:
+        // Input
+        // ["RandomizedSet", "insert", "remove", "insert", "getRandom", "remove", "insert", "getRandom"]
+        // [[], [1], [2], [2], [], [1], [2], []]
+        // Output
+        // [null, true, false, true, 2, true, false, 2]
+        // Explanation
+        // RandomizedSet randomizedSet = new RandomizedSet();
+        // randomizedSet.insert(1); // Inserts 1 to the set. Returns true as 1 was inserted successfully.
+        // randomizedSet.remove(2); // Returns false as 2 does not exist in the set.
+        // randomizedSet.insert(2); // Inserts 2 to the set, returns true. Set now contains [1,2].
+        // randomizedSet.getRandom(); // getRandom() should return either 1 or 2 randomly.
+        // randomizedSet.remove(1); // Removes 1 from the set, returns true. Set now contains [2].
+        // randomizedSet.insert(2); // 2 was already in the set, so return false.
+        // randomizedSet.getRandom(); // Since 2 is the only number in the set, getRandom() will always return 2.
+        // Constraints:
+        // -2^31 <= val <= 2^31 - 1
+        // At most 2 * 10^5 calls will be made to insert, remove, and getRandom.
+        // There will be at least one element in the data structure when getRandom is called.
+        class RandomizedSet
+        {
+        private:
+            vector<int> value;
+            map<int, size_t> index;
+
+        public:
+            RandomizedSet()
+            {
+            }
+            bool insert(int val)
+            {
+                if (index.find(val) == index.end())
+                {
+                    value.push_back(val);
+                    index[val] = value.size() - 1;
+                    return true;
+                }
+                return false;
+            }
+            bool remove(int val)
+            {
+                if (index.find(val) == index.end())
+                    return false;
+                size_t i = index[val];
+                size_t n = value.size();
+                if (i + 1 < n)
+                {
+                    int e = value[n - 1];
+                    value[i] = e;
+                    index[e] = i;
+                }
+                index.erase(val);
+                value.resize(n - 1);
+                return true;
+            }
+            int getRandom()
+            {
+                size_t i = (size_t)rand() % value.size();
+                return value[i];
+            }
+        };
+        class RandomizedSet2
+        {
+        private:
+            vector<vector<int>> v;
+            map<int, int> m;
+            int k;
+
+        public:
+            RandomizedSet2()
+            {
+                k = 1000;
+            }
+            bool insert(int val)
+            {
+                int i = val % k;
+                if (m.find(i) == m.end())
+                {
+                    v.push_back({val});
+                    m[i] = (int)v.size() - 1;
+                    return true;
+                }
+                else
+                {
+                    int j = m[i];
+                    vector<int>::iterator it = v[j].begin();
+                    while (it != v[j].end() && *it != val)
+                        it++;
+                    if (it == v[j].end())
+                    {
+                        v[j].push_back(val);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            bool remove(int val)
+            {
+                int i = val % k;
+                if (m.find(i) == m.end())
+                {
+                    return false;
+                }
+                else
+                {
+                    int j = m[i];
+                    vector<int>::iterator it = v[j].begin();
+                    while (it != v[j].end() && *it != val)
+                        it++;
+                    if (it == v[j].end())
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        v[j].erase(it);
+                        if (v[j].empty())
+                            m.erase(i);
+                        return true;
+                    }
+                }
+            }
+            int getRandom()
+            {
+                int i = rand() % m.size();
+                map<int, int>::iterator it = m.begin();
+                while (i > 0)
+                {
+                    it++;
+                    i--;
+                }
+                int j = it->second;
+                int t = rand() % v[j].size();
+                return v[j][t];
+            }
+        };
+
     }
 }
 
