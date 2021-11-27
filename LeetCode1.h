@@ -1867,6 +1867,63 @@ namespace Test
             }
             return profit;
         }
+        int maxProfit2(const vector<int> &prices)
+        {
+            if (prices.empty())
+                return 0;
+            int min = prices[0];
+            int profit = 0;
+            for (size_t i = 1; i < prices.size(); i++)
+            {
+                if (prices[i] - min > profit)
+                {
+                    profit = prices[i] - min;
+                }
+                else if (prices[i] < min)
+                {
+                    min = prices[i];
+                }
+            }
+            return profit;
+        }
+        void maxProfit(const int *input, int length, int &buy, int &sell, int &profit)
+        {
+            buy = 0;
+            sell = 0;
+            profit = 0;
+            stack<int>
+                sellCandidates; // track the increasing values from end to beginning
+            sellCandidates.push(length - 1);
+            for (int i = length - 2; i > 0; i--)
+            {
+                if (input[i] >= input[sellCandidates.top()])
+                {
+                    // i is the possible sell date, because
+                    // other dates later than i have less stock values
+                    sellCandidates.push(i);
+                }
+            }
+            int min = 0;
+            for (int i = 0; i < length - 1; i++)
+            {
+                if (i == 0 || input[i] < input[min])
+                {
+                    min = i;
+                    while (min >= sellCandidates.top())
+                    {
+                        // i may be way later than top candidates
+                        sellCandidates.pop();
+                    }
+                    int diff = input[sellCandidates.top()] - input[min];
+                    if (diff > profit)
+                    {
+                        buy = min;
+                        sell = sellCandidates.top();
+                        profit = diff;
+                    }
+                }
+            }
+        }
 
         // 122. Best Time to Buy and Sell Stock II
         // Say you have an array for which the ith element is the price of a given
@@ -1896,6 +1953,28 @@ namespace Test
             for (size_t i = 1; i < prices.size(); i++)
                 p += (prices[i] > prices[i - 1] ? prices[i] - prices[i - 1] : 0);
             return p;
+        }
+        void maxProfitII2(const int *input, int length, vector<int> &buy,
+                          vector<int> &sell, vector<int> &profit)
+        {
+            if (input == nullptr || length < 2)
+                return;
+            int i = 0;
+            int j = 0;
+            while (j < length)
+            {
+                while (j + 1 < length && input[j + 1] >= input[j])
+                    j++;
+                if (i < j)
+                {
+                    // input[i..j] is increasing
+                    buy.push_back(i);
+                    sell.push_back(j);
+                    profit.push_back(input[j] - input[i]);
+                }
+                i = j + 1;
+                j++;
+            }
         }
 
         // 123. Best Time to Buy and Sell Stock III
