@@ -2005,23 +2005,34 @@ namespace Test
         //               p[j] - p[j - 2] + p[1, j - 3],
         //               ......
         //               p[j] - p[2] + p[1, 1])
+        //         = max(p[2, j - 1],
+        //               p[j] + max(-p[j - 1] + p[1, j - 2],
+        //                          -p[j - 2] + p[1, j - 3],
+        //                          ......
+        //                          -p[2] + p[1, 1]]))
         // p[2, j - 1] = max(p[2, j - 2],
         //                   p[j - 1] - p[j - 2] + p[1, j - 3],
         //                   p[j - 1] - p[j - 3] + p[1, j - 4],
         //                   ......
         //                   p[j - 1] - p[2] + p[1, 1])
         // p[1, j] = max(p[1, j - 1],
-        //               p[j] - p[j - 1] + p[0, j - 2],
-        //               p[j] - p[j - 2] + p[0, j - 3],
+        //               p[j] - p[j - 1],
+        //               p[j] - p[j - 2],
         //               ......
-        //               p[j] - p[1] + p[0, 0])
-        //               p[j] - p[0] + p[0, -1])
+        //               p[j] - p[1],
+        //               p[j] - p[0])
+        //         = max(p[1, j - 1],
+        //               p[j] + max(-p[j - 1],
+        //                          -p[j - 2],
+        //                          ......
+        //                          -p[1],
+        //                          -p[0]))
         // p[1, j - 1] = max(p[1, j - 2],
-        //                   p[j - 1] - p[j - 2] + p[0, j - 3],
-        //                   p[j - 1] - p[j - 3] + p[0, j - 4],
+        //                   p[j - 1] - p[j - 2],
+        //                   p[j - 1] - p[j - 3],
         //                   ......
-        //                   p[j - 1] - p[1] + p[0, 0])
-        //                   p[j - 1] - p[0] + p[0, -1])
+        //                   p[j - 1] - p[1],
+        //                   p[j - 1] - p[0])
         //   j 0
         //       p[0]   p[1]   p[2]         p[3]         p[4]      ......    p[j-2]          p[j-1]          p[j]
         // max{ -p[0]  -p[1]  -p[2]        -p[3]        -p[4]      ......   -p[j-2]         -p[j-1]         -p[j] }
@@ -2126,7 +2137,7 @@ namespace Test
                 }
                 if (i < sell2 || prices[i] >= prices[j])
                 {
-                    // i is the minimal in the range [sell2, j]
+                    // ensure i is the minimal in the range [sell2, j]
                     // [sell2, j] may contain multiple increasing ranges, because
                     // [i, j] may not overlap with previous [buy2, sell2]
                     i = j;

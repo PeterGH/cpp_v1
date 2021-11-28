@@ -6455,6 +6455,72 @@ namespace Test
             }
         };
 
+        // 383. Ransom Note
+        // Given two stings ransomNote and magazine, return true if ransomNote can
+        // be constructed from magazine and false otherwise.
+        // Each letter in magazine can only be used once in ransomNote.
+        // Example 1:
+        // Input: ransomNote = "a", magazine = "b"
+        // Output: false
+        // Example 2:
+        // Input: ransomNote = "aa", magazine = "ab"
+        // Output: false
+        // Example 3:
+        // Input: ransomNote = "aa", magazine = "aab"
+        // Output: true
+        // Constraints:
+        // 1 <= ransomNote.length, magazine.length <= 10^5
+        // ransomNote and magazine consist of lowercase English letters.
+        bool canConstruct(string ransomNote, string magazine)
+        {
+            map<char, int> r;
+            map<char, int> m;
+            for (char c : ransomNote)
+            {
+                if (r.find(c) == r.end())
+                    r[c] = 1;
+                else
+                    r[c]++;
+            }
+            for (char c : magazine)
+            {
+                if (m.find(c) == m.end())
+                    m[c] = 1;
+                else
+                    m[c]++;
+            }
+            if (r.size() > m.size())
+                return false;
+            for (const auto &p : r)
+            {
+                if (m.find(p.first) == m.end())
+                    return false;
+                if (m[p.first] < p.second)
+                    return false;
+            }
+            return true;
+        }
+        bool canConstruct2(string ransomNote, string magazine)
+        {
+            map<char, int> m;
+            for (char c : magazine)
+            {
+                if (m.find(c) == m.end())
+                    m[c] = 1;
+                else
+                    m[c]++;
+            }
+            for (char c : ransomNote)
+            {
+                if (m.find(c) == m.end())
+                    return false;
+                m[c]--;
+                if (m[c] < 0)
+                    return false;
+            }
+            return true;
+        }
+
     }
 }
 
