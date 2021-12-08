@@ -202,6 +202,17 @@ void LeetCodeTest::Init3(void)
             check({3, 1, 2, 4}, 4);
             check({1, 2, 3}, 32);
         });
+
+    Add("386. Lexicographical Numbers", [&]()
+        {
+            auto check = [&](int n)
+            {
+                Logger() << n << endl;
+                vector<int> r = LeetCode::lexicalOrder(n);
+                Logger() << r;
+            };
+            check(13);
+        });
 }
 
 #endif

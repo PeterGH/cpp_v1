@@ -6667,6 +6667,111 @@ namespace Test
             }
         };
 
+        // 386. Lexicographical Numbers
+        // Given an integer n, return all the numbers in the range [1, n] sorted in lexicographical order.
+        // You must write an algorithm that runs in O(n) time and uses O(1) extra space.
+        // Example 1:
+        // Input: n = 13
+        // Output: [1,10,11,12,13,2,3,4,5,6,7,8,9]
+        // Example 2:
+        // Input: n = 2
+        // Output: [1,2]
+        // Constraints:
+        // 1 <= n <= 5 * 10^4
+        vector<int> lexicalOrder(int n)
+        {
+            vector<int> output;
+            function<void(int)> f = [&](int i)
+            {
+                if (i > n)
+                    return;
+                output.push_back(i);
+                f(10 * i);
+                if ((i % 10) != 9)
+                    f(i + 1);
+            };
+            f(1);
+            return output;
+        }
+        vector<int> lexicalOrder2(int n)
+        {
+            vector<int> output;
+            function<void(int, int)> f = [&](int b, int e)
+            {
+                while (b <= e && b <= n)
+                {
+                    output.push_back(b);
+                    f(b * 10, b * 10 + 9);
+                    b++;
+                }
+            };
+            f(1, 9);
+            return output;
+        }
+        // Wrong
+        // let f(x) be count of integers in [1,..n] no more than x in lexicographical order
+        // n = d_k ... d_1
+        // x = a
+        // {1, 10,...,19, 100,...,199, ..., (100...0),...,(199...9),
+        //  2, 20,...,29, 200,...,299, ..., (200...0),...,(299...9),
+        //  ...
+        //  (a-1), (a-1)0,...(a-1)9, (a-1)00,...(a-1)99, ..., ((a-1)00...0),...,((a-1)99...9),
+        //   a}
+        // f(a) = (a-1) * (111...1) + 1
+        // x = ab
+        // {1, 10,...,19, 100,...,199, ..., (100...0),...,(199...9),
+        //  2, 20,...,29, 200,...,299, ..., (200...0),...,(299...9),
+        //  ...
+        //  (a-1), (a-1)0,...(a-1)9, (a-1)00,...(a-1)99, ..., ((a-1)00...0),...,((a-1)99...9),
+        //  a,
+        //  a0, a00,...,a09, a000,...,a099, a0000,...,a0999, ..., (a00...0),...,(a09...9),
+        //  a1, a10,...,a19, a100,...,a199, a1000,...,a1999, ..., (a10...0),...,(a19...9),
+        //  ...
+        //  a(b-1), a(b-1)0,...,a(b-1)9, a(b-1)00,...,a(b-1)99, ..., (a(b-1)0...0), (a(b-1)9...9),
+        //  ab}
+        // f(ab) = (a-1) * (111...1) + 1 + b * (11...1) + 1
+        //       = a * (111...1) + 1 + b * (11..1) + 1 - (111...1)
+        vector<int> lexicalOrder3(int n)
+        {
+            int b = 0;
+            int y = n;
+            while (y > 0)
+            {
+                y /= 10;
+                b = 10 * b + 1;
+            }
+            cout << "base " << b << endl;
+            function<int(int)> rank = [&](int x) -> int
+            {
+                y = x;
+                int d = 1;
+                while (y >= 10)
+                {
+                    y /= 10;
+                    d *= 10;
+                }
+                cout << "d " << d << endl;
+                int r = 0;
+                while (x > 0)
+                {
+                    y = x % 10;
+                    r += 1 + y * (b / d);
+                    x /= 10;
+                    d /= 10;
+                }
+                r -= b;
+                return r;
+            };
+            vector<int> output(n, 0);
+            for (int i = 1; i <= n; i++)
+            {
+                int r = rank(i);
+                cout << "rank(" << i << ")=" << r << endl;
+                output[r - 1] = i;
+            }
+            return output;
+        }
+
     }
 }
 
