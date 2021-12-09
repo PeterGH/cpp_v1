@@ -6678,7 +6678,45 @@ namespace Test
         // Output: [1,2]
         // Constraints:
         // 1 <= n <= 5 * 10^4
+        // 1 10 100
+        //      ...
+        //      109
+        //   11 110
+        //      ...
+        //      119
+        //   12
+        //   ...
+        //   19 190
+        //      ...
+        //      199
+        // 2
+        // ...
         vector<int> lexicalOrder(int n)
+        {
+            vector<int> output;
+            stack<int> s;
+            int x = 1;
+            while (!s.empty() || x <= n)
+            {
+                if (x <= n)
+                {
+                    output.push_back(x);
+                    s.push(x);
+                    x *= 10;
+                }
+                else
+                {
+                    int t = s.top();
+                    s.pop();
+                    if ((t % 10) != 9)
+                    {
+                        x = t + 1;
+                    }
+                }
+            }
+            return output;
+        }
+        vector<int> lexicalOrder2(int n)
         {
             vector<int> output;
             function<void(int)> f = [&](int i)
@@ -6693,7 +6731,7 @@ namespace Test
             f(1);
             return output;
         }
-        vector<int> lexicalOrder2(int n)
+        vector<int> lexicalOrder3(int n)
         {
             vector<int> output;
             function<void(int, int)> f = [&](int b, int e)
@@ -6731,7 +6769,7 @@ namespace Test
         //  ab}
         // f(ab) = (a-1) * (111...1) + 1 + b * (11...1) + 1
         //       = a * (111...1) + 1 + b * (11..1) + 1 - (111...1)
-        vector<int> lexicalOrder3(int n)
+        vector<int> lexicalOrder4(int n)
         {
             int b = 0;
             int y = n;
