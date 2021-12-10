@@ -6719,6 +6719,33 @@ namespace Test
         vector<int> lexicalOrder2(int n)
         {
             vector<int> output;
+            int x = 1;
+            while (x > 0)
+            {
+                if (x <= n)
+                {
+                    output.push_back(x);
+                    x *= 10;
+                }
+                else
+                {
+                    x /= 10;
+                    while ((x % 10) == 9)
+                    {
+                        x /= 10;
+                    }
+                    if (x == 0)
+                    {
+                        break;
+                    }
+                    x++;
+                }
+            }
+            return output;
+        }
+        vector<int> lexicalOrder3(int n)
+        {
+            vector<int> output;
             function<void(int)> f = [&](int i)
             {
                 if (i > n)
@@ -6731,7 +6758,7 @@ namespace Test
             f(1);
             return output;
         }
-        vector<int> lexicalOrder3(int n)
+        vector<int> lexicalOrder4(int n)
         {
             vector<int> output;
             function<void(int, int)> f = [&](int b, int e)
