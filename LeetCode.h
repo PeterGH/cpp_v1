@@ -3079,33 +3079,6 @@ namespace Test
             return o;
         }
 
-        // First Unique Character in a String
-        // Given a string, find the first non-repeating character in it
-        // and return it's index. If it doesn't exist, return -1.
-        // Examples:
-        // s = "leetcode"
-        // return 0.
-        // s = "loveleetcode",
-        // return 2.
-        // Note: You may assume the string contain only lowercase letters.
-        int firstUniqChar(const string &s)
-        {
-            map<char, int> m;
-            for (int i = 0; i < (int)s.size(); i++)
-            {
-                if (m.find(s[i]) == m.end())
-                    m[s[i]] = 1;
-                else
-                    m[s[i]]++;
-            }
-            for (int i = 0; i < (int)s.size(); i++)
-            {
-                if (m[s[i]] == 1)
-                    return i;
-            }
-            return -1;
-        }
-
         // Find Duplicate Subtrees
         // Given a binary tree, return all duplicate subtrees. For each kind of duplicate
         // subtrees, you only need to return the root node of any one of them.

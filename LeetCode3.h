@@ -6837,6 +6837,85 @@ namespace Test
             return output;
         }
 
+        // 387. First Unique Character in a String
+        // Given a string s, find the first non-repeating character in it and
+        // return its index. If it does not exist, return -1.
+        // Example 1:
+        // Input: s = "leetcode"
+        // Output: 0
+        // Example 2:
+        // Input: s = "loveleetcode"
+        // Output: 2
+        // Example 3:
+        // Input: s = "aabb"
+        // Output: -1
+        // Constraints:
+        // 1 <= s.length <= 10^5
+        // s consists of only lowercase English letters.
+        int firstUniqChar(const string &s)
+        {
+            map<char, vector<int>> m;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m.find(s[i]) == m.end())
+                    m[s[i]] = {i};
+                else
+                    m[s[i]].push_back(i);
+            }
+            int u = -1;
+            for (const auto &p : m)
+            {
+                if (p.second.size() == 1)
+                {
+                    if (u == -1)
+                        u = p.second[0];
+                    else
+                        u = min(u, p.second[0]);
+                }
+            }
+            return u;
+        }
+        int firstUniqChar2(const string &s)
+        {
+            map<char, pair<int, int>> m;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m.find(s[i]) == m.end())
+                    m[s[i]] = {1, i};
+                else
+                    m[s[i]].first++;
+            }
+            int u = -1;
+            for (const auto &p : m)
+            {
+                if (p.second.first == 1)
+                {
+                    if (u == -1)
+                        u = p.second.second;
+                    else
+                        u = min(u, p.second.second);
+                }
+            }
+            return u;
+        }
+        int firstUniqChar3(const string &s)
+        {
+            map<char, int> m;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m.find(s[i]) == m.end())
+                    m[s[i]] = 1;
+                else
+                    m[s[i]]++;
+            }
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (m[s[i]] == 1)
+                    return i;
+            }
+            return -1;
+        }
+
     }
 }
 
