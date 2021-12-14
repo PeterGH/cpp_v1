@@ -6900,6 +6900,38 @@ namespace Test
         }
         int firstUniqChar3(const string &s)
         {
+            vector<int> m(26, -1);
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                int c = s[i] - 'a';
+                if (m[c] == -1)
+                {
+                    m[c] = i; // first occurrence
+                }
+                else if (m[c] >= 0)
+                {
+                    m[c] = -2; // duplicate
+                }
+            }
+            int r = -1;
+            for (int i = 0; i < (int)m.size(); i++)
+            {
+                if (m[i] >= 0)
+                {
+                    if (r == -1)
+                    {
+                        r = m[i];
+                    }
+                    else
+                    {
+                        r = min(r, m[i]);
+                    }
+                }
+            }
+            return r;
+        }
+        int firstUniqChar4(const string &s)
+        {
             map<char, int> m;
             for (int i = 0; i < (int)s.size(); i++)
             {
