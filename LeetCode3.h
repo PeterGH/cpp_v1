@@ -6796,7 +6796,7 @@ namespace Test
         //  ab}
         // f(ab) = (a-1) * (111...1) + 1 + b * (11...1) + 1
         //       = a * (111...1) + 1 + b * (11..1) + 1 - (111...1)
-        vector<int> lexicalOrder4(int n)
+        vector<int> lexicalOrder5(int n)
         {
             int b = 0;
             int y = n;
@@ -7000,7 +7000,7 @@ namespace Test
         // 1 <= input.length <= 10^4
         // input may contain lowercase or uppercase English letters, a new line character '\n',
         // a tab character '\t', a dot '.', a space ' ', and digits.
-        int lengthLongestPath(string input)
+        int lengthLongestPath(const string &input)
         {
             int n = input.size();
             int o = 0;
@@ -7045,6 +7045,60 @@ namespace Test
                 }
                 if (isfile)
                     o = max(o, s.top().second);
+            }
+            return o;
+        }
+        int lengthLongestPath2(const string &input)
+        {
+            int n = input.size();
+            int o = 0;
+            vector<int> s;
+            int level = 0;
+            int length = 0;
+            int i = 0;
+            while (i < n)
+            {
+                int j = i;
+                bool isfile = false;
+                if (i == 0)
+                {
+                    level = 0;
+                    j = i;
+                }
+                else
+                {
+                    j++;
+                    while (j < n && input[j] == '\t')
+                        j++;
+                    level = j - i - 1;
+                }
+                i = j;
+                while (j < n && input[j] != '\n')
+                {
+                    if (input[j] == '.')
+                        isfile = true;
+                    j++;
+                }
+                length = j - i;
+                i = j;
+                if (s.empty())
+                {
+                    s.push_back(length);
+                }
+                else if ((int)s.size() <= level)
+                {
+                    s.push_back(s.back() + 1 + length);
+                }
+                else if (level == 0)
+                {
+                    s[level] = length;
+                }
+                else
+                {
+                    s[level] = s[level - 1] + 1 + length;
+                }
+                if (isfile)
+                    o = max(o, s[level]);
             }
             return o;
         }
