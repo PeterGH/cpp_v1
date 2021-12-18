@@ -7155,6 +7155,110 @@ namespace Test
             return accumulate(t.cbegin(), t.cend(), 0) - accumulate(s.cbegin(), s.cend(), 0);
         }
 
+        // 390. Elimination Game
+        // You have a list arr of all integers in the range [1, n] sorted
+        // in a strictly increasing order. Apply the following algorithm on arr:
+        // Starting from left to right, remove the first number and every other
+        // number afterward until you reach the end of the list.
+        // Repeat the previous step again, but this time from right to left,
+        // remove the rightmost number and every other number from the remaining numbers.
+        // Keep repeating the steps again, alternating left to right and right
+        // to left, until a single number remains.
+        // Given the integer n, return the last number that remains in arr.
+        // Example 1:
+        // Input: n = 9
+        // Output: 6
+        // Explanation:
+        // arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        // arr = [2, 4, 6, 8]
+        // arr = [2, 6]
+        // arr = [6]
+        // Example 2:
+        // Input: n = 1
+        // Output: 1
+        // Constraints:
+        // 1 <= n <= 10^9
+        int lastRemaining(int n)
+        {
+            function<int(int, int, int, int, bool)>
+                reduce = [&](int begin, int end, int count,
+                             int delta, int left) -> int
+            {
+                if (begin == end)
+                    return begin;
+                bool hasOddCount = ((count & 0x1) == 1);
+                if (left)
+                {
+                    begin += delta;
+                    if (hasOddCount)
+                        end -= delta;
+                }
+                else
+                {
+                    if (hasOddCount)
+                        begin += delta;
+                    end -= delta;
+                }
+                count >>= 1;
+                delta <<= 1;
+                left = !left;
+                return reduce(begin, end, count, delta, left);
+            };
+            return reduce(1, n, n, 1, true);
+        }
+        int lastRemaining2(int n)
+        {
+            int begin = 1;
+            int end = n;
+            int delta = 1;
+            bool left = true;
+            while (begin != end)
+            {
+                bool hasOddCount = ((n & 0x1) == 1);
+                if (left || hasOddCount)
+                    begin += delta;
+                if (!left || hasOddCount)
+                    end -= delta;
+                n >>= 1;
+                delta <<= 1;
+                left = !left;
+            }
+            return begin;
+        }
+        // n = 4k
+        // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3 4k-2 4k-1 4k
+        //   2   4   6   8          4k-6      4k-4      4k-2      4k
+        //   2       6              4k-6                4k-2
+        //   1       3              2k-3                2k-1          * 2
+        //   2       4              2k-2                2k            -1 ) * 2
+        //   1       2              k-1                 k             *2 -1 ) * 2
+        // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3 4k-2 4k-1
+        //   2   4   6   8          4k-6      4k-4      4k-2
+        //       4       8                    4k-4
+        //       1       2                    k-1                   * 4
+        // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3 4k-2
+        //   2   4   6   8          4k-6      4k-4      4k-2
+        //       4       8                    4k-4
+        //       1       2                    k-1                   * 4
+        // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3
+        //   2   4   6   8          4k-6      4k-4
+        //   2       6              4k-6
+        //   1       3              2k-3                            * 2
+        //   2       4              2k-2                            -1 ) * 2
+        //   1       2              k-1                             *2 - 1 ) * 2
+        int lastRemaining3(int n)
+        {
+            if (n == 1)
+                return 1;
+            if (n <= 4)
+                return 2;
+            if (n % 2 != 0)
+                n -= 1;
+            if (n % 4 != 0)
+                return 4 * lastRemaining3(n / 4);
+            return 4 * lastRemaining3(n / 4) - 2;
+        }
+
     }
 }
 
