@@ -7232,31 +7232,56 @@ namespace Test
         //   1       3              2k-3                2k-1          * 2
         //   2       4              2k-2                2k            -1 ) * 2
         //   1       2              k-1                 k             *2 -1 ) * 2
+        // let f(begin, end, delta) be solution from begin to end with delta
+        // f(1,4k,1)
+        // = f(2,4k-2,4)
+        // = 2 * f(1,2k-1,2)
+        // = 2 * (f(2,2k,2) - 1)
+        // = 2 * (2 * f(1,k,1) - 1)
+        // = 4 * f(1,k,1) - 2
         // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3 4k-2 4k-1
         //   2   4   6   8          4k-6      4k-4      4k-2
         //       4       8                    4k-4
         //       1       2                    k-1                   * 4
+        // f(1,4k-1,1)
+        // = f(4,4k-4,4)
+        // = 4 * f(1,k-1,1)
         // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3 4k-2
         //   2   4   6   8          4k-6      4k-4      4k-2
         //       4       8                    4k-4
         //       1       2                    k-1                   * 4
+        // f(1,4k-2,1)
+        // = f(4,4k-4,4)
+        // = 4 * f(1,k-1,1)
         // 1 2 3 4 5 6 7 8  ...4k-7 4k-6 4k-5 4k-4 4k-3
         //   2   4   6   8          4k-6      4k-4
         //   2       6              4k-6
         //   1       3              2k-3                            * 2
         //   2       4              2k-2                            -1 ) * 2
         //   1       2              k-1                             *2 - 1 ) * 2
+        // f(1,4k-3,1)
+        // = f(2,4k-6,4)
+        // = 2 * f(1,2k-3,2)
+        // = 2 * (f(2,2k-2,2) - 1)
+        // = 2 * (2 * f(1,k-1,1) - 1)
+        // = 4 * f(1,k-1,1) - 2
+        // f(n) = 4 * f(n/4) - 2,  if (n % 4) in {0, 1}
+        //      = 4 * f(n/4),      if (n % 4) in {2, 3}
         int lastRemaining3(int n)
         {
-            if (n == 1)
-                return 1;
-            if (n <= 4)
-                return 2;
-            if (n % 2 != 0)
-                n -= 1;
-            if (n % 4 != 0)
-                return 4 * lastRemaining3(n / 4);
-            return 4 * lastRemaining3(n / 4) - 2;
+            function<int(int)> f = [&](int x) -> int
+            {
+                if (x == 1)
+                    return 1;
+                if (x <= 4)
+                    return 2;
+                int y = x % 4;
+                x >>= 2;
+                if (y == 0 || y == 1)
+                    return 4 * f(x) - 2;
+                return 4 * f(x);
+            };
+            return f(n);
         }
 
     }
