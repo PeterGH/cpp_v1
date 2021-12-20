@@ -7284,6 +7284,211 @@ namespace Test
             return f(n);
         }
 
+        // 391. Perfect Rectangle
+        // Given an array rectangles where rectangles[i] = [xi, yi, ai, bi]
+        // represents an axis-aligned rectangle. The bottom-left point of the
+        // rectangle is (xi, yi) and the top-right point of it is (ai, bi).
+        // Return true if all the rectangles together form an exact cover of a rectangular region.
+        // Example 1:
+        //    ^
+        //    |
+        // 4  +   +---+---+---+
+        //    |   |   |   |   |
+        // 3  +   +---+---+   |
+        //    |   |       |   |
+        // 2  +   |       |   |
+        //    |   |       |   |
+        // 1  +   +-------+---+
+        //    |
+        //    +---+---+---+---+--->
+        //        1   2   3   4
+        // Input: rectangles = [[1,1,3,3],[3,1,4,2],[3,2,4,4],[1,3,2,4],[2,3,3,4]]
+        // Output: true
+        // Explanation: All 5 rectangles together form an exact cover of a rectangular region.
+        // Example 2:
+        //    ^
+        //    |
+        // 4  +   +---+   +---+
+        //    |   |   |   |   |
+        // 3  +   +---+   |   |
+        //    |   |   |   |   |
+        // 2  +   |   |   +---+
+        //    |   |   |   |   |
+        // 1  +   +---+   +---+
+        //    |
+        //    +---+---+---+---+--->
+        //        1   2   3   4
+        // Input: rectangles = [[1,1,2,3],[1,3,2,4],[3,1,4,2],[3,2,4,4]]
+        // Output: false
+        // Explanation: Because there is a gap between the two rectangular regions.
+        // Example 3:
+        //    ^
+        //    |
+        // 4  +   +---+   +---+
+        //    |   |   |   |   |
+        // 3  +   +---+---+   |
+        //    |   |       |   |
+        // 2  +   |       +---+
+        //    |   |       |   |
+        // 1  +   +-------+---+
+        //    |
+        //    +---+---+---+---+--->
+        //        1   2   3   4
+        // Input: rectangles = [[1,1,3,3],[3,1,4,2],[1,3,2,4],[3,2,4,4]]
+        // Output: false
+        // Explanation: Because there is a gap in the top center.
+        // Example 4:
+        //    ^
+        //    |
+        // 4  +   +---+-------+
+        //    |   |   |       |
+        // 3  +   +---+---+   |
+        //    |   |   |///|   |
+        // 2  +   |   +---+---+
+        //    |   |       |   |
+        // 1  +   +-------+---+
+        //    |
+        //    +---+---+---+---+--->
+        //        1   2   3   4
+        // Input: rectangles = [[1,1,3,3],[3,1,4,2],[1,3,2,4],[2,2,4,4]]
+        // Output: false
+        // Explanation: Because two of the rectangles overlap with each other.
+        // Constraints:
+        // 1 <= rectangles.length <= 2 * 10^4
+        // rectangles[i].length == 4
+        // -10^5 <= xi, yi, ai, bi <= 10^5
+        // Constraints:
+        // 1. Final area of rectangle is sume of areas of input rectangles
+        // 2. There are only four corner points in the final rectangles, i.e.,
+        //    there occurrences is one.
+        // 3. All the other internal points of the final rectangles must be
+        //    the intersection of two rectangles or four rectangles, i.e.,
+        //    there occurrences must be two or four.
+        bool isRectangleCover(const vector<vector<int>> &rectangles)
+        {
+            vector<int> x(4);
+            x[0] = INT_MAX;
+            x[1] = INT_MAX;
+            x[2] = INT_MIN;
+            x[3] = INT_MIN;
+            long long a = 0;
+            set<pair<int, int>> s;
+            pair<int, int> p;
+            pair<set<pair<int, int>>::iterator, bool> t;
+            for (const auto &r : rectangles)
+            {
+                a += ((long long)r[2] - (long long)r[0]) * ((long long)r[3] - (long long)r[1]);
+                x[0] = min(x[0], r[0]);
+                x[1] = min(x[1], r[1]);
+                x[2] = max(x[2], r[2]);
+                x[3] = max(x[3], r[3]);
+                // if a point occurrs even times then it must be an internal point
+                p = make_pair(r[0], r[1]);
+                t = s.insert(p);
+                if (!t.second)
+                    s.erase(t.first);
+                p = make_pair(r[0], r[3]);
+                t = s.insert(p);
+                if (!t.second)
+                    s.erase(t.first);
+                p = make_pair(r[2], r[1]);
+                t = s.insert(p);
+                if (!t.second)
+                    s.erase(t.first);
+                p = make_pair(r[2], r[3]);
+                t = s.insert(p);
+                if (!t.second)
+                    s.erase(t.first);
+            }
+            // ensure only four corner points left
+            if (s.size() != 4)
+                return false;
+            p = make_pair(x[0], x[1]);
+            if (s.find(p) == s.end())
+                return false;
+            p = make_pair(x[0], x[3]);
+            if (s.find(p) == s.end())
+                return false;
+            p = make_pair(x[2], x[1]);
+            if (s.find(p) == s.end())
+                return false;
+            p = make_pair(x[2], x[3]);
+            if (s.find(p) == s.end())
+                return false;
+            // check area
+            long long b = ((long long)x[2] - (long long)x[0]) * ((long long)x[3] - (long long)x[1]);
+            return a == b;
+        }
+        // Constraints:
+        // 1. The four corner points must occur once and the location must be the min or max of final rectangle.
+        // 2. An internal point must occur once as a bottom-left (1) or top-left (2) or top-right (4) or bottom-right (8) point.
+        //    ^
+        //    |   2
+        // 3  +   +---+---+ 4
+        //    |   |       |
+        // 2  +   |       |
+        //    |   |       |
+        // 1  + 1 +-------+
+        //    |           8
+        //    +---+---+---+-->
+        //        1   2   3 
+        // 3. A valid internal point must be one of following cases:
+        //    a. bottom-left and bottom-right (1 | 8 = 9)
+        //    b. bottom-left and top-left (1 | 2 = 3)
+        //    c. top-left and top-right (2 | 4 = 6)
+        //    d. top-right and bottom-right (4 | 8 = 12)
+        //    e. bottom-left and top-left and top-right and bottom-right (1 | 2 | 4 | 8 = 15)
+        bool isRectangleCover2(const vector<vector<int>> &rectangles)
+        {
+            vector<int> x{INT_MAX, INT_MAX, INT_MIN, INT_MIN};
+            map<pair<int, int>, int> m;
+            function<bool(int, int, int)> insert = [&](int a, int b, int c) -> bool
+            {
+                auto p = make_pair(a, b);
+                if (m.find(p) == m.end())
+                    m[p] = c;
+                else if ((m[p] & c) == c)
+                    return false;
+                else
+                    m[p] |= c;
+                return true;
+            };
+            for (const auto &r : rectangles)
+            {
+                x[0] = min(x[0], r[0]);
+                x[1] = min(x[1], r[1]);
+                x[2] = max(x[2], r[2]);
+                x[3] = max(x[3], r[3]);
+                if (!insert(r[0], r[1], 1))
+                    return false; // bottom-left point occurrs more than once
+                if (!insert(r[0], r[3], 2))
+                    return false; // top-left point occurrs more than once
+                if (!insert(r[2], r[3], 4))
+                    return false; // top-right point occurrs more than once
+                if (!insert(r[2], r[1], 8))
+                    return false; // bottom-right point occurrs more than once
+            }
+            for (const auto &p : m)
+            {
+                if ((p.first.first == x[0] || p.first.first == x[2]) && (p.first.second == x[1] || p.first.second == x[3]))
+                {
+                    continue; // valid corner points
+                }
+                switch (p.second)
+                {
+                case 3:
+                case 6:
+                case 9:
+                case 12:
+                case 15:
+                    break;
+                default:
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 }
 
