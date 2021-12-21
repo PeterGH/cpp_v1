@@ -7431,7 +7431,7 @@ namespace Test
         // 1  + 1 +-------+
         //    |           8
         //    +---+---+---+-->
-        //        1   2   3 
+        //        1   2   3
         // 3. A valid internal point must be one of following cases:
         //    a. bottom-left and bottom-right (1 | 8 = 9)
         //    b. bottom-left and top-left (1 | 2 = 3)
@@ -7484,6 +7484,288 @@ namespace Test
                     break;
                 default:
                     return false;
+                }
+            }
+            return true;
+        }
+        // wrong
+        bool isRectangleCover3(const vector<vector<int>> &rectangles)
+        {
+            function<void(const string &, const map<int, vector<vector<int>>> &)> print = [&](const string &s, const map<int, vector<vector<int>>> &l)
+            {
+                cout << s << ": {" << endl;
+                for (const auto &p : l)
+                {
+                    cout << p.first << ": {";
+                    for (const auto &q : p.second)
+                    {
+                        cout << "{" << q[0] << "," << q[1] << "} ";
+                    }
+                    cout << "}" << endl;
+                }
+                cout << "}" << endl;
+            };
+            // capture boundary line segaments
+            // format {x, {{y1,y2}, {y3, y4}, ...}}
+            map<int, vector<vector<int>>> left;
+            map<int, vector<vector<int>>> right;
+            // format {y, {{x1,x2}, {x3, x4}, ...}}
+            map<int, vector<vector<int>>> bottom;
+            map<int, vector<vector<int>>> top;
+            vector<int> m{INT_MAX, INT_MAX, INT_MIN, INT_MIN};
+            for (const auto &r : rectangles)
+            {
+                left[r[0]].push_back({r[1], r[3]});
+                right[r[2]].push_back({r[1], r[3]});
+                bottom[r[1]].push_back({r[0], r[2]});
+                top[r[3]].push_back({r[0], r[2]});
+                m[0] = min(m[0], r[0]);
+                m[1] = min(m[1], r[1]);
+                m[2] = max(m[2], r[2]);
+                m[3] = max(m[3], r[3]);
+            }
+            function<bool(const vector<int> &, const vector<int> &)>
+                isLess = [&](const vector<int> &a, const vector<int> &b) -> bool
+            {
+                if (a[0] == b[0])
+                    return a[1] < b[1];
+                return a[0] < b[0];
+            };
+            function<void(map<int, vector<vector<int>>> &)> sortLine = [&](map<int, vector<vector<int>>> &l)
+            {
+                for (auto &p : l)
+                    sort(p.second.begin(), p.second.end(), isLess);
+            };
+            sortLine(left);
+            sortLine(right);
+            sortLine(bottom);
+            sortLine(top);
+            print("left", left);
+            print("right", right);
+            print("bottom", bottom);
+            print("top", top);
+            function<vector<vector<int>>(const vector<vector<int>> &)>
+                merge = [&](const vector<vector<int>> &l) -> vector<vector<int>>
+            {
+                vector<vector<int>> o;
+                for (const auto &p : l)
+                {
+                    if (o.empty())
+                    {
+                        o.push_back(p);
+                    }
+                    else if (o.back()[1] == p[0])
+                    {
+                        o.back()[1] = p[1];
+                    }
+                    else
+                    {
+                        o.push_back(p);
+                    }
+                }
+                return o;
+            };
+            function<bool(const vector<vector<int>> &, const vector<int> &)>
+                cover = [&](const vector<vector<int>> &l, const vector<int> &s) -> bool
+            {
+                int i = 0;
+                int j = (int)l.size();
+                while (i < j)
+                {
+                    int k = i + ((j - i) >> 1);
+                    if (l[k][0] <= s[0])
+                        i = k + 1;
+                    else
+                        j = k;
+                }
+                int a = --i;
+                i = 0;
+                j = (int)l.size();
+                while (i < j)
+                {
+                    int k = i + ((j - i) >> 1);
+                    if (l[k][1] < s[1])
+                        i = k + 1;
+                    else
+                        j = k;
+                }
+                int b = i;
+                return l[a][0] == s[0] && s[1] == l[b][1];
+            };
+            vector<vector<int>> line;
+            for (auto i = left.begin(); i != left.end(); ++i)
+            {
+                const auto &x = i->first;
+                auto y = i->second;
+                if (i == left.begin())
+                {
+                    if (x != m[0])
+                        return false;
+                    if (y.front()[0] != m[1])
+                        return false;
+                    if (y.back()[1] != m[3])
+                        return false;
+                    for (size_t j = 1; j < y.size(); j++)
+                    {
+                        if (y[j - 1][1] != y[j][0])
+                            return false;
+                    }
+                    line = y;
+                }
+                else
+                {
+                    if (y.front()[0] == m[1] && y.back()[1] == m[3])
+                    {
+                        for (size_t j = 1; j < y.size(); j++)
+                        {
+                            if (y[j - 1][1] != y[j][0])
+                                return false;
+                        }
+                        line = y;
+                    }
+                    else
+                    {
+                        if (line.empty())
+                            return false;
+                        y = merge(y);
+                        for (size_t j = 0; j < y.size(); j++)
+                        {
+                            if (!cover(line, y[j]))
+                                return false;
+                        }
+                    }
+                }
+            }
+            line.clear();
+            for (auto i = right.rbegin(); i != right.rend(); ++i)
+            {
+                const auto &x = i->first;
+                auto y = i->second;
+                if (i == right.rbegin())
+                {
+                    if (x != m[2])
+                        return false;
+                    if (y.front()[0] != m[1])
+                        return false;
+                    if (y.back()[1] != m[3])
+                        return false;
+                    for (size_t j = 1; j < y.size(); j++)
+                    {
+                        if (y[j - 1][1] != y[j][0])
+                            return false;
+                    }
+                    line = y;
+                }
+                else
+                {
+                    if (y.front()[0] == m[1] && y.back()[1] == m[3])
+                    {
+                        for (size_t j = 1; j < y.size(); j++)
+                        {
+                            if (y[j - 1][1] != y[j][0])
+                                return false;
+                        }
+                        line = y;
+                    }
+                    else
+                    {
+                        if (line.empty())
+                            return false;
+                        y = merge(y);
+                        for (size_t j = 0; j < y.size(); j++)
+                        {
+                            if (!cover(line, y[j]))
+                                return false;
+                        }
+                    }
+                }
+            }
+            line.clear();
+            for (auto i = bottom.begin(); i != bottom.end(); ++i)
+            {
+                const auto &x = i->first;
+                auto y = i->second;
+                if (i == bottom.begin())
+                {
+                    if (x != m[1])
+                        return false;
+                    if (y.front()[0] != m[0])
+                        return false;
+                    if (y.back()[1] != m[2])
+                        return false;
+                    for (size_t j = 1; j < y.size(); j++)
+                    {
+                        if (y[j - 1][1] != y[j][0])
+                            return false;
+                    }
+                    line = y;
+                }
+                else
+                {
+                    if (y.front()[0] == m[0] && y.back()[1] == m[2])
+                    {
+                        for (size_t j = 1; j < y.size(); j++)
+                        {
+                            if (y[j - 1][1] != y[j][0])
+                                return false;
+                        }
+                        line = y;
+                    }
+                    else
+                    {
+                        if (line.empty())
+                            return false;
+                        y = merge(y);
+                        for (size_t j = 0; j < y.size(); j++)
+                        {
+                            if (!cover(line, y[j]))
+                                return false;
+                        }
+                    }
+                }
+            }
+            line.clear();
+            for (auto i = top.rbegin(); i != top.rend(); ++i)
+            {
+                const auto &x = i->first;
+                auto y = i->second;
+                if (i == top.rbegin())
+                {
+                    if (x != m[3])
+                        return false;
+                    if (y.front()[0] != m[0])
+                        return false;
+                    if (y.back()[1] != m[2])
+                        return false;
+                    for (size_t j = 1; j < y.size(); j++)
+                    {
+                        if (y[j - 1][1] != y[j][0])
+                            return false;
+                    }
+                    line = y;
+                }
+                else
+                {
+                    if (y.front()[0] == m[0] && y.back()[1] == m[2])
+                    {
+                        for (size_t j = 1; j < y.size(); j++)
+                        {
+                            if (y[j - 1][1] != y[j][0])
+                                return false;
+                        }
+                        line = y;
+                    }
+                    else
+                    {
+                        if (line.empty())
+                            return false;
+                        y = merge(y);
+                        for (size_t j = 0; j < y.size(); j++)
+                        {
+                            if (!cover(line, y[j]))
+                                return false;
+                        }
+                    }
                 }
             }
             return true;
