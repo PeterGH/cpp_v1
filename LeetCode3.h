@@ -7531,21 +7531,37 @@ namespace Test
                     return a[1] < b[1];
                 return a[0] < b[0];
             };
-            function<void(map<int, vector<vector<int>>> &)> sortLine = [&](map<int, vector<vector<int>>> &l)
+            function<void(map<int, vector<vector<int>>> &)> sortLines = [&](map<int, vector<vector<int>>> &l)
             {
                 for (auto &p : l)
                     sort(p.second.begin(), p.second.end(), isLess);
             };
-            sortLine(left);
-            sortLine(right);
-            sortLine(bottom);
-            sortLine(top);
-            print("left", left);
-            print("right", right);
-            print("bottom", bottom);
-            print("top", top);
+            sortLines(left);
+            sortLines(right);
+            sortLines(bottom);
+            sortLines(top);
+            function<vector<vector<vector<int>>>(const map<int, vector<vector<int>>> &, bool)>
+                getLines = [&](const map<int, vector<vector<int>>> &l, bool reverse) -> vector<vector<vector<int>>>
+            {
+                vector<vector<vector<int>>> o;
+                if (reverse)
+                {
+                    for (auto it = l.rbegin(); it != l.rend(); ++it)
+                    {
+                        o.push_back(it->second);
+                    }
+                }
+                else
+                {
+                    for (auto it = l.begin(); it != l.end(); ++it)
+                    {
+                        o.push_back(it->second);
+                    }
+                }
+                return o;
+            };
             function<vector<vector<int>>(const vector<vector<int>> &)>
-                merge = [&](const vector<vector<int>> &l) -> vector<vector<int>>
+                mergeSegaments = [&](const vector<vector<int>> &l) -> vector<vector<int>>
             {
                 vector<vector<int>> o;
                 for (const auto &p : l)
@@ -7565,9 +7581,11 @@ namespace Test
                 }
                 return o;
             };
-            function<bool(const vector<vector<int>> &, const vector<int> &)>
-                cover = [&](const vector<vector<int>> &l, const vector<int> &s) -> bool
+            function<bool(const vector<vector<int>> &, const vector<int> &, int &, int &)>
+                cover = [&](const vector<vector<int>> &l, const vector<int> &s, int &a, int &b) -> bool
             {
+                a = -1;
+                b = -1;
                 int i = 0;
                 int j = (int)l.size();
                 while (i < j)
@@ -7578,7 +7596,7 @@ namespace Test
                     else
                         j = k;
                 }
-                int a = --i;
+                a = --i;
                 i = 0;
                 j = (int)l.size();
                 while (i < j)
@@ -7589,185 +7607,70 @@ namespace Test
                     else
                         j = k;
                 }
-                int b = i;
+                b = i;
                 return l[a][0] == s[0] && s[1] == l[b][1];
             };
-            vector<vector<int>> line;
-            for (auto i = left.begin(); i != left.end(); ++i)
+            function<bool(const map<int, vector<vector<int>>> &, bool, int, int)>
+                check = [&](const map<int, vector<vector<int>>> &l, bool reverse, int a, int b) -> bool
             {
-                const auto &x = i->first;
-                auto y = i->second;
-                if (i == left.begin())
+                auto lines = getLines(l, reverse);
+                vector<vector<int>> prevLine;
+                for (auto it = lines.begin(); it != lines.end(); ++it)
                 {
-                    if (x != m[0])
-                        return false;
-                    if (y.front()[0] != m[1])
-                        return false;
-                    if (y.back()[1] != m[3])
-                        return false;
-                    for (size_t j = 1; j < y.size(); j++)
+                    const auto &line = *it;
+                    if (it == lines.begin())
                     {
-                        if (y[j - 1][1] != y[j][0])
+                        if (line.front()[0] != a)
                             return false;
-                    }
-                    line = y;
-                }
-                else
-                {
-                    if (y.front()[0] == m[1] && y.back()[1] == m[3])
-                    {
-                        for (size_t j = 1; j < y.size(); j++)
+                        if (line.back()[0] != b)
+                            return false;
+                        for (size_t i = 1; i < line.size(); ++i)
                         {
-                            if (y[j - 1][1] != y[j][0])
+                            if (line[i - 1][1] != line[i][0])
                                 return false;
                         }
-                        line = y;
+                        prevLine = line;
+                    }
+                    else if (line.front()[0] == a && line.back()[1] == b)
+                    {
+                        for (size_t i = 1; i < line.size(); ++i)
+                        {
+                            if (line[i - 1][1] != line[i][0])
+                                return false;
+                        }
+                        prevLine = line;
                     }
                     else
                     {
-                        if (line.empty())
+                        if (prevLine.empty())
                             return false;
-                        y = merge(y);
-                        for (size_t j = 0; j < y.size(); j++)
+                        for (size_t i = 1; i < line.size(); ++i)
                         {
-                            if (!cover(line, y[j]))
+                            if (line[i - 1][1] > line[i][0])
                                 return false;
+                        }
+                        auto mergedLine = mergeSegaments(line);
+                        for (const auto &segament : mergedLine)
+                        {
+                            int i;
+                            int j;
+                            if (!cover(prevLine, segament, i, j))
+                                return false;
+                            auto it2 = prevLine.erase(prevLine.begin() + i, prevLine.begin() + j + 1);
+                            prevLine.insert(it2, segament);
                         }
                     }
                 }
-            }
-            line.clear();
-            for (auto i = right.rbegin(); i != right.rend(); ++i)
-            {
-                const auto &x = i->first;
-                auto y = i->second;
-                if (i == right.rbegin())
-                {
-                    if (x != m[2])
-                        return false;
-                    if (y.front()[0] != m[1])
-                        return false;
-                    if (y.back()[1] != m[3])
-                        return false;
-                    for (size_t j = 1; j < y.size(); j++)
-                    {
-                        if (y[j - 1][1] != y[j][0])
-                            return false;
-                    }
-                    line = y;
-                }
-                else
-                {
-                    if (y.front()[0] == m[1] && y.back()[1] == m[3])
-                    {
-                        for (size_t j = 1; j < y.size(); j++)
-                        {
-                            if (y[j - 1][1] != y[j][0])
-                                return false;
-                        }
-                        line = y;
-                    }
-                    else
-                    {
-                        if (line.empty())
-                            return false;
-                        y = merge(y);
-                        for (size_t j = 0; j < y.size(); j++)
-                        {
-                            if (!cover(line, y[j]))
-                                return false;
-                        }
-                    }
-                }
-            }
-            line.clear();
-            for (auto i = bottom.begin(); i != bottom.end(); ++i)
-            {
-                const auto &x = i->first;
-                auto y = i->second;
-                if (i == bottom.begin())
-                {
-                    if (x != m[1])
-                        return false;
-                    if (y.front()[0] != m[0])
-                        return false;
-                    if (y.back()[1] != m[2])
-                        return false;
-                    for (size_t j = 1; j < y.size(); j++)
-                    {
-                        if (y[j - 1][1] != y[j][0])
-                            return false;
-                    }
-                    line = y;
-                }
-                else
-                {
-                    if (y.front()[0] == m[0] && y.back()[1] == m[2])
-                    {
-                        for (size_t j = 1; j < y.size(); j++)
-                        {
-                            if (y[j - 1][1] != y[j][0])
-                                return false;
-                        }
-                        line = y;
-                    }
-                    else
-                    {
-                        if (line.empty())
-                            return false;
-                        y = merge(y);
-                        for (size_t j = 0; j < y.size(); j++)
-                        {
-                            if (!cover(line, y[j]))
-                                return false;
-                        }
-                    }
-                }
-            }
-            line.clear();
-            for (auto i = top.rbegin(); i != top.rend(); ++i)
-            {
-                const auto &x = i->first;
-                auto y = i->second;
-                if (i == top.rbegin())
-                {
-                    if (x != m[3])
-                        return false;
-                    if (y.front()[0] != m[0])
-                        return false;
-                    if (y.back()[1] != m[2])
-                        return false;
-                    for (size_t j = 1; j < y.size(); j++)
-                    {
-                        if (y[j - 1][1] != y[j][0])
-                            return false;
-                    }
-                    line = y;
-                }
-                else
-                {
-                    if (y.front()[0] == m[0] && y.back()[1] == m[2])
-                    {
-                        for (size_t j = 1; j < y.size(); j++)
-                        {
-                            if (y[j - 1][1] != y[j][0])
-                                return false;
-                        }
-                        line = y;
-                    }
-                    else
-                    {
-                        if (line.empty())
-                            return false;
-                        y = merge(y);
-                        for (size_t j = 0; j < y.size(); j++)
-                        {
-                            if (!cover(line, y[j]))
-                                return false;
-                        }
-                    }
-                }
-            }
+                return true;
+            };
+            if (!check(left, false, m[1], m[3]))
+                return false;
+            if (!check(right, true, m[1], m[3]))
+                return false;
+            if (!check(bottom, false, m[0], m[2]))
+                return false;
+            if (!check(top, true, m[0], m[2]))
+                return false;
             return true;
         }
 
