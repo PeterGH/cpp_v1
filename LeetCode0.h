@@ -7279,6 +7279,7 @@ namespace Test
         {
             size_t i = 0;
             size_t h = nums[0];
+            // loop ensure we stop at the first i where able to reach the end
             while (i < nums.size() && i <= h && h + 1 < nums.size())
             {
                 h = max(h, i + nums[i]);

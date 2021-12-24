@@ -5678,7 +5678,7 @@ namespace Test
                     if (maxNeg == LLONG_MIN)
                     {
                         maxProd = max(maxProd, p);
-                        maxNeg = p;
+                        maxNeg = p; // first negative product
                     }
                     else
                     {
