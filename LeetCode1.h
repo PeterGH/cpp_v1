@@ -7528,8 +7528,8 @@ namespace Test
         // (money = 9) and rob house 5 (money = 1). Total amount you can rob = 2 + 9 + 1
         // = 12.
         // Let m[i] be the max amount for p[0..i]
-        // Let s[i] = max(m[i], m[i-1], ..., m[2], m[1], m[0])
-        //          = max(m[i], s[i-1])
+        // Let solution s[i] = max(m[i], m[i-1], ..., m[2], m[1], m[0])
+        //                   = max(m[i], s[i-1])
         // m[0] = p[0]
         // m[1] = max(m[0], p[1])
         // m[2] = max(m[1], p[2] + m[0])
@@ -7563,6 +7563,8 @@ namespace Test
             }
             return m;
         }
+        // [Why not just count the odd houses and the even houses?
+        // Doesn't work, e.g. [3, 1, 1, 3]]
         int rob2(const vector<int> &nums)
         {
             int a = 0; // max at i - 2

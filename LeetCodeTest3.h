@@ -230,6 +230,20 @@ void LeetCodeTest::Init3(void)
             check({{1, 1, 3, 3}, {3, 1, 4, 2}, {1, 3, 2, 4}, {2, 2, 4, 4}});
             check({{0, 0, 4, 1}, {7, 0, 8, 2}, {6, 2, 8, 3}, {5, 1, 6, 3}, {4, 0, 5, 1}, {6, 0, 7, 2}, {4, 2, 5, 3}, {2, 1, 4, 3}, {0, 1, 2, 2}, {0, 2, 2, 3}, {4, 1, 5, 2}, {5, 0, 6, 1}});
         });
+
+    Add("393. UTF-8 Validation", [&]()
+        {
+            auto check = [&](const vector<int> &v, bool e)
+            {
+                Logger() << v;
+                bool a = LeetCode::validUtf8(v);
+                Logger() << "is valid utf8: " << a << endl;
+                ASSERT1(a == e);
+            };
+            check({197, 130, 1}, true);
+            check({235, 140, 4}, false);
+            check({240, 162, 138, 147}, true);
+        });
 }
 
 #endif

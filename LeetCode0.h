@@ -6142,10 +6142,11 @@ namespace Test
         {
             size_t i = 0;
             int s = 0;
-            size_t j = i + nums[i];
+            size_t j = i + nums[i]; // max limit at i
             while (i + 1 < nums.size())
             {
                 size_t t = j;
+                // compute next max limit at j
                 for (size_t k = i + 1; k <= j && k < nums.size(); k++)
                     t = max(t, k + nums[k]);
                 s++;
@@ -6154,11 +6155,12 @@ namespace Test
             }
             return s;
         }
+        // minSteps[i] = min{1 + minStep[k]} for i < k <= i + n[i]
         int jump2(const vector<int> &nums)
         {
             if (nums.size() < 2)
                 return 0;
-            vector<int> steps(nums.size(), nums.size());
+            vector<int> steps(nums.size(), 0);
             for (int i = (int)nums.size() - 2; i >= 0; i--)
             {
                 int j = i + nums[i];
@@ -6184,10 +6186,11 @@ namespace Test
             map<int, int> step; // Key is the number of steps, value is the index where
                                 // to take the steps
             map<int, int>::iterator it;
-            step[0] = nums.size() - 1;
+            step[0] = nums.size() - 1; // no steps to take at the end
             for (int i = (int)nums.size() - 2; i >= 0; i--)
             {
                 int j = i + nums[i];
+                // map is sorted by key, i.e., the number of steps
                 for (it = step.begin(); it != step.end(); it++)
                 {
                     if (j >= it->second)
@@ -8878,6 +8881,7 @@ namespace Test
             int a = 1; // at n
             int b = 2; // at n - 1
             int c;
+            // c[n-2] = c[n-1] + c[n]
             for (int i = n - 2; i > 0; i--)
             {
                 c = b + a;
@@ -8886,9 +8890,6 @@ namespace Test
             }
             return c;
         }
-        // C[n] = C[n - 1] + C[n - 2]
-        // Another option is C[i] = C[i + 1] + C[i + 2], where C[n] = 0, C[n - 1] = 1,
-        // C[n - 2] = 2, C[n - 3] = 3, ..., C[1] = ?
         int climbStairs2(int n)
         {
             if (n == 1)
@@ -8898,6 +8899,7 @@ namespace Test
             int a = 1;
             int b = 2;
             int c;
+            // C[n] = C[n - 1] + C[n - 2]
             for (int i = 3; i <= n; i++)
             {
                 c = b + a;
