@@ -4712,7 +4712,7 @@ namespace Test
         // 2 <= nums.length <= 3 * 10^4
         // -2^31 <= nums[i] <= 2^31 - 1
         // Each integer in nums will appear twice, only two integers will appear once.
-        vector<int> singleNumber(vector<int> &nums)
+        vector<int> singleNumberIII(vector<int> &nums)
         {
             long long x = 0; // long long to avoid overflow of -x
             for (const int &n : nums)
@@ -4735,7 +4735,7 @@ namespace Test
             }
             return vector<int>{n1, n2};
         }
-        vector<int> singleNumber2(vector<int> &nums)
+        vector<int> singleNumberIII2(vector<int> &nums)
         {
             set<int> s;
             for (const int n : nums)

@@ -3921,6 +3921,86 @@ namespace Test
             }
             return t;
         }
+        static int AllocateCandy(int ratings[], int length, int amount[])
+        {
+            amount[0] = 1;
+            // Increasing range has amount [2, 3, ...]
+            // Decreasing range has amout [1, 0, -1, ...]
+            for (int i = 1; i < length; i++)
+            {
+                if (ratings[i] > ratings[i - 1])
+                    amount[i] = amount[i - 1] <= 1 ? 2 : amount[i - 1] + 1;
+                else if (ratings[i] == ratings[i - 1])
+                    amount[i] = amount[i - 1];
+                else
+                    amount[i] = amount[i - 1] > 1 ? 1 : amount[i - 1] - 1;
+            }
+            // Scan backward and compensate negative amount with a delta
+            // so that the minimum amout is 1.
+            int delta = 0;
+            for (int i = length - 1; i >= 0; i--)
+            {
+                if (amount[i] > 1)
+                {
+                    if (i < length - 1)
+                        if (ratings[i] == ratings[i + 1])
+                            amount[i] = amount[i + 1];
+                    if (amount[i] <= 1 + delta)
+                        amount[i] = 2 + delta;
+                    delta = 0;
+                }
+                else
+                {
+                    if (delta == 0)
+                        delta = 1 - amount[i];
+                    amount[i] += delta;
+                }
+            }
+            int s = 0;
+            for (int i = 0; i < length; i++)
+                s += amount[i];
+            return s;
+        }
+        static int AllocateCandy2(int ratings[], int length, int amount[])
+        {
+            amount[0] = 1;
+            // Increasing range has amount [2, 3, ...]
+            // Decreasing range has amout [0, 0, ...]
+            for (int i = 1; i < length; i++)
+            {
+                if (ratings[i] > ratings[i - 1])
+                    amount[i] = amount[i - 1] == 0 ? 2 : amount[i - 1] + 1;
+                else if (ratings[i] == ratings[i - 1])
+                    amount[i] = amount[i - 1];
+                else
+                    amount[i] = 0;
+            }
+            if (amount[length - 1] == 0)
+                amount[length - 1] = 1;
+            for (int i = length - 2; i >= 0; i--)
+            {
+                if (amount[i] == 0)
+                {
+                    if (ratings[i] < ratings[i + 1])
+                        amount[i] = 1;
+                    else if (ratings[i] == ratings[i + 1])
+                        amount[i] = amount[i + 1];
+                    else
+                        amount[i] = amount[i + 1] + 1;
+                }
+                else
+                {
+                    if (ratings[i] > ratings[i + 1] && amount[i] <= amount[i + 1])
+                        amount[i] = amount[i + 1] + 1;
+                    else if (ratings[i] == ratings[i + 1])
+                        amount[i] = amount[i + 1];
+                }
+            }
+            int s = 0;
+            for (int i = 0; i < length; i++)
+                s += amount[i];
+            return s;
+        }
 
         // 136. Single Number
         // Given a non-empty array of integers, every element appears twice except for
