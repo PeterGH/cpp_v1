@@ -7767,7 +7767,8 @@ namespace Test
                 {
                     if (i + j >= data.size())
                         return false;
-                    if ((data[i + j] & 0xC0) != 0x80) {
+                    if ((data[i + j] & 0xC0) != 0x80)
+                    {
                         // cout << "Not a continuation byte: i=" << i << ", j=" << j << ", data[" << i+j << "]=" << data[i+j] << "=0x" << std::hex << data[i+j] << std::dec << endl;
                         return false;
                     }
@@ -7776,6 +7777,132 @@ namespace Test
             }
             return true;
         }
+
+        // 394. Decode String
+        // Given an encoded string, return its decoded string.
+        // The encoding rule is: k[encoded_string], where the encoded_string inside the
+        // square brackets is being repeated exactly k times. Note that k is guaranteed
+        // to be a positive integer.
+        // You may assume that the input string is always valid; there are no extra white
+        // spaces, square brackets are well-formed, etc.
+        // Furthermore, you may assume that the original data does not contain any digits
+        // and that digits are only for those repeat numbers, k. For example, there will
+        // not be input like 3a or 2[4].
+        // Example 1:
+        // Input: s = "3[a]2[bc]"
+        // Output: "aaabcbc"
+        // Example 2:
+        // Input: s = "3[a2[c]]"
+        // Output: "accaccacc"
+        // Example 3:
+        // Input: s = "2[abc]3[cd]ef"
+        // Output: "abcabccdcdcdef"
+        // Constraints:
+        // 1 <= s.length <= 30
+        // s consists of lowercase English letters, digits, and square brackets '[]'.
+        // s is guaranteed to be a valid input.
+        // All the integers in s are in the range [1, 300].
+        string decodeString(const string &s)
+        {
+            function<string(size_t &)> decode = [&](size_t &i) -> string
+            {
+                ostringstream o;
+                int c = 0;
+                while (i < s.size() && s[i] != ']')
+                {
+                    if ('a' <= s[i] && s[i] <= 'z')
+                    {
+                        o << s[i++];
+                    }
+                    else if ('0' <= s[i] && s[i] <= '9')
+                    {
+                        c = 10 * c + s[i++] - '0';
+                    }
+                    else
+                    {
+                        i++; // skip '['
+                        if (i >= s.size())
+                            break;
+                        string t = decode(i);
+                        for (int j = 0; j < c; j++)
+                            o << t;
+                        c = 0;
+                        i++; // skip ']'
+                    }
+                }
+                return o.str();
+            };
+            size_t i = 0;
+            return decode(i);
+        }
+        string decodeString2(const string &s)
+        {
+            function<string(size_t &)> decode = [&](size_t &i) -> string
+            {
+                if (i >= s.size())
+                    return "";
+                ostringstream oss;
+                while (i < s.size())
+                {
+                    while (i < s.size() && (s[i] < '0' || s[i] > '9') && s[i] != ']')
+                        oss << s[i++];
+                    if (i >= s.size())
+                        break;
+                    if (s[i] == ']')
+                    {
+                        i++; // skip ']' before return
+                        break;
+                    }
+                    int k = 0;
+                    while (i < s.size() && '0' <= s[i] && s[i] <= '9')
+                        k = (k * 10) + s[i++] - '0';
+                    i++; // skip '['
+                    string c = decode(i);
+                    for (; k > 0; k--)
+                        oss << c;
+                }
+                return oss.str();
+            };
+            size_t i = 0;
+            return decode(i);
+        }
+        string decodeString3(const string &s)
+        {
+            // <substring at current level, the count after the substring>
+            stack<pair<string, int>> stk;
+            string o; // start with an empty string for the current level
+            size_t i = 0;
+            while (i < s.size())
+            {
+                if ((s[i] < '0' || s[i] > '9') && s[i] != ']')
+                {
+                    o.append(1, s[i++]);
+                }
+                else if (s[i] == ']')
+                {
+                    // current level is done.
+                    // p.first is the substring of the upper level
+                    // p.second is the count of the current level
+                    pair<string, int> p = stk.top();
+                    stk.pop();
+                    for (; p.second > 0; p.second--)
+                        p.first.append(o);
+                    o = p.first;
+                    i++;
+                }
+                else
+                {
+                    int k = 0;
+                    while (i < s.size() && '0' <= s[i] && s[i] <= '9')
+                        k = k * 10 + s[i++] - '0';
+                    i++; // skip '['
+                    stk.push(make_pair(o, k));
+                    o = ""; // reset to an empty string for the next level
+                }
+            }
+            return o;
+        }
+
 
     }
 }
