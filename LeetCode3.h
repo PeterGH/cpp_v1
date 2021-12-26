@@ -7903,6 +7903,168 @@ namespace Test
             return o;
         }
 
+        // 395. Longest Substring with At Least K Repeating Characters
+        // Given a string s and an integer k, return the length of the longest substring of s
+        // such that the frequency of each character in this substring is greater than or equal to k.
+        // Example 1:
+        // Input: s = "aaabb", k = 3
+        // Output: 3
+        // Explanation: The longest substring is "aaa", as 'a' is repeated 3 times.
+        // Example 2:
+        // Input: s = "ababbc", k = 2
+        // Output: 5
+        // Explanation: The longest substring is "ababb", as 'a' is repeated 2 times and 'b' is repeated 3 times.
+        // Constraints:
+        // 1 <= s.length <= 10^4
+        // s consists of only lowercase English letters.
+        // 1 <= k <= 10^5
+        int longestSubstring(const string &s, int k)
+        {
+            int o = 0;
+            for (int l = k; l <= (int)s.size(); l++)
+            {
+                for (int i = 0; i + l <= (int)s.size(); i++)
+                {
+                    map<char, int> m;
+                    for (int j = i; j < i + l; j++)
+                    {
+                        if (m.find(s[j]) == m.end())
+                            m[s[j]] = 1;
+                        else
+                            m[s[j]]++;
+                    }
+                    bool valid = true;
+                    for (const auto &p : m)
+                    {
+                        if (p.second < k)
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid)
+                        o = max(o, l);
+                }
+            }
+            return o;
+        }
+        int longestSubstring2(const string &s, int k)
+        {
+            vector<map<char, int>> m1(s.size(), map<char, int>{}); // frequency less than k at i
+            vector<map<char, int>> m2(s.size(), map<char, int>{}); // frequency greater than or equal to k at i
+            int o = 0;
+            for (int l = 1; l <= (int)s.size(); l++)
+            {
+                for (int i = 0; i + l <= (int)s.size(); i++)
+                {
+                    char c = s[i + l - 1];
+                    if (m2[i].find(c) == m2[i].end())
+                    {
+                        if (m1[i].find(c) == m1[i].end())
+                            m1[i][c] = 1;
+                        else
+                            m1[i][c]++;
+                        if (m1[i][c] >= k)
+                        {
+                            m2[i][c] = m1[i][c];
+                            m1[i].erase(c);
+                        }
+                    }
+                    else
+                    {
+                        m2[i][c]++;
+                    }
+                    if (m1[i].empty())
+                        o = max(o, l);
+                }
+            }
+            return o;
+        }
+        int longestSubstring3(const string &s, int k)
+        {
+            int o = 0;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                vector<int> c(26, 0);
+                for (int j = i; j < (int)s.size(); j++)
+                {
+                    c[s[j] - 'a']++;
+                    bool valid = true;
+                    for (size_t l = 0; l < c.size(); l++)
+                    {
+                        if (c[l] > 0 && c[l] < k)
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid)
+                        o = max(o, j - i + 1);
+                }
+            }
+            return o;
+        }
+        int longestSubstring4(const string &s, int k)
+        {
+            function<int(int, int)> solve = [&](int i, int j) -> int
+            {
+                if (i > j)
+                    return 0;
+                vector<int> c(26, 0);
+                for (int l = i; l <= j; l++)
+                    c[s[l] - 'a']++;
+                int m = i;
+                while (m <= j && c[s[m] - 'a'] >= k)
+                    m++;
+                if (m > j)
+                    return j - i + 1;
+                int n = m;
+                while (n + 1 <= j && c[s[n + 1] - 'a'] < k)
+                    n++;
+                return max(solve(i, n - 1), solve(n + 1, j));
+            };
+            return solve(0, (int)s.size() - 1);
+        }
+        int longestSubstring5(const string &s, int k)
+        {
+            set<char> uniqueChars;
+            for (char c : s)
+                uniqueChars.insert(c);
+            int o = 0;
+            for (int uc = 1; uc <= (int)uniqueChars.size(); uc++)
+            {
+                int b = 0;
+                int e = 0;
+                map<char, int> m;
+                while (e < (int)s.size())
+                {
+                    if (m.find(s[e]) == m.end())
+                        m[s[e]] = 1;
+                    else
+                        m[s[e]]++;
+                    while ((int)m.size() > uc)
+                    {
+                        m[s[b]]--;
+                        if (m[s[b]] == 0)
+                            m.erase(s[b]);
+                        b++;
+                    }
+                    bool valid = true;
+                    for (const auto &p : m)
+                    {
+                        if (p.second < k)
+                        {
+                            valid = false;
+                            break;
+                        }
+                    }
+                    if (valid)
+                        o = max(o, e - b + 1);
+                    e++;
+                }
+            }
+            return o;
+        }
 
     }
 }
