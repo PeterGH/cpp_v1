@@ -8190,6 +8190,43 @@ namespace Test
             }
             return c;
         }
+        int integerReplacement3(int n)
+        {
+            long long x = n;
+            stack<pair<long long, int>> s;
+            pair<long long, int> last;
+            while (!s.empty() || x != 1)
+            {
+                if (x != 1)
+                {
+                    s.push(make_pair(x, INT_MAX));
+                    if ((x & 0x1) == 0)
+                        x >>= 1;
+                    else
+                        x--;
+                }
+                else
+                {
+                    auto t = s.top();
+                    if (((t.first & 0x1) == 1) && last.first == t.first - 1)
+                    {
+                        // update from left child before moving to right child
+                        s.top().second = min(s.top().second, 1 + last.second);
+                        x = t.first + 1;
+                    }
+                    else
+                    {
+                        s.pop();
+                        if (t.first == 2)
+                            t.second = 1;
+                        else
+                            t.second = min(t.second, 1 + last.second);
+                        last = t;
+                    }
+                }
+            }
+            return last.second;
+        }
 
     }
 }
