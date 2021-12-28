@@ -244,6 +244,18 @@ void LeetCodeTest::Init3(void)
             check({235, 140, 4}, false);
             check({240, 162, 138, 147}, true);
         });
+
+    Add("397. Integer Replacement", [&]()
+        {
+            auto check = [&](int n, int e)
+            {
+                Logger() << n << endl;
+                int c = LeetCode::integerReplacement(n);
+                Logger() << n << "->1: " << c << ", " << e << endl;
+                ASSERT1(c == e);
+            };
+            check(2147483647, 32);
+        });
 }
 
 #endif

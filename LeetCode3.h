@@ -8118,6 +8118,79 @@ namespace Test
             return m;
         }
 
+        // 397. Integer Replacement
+        // Given a positive integer n, you can apply one of the following operations:
+        // If n is even, replace n with n / 2.
+        // If n is odd, replace n with either n + 1 or n - 1.
+        // Return the minimum number of operations needed for n to become 1.
+        // Example 1:
+        // Input: n = 8
+        // Output: 3
+        // Explanation: 8 -> 4 -> 2 -> 1
+        // Example 2:
+        // Input: n = 7
+        // Output: 4
+        // Explanation: 7 -> 8 -> 4 -> 2 -> 1
+        // or 7 -> 6 -> 3 -> 2 -> 1
+        // Example 3:
+        // Input: n = 4
+        // Output: 2
+        // Constraints:
+        // 1 <= n <= 2^31 - 1
+        int integerReplacement(int n)
+        {
+            map<long long, int> m;
+            // use long long to avoid int overflow of x + 1
+            function<int(long long)> f = [&](long long x) -> int
+            {
+                if (x == 1)
+                    return 0;
+                if (x == 2)
+                    return 1;
+                if (m.find(x) != m.end())
+                    return m[x];
+                int c = 0;
+                if ((x & 0x1) == 0)
+                {
+                    c = f(x >> 1);
+                }
+                else
+                {
+                    c = min(f(x + 1), f(x - 1));
+                }
+                m[x] = 1 + c;
+                return m[x];
+            };
+            return f(n);
+        }
+        // f(k+1) <= f(k) + 1
+        // f(k) <= f(k+1) + 1
+        // f(2k)->f(k)
+        // f(4k+1)->f(4k+2)->f(2k+1)->f(2k+2)->f(k+1)
+        //                          ->f(2k)->f(k)
+        //        ->f(4k)->f(2k)->f(k)
+        // f(4k+3)->f(4k+4)->f(2k+2)->f(k+1)
+        //        ->f(4k+2)->f(2k+1)->f(2k+2)->f(k+1)
+        //                          ->f(2k)->f(k)
+        // If n % 4 = 3 and n != 3, then f(n) = f(n + 1) + 1.
+        // If n % 4 = 1 or n = 3, then f(n) = f(n - 1) + 1.
+        int integerReplacement2(int n)
+        {
+            int c = 0;
+            long long x = n;
+            while (x > 1)
+            {
+                c++;
+                if ((x & 0x1) == 0)
+                    x >>= 1;
+                else if ((x & 0x3) == 3 && x != 3)
+                    x++;
+                else
+                    x--;
+            }
+            return c;
+        }
+
     }
 }
 
