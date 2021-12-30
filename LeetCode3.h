@@ -8227,6 +8227,61 @@ namespace Test
             }
             return last.second;
         }
+        int integerReplacement4(int n)
+        {
+            long long x = n;
+            map<long long, int> m;
+            stack<long long> s;
+            long long last;
+            while (!s.empty() || x != 1)
+            {
+                if (x != 1)
+                {
+                    if (m.find(x) == m.end())
+                    {
+                        s.push(x);
+                        if ((x & 0x1) == 0)
+                            x >>= 1;
+                        else
+                            x--;
+                    }
+                    else
+                    {
+                        last = x;
+                        x = 1;
+                    }
+                }
+                else
+                {
+                    long long t = s.top();
+                    if (((t & 0x1) == 1) && last == t - 1)
+                    {
+                        if (m.find(t) == m.end())
+                            m[t] = 1 + m[last];
+                        else
+                            m[t] = min(m[t], 1 + m[last]);
+                        x = t + 1;
+                    }
+                    else
+                    {
+                        s.pop();
+                        if (t == 2)
+                        {
+                            m[t] = 1;
+                        }
+                        else
+                        {
+                            if (m.find(t) == m.end())
+                                m[t] = 1 + m[last];
+                            else
+                                m[t] = min(m[t], 1 + m[last]);
+                        }
+                        last = t;
+                    }
+                }
+            }
+            return m[n];
+        }
 
     }
 }

@@ -253,17 +253,20 @@ void LeetCodeTest::Init3(void)
                 int c = LeetCode::integerReplacement(n);
                 int c2 = LeetCode::integerReplacement2(n);
                 int c3 = LeetCode::integerReplacement3(n);
-                Logger() << n << "->1: " << c << ", " << c2 << ", " << c3 << ", " << e << endl;
+                int c4 = LeetCode::integerReplacement4(n);
+                Logger() << n << "->1: " << c << ", " << c2 << ", " << c3 << ", " << c4 << ", " << e << endl;
                 if (e >= 0)
                 {
                     ASSERT1(c == e);
                     ASSERT1(c2 == e);
                     ASSERT1(c3 == e);
+                    ASSERT1(c4 == e);
                 }
                 else
                 {
                     ASSERT1(c == c2);
                     ASSERT1(c == c3);
+                    ASSERT1(c == c4);
                 }
             };
             check(2147483647, 32);
