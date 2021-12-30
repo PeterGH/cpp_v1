@@ -7325,6 +7325,7 @@ namespace Test
                  });
             for (size_t i = 0; i < intervals.size(); i++)
             {
+                // sort already ensures back()[0] <= intervals[i][1]
                 if (!result.empty() && result.back()[1] >= intervals[i][0])
                 {
                     result.back()[0] = min(result.back()[0], intervals[i][0]);
