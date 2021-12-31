@@ -8367,6 +8367,154 @@ namespace Test
                 }
             };
         };
+
+        // 399. Evaluate Division
+        // You are given an array of variable pairs equations and an array of real numbers values,
+        // where equations[i] = [Ai, Bi] and values[i] represent the equation Ai / Bi = values[i].
+        // Each Ai or Bi is a string that represents a single variable.
+        // You are also given some queries, where queries[j] = [Cj, Dj] represents the jth query
+        // where you must find the answer for Cj / Dj = ?.
+        // Return the answers to all queries. If a single answer cannot be determined, return -1.0.
+        // Note: The input is always valid. You may assume that evaluating the queries will not
+        // result in division by zero and that there is no contradiction.
+        // Example 1:
+        // Input: equations = [["a","b"],["b","c"]], values = [2.0,3.0],
+        // queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
+        // Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
+        // Explanation:
+        // Given: a / b = 2.0, b / c = 3.0
+        // queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ?
+        // return: [6.0, 0.5, -1.0, 1.0, -1.0 ]
+        // Example 2:
+        // Input: equations = [["a","b"],["b","c"],["bc","cd"]], values = [1.5,2.5,5.0],
+        // queries = [["a","c"],["c","b"],["bc","cd"],["cd","bc"]]
+        // Output: [3.75000,0.40000,5.00000,0.20000]
+        // Example 3:
+        // Input: equations = [["a","b"]], values = [0.5], queries = [["a","b"],["b","a"],["a","c"],["x","y"]]
+        // Output: [0.50000,2.00000,-1.00000,-1.00000]
+        // Constraints:
+        // 1 <= equations.length <= 20
+        // equations[i].length == 2
+        // 1 <= Ai.length, Bi.length <= 5
+        // values.length == equations.length
+        // 0.0 < values[i] <= 20.0
+        // 1 <= queries.length <= 20
+        // queries[i].length == 2
+        // 1 <= Cj.length, Dj.length <= 5
+        // Ai, Bi, Cj, Dj consist of lower case English letters and digits.
+        vector<double> calcEquation(const vector<vector<string>> &equations, const vector<double> &values, const vector<vector<string>> &queries)
+        {
+            map<string, map<string, double>> e;
+            for (size_t i = 0; i < equations.size(); i++)
+            {
+                e[equations[i][0]][equations[i][1]] = values[i];
+                e[equations[i][1]][equations[i][0]] = 1 / values[i];
+            }
+            function<double(const string &, const vector<string> &, set<string> &)>
+                dfs = [&](const string &x, const vector<string> &q, set<string> &v) -> double
+            {
+                if (e[x].find(q[1]) != e[x].end())
+                    return e[x][q[1]];
+                for (const auto &p : e[x])
+                {
+                    if (v.find(p.first) != v.end())
+                        continue;
+                    v.insert(p.first);
+                    double d = dfs(p.first, q, v);
+                    v.erase(p.first);
+                    if (d != -1.0)
+                        return p.second * d;
+                }
+                return -1.0;
+            };
+            function<double(const vector<string> &)> query = [&](const vector<string> &q) -> double
+            {
+                if (q[0] == q[1])
+                {
+                    if (e.find(q[0]) == e.end())
+                        return -1.0;
+                    else
+                        return 1.0;
+                }
+                double d = -1.0;
+                set<string> v;
+                if (e.find(q[0]) != e.end())
+                {
+                    d = dfs(q[0], q, v);
+                    if (d != -1.0)
+                        return d;
+                }
+                if (e.find(q[1]) != e.end())
+                {
+                    vector<string> q1(q);
+                    swap(q1[0], q1[1]);
+                    d = dfs(q1[0], q1, v);
+                    if (d != -1.0)
+                        return 1 / d;
+                }
+                return d;
+            };
+            vector<double> output;
+            for (const auto &q : queries)
+            {
+                output.push_back(query(q));
+            }
+            return output;
+        }
+        vector<double> calcEquation2(const vector<vector<string>> &equations, const vector<double> &values, const vector<vector<string>> &queries)
+        {
+            map<string, map<string, double>> e;
+            for (size_t i = 0; i < equations.size(); i++)
+            {
+                e[equations[i][0]][equations[i][1]] = values[i];
+                e[equations[i][1]][equations[i][0]] = 1 / values[i];
+            }
+            map<string, map<string, double>> n;
+            do
+            {
+                n.clear();
+                for (const auto &p : e)
+                {
+                    for (const auto &q : p.second)
+                    {
+                        // p.first / q.first = q.second
+                        for (const auto &r : e[q.first])
+                        {
+                            // q.first / r.first = r.second
+                            if (p.second.find(r.first) == p.second.end())
+                            {
+                                double d = q.second * r.second;
+                                n[p.first][r.first] = d;
+                                n[r.first][p.first] = 1 / d;
+                            }
+                        }
+                    }
+                }
+                for (const auto &p : n)
+                {
+                    for (const auto &q : p.second)
+                    {
+                        e[p.first][q.first] = q.second;
+                    }
+                }
+            } while (!n.empty());
+            vector<double> output;
+            for (const auto &q : queries)
+            {
+                double d = -1.0;
+                if (e.find(q[0]) != e.end() && e[q[0]].find(q[1]) != e[q[0]].end())
+                {
+                    d = e[q[0]][q[1]];
+                }
+                else if (e.find(q[1]) != e.end() && e[q[1]].find(q[0]) != e[q[1]].end())
+                {
+                    d = 1 / e[q[1]][q[0]];
+                }
+                output.push_back(d);
+            }
+            return output;
+        }
+
     }
 }
 
