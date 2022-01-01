@@ -9,6 +9,54 @@ namespace Test
 {
     namespace LeetCode
     {
+        // 400. Nth Digit
+        // Given an integer n, return the nth digit of the infinite integer sequence
+        // [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ...].
+        // Example 1:
+        // Input: n = 3
+        // Output: 3
+        // Example 2:
+        // Input: n = 11
+        // Output: 0
+        // Explanation: The 11th digit of the sequence 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ... is a 0,
+        // which is part of the number 10.
+        // Constraints:
+        // 1 <= n <= 2^31 - 1
+        // Group numbers into ranges per number of digits:
+        // [1..9]
+        // [10..99]
+        // [100..999]
+        // [1000..9999]
+        // [10000..99999]
+        // ......
+        int findNthDigit(int n)
+        {
+            long long b = 1; // base for a range
+            long long c = 1; // count digits per number in a range
+            long long a = 9 * b * c; // accumulated count of digits
+            while (a < n)
+            {
+                b *= 10;
+                c++;
+                a += 9 * b * c;
+            }
+            a -= 9 * b * c;
+            n -= a;
+            n--;
+            // Now n is the index (0-based) of the target digit in the
+            // range where every number has c digits and the base is b.
+            // Find the number having the target digit.
+            int d = b + n / c;
+            // Find the index of the target digit in the target number.
+            n %= c;
+            while (n + 1 < c)
+            {
+                d /= 10;
+                c--;
+            }
+            return d % 10;
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm
