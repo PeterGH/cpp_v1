@@ -31,8 +31,8 @@ namespace Test
         // ......
         int findNthDigit(int n)
         {
-            long long b = 1; // base for a range
-            long long c = 1; // count digits per number in a range
+            long long b = 1;         // base for a range
+            long long c = 1;         // count digits per number in a range
             long long a = 9 * b * c; // accumulated count of digits
             while (a < n)
             {
@@ -55,6 +55,81 @@ namespace Test
                 c--;
             }
             return d % 10;
+        }
+
+        // 401. Binary Watch
+        // A binary watch has 4 LEDs on the top which represent the hours (0-11),
+        // and the 6 LEDs on the bottom represent the minutes (0-59). Each LED represents
+        // a zero or one, with the least significant bit on the right.
+        // Hour LEDs: 8, 4, 2, 1
+        // Minute LEDS: 32, 16, 8, 4, 2, 1
+        // For example, the below binary watch reads "4:51".
+        // Given an integer turnedOn which represents the number of LEDs that are currently
+        // on, return all possible times the watch could represent. You may return the answer in any order.
+        // The hour must not contain a leading zero.
+        // For example, "01:00" is not valid. It should be "1:00".
+        // The minute must be consist of two digits and may contain a leading zero.
+        // For example, "10:2" is not valid. It should be "10:02".
+        // Example 1:
+        // Input: turnedOn = 1
+        // Output: ["0:01","0:02","0:04","0:08","0:16","0:32","1:00","2:00","4:00","8:00"]
+        // Example 2:
+        // Input: turnedOn = 9
+        // Output: []
+        // Constraints:
+        // 0 <= turnedOn <= 10
+        vector<string> readBinaryWatch(int turnedOn)
+        {
+            vector<string> output;
+            for (unsigned int h = 0; h < 12; h++)
+            {
+                for (unsigned int m = 0; m < 60; m++)
+                {
+                    bitset<10> t((h << 6) | m);
+                    if ((int)t.count() == turnedOn)
+                    {
+                        ostringstream s;
+                        s << h << ":";
+                        if (m < 10)
+                            s << "0";
+                        s << m;
+                        output.push_back(s.str());
+                    }
+                }
+            }
+            return output;
+        }
+        vector<string> readBinaryWatch2(int turnedOn)
+        {
+            vector<int> led{8, 4, 2, 1, 32, 16, 8, 4, 2, 1};
+            vector<string> output;
+            function<void(size_t, int, int, int)>
+                read = [&](size_t i, int n, int h, int m)
+            {
+                if (n == turnedOn)
+                {
+                    if (0 <= h && h < 12 && 0 <= m && m < 60)
+                    {
+                        ostringstream s;
+                        s << h << ":";
+                        if (m < 10)
+                            s << "0";
+                        s << m;
+                        output.push_back(s.str());
+                    }
+                    return;
+                }
+                if (i >= led.size() || h >= 12 || m >= 60)
+                    return;
+                read(i + 1, n, h, m);
+                if (i < 4)
+                    h += led[i];
+                else
+                    m += led[i];
+                read(i + 1, n + 1, h, m);
+            };
+            read(0, 0, 0, 0);
+            return output;
         }
 
         // 410. Split Array Largest Sum
