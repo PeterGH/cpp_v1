@@ -132,6 +132,75 @@ namespace Test
             return output;
         }
 
+        // 402. Remove K Digits
+        // Given string num representing a non-negative integer num, and an integer k,
+        // return the smallest possible integer after removing k digits from num.
+        // Example 1:
+        // Input: num = "1432219", k = 3
+        // Output: "1219"
+        // Explanation: Remove the three digits 4, 3, and 2 to form the new number 1219 which is the smallest.
+        // Example 2:
+        // Input: num = "10200", k = 1
+        // Output: "200"
+        // Explanation: Remove the leading 1 and the number is 200. Note that the output must not contain leading zeroes.
+        // Example 3:
+        // Input: num = "10", k = 2
+        // Output: "0"
+        // Explanation: Remove all the digits from the number and it is left with nothing which is 0.
+        // Constraints:
+        // 1 <= k <= num.length <= 10^5
+        // num consists of only digits.
+        // num does not have any leading zeros except for the zero itself.
+        string removeKdigits(const string &num, int k)
+        {
+            int n = num.size();
+            int i = -1; // index of the last digit preserved
+            string o;
+            // keep the min digit of k+1 digits after i
+            int j = 0;
+            while (j + k < n)
+            {
+                int l = j++;
+                while (j < n && j <= i + k + 1)
+                {
+                    if (num[l] > num[j])
+                    {
+                        l = j;
+                    }
+                    j++;
+                }
+                // now l points to min in num[(i+1)..(i+k+1)]
+                if (!o.empty() || num[l] != '0')
+                    o.append(1, num[l]); // only append if not a leading zero
+                k -= l - i - 1;
+                i = l;
+                j = i + 1;
+            }
+            if (o.empty())
+                o = "0";
+            return o;
+        }
+        string removeKdigits2(const string &num, int k)
+        {
+            string o;
+            for (char c : num)
+            {
+                while (!o.empty() && o.back() > c && k > 0)
+                {
+                    o.pop_back();
+                    k--;
+                }
+                if (!o.empty() || c != '0')
+                    o.push_back(c);
+            }
+            while (!o.empty() && k > 0)
+            {
+                o.pop_back();
+                k--;
+            }
+            return o.empty() ? "0" : o;
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm
