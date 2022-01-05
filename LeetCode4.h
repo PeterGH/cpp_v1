@@ -201,6 +201,108 @@ namespace Test
             return o.empty() ? "0" : o;
         }
 
+        // 403. Frog Jump
+        // A frog is crossing a river. The river is divided into some number of units,
+        // and at each unit, there may or may not exist a stone. The frog can jump on a
+        // stone, but it must not jump into the water.
+        // Given a list of stones positions (in units) in sorted ascending order, determine
+        // if the frog can cross the river by landing on the last stone. Initially, the
+        // frog is on the first stone and assumes the first jump must be 1 unit.
+        // If the frog last jump was k units, its next jump must be either k - 1, k, or k + 1
+        // units. The frog can only jump in the forward direction.
+        // Example 1:
+        // Input: stones = [0,1,3,5,6,8,12,17]
+        // Output: true
+        // Explanation: The frog can jump to the last stone by jumping 1 unit to the 2nd stone,
+        // then 2 units to the 3rd stone, then 2 units to the 4th stone, then 3 units to the 6th
+        // stone, 4 units to the 7th stone, and 5 units to the 8th stone.
+        // Example 2:
+        // Input: stones = [0,1,2,3,4,8,9,11]
+        // Output: false
+        // Explanation: There is no way to jump to the last stone as the gap between the 5th
+        // and 6th stone is too large.
+        // Constraints:
+        // 2 <= stones.length <= 2000
+        // 0 <= stones[i] <= 2^31 - 1
+        // stones[0] == 0
+        // stones is sorted in a strictly increasing order.
+        bool canCross(const vector<int> &stones)
+        {
+            function<bool(size_t, int)> cross = [&](size_t i, int k) -> bool
+            {
+                if (i + 1 == stones.size())
+                    return true;
+                int a = stones[i++];
+                int b;
+                if (k > 1)
+                {
+                    b = a + k - 1;
+                    while (i < stones.size() && stones[i] < b)
+                        i++;
+                    if (i < stones.size() && stones[i] == b && cross(i, k - 1))
+                        return true;
+                }
+                if (k > 0)
+                {
+                    b = a + k;
+                    while (i < stones.size() && stones[i] < b)
+                        i++;
+                    if (i < stones.size() && stones[i] == b && cross(i, k))
+                        return true;
+                }
+                b = a + k + 1;
+                while (i < stones.size() && stones[i] < b)
+                    i++;
+                return i < stones.size() && stones[i] == b && cross(i, k + 1);
+            };
+            return cross(0, 0);
+        }
+        bool canCross2(const vector<int> &stones)
+        {
+            function<bool(size_t, int)> cross = [&](size_t i, int k) -> bool
+            {
+                if (i + 1 == stones.size())
+                    return true;
+                int a = stones[i++];
+                for (int t = k - 1; t <= k + 1; t++)
+                {
+                    if (t > 0)
+                    {
+                        int b = a + t;
+                        while (i < stones.size() && stones[i] < b)
+                            i++;
+                        if (i < stones.size() && stones[i] == b && cross(i, t))
+                            return true;
+                    }
+                }
+                return false;
+            };
+            return cross(0, 0);
+        }
+        bool canCross3(const vector<int> &stones)
+        {
+            function<bool(vector<int>::const_iterator, int)>
+                cross = [&](vector<int>::const_iterator i, int k) -> bool
+            {
+                if (i + 1 == stones.cend())
+                    return true;
+                int a = *i;
+                i++;
+                for (int t = k - 1; t <= k + 1; t++)
+                {
+                    if (t > 0)
+                    {
+                        int b = a + t;
+                        i = lower_bound(i, stones.cend(), b);
+                        if (i != stones.cend() && *i == b && cross(i, t))
+                            return true;
+                    }
+                }
+                return false;
+            };
+            return cross(stones.cbegin(), 0);
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm
