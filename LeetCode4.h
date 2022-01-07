@@ -306,26 +306,26 @@ namespace Test
             };
             return cross(stones.cbegin(), 0);
         }
-        // wrong [0,1,3,6,7]
         bool canCross4(const vector<int> &stones)
         {
-            set<int> valid;
+            set<long long> valid;
             for (int e : stones)
                 valid.insert(e);
-            set<pair<int, int>> visited;
-            stack<pair<int, int>> s;
-            pair<int, int> n = make_pair(stones[0], 0);
-            pair<int, int> last;
-            while (!s.empty() || n.first <= stones.back())
+            set<pair<long long, int>> visited;
+            stack<pair<long long, int>> s;
+            pair<long long, int> n = make_pair(stones[0], 0);
+            pair<long long, int> last;
+            long long target = stones.back();
+            while (!s.empty() || n.first <= target)
             {
-                if (n.first <= stones.back())
+                if (n.first <= target)
                 {
-                    if (n.first == stones.back())
+                    if (n.first == target)
                         return true;
+                    last = n;
                     if (valid.find(n.first) == valid.end() || visited.find(n) != visited.end())
                     {
-                        last = n;
-                        n.first = stones.back() + 1;
+                        n.first = target + 1;
                     }
                     else
                     {
@@ -341,15 +341,15 @@ namespace Test
                 else
                 {
                     auto p = s.top();
-                    if (last.second == p.second + 1)
-                    {
-                        s.pop();
-                        last = p;
-                    }
-                    else
+                    if (last.first == p.first + last.second && last.second < p.second + 1)
                     {
                         n.second = last.second + 1;
                         n.first = p.first + n.second;
+                    }
+                    else
+                    {
+                        s.pop();
+                        last = p;
                     }
                 }
             }
