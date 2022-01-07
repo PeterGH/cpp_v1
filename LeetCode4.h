@@ -228,41 +228,41 @@ namespace Test
         // stones is sorted in a strictly increasing order.
         bool canCross(const vector<int> &stones)
         {
-            function<bool(size_t, int)> cross = [&](size_t i, int k) -> bool
+            map<int, set<int>> m;
+            for (int s : stones)
+                m[s] = {};
+            m[stones[0]].insert(1);
+            for (int s : stones)
             {
-                if (i + 1 == stones.size())
-                    return true;
-                int a = stones[i++];
-                int b;
-                if (k > 1)
+                if (s == stones.back())
+                    break;
+                for (int k : m[s])
                 {
-                    b = a + k - 1;
-                    while (i < stones.size() && stones[i] < b)
-                        i++;
-                    if (i < stones.size() && stones[i] == b && cross(i, k - 1))
+                    int t = s + k;
+                    if (t == stones.back())
                         return true;
+                    if (m.find(t) != m.end())
+                    {
+                        if (k > 1)
+                            m[t].insert(k - 1);
+                        if (k > 0)
+                            m[t].insert(k);
+                        m[t].insert(k + 1);
+                    }
                 }
-                if (k > 0)
-                {
-                    b = a + k;
-                    while (i < stones.size() && stones[i] < b)
-                        i++;
-                    if (i < stones.size() && stones[i] == b && cross(i, k))
-                        return true;
-                }
-                b = a + k + 1;
-                while (i < stones.size() && stones[i] < b)
-                    i++;
-                return i < stones.size() && stones[i] == b && cross(i, k + 1);
-            };
-            return cross(0, 0);
+            }
+            return false;
         }
         bool canCross2(const vector<int> &stones)
         {
+            map<size_t, map<int, bool>> m;
             function<bool(size_t, int)> cross = [&](size_t i, int k) -> bool
             {
                 if (i + 1 == stones.size())
                     return true;
+                if (m.find(i) != m.end() && m[i].find(k) != m[i].end())
+                    return m[i][k];
+                size_t j = i;
                 int a = stones[i++];
                 for (int t = k - 1; t <= k + 1; t++)
                 {
@@ -272,9 +272,13 @@ namespace Test
                         while (i < stones.size() && stones[i] < b)
                             i++;
                         if (i < stones.size() && stones[i] == b && cross(i, t))
+                        {
+                            m[j][k] = true;
                             return true;
+                        }
                     }
                 }
+                m[j][k] = false;
                 return false;
             };
             return cross(0, 0);
@@ -301,6 +305,55 @@ namespace Test
                 return false;
             };
             return cross(stones.cbegin(), 0);
+        }
+        // wrong [0,1,3,6,7]
+        bool canCross4(const vector<int> &stones)
+        {
+            set<int> valid;
+            for (int e : stones)
+                valid.insert(e);
+            set<pair<int, int>> visited;
+            stack<pair<int, int>> s;
+            pair<int, int> n = make_pair(stones[0], 0);
+            pair<int, int> last;
+            while (!s.empty() || n.first <= stones.back())
+            {
+                if (n.first <= stones.back())
+                {
+                    if (n.first == stones.back())
+                        return true;
+                    if (valid.find(n.first) == valid.end() || visited.find(n) != visited.end())
+                    {
+                        last = n;
+                        n.first = stones.back() + 1;
+                    }
+                    else
+                    {
+                        s.push(n);
+                        visited.insert(n);
+                        if (n.second > 1)
+                            n.second--;
+                        else if (n.second == 0)
+                            n.second++;
+                        n.first += n.second;
+                    }
+                }
+                else
+                {
+                    auto p = s.top();
+                    if (last.second == p.second + 1)
+                    {
+                        s.pop();
+                        last = p;
+                    }
+                    else
+                    {
+                        n.second = last.second + 1;
+                        n.first = p.first + n.second;
+                    }
+                }
+            }
+            return false;
         }
 
         // 410. Split Array Largest Sum
