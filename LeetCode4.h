@@ -356,6 +356,93 @@ namespace Test
             return false;
         }
 
+        // 404. Sum of Left Leaves
+        // Given the root of a binary tree, return the sum of all left leaves.
+        // Example 1:
+        // Input: root = [3,9,20,null,null,15,7]
+        // Output: 24
+        // Explanation: There are two left leaves in the binary tree, with values 9 and 15 respectively.
+        // Example 2:
+        // Input: root = [1]
+        // Output: 0
+        // Constraints:
+        // The number of nodes in the tree is in the range [1, 1000].
+        // -1000 <= Node.val <= 1000
+        int sumOfLeftLeaves(TreeNode *root)
+        {
+            function<void(TreeNode *, TreeNode *, int &)>
+                sum = [&](TreeNode *p, TreeNode *n, int &s)
+            {
+                if (n == nullptr)
+                    return;
+                if (n->left == nullptr && n->right == nullptr && p != nullptr && p->left == n)
+                {
+                    s += n->val;
+                    return;
+                }
+                sum(n, n->left, s);
+                sum(n, n->right, s);
+            };
+            int s = 0;
+            sum(nullptr, root, s);
+            return s;
+        }
+        int sumOfLeftLeaves2(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            TreeNode *n = root;
+            int o = 0;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left == nullptr && n->right == nullptr && !s.empty() && s.top()->left == n)
+                        o += n->val;
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    s.pop();
+                    if (t->right != nullptr)
+                        n = t->right;
+                }
+            }
+            return o;
+        }
+        int sumOfLeftLeaves3(TreeNode *root)
+        {
+            stack<TreeNode *> s;
+            TreeNode *n = root;
+            TreeNode *last = nullptr;
+            int o = 0;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    TreeNode *t = s.top();
+                    if (t->right == nullptr || t->right == last)
+                    {
+                        s.pop();
+                        if (t->left == nullptr && t->right == nullptr && !s.empty() && s.top()->left == t)
+                            o += t->val;
+                        last = t;
+                    }
+                    else
+                    {
+                        n = t->right;
+                    }
+                }
+            }
+            return o;
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm

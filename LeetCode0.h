@@ -6370,8 +6370,33 @@ namespace Test
             solve(0, nums);
             return result;
         }
-        // wrong
         vector<vector<int>> permuteUnique3(vector<int> &nums)
+        {
+            vector<vector<int>> output;
+            function<void(size_t, vector<int> &)> permute = [&](size_t i, vector<int> &n)
+            {
+                if (i + 1 == n.size())
+                {
+                    output.push_back(n);
+                    return;
+                }
+                sort(n.begin() + i, n.end());
+                for (size_t j = i; j < n.size(); j++)
+                {
+                    if (j == i || n[j] != n[j - 1])
+                    {
+                        vector<int> n1(n);
+                        swap(n1[i], n1[j]);
+                        permute(i + 1, n1);
+                    }
+                }
+            };
+            vector<int> nums1(nums);
+            permute(0, nums1);
+            return output;
+        }
+        // wrong
+        vector<vector<int>> permuteUnique4(vector<int> &nums)
         {
             sort(nums.begin(), nums.end());
             vector<vector<int>> output;
@@ -7802,6 +7827,22 @@ namespace Test
         // Example 2:
         // Input: n = 4, k = 9
         // Output: "2314"
+        //   i  1  2  3  4  5  6  7  8  9
+        //   f  8! 7! 6! 5! 4! 3! 2! 1! 0!
+        // k
+        // 1    1  2  3  4  5  6  7  8  9
+        // 2    1  2  3  4  5  6  7  9  8
+        // 3    1  2  3  4  5  6  8  7  9
+        // 4    1  2  3  4  5  6  8  9  7
+        //      ......
+        //      2  1  3  4  5  6  7  8  9
+        //      ......
+        //      3  1  2  4  5  6  7  8  9
+        //      ......
+        //      9  1  2  3  4  5  6  7  8
+        //      ......
+        //      9  8  7  6  5  4  3  2  1
+        // At postion i = 1, there are 9 ranges and each range has 8! entries.
         string getPermutation(int n, int k)
         {
             // f = (n - 1)!
@@ -7812,7 +7853,7 @@ namespace Test
             k--; // Make k a 0-based index
             for (int i = 0; i < n - 1; i++)
             {
-                d[i] = k / f;
+                d[i] = k / f; // distance to the right of i where to find the digit to swap with i
                 k = k - (d[i] * f);
                 f = f / (n - 1 - i);
             }
