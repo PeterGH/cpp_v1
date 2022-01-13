@@ -7420,6 +7420,18 @@ namespace Test
         // extra space?
         void rotate(vector<int> &nums, int k)
         {
+            int n = nums.size();
+            if (n == 0)
+                return;
+            k %= n;
+            if (k == 0)
+                return;
+            reverse(nums.begin(), nums.end());
+            reverse(nums.begin(), nums.begin() + k);
+            reverse(nums.begin() + k, nums.end());
+        }
+        void rotate2(vector<int> &nums, int k)
+        {
             k = k % nums.size();
             if (k == 0)
                 return;
@@ -7436,7 +7448,7 @@ namespace Test
             Swap(0, k - 1);
             Swap(k, (int)nums.size() - 1);
         }
-        void rotate2(vector<int> &nums, int k)
+        void rotate3(vector<int> &nums, int k)
         {
             k %= nums.size();
             if (k == 0)
@@ -7476,7 +7488,7 @@ namespace Test
                 }
             }
         }
-        void rotate3(vector<int> &nums, int k)
+        void rotate4(vector<int> &nums, int k)
         {
             if (nums.empty())
                 return;
@@ -7511,7 +7523,7 @@ namespace Test
         // This one works only if n and k are co-prime
         // 0, k, 2k, 3k, ..., (n-1)k, nk
         // 0, k % n, 2k % n, 3k % n, ..., (n-1)k % n, nk % n = 0
-        void rotate4(vector<int> &nums, int k)
+        void rotate5(vector<int> &nums, int k)
         {
             if (nums.empty())
                 return;

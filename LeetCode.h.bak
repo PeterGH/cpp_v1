@@ -15,44 +15,6 @@ using namespace std;
 
 namespace Test {
 namespace LeetCode {
-
-// 189. Rotate Array
-// Rotate an array of n elements to the right by k steps. For example, with
-// n = 7 and k = 3, the array[1, 2, 3, 4, 5, 6, 7] is rotated to
-// [5, 6, 7, 1, 2, 3, 4]. Note: Try to come up as many solutions as you can,
-// there are at least 3 different ways to solve this problem.
-// Hint: Could you do it in-place with O(1) extra space?
-static void rotate(vector<int> &nums, int k) {
-    if (nums.empty())
-        return;
-    k %= nums.size();
-    if (k == 0)
-        return;
-    function<void(int, int)> swapRange = [&](int i, int j) {
-        while (i < j) {
-            swap(nums[i++], nums[j--]);
-        }
-    };
-    swapRange(0, nums.size() - 1);
-    swapRange(0, k - 1);
-    swapRange(k, nums.size() - 1);
-}
-// This one works only if n and k are co-prime
-// 0, k, 2k, 3k, ..., (n-1)k, nk
-// 0, k % n, 2k % n, 3k % n, ..., (n-1)k % n, nk % n = 0
-static void rotate2(vector<int> &nums, int k) {
-    if (nums.empty())
-        return;
-    k %= nums.size();
-    if (k == 0)
-        return;
-    size_t i = 0;
-    do {
-        i = (i + k) % nums.size();
-        swap(nums[0], nums[i]);
-    } while (i != 0);
-}
-
 namespace Combination {
 // 39. Combination Sum
 // Given a set of candidate numbers (C) (without duplicates) and a target number
