@@ -598,6 +598,21 @@ namespace Test
             }
             return output;
         }
+        vector<vector<int>> reconstructQueue3(vector<vector<int>> &people)
+        {
+            sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 {
+                     if (x[0] == y[0])
+                         return x[1] < y[1];
+                     return x[0] > y[0];
+                 });
+            vector<vector<int>> output;
+            for (const auto &p : people)
+            {
+                output.insert(output.begin() + p[1], p);
+            }
+            return output;
+        }
 
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
