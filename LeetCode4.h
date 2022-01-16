@@ -571,23 +571,30 @@ namespace Test
             }
             return output;
         }
-        // wrong
         vector<vector<int>> reconstructQueue2(vector<vector<int>> &people)
         {
-            vector<size_t> index(people.size(), 0);
-            for (size_t i = 0; i < people.size(); i++)
-                index[i] = i;
             sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
                  {
                      if (x[0] == y[0])
                          return x[1] < y[1];
                      return x[0] < y[0];
                  });
-            vector<vector<int>> output(people.size());
+            vector<vector<int>> output(people.size(), {0, -1});
             for (const auto &p : people)
             {
-                output[index[p[1]]] = p;
-                index.erase(index.begin() + p[1]);
+                int c = p[1];
+                for (size_t i = 0; i < output.size(); i++)
+                {
+                    if (c == 0 && output[i][1] == -1)
+                    {
+                        output[i] = p;
+                        break;
+                    }
+                    else if (c > 0 && (output[i][1] == -1 || output[i][0] >= p[0]))
+                    {
+                        c--;
+                    }
+                }
             }
             return output;
         }
