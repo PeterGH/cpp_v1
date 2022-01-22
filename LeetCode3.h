@@ -655,7 +655,7 @@ namespace Test
                     int s = nums[i - 1];
                     if ((i & 0x1) == 0)
                     {
-                        int k = i - lsb1(i);
+                        int k = i - lsb1(i); // index of parent bit[i]
                         int j = i - 1;
                         while (j > k)
                         {
@@ -745,7 +745,7 @@ namespace Test
             {
                 i++;
                 int n = bit[i];
-                int j = i - lsb1(i);
+                int j = i - lsb1(i); // parent index
                 i--;
                 while (i != j)
                 {
@@ -776,7 +776,7 @@ namespace Test
                     int s = nums[i - 1];
                     if ((i & 0x1) == 0)
                     {
-                        int k = i - lsb1(i);
+                        int k = i - lsb1(i); // parent index
                         int j = i - 1;
                         while (j > k)
                         {
@@ -835,7 +835,7 @@ namespace Test
             {
                 int n = bit[i];
                 i++; // convert to BIT index
-                int j = i - lsb1(i);
+                int j = i - lsb1(i); // parent BIT index
                 i--;
                 while (i != j)
                 {
@@ -866,7 +866,7 @@ namespace Test
                     int j = i + 1; // convert to BIT index
                     if ((j & 0x1) == 0)
                     {
-                        int k = j - lsb1(j);
+                        int k = j - lsb1(j); // parent BIT index
                         int l = j - 1;
                         while (l > k)
                         {
@@ -883,7 +883,7 @@ namespace Test
                 {
                     int n = getOriginalNumber(index);
                     int d = val - n;
-                    index++;
+                    index++; // convert to BIT index
                     while (index <= count)
                     {
                         bit[index - 1] += d; // bit array is biased from BIT index

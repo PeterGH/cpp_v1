@@ -576,7 +576,7 @@ namespace Test
             sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
                  {
                      if (x[0] == y[0])
-                         return x[1] < y[1];
+                         return x[1] < y[1]; // same height, smaller k goes first
                      return x[0] < y[0];
                  });
             vector<vector<int>> output(people.size(), {0, -1});
@@ -603,7 +603,35 @@ namespace Test
             sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
                  {
                      if (x[0] == y[0])
-                         return x[1] < y[1];
+                         return x[1] > y[1]; // same height, larger k goes first
+                     return x[0] < y[0];
+                 });
+            vector<vector<int>> output(people.size(), {0, -1});
+            for (const auto &p : people)
+            {
+                int c = p[1];
+                for (size_t i = 0; i < output.size(); i++)
+                {
+                    if (c == 0 && output[i][1] == -1)
+                    {
+                        output[i] = p;
+                        break;
+                    }
+                    else if (c > 0 && output[i][1] == -1)
+                    {
+                        c--;
+                    }
+                }
+            }
+            return output;
+        }
+        vector<vector<int>> reconstructQueue4(vector<vector<int>> &people)
+        {
+            // sort by height from the tallest to the lowest
+            sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 {
+                     if (x[0] == y[0])
+                         return x[1] < y[1]; // same height with smaller k is "taller"
                      return x[0] > y[0];
                  });
             vector<vector<int>> output;
