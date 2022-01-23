@@ -641,6 +641,61 @@ namespace Test
             }
             return output;
         }
+        vector<vector<int>> reconstructQueue5(vector<vector<int>> &people)
+        {
+            // sort increasingly
+            sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 { return x[0] == y[0] ? x[1] > y[1] : x[0] < y[0]; });
+            int n = people.size();
+            vector<int> c(n, 0); // BIT to track count of empty elements
+            function<int(int)> lsb = [&](int i) -> int
+            {
+                return i & (~i + 1); // least significant bit
+            };
+            function<void(int, int)> add = [&](int i, int x)
+            {
+                i++; // convert from array index (0-based) to BIT index (1-based)
+                while (i <= n)
+                {
+                    c[i - 1] += x;
+                    i += lsb(i);
+                }
+            };
+            // build BIT
+            for (int i = 0; i < n; i++)
+            {
+                add(i, 1);
+            }
+            // count empty elements upto array index i inclusively
+            function<int(int)> count = [&](int i) -> int
+            {
+                i++; // convert from array index (0-based) to BIT index (1-based)
+                int s = 0;
+                while (i > 0)
+                {
+                    s += c[i - 1];
+                    i -= lsb(i);
+                }
+                return s;
+            };
+            vector<vector<int>> output(n);
+            for (const auto &p : people)
+            {
+                int l = 0;
+                int h = n;
+                while (l < h)
+                {
+                    int m = l + ((h - l) >> 1);
+                    if (count(m) - 1 < p[1])
+                        l = m + 1;
+                    else
+                        h = m;
+                }
+                output[l] = p;
+                add(l, -1);
+            }
+            return output;
+        }
 
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
