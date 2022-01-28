@@ -696,6 +696,84 @@ namespace Test
             }
             return output;
         }
+        vector<vector<int>> reconstructQueue6(vector<vector<int>> &people)
+        {
+            sort(people.begin(), people.end(), [&](const vector<int> &x, const vector<int> &y) -> bool
+                 { return x[0] == y[0] ? x[1] > y[1] : x[0] < y[0]; });
+            vector<int> rank;
+            for (const auto &p : people)
+                rank.push_back(p[1]);
+            function<void(size_t, size_t, size_t)> merge = [&](size_t l, size_t m, size_t h)
+            {
+                vector<vector<int>> p;
+                vector<int> r;
+                int inversionCount = 0;
+                size_t i = l;
+                size_t j = m + 1;
+                while (i <= m || j <= h)
+                {
+                    if (i <= m && j <= h)
+                    {
+                        int t = rank[i] - inversionCount;
+                        if (t < rank[j])
+                        {
+                            p.push_back(people[i]);
+                            r.push_back(t);
+                            i++;
+                        }
+                        else if (t > rank[j])
+                        {
+                            p.push_back(people[j]);
+                            r.push_back(rank[j]);
+                            j++;
+                            inversionCount++;
+                        }
+                        else if (people[i][0] < people[j][0])
+                        {
+                            p.push_back(people[i]);
+                            r.push_back(t);
+                            i++;
+                        }
+                        else
+                        {
+                            p.push_back(people[j]);
+                            r.push_back(rank[j]);
+                            j++;
+                            inversionCount++;
+                        }
+                    }
+                    else if (i <= m)
+                    {
+                        p.push_back(people[i]);
+                        r.push_back(rank[i] - inversionCount);
+                        i++;
+                    }
+                    else
+                    {
+                        p.push_back(people[j]);
+                        r.push_back(rank[j]);
+                        j++;
+                        inversionCount++;
+                    }
+                }
+                for (size_t i = 0; i <= h - l; i++)
+                {
+                    people[l + i] = p[i];
+                    rank[l + i] = r[i];
+                }
+            };
+            function<void(size_t, size_t)> mergesort = [&](size_t l, size_t h)
+            {
+                if (l >= h)
+                    return;
+                size_t m = l + ((h - l) >> 1);
+                mergesort(l, m);
+                mergesort(m + 1, h);
+                merge(l, m, h);
+            };
+            mergesort(0, people.size() - 1);
+            return people;
+        }
 
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
