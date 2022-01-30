@@ -11758,6 +11758,31 @@ namespace Test
             }
             return result;
         }
+        vector<vector<int>> subsetsWithDup3(vector<int> &nums)
+        {
+            vector<vector<int>> output = {{}};
+            sort(nums.begin(), nums.end());
+            vector<int> d; // capture duplicates of a number
+            size_t n = output.size();
+            for (size_t i = 0; i < nums.size(); i++)
+            {
+                if (!d.empty() && nums[i] != d.back())
+                {
+                    d.clear();
+                    // capture output size before processing the new duplicates
+                    // n should not change when processing the new duplicates
+                    n = output.size();
+                }
+                d.push_back(nums[i]); // d contains one more duplicate of current number
+                for (size_t j = 0; j < n; j++)
+                {
+                    vector<int> v(output[j]);
+                    v.insert(v.end(), d.begin(), d.end());
+                    output.push_back(v);
+                }
+            }
+            return output;
+        }
 
         // 91. Decode Ways
         // A message containing letters from A-Z is being encoded to numbers using
