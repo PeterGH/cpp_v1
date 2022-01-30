@@ -11783,6 +11783,29 @@ namespace Test
             }
             return output;
         }
+        vector<vector<int>> subsetsWithDup4(vector<int> &nums)
+        {
+            vector<vector<int>> output;
+            sort(nums.begin(), nums.end());
+            function<void(size_t, vector<int> &)> subset = [&](size_t i, vector<int> &v)
+            {
+                if (i >= nums.size())
+                {
+                    output.push_back(v);
+                    return;
+                }
+                v.push_back(nums[i]);
+                subset(i + 1, v);
+                v.pop_back();
+                while (i + 1 < nums.size() && nums[i] == nums[i + 1])
+                    i++;
+                subset(i + 1, v);
+            };
+            size_t i = 0;
+            vector<int> v;
+            subset(i, v);
+            return output;
+        }
 
         // 91. Decode Ways
         // A message containing letters from A-Z is being encoded to numbers using
