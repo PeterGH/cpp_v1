@@ -27,6 +27,7 @@ public:
     void Init1(void);
     void Init2(void);
     void Init3(void);
+    void Init4(void);
     void Init6(void);
     void Init7(void);
 };
@@ -37,6 +38,7 @@ void LeetCodeTest::Init(void)
     Init1();
     Init2();
     Init3();
+    Init4();
     Init6();
     Init7();
 

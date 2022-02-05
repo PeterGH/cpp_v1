@@ -775,6 +775,103 @@ namespace Test
             return people;
         }
 
+        // 407. Trapping Rain Water II
+        // Given an m x n integer matrix heightMap representing the height of each unit cell
+        // in a 2D elevation map, return the volume of water it can trap after raining.
+        // Example 1:
+        // Input: heightMap =
+        // [[1,4,3,1,3,2]
+        // ,[3,2,1,3,2,4]
+        // ,[2,3,3,2,3,1]]
+        // Output: 4
+        // Explanation: After the rain, water is trapped between the blocks.
+        // We have two small ponds 1 and 3 units trapped.
+        // The total volume of water trapped is 4.
+        // Example 2:
+        // Input: heightMap =
+        // [[3,3,3,3,3]
+        // ,[3,2,2,2,3]
+        // ,[3,2,1,2,3]
+        // ,[3,2,2,2,3]
+        // ,[3,3,3,3,3]]
+        // Output: 10
+        // Constraints:
+        // m == heightMap.length
+        // n == heightMap[i].length
+        // 1 <= m, n <= 200
+        // 0 <= heightMap[i][j] <= 2 * 10^4
+        int trapRainWater(const vector<vector<int>> &heightMap)
+        {
+            int volume = 0;
+            int m = heightMap.size();
+            int n = heightMap[0].size();
+            vector<vector<int>> height(heightMap);
+            vector<vector<int>> exclude(m, vector<int>(n, 0));
+            function<bool(int &, int &)> minheightindex = [&](int &r, int &c) -> bool
+            {
+                int h = INT_MAX;
+                bool found = false;
+                for (int i = 1; i < m - 1; i++)
+                {
+                    for (int j = 1; j < n - 1; j++)
+                    {
+                        if (height[i][j] < h && exclude[i][j] == 0)
+                        {
+                            h = height[i][j];
+                            found = true;
+                        }
+                    }
+                }
+                return found;
+            };
+            function<void(int, int, int, set<pair<int, int>> &, bool &, int &)>
+                expand = [&](int h, int i, int j, set<pair<int, int>> &area, bool &excludearea, int &nexth)
+            {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return;
+                if (i == 0 || i == m - 1 || j == 0 || j == n - 1 || height[i][j] < h)
+                    excludearea = true;
+                if (height[i][j] != h)
+                {
+                    if (height[i][j] > h)
+                        nexth = min(nexth, height[i][j]);
+                    return;
+                }
+                pair<int, int> p = make_pair(i, j);
+                if (area.find(p) != area.end())
+                    return;
+                area.insert(p);
+                expand(h, i - 1, j, area, excludearea, nexth);
+                expand(h, i, j + 1, area, excludearea, nexth);
+                expand(h, i + 1, j, area, excludearea, nexth);
+                expand(h, i, j - 1, area, excludearea, nexth);
+            };
+            function<void(const set<pair<int, int>> &, bool, int)>
+                fillarea = [&](const set<pair<int, int>> &area, bool excludearea, int nexth)
+            {
+                for (const auto p : area)
+                {
+                    volume += nexth - height[p.first][p.second];
+                    height[p.first][p.second] = nexth;
+                    if (excludearea)
+                        exclude[p.first][p.second] = 1;
+                }
+            };
+            while (true)
+            {
+                int minr;
+                int minc;
+                if (!minheightindex(minr, minc))
+                    break;
+                set<pair<int, int>> area;
+                bool excludearea = false;
+                int nexth = INT_MAX;
+                expand(height[minr][minc], minr, minc, area, excludearea, nexth);
+                fillarea(area, excludearea, nexth);
+            }
+            return volume;
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm
