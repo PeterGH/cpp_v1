@@ -577,8 +577,7 @@ namespace Test
                  {
                      if (x[0] == y[0])
                          return x[1] < y[1]; // same height, smaller k goes first
-                     return x[0] < y[0];
-                 });
+                     return x[0] < y[0]; });
             vector<vector<int>> output(people.size(), {0, -1});
             for (const auto &p : people)
             {
@@ -604,8 +603,7 @@ namespace Test
                  {
                      if (x[0] == y[0])
                          return x[1] > y[1]; // same height, larger k goes first
-                     return x[0] < y[0];
-                 });
+                     return x[0] < y[0]; });
             vector<vector<int>> output(people.size(), {0, -1});
             for (const auto &p : people)
             {
@@ -632,8 +630,7 @@ namespace Test
                  {
                      if (x[0] == y[0])
                          return x[1] < y[1]; // same height with smaller k is "taller"
-                     return x[0] > y[0];
-                 });
+                     return x[0] > y[0]; });
             vector<vector<int>> output;
             for (const auto &p : people)
             {
@@ -818,6 +815,8 @@ namespace Test
                         if (height[i][j] < h && exclude[i][j] == 0)
                         {
                             h = height[i][j];
+                            r = i;
+                            c = j;
                             found = true;
                         }
                     }
@@ -829,18 +828,20 @@ namespace Test
             {
                 if (i < 0 || i >= m || j < 0 || j >= n)
                     return;
-                if (i == 0 || i == m - 1 || j == 0 || j == n - 1 || height[i][j] < h)
-                    excludearea = true;
                 if (height[i][j] != h)
                 {
                     if (height[i][j] > h)
                         nexth = min(nexth, height[i][j]);
+                    else
+                        excludearea = true;
                     return;
                 }
                 pair<int, int> p = make_pair(i, j);
                 if (area.find(p) != area.end())
                     return;
                 area.insert(p);
+                if (i == 0 || i == m - 1 || j == 0 || j == n - 1)
+                    excludearea = true;
                 expand(h, i - 1, j, area, excludearea, nexth);
                 expand(h, i, j + 1, area, excludearea, nexth);
                 expand(h, i + 1, j, area, excludearea, nexth);
@@ -851,10 +852,15 @@ namespace Test
             {
                 for (const auto p : area)
                 {
-                    volume += nexth - height[p.first][p.second];
-                    height[p.first][p.second] = nexth;
                     if (excludearea)
+                    {
                         exclude[p.first][p.second] = 1;
+                    }
+                    else
+                    {
+                        volume += nexth - height[p.first][p.second];
+                        height[p.first][p.second] = nexth;
+                    }
                 }
             };
             while (true)
