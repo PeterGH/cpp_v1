@@ -6,15 +6,22 @@
 void LeetCodeTest::Init4(void)
 {
     Add("407. Trapping Rain Water II", [&]()
-        {
-            auto check = [&](const vector<vector<int>> &map, int expected)
-            {
-                Logger() << map;
-                int volume = trapRainWater(map);
-                Logger() << "volume = " << volume << ", " << expected << endl;
-                ASSERT1(volume == expected);
-            };
-            check({{1, 4, 3, 1, 3, 2}, {3, 2, 1, 3, 2, 4}, {2, 3, 3, 2, 3, 1}}, 4);
-        });
+        { auto check = [&](const vector<vector<int>> &map, int expected)
+          {
+              Logger() << map;
+              int volume = trapRainWater(map);
+              int volume2 = trapRainWater2(map);
+              Logger() << "volume = " << volume << ", " << volume2 << ", " << expected << endl;
+              if (expected < 0)
+              {
+                  ASSERT1(volume == volume2);
+              }
+              else
+              {
+                  ASSERT1(volume == expected);
+                  ASSERT1(volume2 == expected);
+              };
+          };
+          check({{1, 4, 3, 1, 3, 2}, {3, 2, 1, 3, 2, 4}, {2, 3, 3, 2, 3, 1}}, 4); });
 }
 #endif

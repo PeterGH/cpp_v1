@@ -877,6 +877,122 @@ namespace Test
             }
             return volume;
         }
+        int trapRainWater2(const vector<vector<int>> &heightMap)
+        {
+            int volume = 0;
+            int m = heightMap.size();
+            int n = heightMap[0].size();
+            vector<vector<int>> height(heightMap);
+            vector<vector<int>> exclude(m, vector<int>(n, 0));
+            function<bool(int &, int &)> minheightindex = [&](int &r, int &c) -> bool
+            {
+                int h = INT_MAX;
+                bool found = false;
+                for (int i = 1; i < m - 1; i++)
+                {
+                    for (int j = 1; j < n - 1; j++)
+                    {
+                        if (height[i][j] < h && exclude[i][j] == 0)
+                        {
+                            h = height[i][j];
+                            r = i;
+                            c = j;
+                            found = true;
+                        }
+                    }
+                }
+                return found;
+            };
+            function<bool(int, int, int, set<pair<int, int>> &, set<pair<int, int>> &, bool &, int &)>
+                expand = [&](int h, int i, int j, set<pair<int, int>> &area, set<pair<int, int>> &boundary, bool &excludearea, int &nexth) -> bool
+            {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return false;
+                if (height[i][j] != h)
+                {
+                    if (height[i][j] > h)
+                        nexth = min(nexth, height[i][j]);
+                    else
+                        excludearea = true;
+                    return false;
+                }
+                pair<int, int> p = make_pair(i, j);
+                if (area.find(p) != area.end())
+                    return true;
+                area.insert(p);
+                if (i == 0 || i == m - 1 || j == 0 || j == n - 1)
+                    excludearea = true;
+                bool isboundary = false;
+                if (!expand(h, i - 1, j, area, boundary, excludearea, nexth))
+                    isboundary = true;
+                if (!expand(h, i, j + 1, area, boundary, excludearea, nexth))
+                    isboundary = true;
+                if (!expand(h, i + 1, j, area, boundary, excludearea, nexth))
+                    isboundary = true;
+                if (!expand(h, i, j - 1, area, boundary, excludearea, nexth))
+                    isboundary = true;
+                if (isboundary)
+                    boundary.insert(p);
+                return true;
+            };
+            function<void(const set<pair<int, int>> &, bool, int)>
+                fillarea = [&](const set<pair<int, int>> &area, bool excludearea, int nexth)
+            {
+                for (const auto p : area)
+                {
+                    if (excludearea)
+                    {
+                        exclude[p.first][p.second] = 1;
+                    }
+                    else
+                    {
+                        volume += nexth - height[p.first][p.second];
+                        height[p.first][p.second] = nexth;
+                    }
+                }
+            };
+            set<pair<int, int>> area;
+            set<pair<int, int>> boundary;
+            while (true)
+            {
+                bool excludearea = false;
+                int nexth = INT_MAX;
+                if (area.empty())
+                {
+                    int minr;
+                    int minc;
+                    if (!minheightindex(minr, minc))
+                        break;
+                    expand(height[minr][minc], minr, minc, area, boundary, excludearea, nexth);
+                }
+                else
+                {
+                    set<pair<int, int>> nextboundary;
+                    for (const auto &p : boundary)
+                    {
+                        bool isboundary = false;
+                        if (!expand(height[p.first][p.second], p.first - 1, p.second, area, nextboundary, excludearea, nexth))
+                            isboundary = true;
+                        if (!expand(height[p.first][p.second], p.first, p.second + 1, area, nextboundary, excludearea, nexth))
+                            isboundary = true;
+                        if (!expand(height[p.first][p.second], p.first + 1, p.second, area, nextboundary, excludearea, nexth))
+                            isboundary = true;
+                        if (!expand(height[p.first][p.second], p.first, p.second - 1, area, nextboundary, excludearea, nexth))
+                            isboundary = true;
+                        if (isboundary)
+                            nextboundary.insert(p);
+                    }
+                    boundary.swap(nextboundary);
+                }
+                fillarea(area, excludearea, nexth);
+                if (excludearea)
+                {
+                    area.clear();
+                    boundary.clear();
+                }
+            }
+            return volume;
+        }
 
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
