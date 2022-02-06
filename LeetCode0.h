@@ -490,8 +490,7 @@ namespace Test
                             twosum[t].begin(), twosum[t].end(), [&](pair<int, int> p)
                             {
                                 vector<int> a = {p.first, p.second, num[i], num[j]};
-                                ans.insert(a);
-                            });
+                                ans.insert(a); });
                     }
                 }
                 for (int j = 0; j < i; j++)
@@ -2521,8 +2520,7 @@ namespace Test
                          {
                              string t(r);
                              t.append(1, c);
-                             combine(s, i + 1, t, m, o);
-                         });
+                             combine(s, i + 1, t, m, o); });
             };
 
             map<char, vector<char>> m;
@@ -2857,8 +2855,7 @@ namespace Test
                                  {
                                      string v(t);
                                      v.append(u);
-                                     m[p].push_back(v);
-                                 });
+                                     m[p].push_back(v); });
                     }
                 }
                 s.append(1, '(');
@@ -5384,8 +5381,7 @@ namespace Test
                              {
                                  vector<int> r(s);
                                  r.insert(r.begin(), candidates[j]);
-                                 m[p].push_back(r);
-                             });
+                                 m[p].push_back(r); });
                 }
             };
             solve(0, target);
@@ -5744,6 +5740,35 @@ namespace Test
                     v += count(i, j);
                 j = i;
                 tips.pop();
+            }
+            return v;
+        }
+        int trap3(const vector<int> &height)
+        {
+            vector<int> h(height);
+            int v = 0;
+            int i = 0;
+            int j = h.size() - 1;
+            while (i < j)
+            {
+                if (h[i] <= h[j])
+                {
+                    if (i + 1 < j)
+                    {
+                        v += max(0, h[i] - h[i + 1]);
+                        h[i + 1] = max(h[i], h[i + 1]);
+                    }
+                    i++;
+                }
+                else
+                {
+                    if (i + 1 < j)
+                    {
+                        v += max(0, h[j] - h[j - 1]);
+                        h[j - 1] = max(h[j - 1], h[j]);
+                    }
+                    j--;
+                }
             }
             return v;
         }
@@ -6538,8 +6563,7 @@ namespace Test
                          sort(k.begin(), k.end());
                          if (m.find(k) == m.end())
                              m[k] = vector<string>{};
-                         m[k].push_back(s);
-                     });
+                         m[k].push_back(s); });
             for (map<string, vector<string>>::iterator it = m.begin(); it != m.end();
                  it++)
             {
@@ -6812,8 +6836,7 @@ namespace Test
                                          {
                                              if (l[j] == 'X')
                                                  l[j] = '.';
-                                         }
-                                     });
+                                         } });
                             solutions.push_back(next);
                         }
                         else
@@ -7568,8 +7591,7 @@ namespace Test
                          {
                              newInterval.start = min(newInterval.start, i.start);
                              newInterval.end = max(newInterval.end, i.end);
-                         }
-                     });
+                         } });
             output.push_back(newInterval);
             return output;
         }
@@ -9181,8 +9203,7 @@ namespace Test
                 for_each(tokens.begin(), tokens.end(), [&](string &t)
                          {
                              output.append(1, '/');
-                             output.append(t.begin(), t.end());
-                         });
+                             output.append(t.begin(), t.end()); });
             }
             return output;
         }
@@ -10067,8 +10088,7 @@ namespace Test
                          {
                              vector<int> ex(v.begin(), v.end());
                              ex.push_back(i);
-                             s[p].push_back(ex);
-                         });
+                             s[p].push_back(ex); });
                 pair<int, int> q2 = make_pair(i - 1, j);
                 if (s.find(q2) == s.end())
                     combine(i - 1, j, s);

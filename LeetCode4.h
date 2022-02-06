@@ -883,22 +883,24 @@ namespace Test
             int m = heightMap.size();
             int n = heightMap[0].size();
             vector<vector<int>> height(heightMap);
-            vector<vector<int>> exclude(m, vector<int>(n, 0));
+            set<pair<int, int>> index;
+            for (int i = 1; i < m - 1; i++)
+            {
+                for (int j = 1; j < n - 1; j++)
+                    index.insert(make_pair(i, j));
+            }
             function<bool(int &, int &)> minheightindex = [&](int &r, int &c) -> bool
             {
                 int h = INT_MAX;
                 bool found = false;
-                for (int i = 1; i < m - 1; i++)
+                for (const auto &i : index)
                 {
-                    for (int j = 1; j < n - 1; j++)
+                    if (height[i.first][i.second] < h)
                     {
-                        if (height[i][j] < h && exclude[i][j] == 0)
-                        {
-                            h = height[i][j];
-                            r = i;
-                            c = j;
-                            found = true;
-                        }
+                        h = height[i.first][i.second];
+                        r = i.first;
+                        c = i.second;
+                        found = true;
                     }
                 }
                 return found;
@@ -938,11 +940,11 @@ namespace Test
             function<void(const set<pair<int, int>> &, bool, int)>
                 fillarea = [&](const set<pair<int, int>> &area, bool excludearea, int nexth)
             {
-                for (const auto p : area)
+                for (const auto &p : area)
                 {
                     if (excludearea)
                     {
-                        exclude[p.first][p.second] = 1;
+                        index.erase(p);
                     }
                     else
                     {
@@ -990,6 +992,64 @@ namespace Test
                     area.clear();
                     boundary.clear();
                 }
+            }
+            return volume;
+        }
+        int trapRainWater3(const vector<vector<int>> &heightMap)
+        {
+            int volume = 0;
+            int m = heightMap.size();
+            int n = heightMap[0].size();
+            vector<vector<int>> height(heightMap);
+            function<bool(const pair<int, int> &, const pair<int, int> &)>
+                higher = [&](const pair<int, int> &x, const pair<int, int> &y) -> bool
+            {
+                return height[x.first][x.second] > height[y.first][y.second];
+            };
+            priority_queue<pair<int, int>, vector<pair<int, int>>, decltype(higher)> boundary(higher);
+            set<pair<int, int>> visited;
+            pair<int, int> p;
+            for (int i = 0; i < m; i++)
+            {
+                p = make_pair(i, 0);
+                boundary.push(p);
+                visited.insert(p);
+                p = make_pair(i, n - 1);
+                boundary.push(p);
+                visited.insert(p);
+            }
+            for (int j = 0; j < n; j++)
+            {
+                p = make_pair(0, j);
+                boundary.push(p);
+                visited.insert(p);
+                p = make_pair(m - 1, j);
+                boundary.push(p);
+                visited.insert(p);
+            }
+            function<void(int, int, int)> visit = [&](int i, int j, int h)
+            {
+                if (i < 0 || i >= m || j < 0 || j >= n)
+                    return;
+                auto x = make_pair(i, j);
+                if (visited.find(x) != visited.end())
+                    return;
+                if (height[i][j] < h)
+                {
+                    volume += h - height[i][j];
+                    height[i][j] = h;
+                }
+                boundary.push(x);
+                visited.insert(x);
+            };
+            while (!boundary.empty())
+            {
+                p = boundary.top();
+                boundary.pop();
+                visit(p.first - 1, p.second, height[p.first][p.second]);
+                visit(p.first, p.second + 1, height[p.first][p.second]);
+                visit(p.first + 1, p.second, height[p.first][p.second]);
+                visit(p.first, p.second - 1, height[p.first][p.second]);
             }
             return volume;
         }
