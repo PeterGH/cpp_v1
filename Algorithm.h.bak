@@ -5786,62 +5786,6 @@ static void ReverseWords(char *input) {
     reverse(input, --s);
 }
 
-// Return a pointer to the first occurrence of input2 in input1, or nullptr
-static const char *StrStr1(const char *input1, const char *input2) {
-    if (input1 == nullptr || input2 == nullptr)
-        return nullptr;
-    if (*input2 == '\0')
-        return input1;
-    const char *q = input1;
-    const char *p = input2;
-    while (*(q + 1) != '\0' && *(p + 1) != '\0') {
-        q++;
-        p++;
-    }
-    if (*(q + 1) == '\0' && *(p + 1) != '\0') {
-        return nullptr; // input2 is longer than input1
-    }
-    // now input1 is not shorter than input2
-    // set p to the beginning of input1
-    p = input1;
-    // Hop p and q at same step until q reaches the end of input1
-    while (*q != '\0') {
-        if (*p == *input2) {
-            const char *r = p;
-            const char *s = input2;
-            while (*s != '\0' && *r == *s) {
-                r++;
-                s++;
-            }
-            if (*s == '\0')
-                return p;
-        }
-        p++;
-        q++;
-    }
-    return nullptr;
-}
-// Return a pointer to the first occurrence of input2 in input1, or nullptr
-static const char *StrStr2(const char *input1, const char *input2) {
-    if (input1 == nullptr || input2 == nullptr)
-        return nullptr;
-    const char *p = input1;
-    while (*p != '\0') {
-        if (*p == *input2) {
-            const char *r = p;
-            const char *s = input2;
-            while (*r != '\0' && *s != '\0' && *r == *s) {
-                r++;
-                s++;
-            }
-            if (*s == '\0')
-                return p;
-        }
-        p++;
-    }
-    return *input2 == '\0' ? input1 : nullptr;
-}
-
 namespace BreakWords {
 // leetcode "Word Break"
 static bool StartWith(const string &s1, const string &s2) {
