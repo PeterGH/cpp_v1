@@ -2833,8 +2833,8 @@ namespace Test
                 return vector<string>{};
             function<void(int, int, map<pair<int, int>, vector<string>> &)>
                 solve = [&](       // l <= r
-                            int l, // count '(' needed
-                            int r, // count ')' needed
+                            int l, // count '(' needed, l >= 1
+                            int r, // count ')' needed, r >= l >= 1
                             map<pair<int, int>, vector<string>> &m)
             {
                 pair<int, int> p = make_pair(l, r);

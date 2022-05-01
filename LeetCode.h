@@ -375,8 +375,7 @@ namespace Test
             for_each(streams.begin(), streams.end(), [&](stringstream *s)
                      {
                          cout << s->str() << endl;
-                         delete s;
-                     });
+                         delete s; });
         }
 
         void DeleteTree(TreeNode *root)
@@ -608,15 +607,13 @@ namespace Test
                              {
                                  m.insert(n);
                                  q.push(n);
-                             }
-                         });
+                             } });
                 f->neighbors.clear();
             }
             for_each(m.begin(), m.end(), [&](Node *n)
                      {
                          // cout << "delete " << n->val << endl;
-                         delete n;
-                     });
+                         delete n; });
             m.clear();
         }
 
@@ -640,8 +637,7 @@ namespace Test
                                  m[n->val] = {};
                                  q.push(n);
                              }
-                             m[f->val].push_back(n->val);
-                         });
+                             m[f->val].push_back(n->val); });
             }
             return m;
         }
@@ -3702,6 +3698,46 @@ namespace Test
         int lastBit3(int x)
         {
             return x ^ (x & (x - 1));
+        }
+
+        // Given a string containing just the characters '(', ')', '{', '}', '[' and
+        // ']', determine if the input string is valid. The brackets must close in the
+        // correct order, "()" and "()[]{}" are all valid but "(]" and "([)]" are not.
+        static bool IsValidParentheses(const string &s)
+        {
+            if (s.length() == 0)
+                return true;
+            stack<char> p;
+            for (int i = 0; i < (int)s.length(); i++)
+            {
+                char c = s[i];
+                switch (c)
+                {
+                case '(':
+                case '{':
+                case '[':
+                    p.push(c);
+                    break;
+                case ')':
+                    if (p.empty() || p.top() != '(')
+                        return false;
+                    p.pop();
+                    break;
+                case '}':
+                    if (p.empty() || p.top() != '{')
+                        return false;
+                    p.pop();
+                    break;
+                case ']':
+                    if (p.empty() || p.top() != '[')
+                        return false;
+                    p.pop();
+                    break;
+                default:
+                    break;
+                }
+            }
+            return p.empty();
         }
 
     } // namespace LeetCode
