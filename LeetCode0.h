@@ -4036,6 +4036,45 @@ namespace Test
             }
             return result;
         }
+        static vector<int> SubstringOfConcatenation(const string &S,
+                                                    vector<string> &L)
+        {
+            vector<int> result;
+            int len = S.length();
+            if (len == 0 || L.size() == 0)
+                return result;
+            int sl = L.size() * L[0].length();
+            if (len < sl)
+                return result;
+            map<string, int> m;
+            for_each(L.begin(), L.end(), [&](string &s) {
+                if (m.find(s) == m.end()) {
+                    m[s] = 1;
+                } else {
+                    m[s] += 1;
+                } });
+            for (int i = 0; i <= len - sl; i++)
+            {
+                string s = S.substr(i, L[0].length());
+                if (m.find(s) != m.end())
+                {
+                    map<string, int> n(m);
+                    for (int j = i; j < i + sl; j += L[0].length())
+                    {
+                        s = S.substr(j, L[0].length());
+                        if (n.find(s) == n.end())
+                            break;
+                        if (n[s] == 1)
+                            n.erase(s);
+                        else
+                            n[s]--;
+                    }
+                    if (n.size() == 0)
+                        result.push_back(i);
+                }
+            }
+            return result;
+        }
 
         // 31. Next Permutation
         // Implement next permutation, which rearranges numbers into the
