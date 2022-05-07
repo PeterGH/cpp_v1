@@ -4047,7 +4047,8 @@ namespace Test
             if (len < sl)
                 return result;
             map<string, int> m;
-            for_each(L.begin(), L.end(), [&](string &s) {
+            for_each(L.begin(), L.end(), [&](string &s)
+                     {
                 if (m.find(s) == m.end()) {
                     m[s] = 1;
                 } else {
@@ -9488,6 +9489,70 @@ namespace Test
                 d[0] = p;
             }
             return d[0];
+        }
+        int minDistance5(const string &word1, const string &word2)
+        {
+            int n1 = (int)word1.size();
+            int n2 = (int)word2.size();
+            if (n1 == 0)
+                return n2;
+            if (n2 == 0)
+                return n1;
+            queue<pair<int, int>> q1, q2;
+            set<pair<int, int>> s;
+            int i = 0;
+            int j = 0;
+            auto p = make_pair(i, j);
+            q1.push(p);
+            s.insert(p);
+            int d = 0;
+            while (!q1.empty())
+            {
+                p = q1.front();
+                q1.pop();
+                i = p.first;
+                j = p.second;
+                while (i < n1 && j < n2 && word1[i] == word2[j])
+                {
+                    i++;
+                    j++;
+                }
+                if (i == n1 && j == n2)
+                    break;
+                if (j + 1 <= n2)
+                {
+                    p = make_pair(i, j + 1);
+                    if (s.find(p) == s.end())
+                    {
+                        q2.push(p);
+                        s.insert(p);
+                    }
+                }
+                if (i + 1 <= n1)
+                {
+                    p = make_pair(i + 1, j);
+                    if (s.find(p) == s.end())
+                    {
+                        q2.push(p);
+                        s.insert(p);
+                    }
+                }
+                if (i + 1 <= n1 && j + 1 <= n2)
+                {
+                    p = make_pair(i + 1, j + 1);
+                    if (s.find(p) == s.end())
+                    {
+                        q2.push(p);
+                        s.insert(p);
+                    }
+                }
+                if (q1.empty() && !q2.empty())
+                {
+                    d++;
+                    q1.swap(q2);
+                }
+            }
+            return d;
         }
 
         // 73. Set Matrix Zeroes
