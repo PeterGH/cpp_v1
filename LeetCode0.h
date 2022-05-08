@@ -9490,6 +9490,7 @@ namespace Test
             }
             return d[0];
         }
+        // BFS from [0][0] to [m-1][n-1]
         int minDistance5(const string &word1, const string &word2)
         {
             int n1 = (int)word1.size();
