@@ -6961,6 +6961,51 @@ namespace Test
             solve(0, board);
             return output;
         }
+        vector<vector<string>> solveNQueens4(int n)
+        {
+            vector<vector<string>> output;
+            vector<bool> column(n, false);
+            vector<bool> diag1(n + n - 1, false);
+            vector<bool> diag2(n + n - 1, false);
+            stack<pair<int, int>> s;
+            int i = 0;
+            int j = 0;
+            vector<string> board(n, string(n, '.'));
+            while (true)
+            {
+                if (0 <= i && i < n && 0 <= j && j < n && !column[j] && !diag1[i - j + n - 1] && !diag2[i + j])
+                {
+                    board[i][j] = 'Q';
+                    s.push(make_pair(i, j));
+                    column[j] = true;
+                    diag1[i - j + n - 1] = true;
+                    diag2[i + j] = true;
+                    i++;
+                    j = 0;
+                }
+                else
+                {
+                    if (i == n || j >= n - 1)
+                    {
+                        if (i == n)
+                        {
+                            output.push_back(board);
+                        }
+                        if (s.empty())
+                            break;
+                        i = s.top().first;
+                        j = s.top().second;
+                        s.pop();
+                        board[i][j] = '.';
+                        column[j] = false;
+                        diag1[i - j + n - 1] = false;
+                        diag2[i + j] = false;
+                    }
+                    j++;
+                }
+            }
+            return output;
+        }
 
         // 52. N-Queens II
         // The n-queens puzzle is the problem of placing n queens on an n×n chessboard
