@@ -5233,6 +5233,75 @@ namespace Test
             solve(board, 0, 0, row, col, cell, m);
             return;
         }
+        // wrong
+        void solveSudoku3(vector<vector<char>> &board)
+        {
+            vector<set<char>> row(9, set<char>{});
+            vector<set<char>> col(9, set<char>{});
+            vector<set<char>> cell(9, set<char>{});
+            function<int(int, int)> cellIndex = [&](int i, int j) -> int
+            {
+                return 3 * (i / 3) + (j / 3);
+            };
+            set<pair<int, int>> fix;
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    if (board[i][j] != '.')
+                    {
+                        row[i].insert(board[i][j]);
+                        col[j].insert(board[i][j]);
+                        int k = cellIndex(i, j);
+                        cell[k].insert(board[i][j]);
+                        fix.insert(make_pair(i, j));
+                    }
+                }
+            }
+            map<pair<int, int>, char> m;
+            stack<pair<int, int>> s;
+            int i = 0;
+            int j = 0;
+            char v = '1';
+            while (true)
+            {
+                int k = cellIndex(i, j);
+                if (0 <= i && i < 9 && 0 < j && j < 9 && v <= '9' && row[i].find(v) == row[i].end() && col[j].find(v) == col[j].end() && cell[k].find(v) == cell[k].end())
+                {
+                    auto p = make_pair(i, j);
+                    if (fix.find(p) == fix.end())
+                    {
+                        board[i][j] = v;
+                        s.push(p);
+                        m[p] = v;
+                        row[i].insert(v);
+                        col[j].insert(v);
+                        cell[k].insert(v);
+                    }
+                    j = (j + 1) % 9;
+                    if (j == 0)
+                        i++;
+                    v = '1';
+                }
+                else
+                {
+                    if (i == 9 || s.empty())
+                        break;
+                    if (v > '9')
+                    {
+                        auto t = s.top();
+                        s.pop();
+                        i = t.first;
+                        j = t.second;
+                        v = m[t];
+                        row[i].erase(v);
+                        col[j].erase(v);
+                        cell[cellIndex(i, j)].erase(v);
+                    }
+                    v++;
+                }
+            }
+        }
 
         // 38. Count and Say
         // The count-and-say sequence is the sequence of integers with the first five
