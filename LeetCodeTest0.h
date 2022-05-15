@@ -1145,8 +1145,10 @@ void LeetCodeTest::Init0(void)
                 vector<vector<char>> b(board);
                 solveSudoku(b);
                 vector<vector<char>> b2(board);
-                solveSudoku(b2);
-                Logger() << b << b2;
+                solveSudoku2(b2);
+                vector<vector<char>> b3(board);
+                solveSudoku3(b3);
+                Logger() << b << b2 << b3;
                 bool r = isValidSudoku(b);
                 bool r2 = isValidSudoku2(b);
                 bool r3 = isValidSudoku3(b);
@@ -1159,6 +1161,16 @@ void LeetCodeTest::Init0(void)
                 ASSERT1(s == true);
                 ASSERT1(s2 == true);
                 ASSERT1(s3 == true);
+                bool t = isValidSudoku(b3);
+                bool t2 = isValidSudoku2(b3);
+                bool t3 = isValidSudoku3(b3);
+                ASSERT1(t == true);
+                ASSERT1(t2 == true);
+                ASSERT1(t3 == true);
+                int c2 = Util::Compare(b, b2);
+                int c3 = Util::Compare(b, b3);
+                ASSERT1(c2 == 0);
+                ASSERT1(c3 == 0);
             };
             {
                 vector<vector<char>> b = {

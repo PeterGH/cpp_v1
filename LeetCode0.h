@@ -5233,7 +5233,6 @@ namespace Test
             solve(board, 0, 0, row, col, cell, m);
             return;
         }
-        // wrong
         void solveSudoku3(vector<vector<char>> &board)
         {
             vector<set<char>> row(9, set<char>{});
@@ -5266,18 +5265,15 @@ namespace Test
             while (true)
             {
                 int k = cellIndex(i, j);
-                if (0 <= i && i < 9 && 0 < j && j < 9 && v <= '9' && row[i].find(v) == row[i].end() && col[j].find(v) == col[j].end() && cell[k].find(v) == cell[k].end())
+                auto p = make_pair(i, j);
+                if (0 <= i && i < 9 && 0 <= j && j < 9 && v <= '9' && row[i].find(v) == row[i].end() && col[j].find(v) == col[j].end() && cell[k].find(v) == cell[k].end() && fix.find(p) == fix.end())
                 {
-                    auto p = make_pair(i, j);
-                    if (fix.find(p) == fix.end())
-                    {
-                        board[i][j] = v;
-                        s.push(p);
-                        m[p] = v;
-                        row[i].insert(v);
-                        col[j].insert(v);
-                        cell[k].insert(v);
-                    }
+                    board[i][j] = v;
+                    s.push(p);
+                    m[p] = v;
+                    row[i].insert(v);
+                    col[j].insert(v);
+                    cell[k].insert(v);
                     j = (j + 1) % 9;
                     if (j == 0)
                         i++;
@@ -5285,20 +5281,34 @@ namespace Test
                 }
                 else
                 {
-                    if (i == 9 || s.empty())
+                    if (i == 9 && j == 0)
                         break;
-                    if (v > '9')
+                    if (fix.find(p) != fix.end())
                     {
-                        auto t = s.top();
+                        j = (j + 1) % 9;
+                        if (j == 0)
+                            i++;
+                        v = '1';
+                    }
+                    else if (v <= '9')
+                    {
+                        v++;
+                    }
+                    else // v > '9'
+                    {
+                        if (s.empty())
+                            break;
+                        p = s.top();
                         s.pop();
-                        i = t.first;
-                        j = t.second;
-                        v = m[t];
+                        i = p.first;
+                        j = p.second;
+                        v = m[p];
                         row[i].erase(v);
                         col[j].erase(v);
                         cell[cellIndex(i, j)].erase(v);
+                        board[i][j] = '.';
+                        v++;
                     }
-                    v++;
                 }
             }
         }
