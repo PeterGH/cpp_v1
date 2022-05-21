@@ -850,7 +850,7 @@ namespace Test
             function<void(const set<pair<int, int>> &, bool, int)>
                 fillarea = [&](const set<pair<int, int>> &area, bool excludearea, int nexth)
             {
-                for (const auto p : area)
+                for (const auto &p : area)
                 {
                     if (excludearea)
                     {
