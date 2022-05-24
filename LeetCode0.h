@@ -6270,6 +6270,45 @@ namespace Test
             map<pair<const char *, const char *>, bool> m;
             return isMatchInternal(s, p, m);
         }
+        // Implement regular expression matching with support for '.' and '*'.
+        // '.' Matches any single character.
+        // '*' Matches zero or more of the preceding element.
+        // The matching should cover the entire input string (not partial).
+        // The function prototype should be:
+        // bool isMatch(const char *s, const char *p)
+        // Some examples:
+        // isMatch("aa","a") -> false
+        // isMatch("aa","aa") -> true
+        // isMatch("aaa","aa") -> false
+        // isMatch("aa", "a*") -> true
+        // isMatch("aa", ".*") -> true
+        // isMatch("ab", ".*") -> true
+        // isMatch("aab", "c*a*b") -> true, this is different
+        static bool isMatch2(const char *s, const char *p)
+        {
+            while (*p == '*')
+                p++;
+            if (*s == '\0' && *p == '\0')
+                return true;
+            if (*p == '\0')
+                return false;
+            if (*(p + 1) != '*')
+            {
+                if (*s != '\0' && (*s == *p || *p == '.'))
+                    return isMatch2(++s, ++p);
+                else
+                    return false;
+            }
+            // Now *(p + 1) == '*'
+            while (*s != '\0' && (*s == *p || *p == '.'))
+            {
+                if (isMatch2(s, p + 2))
+                    return true;
+                s++;
+            }
+            // *s and *p are not matching, skip *p because *(p + 1) is '*'
+            return isMatch2(s, p + 2);
+        }
 
         // 45. Jump Game II
         // Given an array of non-negative integers, you are initially positioned at
