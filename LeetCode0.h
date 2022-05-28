@@ -6096,7 +6096,7 @@ namespace Test
         // match 'b'. Example 4: Input: s = "adceb" p = "*a*b" Output: true Explanation:
         // The first '*' matches the empty sequence, while the second '*' matches the
         // substring "dce". Example 5: Input: s = "acdcb" p = "a*c?b" Output: false
-        bool isMatch(string s, string p)
+        bool isMatch(const string &s, const string &p)
         {
             function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool
             {
@@ -6125,7 +6125,49 @@ namespace Test
             };
             return match(0, 0);
         }
-        bool isMatch2(string s, string p)
+        bool isMatch2(const string &s, const string &p)
+        {
+            stack<pair<size_t, size_t>> m;
+            size_t i = 0;
+            size_t j = 0;
+            while (i <= s.size() && j <= p.size())
+            {
+                if (i < s.size() && j < p.size() && (s[i] == p[j] || p[j] == '?'))
+                {
+                    i++;
+                    j++;
+                }
+                else if (j < p.size() && p[j] == '*')
+                {
+                    // i <= s.size()
+                    j++;
+                    if (j == p.size() || p[j] != '*')
+                    {
+                        // p[j-1] == '*'
+                        // record (i, j) because we might need to check (i+1, j) (i+2, j), ...
+                        m.push(make_pair(i, j));
+                    }
+                }
+                else if (i == s.size())
+                {
+                    return j == p.size();
+                }
+                else
+                {
+                    if (m.empty())
+                        break;
+                    // last (i, j) does not work
+                    // skip i and continue check (i + 1, j) because we known p[j-1] == '*'
+                    auto t = m.top();
+                    m.pop();
+                    i = t.first + 1;
+                    j = t.second;
+                    m.push(make_pair(i, j));
+                }
+            }
+            return false;
+        }
+        bool isMatch3(const string &s, const string &p)
         {
             map<pair<size_t, size_t>, bool> m;
             function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool
@@ -6177,7 +6219,7 @@ namespace Test
         // |(adceb,*)->( ,a)
         // s = "abcabc" p = "*a*c"
         // http://yucoding.blogspot.com/2013/02/leetcode-question-123-wildcard-matching.html
-        bool isMatch3(string s, string p)
+        bool isMatch4(const string &s, const string &p)
         {
             int lastStarIndex = -1;
             int currentIndex = 0;
