@@ -10128,6 +10128,62 @@ namespace Test
             if (t.empty() || s.size() < t.size())
                 return "";
             map<char, int> mt;
+            for (int i = 0; i < (int)t.size(); i++)
+            {
+                if (mt.find(t[i]) == mt.end())
+                    mt[t[i]] = 1;
+                else
+                    mt[t[i]]++;
+            }
+            int b = -1;
+            int e = (int)s.size();
+            queue<int> q;
+            map<char, int> ms;
+            map<char, int> c(mt); // characters to look for
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                if (mt.find(s[i]) == mt.end())
+                    continue;
+                q.push(i);
+                if (ms.find(s[i]) == ms.end())
+                    ms[s[i]] = 1;
+                else
+                    ms[s[i]]++;
+                if (c.find(s[i]) != c.end())
+                {
+                    c[s[i]]--;
+                    if (c[s[i]] == 0)
+                        c.erase(s[i]);
+                }
+                if (c.empty())
+                {
+                    // all required characters are found
+                    while (!q.empty() && ms[s[q.front()]] > mt[s[q.front()]])
+                    {
+                        ms[s[q.front()]]--;
+                        q.pop();
+                    }
+                    if (!q.empty())
+                    {
+                        if (i - q.front() < e - b)
+                        {
+                            b = q.front();
+                            e = i;
+                        }
+                        // look for next character that is also first one in current valid window
+                        c[s[q.front()]] = 1;
+                        ms[s[q.front()]]--;
+                        q.pop();
+                    }
+                }
+            }
+            return b == -1 ? "" : s.substr(b, e - b + 1);
+        }
+        string minWindow2(const string &s, const string &t)
+        {
+            if (t.empty() || s.size() < t.size())
+                return "";
+            map<char, int> mt;
             for (size_t i = 0; i < t.size(); i++)
             {
                 if (mt.find(t[i]) == mt.end())
@@ -10185,7 +10241,7 @@ namespace Test
             }
             return minIndex == INT_MAX ? "" : s.substr(minIndex, minLen);
         }
-        string minWindow2(const string &s, const string &t)
+        string minWindow3(const string &s, const string &t)
         {
             if (s.empty() || t.empty() || s.length() < t.length())
                 return "";
@@ -10247,7 +10303,7 @@ namespace Test
             else
                 return s.substr(begin, end - begin + 1);
         }
-        string minWindow3(const string &s, const string &t)
+        string minWindow4(const string &s, const string &t)
         {
             if (s.empty() || t.empty() || s.length() < t.length())
                 return "";
