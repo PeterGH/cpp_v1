@@ -1710,7 +1710,7 @@ namespace Test
         // conversion could be performed. Example 5: Input: "-91283472332" Output:
         // -2147483648 Explanation: The number "-91283472332" is out of the range of a
         // 32-bit signed integer. Thefore INT_MIN (−2^31) is returned.
-        int myAtoi(string str)
+        int myAtoi(const string &str)
         {
             bool foundStart = false;
             bool isNegative = false;
@@ -1760,7 +1760,7 @@ namespace Test
             }
             return r;
         }
-        int myAtoi2(string str)
+        int myAtoi2(const string &str)
         {
             long r = 0;
             bool negative = false;
@@ -1796,7 +1796,7 @@ namespace Test
             }
             return negative ? -r : r;
         }
-        int myAtoi3(string str)
+        int myAtoi3(const string &str)
         {
             size_t i = 0;
             while (i < str.length() && str[i] == ' ')
