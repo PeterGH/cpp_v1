@@ -9272,6 +9272,7 @@ namespace Test
             size_t j = 1;
             while (j < path.size())
             {
+                // start at current '/' scan characters until next '/'
                 while (j < path.size() && path[j] == '/')
                     j++;
                 if (j == path.size())
