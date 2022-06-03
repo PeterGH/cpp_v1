@@ -9264,6 +9264,57 @@ namespace Test
         // Output: "/a/b/c"
         string simplifyPath(string path)
         {
+            if (path.empty() || path[0] != '/')
+                path.insert(0, 1, '/');
+            size_t i = 0;
+            size_t j = 0;
+            size_t k = 1;
+            while (k <= path.size())
+            {
+                if (k == path.size() || path[k] == '/')
+                {
+                    if (j + 1 == k)
+                    {
+                        j = k;
+                    }
+                    else if (j + 2 == k && path[j + 1] == '.')
+                    {
+                        j = k;
+                    }
+                    else if (j + 3 == k && path[j + 1] == '.' && path[j + 2] == '.')
+                    {
+                        if (i > 0 && path[i] == '/')
+                            i--;
+                        while (i > 0 && path[i] != '/')
+                            i--;
+                        j = k;
+                    }
+                    else if (i == j)
+                    {
+                        i = k;
+                        j = k;
+                    }
+                    else
+                    {
+                        if (path[i] != '/')
+                            path[++i] = '/';
+                        j++;
+                        while (j != k)
+                            path[++i] = path[j++];
+                    }
+                }
+                k++;
+            }
+            if (i < path.size())
+            {
+                if (i > 0 && path[i] == '/')
+                    i--;
+                path.resize(i + 1);
+            }
+            return path;
+        }
+        string simplifyPath2(string path)
+        {
             if (path.empty())
                 return path;
             if (path[0] != '/')
@@ -9315,7 +9366,7 @@ namespace Test
             path.resize(i + 1);
             return path;
         }
-        string simplifyPath2(string path)
+        string simplifyPath3(string path)
         {
             if (path.empty())
                 return path;
@@ -9394,7 +9445,7 @@ namespace Test
             else
                 return path.substr(0, i + 1);
         }
-        string simplifyPath3(string path)
+        string simplifyPath4(string path)
         {
             if (path.empty())
                 return path;
