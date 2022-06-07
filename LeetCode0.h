@@ -12678,6 +12678,55 @@ namespace Test
             }
             return ips;
         }
+        vector<string> restoreIpAddresses4(const string &s)
+        {
+            vector<string> output;
+            if (s.size() < 4 || 12 < s.size())
+                return output;
+            function<bool(size_t, size_t)> isvalid = [&](size_t i, size_t j) -> bool
+            {
+                if (j <= i || i + 3 < j)
+                    return false;
+                if (i + 1 == j)
+                    return true;
+                if (s[i] == '0')
+                    return false;
+                if (i + 2 == j)
+                    return true;
+                if (s[i] < '1' || s[i] > '2')
+                    return false;
+                if (s[i] == '1')
+                    return true;
+                return s[i + 1] < '5' || (s[i + 1] == '5' && s[i + 2] <= '5');
+            };
+            vector<size_t> d; // positions of dot
+            size_t i = 1;
+            while (true)
+            {
+                if (d.size() < 3 && isvalid(d.empty() ? 0 : d.back(), i))
+                {
+                    d.push_back(i);
+                    i++;
+                }
+                else
+                {
+                    if (d.empty())
+                        break;
+                    if (d.size() == 3 && isvalid(d.back(), s.size()))
+                    {
+                        string t(s);
+                        for (int j = (int)d.size() - 1; j >= 0; j--)
+                        {
+                            t.insert(d[j], 1, '.');
+                        }
+                        output.push_back(t);
+                    }
+                    i = d.back() + 1;
+                    d.pop_back();
+                }
+            }
+            return output;
+        }
 
         // 94. Binary Tree Inorder Traversal
         // Given a binary tree, return the inorder traversal of its nodes' values.
