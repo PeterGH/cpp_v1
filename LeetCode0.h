@@ -12727,6 +12727,43 @@ namespace Test
             }
             return output;
         }
+        vector<string> restoreIpAddresses5(const string &s)
+        {
+            vector<string> output;
+            if (s.size() < 4 || 12 < s.size())
+                return output;
+            function<bool(size_t, size_t)> isvalid = [&](size_t i, size_t j) -> bool
+            {
+                return i + 1 == j || (i + 2 == j && s[i] != '0') || (i + 3 == j && (s[i] == '1' || (s[i] == '2' && (s[i + 1] < '5' || (s[i + 1] == '5' && s[i + 2] <= '5')))));
+            };
+            queue<vector<size_t>> q;
+            q.push({0});
+            while (!q.empty())
+            {
+                auto v = q.front();
+                q.pop();
+                if (v.size() == 4 && isvalid(v.back(), s.size()))
+                {
+                    string t(s);
+                    for (int i = (int)v.size() - 1; i > 0; i--)
+                        t.insert(v[i], 1, '.');
+                    output.push_back(t);
+                }
+                if (v.size() < 4)
+                {
+                    for (size_t j = v.back() + 1; j <= min(s.size(), v.back() + 3); j++)
+                    {
+                        if (isvalid(v.back(), j))
+                        {
+                            vector<size_t> a(v);
+                            a.push_back(j);
+                            q.push(a);
+                        }
+                    }
+                }
+            }
+            return output;
+        }
 
         // 94. Binary Tree Inorder Traversal
         // Given a binary tree, return the inorder traversal of its nodes' values.
