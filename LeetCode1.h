@@ -2887,8 +2887,7 @@ namespace Test
                                  if (diff == 1)
                                      it->second.push_back(word);
                              }
-                         }
-                     });
+                         } });
             bool found = false;
             unordered_set<string> visited;
             queue<string> q[2];
@@ -3813,8 +3812,7 @@ namespace Test
                                  m[n] = new Node(n->val);
                                  q.push(n);
                              }
-                             m[f]->neighbors.push_back(m[n]);
-                         });
+                             m[f]->neighbors.push_back(m[n]); });
             }
             return m[node];
         }
@@ -4436,8 +4434,7 @@ namespace Test
                                          string r1 = wordDict[j];
                                          r1.append(1, ' ');
                                          r1.append(r);
-                                         m[i].push_back(r1);
-                                     });
+                                         m[i].push_back(r1); });
                         }
                     }
                 }
@@ -5441,8 +5438,7 @@ namespace Test
                                       [&](const vector<int> &v)
                                       { m += dup[v]; });
                              if (m > max)
-                                 max = m;
-                         });
+                                 max = m; });
             }
             return max;
         }
@@ -5512,8 +5508,7 @@ namespace Test
                          else
                          {
                              q.push(stoi(t));
-                         }
-                     });
+                         } });
             return q.top();
         }
         int evalRPN2(const vector<string> &tokens)
@@ -7128,8 +7123,7 @@ namespace Test
                          else if (ab[i] < ba[i])
                              return false;
                      }
-                     return false;
-                 });
+                     return false; });
             if (s[0] == "0")
                 return "0";
             ostringstream ss;
@@ -7145,16 +7139,14 @@ namespace Test
                       {
                           ostringstream oss;
                           oss << i;
-                          return oss.str();
-                      });
+                          return oss.str(); });
             sort(strs.begin(), strs.end(), [&](const string &str1, const string &str2)
                  {
                      string str12(str1);
                      str12.append(str2);
                      string str21(str2);
                      str21.append(str1);
-                     return str12.compare(str21) > 0;
-                 });
+                     return str12.compare(str21) > 0; });
             string result;
             if (strs[0] == "0")
             {
@@ -7567,6 +7559,21 @@ namespace Test
             n = ((n & 0xF0F0F0F0) >> 4) | ((n & 0x0F0F0F0F) << 4);
             n = ((n & 0xCCCCCCCC) >> 2) | ((n & 0x33333333) << 2);
             n = ((n & 0xAAAAAAAA) >> 1) | ((n & 0x55555555) << 1);
+            return n;
+        }
+        uint32_t reverseBits2(uint32_t n)
+        {
+            // b31 b30 b29 ... b18 b17 b16 b15 b14 b13 ... b2  b1  b0
+            // reverse higher 16 bits and lower 16 bits
+            // b16 b17 b18 ... b29 b30 b31 b0  b1  b2  ... b13 b14 b15
+            // exchange higher 16 bits and lower 16 bits
+            // b0  b1  b2  ... b13 b14 b15 b16 b17 b18 ... b29 b30 b31
+            // reverse(n) = exchange(reverse(higher_half(n)), reverse(lower_half(n)))
+            n = (n & 0x55555555) << 1 | (n & 0xaaaaaaaa) >> 1;
+            n = (n & 0x33333333) << 2 | (n & 0xcccccccc) >> 2;
+            n = (n & 0x0f0f0f0f) << 4 | (n & 0xf0f0f0f0) >> 4;
+            n = (n & 0x00ff00ff) << 8 | (n & 0xff00ff00) >> 8;
+            n = (n & 0x0000ffff) << 16 | (n & 0xffff0000) >> 16;
             return n;
         }
 
