@@ -1054,6 +1054,45 @@ namespace Test
             return volume;
         }
 
+        // 409. Longest Palindrome
+        // Given a string s which consists of lowercase or uppercase letters,
+        // return the length of the longest palindrome that can be built with those letters.
+        // Letters are case sensitive, for example, "Aa" is not considered a palindrome here.
+        // Example 1:
+        // Input: s = "abccccdd"
+        // Output: 7
+        // Explanation:
+        // One longest palindrome that can be built is "dccaccd", whose length is 7.
+        // Example 2:
+        // Input: s = "a"
+        // Output: 1
+        // Example 3:
+        // Input: s = "bb"
+        // Output: 2
+        // Constraints:
+        // 1 <= s.length <= 2000
+        // s consists of lowercase and/or uppercase English letters only.
+        int longestPalindrome409(const string &s)
+        {
+            map<char, int> m;
+            for (char c : s)
+            {
+                if (m.find(c) == m.end())
+                    m[c] = 1;
+                else
+                    m[c]++;
+            }
+            int n = 0;
+            for (const auto &p : m)
+            {
+                if (p.second > 1)
+                {
+                    n += p.second & 1 ? p.second - 1 : p.second;
+                }
+            }
+            return n < (int)s.size() ? n + 1 : n;
+        }
+
         // 410. Split Array Largest Sum
         // Given an array which consists of non-negative integers and an integer m, you
         // can split the array into m non-empty continuous subarrays. Write an algorithm
