@@ -8334,6 +8334,7 @@ namespace Test
         // Example 2:
         // Input: m = 7, n = 3
         // Output: 28
+        // sum[i][j] = sum[i+1][j] + sum[i][j+1]
         int uniquePaths(int m, int n)
         {
             if (m <= 0 || n <= 0)
@@ -8457,6 +8458,10 @@ namespace Test
         // ]
         // Output: 7
         // Explanation: Because the path 1->3->1->1->1 minimizes the sum.
+        // Note: Greedy search does not work here. e.g.,
+        // [[1, 3,   0]
+        //  [2, 100, 0]
+        //  [1, 1,   1]]
         int minPathSum(const vector<vector<int>> &grid)
         {
             if (grid.empty() || grid[0].empty())
