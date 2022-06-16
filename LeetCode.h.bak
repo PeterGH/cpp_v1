@@ -16,67 +16,6 @@ using namespace std;
 namespace Test {
 namespace LeetCode {
 
-// 79. Word Search
-// Given a 2D board and a word, find if the word exists in the grid. The word
-// can be constructed from letters of sequentially adjacent cell, where
-// "adjacent" cells are those horizontally or vertically neighboring. The same
-// letter cell may not be used more than once. For example, Given board =
-// [
-//   ['A', 'B', 'C', 'E'],
-//   ['S', 'F', 'C', 'S'],
-//   ['A', 'D', 'E', 'E']
-// ]
-// word = "ABCCED", ->returns true,
-// word = "SEE", ->returns true,
-// word = "ABCB", ->returns false.
-// @grid, @dfs
-// [TODO] What if a letter can be reused?
-static bool exist(vector<vector<char>> &board, string word) {
-    if (board.size() == 0 || board[0].size() == 0)
-        return false;
-    int m = board.size();
-    int n = board[0].size();
-    int l = word.size();
-    function<bool(pair<int, int> &, int, set<pair<int, int>> &)> search =
-        [&](pair<int, int> &p, int i, set<pair<int, int>> &v) -> bool {
-        if (p.first < 0 || p.first >= m || p.second < 0 || p.second >= n ||
-            i < 0 || i >= l || board[p.first][p.second] != word[i] ||
-            v.find(p) != v.end()) {
-            return false;
-        }
-        if (i == l - 1)
-            return true;
-        v.insert(p);
-        pair<int, int> p1 = make_pair(p.first, p.second - 1);
-        if (search(p1, i + 1, v)) {
-            return true;
-        }
-        p1 = make_pair(p.first, p.second + 1);
-        if (search(p1, i + 1, v)) {
-            return true;
-        }
-        p1 = make_pair(p.first - 1, p.second);
-        if (search(p1, i + 1, v)) {
-            return true;
-        }
-        p1 = make_pair(p.first + 1, p.second);
-        if (search(p1, i + 1, v)) {
-            return true;
-        }
-        v.erase(p);
-        return false;
-    };
-    for (int j = 0; j < m; j++) {
-        for (int k = 0; k < n; k++) {
-            pair<int, int> point = make_pair(j, k);
-            set<pair<int, int>> visited = set<pair<int, int>>{};
-            if (search(point, 0, visited))
-                return true;
-        }
-    }
-    return false;
-}
-
 // 48. Rotate Image
 // You are given an n x n 2D matrix representing an image. Rotate the image by
 // 90 degrees(clockwise).
