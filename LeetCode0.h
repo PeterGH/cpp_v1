@@ -10785,6 +10785,106 @@ namespace Test
             }
             return false;
         }
+        bool exist3(const vector<vector<char>> &board, const string &word)
+        {
+            int m = board.size();
+            int n = board[0].size();
+            function<bool()> qcheck = [&]() -> bool
+            {
+                map<char, int> c;
+                for (int i = 0; i < m; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (c.find(board[i][j]) == c.end())
+                            c[board[i][j]] = 1;
+                        else
+                            c[board[i][j]]++;
+                    }
+                }
+                map<char, int> d;
+                for (size_t k = 0; k < word.size(); k++)
+                {
+                    if (d.find(word[k]) == d.end())
+                        d[word[k]] = 1;
+                    else
+                        d[word[k]]++;
+                }
+                if (c.size() < d.size())
+                    return false;
+                for (const auto &p : d)
+                {
+                    if (c.find(p.first) == c.end())
+                        return false;
+                    if (c[p.first] < p.second)
+                        return false;
+                }
+                return true;
+            };
+            // if (!qcheck())
+            //    return false;
+            function<bool(int, int)> search = [&](int i, int j) -> bool
+            {
+                set<pair<int, int>> v;
+                stack<pair<int, int>> s;
+                size_t k = 0;
+                pair<int, int> p = make_pair(i, j);
+                while (true)
+                {
+                    if (0 <= p.first && p.first < m && 0 <= p.second && p.second < n && v.find(p) == v.end() && board[p.first][p.second] == word[k])
+                    {
+                        if (k + 1 == word.size())
+                            return true;
+                        s.push(p);
+                        v.insert(p);
+                        k++;
+                        p.second--;
+                    }
+                    else
+                    {
+                        while (!s.empty() && p.first == s.top().first + 1 && p.second == s.top().second)
+                        {
+                            p = s.top();
+                            s.pop();
+                            v.erase(p);
+                        }
+                        if (s.empty())
+                            break;
+                        auto t = s.top();
+                        if (p.first == t.first && p.second + 1 == t.second)
+                        {
+                            p.first--;
+                            p.second++;
+                        }
+                        else if (p.first + 1 == t.first && p.second == t.second)
+                        {
+                            p.first++;
+                            p.second++;
+                        }
+                        else if (p.first == t.first && p.second == t.second + 1)
+                        {
+                            p.first++;
+                            p.second--;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                        k = s.size();
+                    }
+                }
+                return false;
+            };
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (board[i][j] == word[0] && search(i, j))
+                        return true;
+                }
+            }
+            return false;
+        }
 
         // 80. Remove Duplicates from Sorted Array II
         // Given a sorted array nums, remove the duplicates in-place such that

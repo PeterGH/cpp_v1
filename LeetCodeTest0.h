@@ -3058,10 +3058,12 @@ void LeetCodeTest::Init0(void)
             {
                 bool a = exist(board, word);
                 bool a2 = exist2(board, word);
-                Logger().WriteInformation("Search %s: %d, %d\n", word.c_str(), a,
-                                          a2);
+                bool a3 = exist3(board, word);
+                Logger().WriteInformation("Search %s: %d, %d, %d\n", word.c_str(), a,
+                                          a2, a3);
                 ASSERT1(a == expect);
                 ASSERT1(a2 == expect);
+                ASSERT1(a3 == expect);
             };
             {
                 vector<vector<char>> b = {{'A'}};
@@ -3110,6 +3112,16 @@ void LeetCodeTest::Init0(void)
                                           {'A', 'D', 'E', 'E'}};
                 print(b);
                 check(b, "ABCEFSADEESE", true);
+            }
+            {
+                vector<vector<char>> b = {{'A','A','A','A','A','A'},
+                                          {'A','A','A','A','A','A'},
+                                          {'A','A','A','A','A','A'},
+                                          {'A','A','A','A','A','A'},
+                                          {'A','A','A','A','A','A'},
+                                          {'A','A','A','A','A','A'}};
+                print(b);
+                check(b, "AAAAAAAAAAAABAA", false);
             }
         });
 
