@@ -3312,6 +3312,86 @@ namespace Test
         }
         void solve2(vector<vector<char>> &board)
         {
+            int m = board.size();
+            int n = board[0].size();
+            function<void(int, int)> mark = [&](int i, int j)
+            {
+                stack<pair<int, int>> s;
+                pair<int, int> p = make_pair(i, j);
+                while (true)
+                {
+                    if (0 <= p.first && p.first < m && 0 <= p.second && p.second < n && board[p.first][p.second] == 'O')
+                    {
+                        board[p.first][p.second] = 'Y';
+                        s.push(p);
+                        p.second--;
+                    }
+                    else
+                    {
+                        while (!s.empty() && p.first == s.top().first + 1 && p.second == s.top().second)
+                        {
+                            p = s.top();
+                            s.pop();
+                        }
+                        if (s.empty())
+                            break;
+                        auto &t = s.top();
+                        if (p.first == t.first && p.second + 1 == t.second)
+                        {
+                            p.first--;
+                            p.second++;
+                        }
+                        else if (p.first + 1 == t.first && p.second == t.second)
+                        {
+                            p.first++;
+                            p.second++;
+                        }
+                        else if (p.first == t.first && p.second == t.second + 1)
+                        {
+                            p.first++;
+                            p.second--;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            };
+            for (int i = 0; i < m; i++)
+            {
+                if (board[i][0] == 'O')
+                    mark(i, 0);
+                if (n > 1 && board[i][n - 1] == 'O')
+                    mark(i, n - 1);
+            }
+            for (int j = 0; j < n; j++)
+            {
+                if (board[0][j] == 'O')
+                    mark(0, j);
+                if (m > 1 && board[m - 1][j] == 'O')
+                    mark(m - 1, j);
+            }
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    switch (board[i][j])
+                    {
+                    case 'O':
+                        board[i][j] = 'X';
+                        break;
+                    case 'Y':
+                        board[i][j] = 'O';
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+        }
+        void solve3(vector<vector<char>> &board)
+        {
             int height = board.size();
             if (height == 0)
                 return;
@@ -3400,7 +3480,7 @@ namespace Test
                 }
             }
         }
-        void solve3(vector<vector<char>> &board)
+        void solve4(vector<vector<char>> &board)
         {
             int height = board.size();
             if (height == 0)

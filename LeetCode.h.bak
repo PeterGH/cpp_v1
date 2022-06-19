@@ -16,62 +16,6 @@ using namespace std;
 namespace Test {
 namespace LeetCode {
 
-// 130. Surrounded Regions
-// Given a 2D board containing 'X' and 'O' (the letter O), capture all regions
-// surrounded by 'X'. A region is captured by flipping all 'O's into 'X's in
-// that surrounded region. For example,
-//    X X X X
-//    X O O X
-//    X X O X
-//    X O X X
-// After running your function, the board should be :
-//    X X X X
-//    X X X X
-//    X X X X
-//    X O X X
-static void solve(vector<vector<char>> &board) {
-    size_t m = board.size();
-    if (m == 0)
-        return;
-    size_t n = board[0].size();
-    if (n == 0)
-        return;
-    function<void(size_t, size_t)> mark = [&](size_t x, size_t y) {
-        if (board[x][y] != 'O')
-            return;
-        board[x][y] = 'Y';
-        if (0 < x)
-            mark(x - 1, y);
-        if (y < n - 1)
-            mark(x, y + 1);
-        if (x < m - 1)
-            mark(x + 1, y);
-        if (0 < y)
-            mark(x, y - 1);
-    };
-    for (size_t i = 0; i < n; i++) {
-        if (board[0][i] == 'O')
-            mark(0, i);
-        if (m > 1 && board[m - 1][i] == 'O')
-            mark(m - 1, i);
-    }
-    for (size_t i = 0; i < m; i++) {
-        if (board[i][0] == 'O')
-            mark(i, 0);
-        if (n > 1 && board[i][n - 1] == 'O')
-            mark(i, n - 1);
-    }
-    for (size_t i = 0; i < m; i++) {
-        for (size_t j = 0; j < n; j++) {
-            if (board[i][j] == 'O') {
-                board[i][j] = 'X';
-            } else if (board[i][j] == 'Y') {
-                board[i][j] = 'O';
-            }
-        }
-    }
-}
-
 // 200. Number of Islands
 // Given a 2d grid map of '1's (land) and '0's (water), count the number of
 // islands. An island is surrounded by water and is formed by connecting

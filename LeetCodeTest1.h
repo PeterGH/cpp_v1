@@ -914,18 +914,23 @@ void LeetCodeTest::Init1(void)
             Logger().Print(board, "%c");
             vector<vector<char>> board2(board);
             vector<vector<char>> board3(board);
+            vector<vector<char>> board4(board);
             solve(board);
             solve2(board2);
             solve3(board3);
+            solve4(board4);
             Logger().WriteInformation("Output1:\n");
             Logger() << board;
             Logger() << board2;
             Logger() << board3;
+            Logger() << board4;
             verify(board);
             verify(board2);
             verify(board3);
+            verify(board4);
             ASSERT1(0 == Util::Compare(board, board2));
             ASSERT1(0 == Util::Compare(board, board3));
+            ASSERT1(0 == Util::Compare(board, board4));
         };
         {
             vector<vector<char>> board = {{'X'}};
