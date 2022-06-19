@@ -109,6 +109,64 @@ namespace Test
             }
             return c;
         }
+        int numIslands3(vector<vector<char>> &grid)
+        {
+            int m = grid.size();
+            int n = grid[0].size();
+            set<pair<int, int>> visited;
+            int c = 0;
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    pair<int, int> p = make_pair(i, j);
+                    if (grid[i][j] != '1' || visited.find(p) != visited.end())
+                        continue;
+                    c++;
+                    stack<pair<int, int>> s;
+                    while (true)
+                    {
+                        if (0 <= p.first && p.first < m && 0 <= p.second && p.second < n && grid[p.first][p.second] == '1' && visited.find(p) == visited.end())
+                        {
+                            visited.insert(p);
+                            s.push(p);
+                            p.second--;
+                        }
+                        else
+                        {
+                            while (!s.empty() && p.first == s.top().first + 1 && p.second == s.top().second)
+                            {
+                                p = s.top();
+                                s.pop();
+                            }
+                            if (s.empty())
+                                break;
+                            auto &t = s.top();
+                            if (p.first == t.first && p.second + 1 == t.second)
+                            {
+                                p.first--;
+                                p.second++;
+                            }
+                            else if (p.first + 1 == t.first && p.second == t.second)
+                            {
+                                p.first++;
+                                p.second++;
+                            }
+                            else if (p.first == t.first && p.second == t.second + 1)
+                            {
+                                p.first++;
+                                p.second--;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return c;
+        }
 
         // 201. Bitwise AND of Numbers Range
         // Given a range [m, n] where 0 <= m <= n <= 2147483647, return the bitwise AND
@@ -1751,8 +1809,7 @@ namespace Test
                              }
                          }
                          if (found)
-                             result.push_back(w);
-                     });
+                             result.push_back(w); });
             return result;
         }
         vector<string> findWords2(const vector<vector<char>> &board, const vector<string> &words)
@@ -2204,8 +2261,7 @@ namespace Test
                          return true;
                      if (x[1] == y[1] && x[0] == y[0] && x[2] > y[2])
                          return true;
-                     return false;
-                 });
+                     return false; });
             it = ends.begin();
             while (it != ends.end())
             {

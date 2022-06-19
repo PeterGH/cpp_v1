@@ -11,10 +11,13 @@ void LeetCodeTest::Init2(void)
             {
                 Logger() << grid;
                 vector<vector<char>> grid2(grid);
+                vector<vector<char>> grid3(grid);
                 int c = numIslands(grid);
                 int c2 = numIslands2(grid2);
-                Logger() << "#Islands: " << c << ", " << c2 << endl;
+                int c3 = numIslands3(grid3);
+                Logger() << "#Islands: " << c << ", " << c2 << ", " << c3 << endl;
                 ASSERT1(c == c2);
+                ASSERT1(c == c3);
             };
             {
                 vector<vector<char>> g = {
