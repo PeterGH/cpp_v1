@@ -2761,6 +2761,97 @@ namespace Test
             };
             return merge(l1, l2);
         }
+        // Merge k sorted linked lists and return it as one sorted list.
+        static ListNode *MergeKLists(vector<ListNode *> &lists)
+        {
+            if (lists.size() == 0)
+                return nullptr;
+            ListNode *list = nullptr;
+            ListNode *tail = list;
+            while (true)
+            {
+                ListNode *mp = nullptr;
+                int mi = 0;
+                for (int i = 0; i < (int)lists.size(); i++)
+                {
+                    if (lists[i] != nullptr)
+                    {
+                        if (mp == nullptr || lists[i]->val < mp->val)
+                        {
+                            mp = lists[i];
+                            mi = i;
+                        }
+                    }
+                }
+                if (mp == nullptr)
+                    break;
+                if (list == nullptr)
+                    list = mp;
+                else
+                    tail->next = mp;
+                tail = mp;
+                lists[mi] = mp->next;
+            }
+            return list;
+        }
+        static bool Greater(ListNode *first, ListNode *second)
+        {
+            if (first == nullptr && second == nullptr)
+                return false;
+            if (first == nullptr && second != nullptr)
+                return true;
+            if (first != nullptr && second == nullptr)
+                return false;
+            if (first->val > second->val)
+                return true;
+            else
+                return false;
+        }
+        static ListNode *MergeKLists2(vector<ListNode *> &lists)
+        {
+            if (lists.size() == 0)
+                return nullptr;
+            ListNode *list = nullptr;
+            ListNode *tail = list;
+            make_heap(lists.begin(), lists.end(), Greater);
+            while (lists.front() != nullptr)
+            {
+                pop_heap(lists.begin(), lists.end(), Greater);
+                if (list == nullptr)
+                    list = lists.back();
+                else
+                    tail->next = lists.back();
+                tail = lists.back();
+                lists.back() = lists.back()->next;
+                push_heap(lists.begin(), lists.end(), Greater);
+            }
+            return list;
+        }
+        static ListNode *MergeKLists3(vector<ListNode *> &lists)
+        {
+            if (lists.size() == 0)
+                return nullptr;
+            ListNode *list = nullptr;
+            ListNode *tail = list;
+            make_heap(lists.begin(), lists.end(), Greater);
+            while (lists.size() > 0)
+            {
+                pop_heap(lists.begin(), lists.end(), Greater);
+                if (lists.back() == nullptr)
+                    break;
+                if (list == nullptr)
+                    list = lists.back();
+                else
+                    tail->next = lists.back();
+                tail = lists.back();
+                lists.back() = lists.back()->next;
+                if (lists.back() == nullptr)
+                    lists.pop_back();
+                else
+                    push_heap(lists.begin(), lists.end(), Greater);
+            }
+            return list;
+        }
 
         // 22. Generate Parentheses
         // Given n pairs of parentheses, write a function to generate all combinations
