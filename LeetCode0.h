@@ -8286,7 +8286,7 @@ namespace Test
             while (i < k)
             {
                 q = q->next;
-                i++;
+                i++; // q is i-th node (0 based)
                 if (q == nullptr)
                 {
                     k %= i;
