@@ -4619,6 +4619,14 @@ namespace Test
         // first node. Example 3: Input: head = [1], pos = -1 Output: no cycle
         // Explanation: There is no cycle in the linked list.
         // Follow-up: Can you solve it without using extra space?
+        // Let a be the path from head to the node where cycle starts.
+        // Let b be the path from the node where cycle starts to the node where two pointers meet.
+        // Let c be the cycle lenght.
+        // Slow pointer moves a + b + xc
+        // Fast pointer moves a + b + yc = 2(a + b + xc)
+        // so a + b = yc - 2xc
+        // so (a + b) % c = 0
+        // so a is same as the length from the node where two pointers meet to the node where cycle starts.
         ListNode *detectCycle(ListNode *head)
         {
             if (head == nullptr)
