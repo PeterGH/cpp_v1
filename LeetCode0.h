@@ -13356,6 +13356,7 @@ namespace Test
                     return nullptr;
                 }
                 TreeNode *node = new TreeNode(serialization[i++]);
+                // nullptr serialized as 0 so can just deserialize it
                 node->left = generateTree(i, serialization);
                 node->right = generateTree(i, serialization);
                 return node;
