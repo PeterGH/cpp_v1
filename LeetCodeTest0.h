@@ -50,8 +50,7 @@ void LeetCodeTest::Init0(void)
                                           l3 == l ? "==" : "!=", l);
                 ASSERT1(l == l2);
                 ASSERT1(l == l3);
-            }
-        });
+            } });
 
     Add("5. Longest Palindromic Substring", [&]()
         {
@@ -97,8 +96,7 @@ void LeetCodeTest::Init0(void)
                 size_t len = 1 + (rand() % 100);
                 string s = Random::String<char>(len, "abcde");
                 check(s);
-            }
-        });
+            } });
 
     Add("6. ZigZag Conversion", [&]()
         {
@@ -139,8 +137,7 @@ void LeetCodeTest::Init0(void)
                 {
                     check(s, r);
                 }
-            }
-        });
+            } });
 
     Add("7. Reverse Integer", [&]()
         {
@@ -173,8 +170,7 @@ void LeetCodeTest::Init0(void)
                 check(-r, 0, true);
                 check(r, 0, true);
                 check(INT_MAX - r, 0, true);
-            }
-        });
+            } });
 
     Add("8. String to Integer (atoi)", [&]()
         {
@@ -223,8 +219,7 @@ void LeetCodeTest::Init0(void)
                 size_t len = Random::Int(20, 1);
                 string str = Random::String<char>(len, "0123456789     abcde");
                 check(str, 0, true);
-            }
-        });
+            } });
 
     Add("9. Palindrome Number", [&]()
         {
@@ -262,8 +257,7 @@ void LeetCodeTest::Init0(void)
             for (int i = 0; i < 100; i++)
             {
                 check(rand(), false, true);
-            }
-        });
+            } });
 
     Add("11. Container With Most Water", [&]()
         {
@@ -283,8 +277,7 @@ void LeetCodeTest::Init0(void)
                 int len = Random::Int(100, 2);
                 vector<int> h = Random::Vector(len, 1000);
                 check(h);
-            }
-        });
+            } });
 
     Add("Roman", [&]()
         {
@@ -324,8 +317,7 @@ void LeetCodeTest::Init0(void)
             {
                 int n = Random::Int(3999, 1);
                 check(n, "", true);
-            }
-        });
+            } });
 
     Add("14. Longest Common Prefix", [&]()
         {
@@ -362,8 +354,7 @@ void LeetCodeTest::Init0(void)
                          << l << endl;
                 vector<string> strs = Random::Strings<char>(n, l, "ab");
                 check(strs, "", true);
-            }
-        });
+            } });
 
     Add("15. 3Sum", [&]()
         {
@@ -402,8 +393,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
                 check(v);
-            }
-        });
+            } });
 
     Add("16. 3Sum Closest", [&]()
         {
@@ -421,8 +411,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
                 check(v, Random::Int(1000, -1000));
-            }
-        });
+            } });
 
     Add("18. 4Sum", [&]()
         {
@@ -507,8 +496,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Random::Vector(Random::Int(100, 3), 1000, -1000);
                 check(v, Random::Int(1000, -1000));
-            }
-        });
+            } });
 
     Add("19. Remove Nth Node From End of List", [&]()
         {
@@ -535,8 +523,7 @@ void LeetCodeTest::Init0(void)
             {
                 for (int j = 1; j <= i; j++)
                     check(ToList(Util::IncreasingVector(i)), j);
-            }
-        });
+            } });
 
     Add("20. Valid Parentheses", [&]()
         {
@@ -554,8 +541,7 @@ void LeetCodeTest::Init0(void)
             check("()[]{}", true);
             check("(]", false);
             check("([)]", false);
-            check("([{}])", true);
-        });
+            check("([{}])", true); });
 
     Add("21. Merge Two Sorted Lists", [&]()
         {
@@ -585,8 +571,7 @@ void LeetCodeTest::Init0(void)
                 sort(v1.begin(), v1.end());
                 sort(v2.begin(), v2.end());
                 check(v1, v2);
-            }
-        });
+            } });
 
     Add("22. Generate Parentheses", [&]()
         {
@@ -616,8 +601,7 @@ void LeetCodeTest::Init0(void)
             check(4);
             check(5);
             check(6);
-            check(7);
-        });
+            check(7); });
 
     Add("24. Swap Nodes in Pairs", [&]()
         {
@@ -654,8 +638,7 @@ void LeetCodeTest::Init0(void)
             check(vector<int>{1, 2, 3});
             check(vector<int>{1, 2, 3, 4});
             check(vector<int>{1, 2, 3, 4, 5});
-            check(vector<int>{1, 2, 3, 4, 5, 6});
-        });
+            check(vector<int>{1, 2, 3, 4, 5, 6}); });
 
     Add("26. Remove Duplicates from Sorted Array", [&]()
         {
@@ -698,8 +681,7 @@ void LeetCodeTest::Init0(void)
                     Logger().WriteInformation("Run %d: %d elements\n", i, length);
                     check(input);
                 }
-            }
-        });
+            } });
 
     Add("27. Remove Element", [&]()
         {
@@ -748,8 +730,7 @@ void LeetCodeTest::Init0(void)
                 int length = (int)input.size();
                 Logger().WriteInformation("Run %d: %d elements\n", i, length);
                 check(input, Random::Int(10, -10));
-            }
-        });
+            } });
 
     Add("28. Implement strStr()", [&]()
         {
@@ -824,8 +805,7 @@ void LeetCodeTest::Init0(void)
                 string haystack = Random::String<char>(Random::Int(100), "abc");
                 string needle = Random::String<char>(Random::Int(5), "ab");
                 check(haystack.c_str(), needle.c_str(), -2);
-            }
-        });
+            } });
 
     Add("29. Divide Two Integers", [&]()
         {
@@ -906,8 +886,7 @@ void LeetCodeTest::Init0(void)
                 if (e > 0 && e < r)
                     swap(e, r);
                 check(e, r);
-            }
-        });
+            } });
 
     Add("30. Substring with Concatenation of All Words", [&]()
         {
@@ -922,8 +901,7 @@ void LeetCodeTest::Init0(void)
                 ASSERT1(Util::Compare(r, r2) == 0);
             };
             check("lingmindraboofooowingdingbarrwingmonkeypoundcake",
-                  {"fooo", "barr", "wing", "ding", "wing"});
-        });
+                  {"fooo", "barr", "wing", "ding", "wing"}); });
 
     Add("31. Next Permutation", [&]()
         {
@@ -980,8 +958,7 @@ void LeetCodeTest::Init0(void)
                     ASSERT1(v[i] == v2[i]);
                     ASSERT1(v[i] == v3[i]);
                 }
-            }
-        });
+            } });
 
     Add("32. Longest Valid Parentheses", [&]()
         {
@@ -1006,8 +983,7 @@ void LeetCodeTest::Init0(void)
                 size_t n = Random::Int(50, 2);
                 string s = Random::String(n, string("()"));
                 check(s);
-            }
-        });
+            } });
 
     Add("33. Search in Rotated Sorted Array", [&]()
         {
@@ -1050,8 +1026,7 @@ void LeetCodeTest::Init0(void)
                 int d = (i % 10) == 0 ? 0 : Random::Int(n);
                 Util::RotateLeft(v, d);
                 check(v, Random::Int(n * 2), -2, true);
-            }
-        });
+            } });
 
     Add("34. Find First and Last Position of Element in Sorted Array", [&]()
         {
@@ -1103,8 +1078,7 @@ void LeetCodeTest::Init0(void)
                 vector<int> input = Random::Vector(Random::Int(100, 1), 5, -5);
                 sort(input.begin(), input.end());
                 check(input, Random::Int(6, -6));
-            }
-        });
+            } });
 
     Add("35. Search Insert Position", [&]()
         {
@@ -1133,8 +1107,7 @@ void LeetCodeTest::Init0(void)
                 vector<int> input = Random::Vector(Random::Int(100, 1), 100);
                 sort(input.begin(), input.end());
                 check(input, Random::Int(200, -100));
-            }
-        });
+            } });
 
     Add("37. Sudoku Solver", [&]()
         {
@@ -1184,8 +1157,7 @@ void LeetCodeTest::Init0(void)
                     {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
                     {'.', '.', '.', '.', '8', '.', '.', '7', '9'}};
                 check(b);
-            }
-        });
+            } });
 
     Add("38. Count and Say", [&]()
         {
@@ -1216,8 +1188,7 @@ void LeetCodeTest::Init0(void)
             for (int i = 9; i <= 20; i++)
             {
                 check(i, "", true);
-            }
-        });
+            } });
 
     Add("39. Combination Sum", [&]()
         {
@@ -1268,8 +1239,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = {6, 11, 5, 3, 2, 8, 7, 4, 10, 9};
                 check(v, 24);
-            }
-        });
+            } });
 
     Add("40. Combination Sum II", [&]()
         {
@@ -1308,8 +1278,7 @@ void LeetCodeTest::Init0(void)
                     t += input[Random::Int(input.size() - 1)];
                 }
                 check(input, t);
-            }
-        });
+            } });
 
     Add("41. First Missing Positive", [&]()
         {
@@ -1340,8 +1309,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Random::Vector(Random::Int(50), 20, -10);
                 check(v, 0, true);
-            }
-        });
+            } });
 
     Add("42. Trapping Rain Water", [&]()
         {
@@ -1367,8 +1335,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Random::Vector(Random::Int(50), 100);
                 check(v);
-            }
-        });
+            } });
 
     Add("43. Multiply Strings", [&]()
         {
@@ -1401,8 +1368,7 @@ void LeetCodeTest::Init0(void)
             check(222, 11);
             check(1111, 22222);
             for (int i = 0; i < 100; i++)
-                check(Random::Int(), Random::Int());
-        });
+                check(Random::Int(), Random::Int()); });
 
     Add("44. Wildcard Matching", [&]()
         {
@@ -1432,8 +1398,7 @@ void LeetCodeTest::Init0(void)
                   "aaabbbbbabaaaabbababbbbaababaabbababbbbbababbbabaaaaaaaabbbbbaab"
                   "aaababaaaabb",
                   "**aa*****ba*a*bb**aa*ab****a*aaaaaa***a*aaaa**bbabb*b*b**"
-                  "aaaaaaaaa*a********ba*bbb***a*ba*bb*bb**a*b*bb");
-        });
+                  "aaaaaaaaa*a********ba*bbb***a*ba*bb*bb**a*b*bb"); });
 
     Add("45. Jump Game II", [&]()
         {
@@ -1451,8 +1416,7 @@ void LeetCodeTest::Init0(void)
             };
             check({0});
             check({2, 3, 1, 1, 4});
-            check({1, 1, 1, 1, 1});
-        });
+            check({1, 1, 1, 1, 1}); });
 
     Add("46. Permutations", [&]()
         {
@@ -1506,8 +1470,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = {1, 2, 3, 4};
                 check(v);
-            }
-        });
+            } });
     Add("47. Permutations II", [&]()
         {
             auto check = [&](const vector<int> &v)
@@ -1551,8 +1514,7 @@ void LeetCodeTest::Init0(void)
             check({1, 2, 2});
             check({2, 1, 2});
             check({2, 2, 1});
-            check({0, 1, 0, 0, 9});
-        });
+            check({0, 1, 0, 0, 9}); });
 
     Add("48. Rotate Image", [&]()
         {
@@ -1568,8 +1530,7 @@ void LeetCodeTest::Init0(void)
                 ASSERT1(Util::Compare(v, v2) == 0);
             };
             for (int i = 1; i <= 10; i++)
-                check(Random::Grid(i, i));
-        });
+                check(Random::Grid(i, i)); });
 
     Add("49. Group Anagrams", [&]()
         {
@@ -1586,8 +1547,7 @@ void LeetCodeTest::Init0(void)
                 Logger() << g2;
                 ASSERT1(0 == Util::Compare(g, g2));
             };
-            check({"eat", "tea", "tan", "ate", "nat", "bat"});
-        });
+            check({"eat", "tea", "tan", "ate", "nat", "bat"}); });
 
     Add("50. Pow(x, n)", [&]()
         {
@@ -1619,8 +1579,7 @@ void LeetCodeTest::Init0(void)
             check(0.5, INT_MIN);
             check(0.5, INT_MAX);
             check(1, INT_MIN);
-            check(1, INT_MAX);
-        });
+            check(1, INT_MAX); });
 
     Add("51. N-Queens", [&]()
         {
@@ -1668,8 +1627,7 @@ void LeetCodeTest::Init0(void)
             check(5);
             check(6);
             check(7);
-            check(8);
-        });
+            check(8); });
 
     Add("53. Maximum Subarray", [&]()
         {
@@ -1848,8 +1806,7 @@ void LeetCodeTest::Init0(void)
                     Logger() << input;
                     check(input, -1, -1, -1, true);
                 }
-            }
-        });
+            } });
 
     Add("54. Spiral Matrix", [&]()
         {
@@ -1901,8 +1858,7 @@ void LeetCodeTest::Init0(void)
                 ASSERT1(Util::Compare(v, o3) == 0);
             };
             for (int i = 1; i <= 10; i++)
-                check2(i);
-        });
+                check2(i); });
 
     Add("55. Jump Game", [&]()
         {
@@ -1925,8 +1881,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> a = Random::Vector(Random::Int(100, 1), 10);
                 check(a);
-            }
-        });
+            } });
 
     Add("56. Merge Intervals", [&]()
         {
@@ -1966,8 +1921,7 @@ void LeetCodeTest::Init0(void)
                     Interval(51, 54), Interval(50, 50), Interval(60, 64),
                     Interval(39, 42), Interval(25, 27), Interval(91, 95)};
                 check(it);
-            }
-        });
+            } });
 
     Add("57. Insert Interval", [&]()
         {
@@ -2004,8 +1958,7 @@ void LeetCodeTest::Init0(void)
             check({{2, 6}}, {4, 6});
             check({{1, 6}}, {4, 5});
             check({{1, 3}, {6, 9}}, {2, 5});
-            check({{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8});
-        });
+            check({{1, 2}, {3, 5}, {6, 7}, {8, 10}, {12, 16}}, {4, 8}); });
 
     Add("58. Length of Last Word", [&]()
         {
@@ -2049,8 +2002,7 @@ void LeetCodeTest::Init0(void)
             {
                 string s = Random::String(Random::Int(100, 0));
                 check(s);
-            }
-        });
+            } });
 
     Add("60. Permutation Sequence", [&]()
         {
@@ -2072,8 +2024,7 @@ void LeetCodeTest::Init0(void)
                 } while (std::next_permutation(s.begin(), s.end()));
             };
             for (int i = 1; i < 10; i++)
-                check(i);
-        });
+                check(i); });
 
     Add("61. Rotate List", [&]()
         {
@@ -2133,8 +2084,7 @@ void LeetCodeTest::Init0(void)
                 vector<int> v = Random::Vector(Random::Int(20, 1), 20);
                 int k = Random::Int(40);
                 check(v, k);
-            }
-        });
+            } });
 
     Add("62. Unique Paths", [&]()
         {
@@ -2148,8 +2098,7 @@ void LeetCodeTest::Init0(void)
                     Logger() << v << ", " << v2 << endl;
                     ASSERT1(v == v2);
                 }
-            }
-        });
+            } });
 
     Add("63. Unique Paths II", [&]()
         {
@@ -2183,8 +2132,7 @@ void LeetCodeTest::Init0(void)
                     v[p][q] = 1;
                 }
                 check(v, -1);
-            }
-        });
+            } });
 
     Add("64. Minimum Path Sum", [&]()
         {
@@ -2202,8 +2150,7 @@ void LeetCodeTest::Init0(void)
                 {
                     check(Random::Grid(i, j, Random::Int(100)));
                 }
-            }
-        });
+            } });
 
     Add("65. Valid Number", [&]()
         {
@@ -2281,8 +2228,7 @@ void LeetCodeTest::Init0(void)
             check("53.5e93", true);
             check(" --6 ", false);
             check("-+3", false);
-            check("95a54e53", false);
-        });
+            check("95a54e53", false); });
 
     Add("66. Plus One", [&]()
         {
@@ -2315,8 +2261,7 @@ void LeetCodeTest::Init0(void)
             check(vector<int>{1, 0, 9});
             check(vector<int>{1, 9, 0});
             check(vector<int>{1, 9, 9});
-            check(vector<int>{9, 9, 9});
-        });
+            check(vector<int>{9, 9, 9}); });
 
     Add("67. Add Binary", [&]()
         {
@@ -2358,8 +2303,7 @@ void LeetCodeTest::Init0(void)
             check("11", "11", "110");
             check("11", "1", "100");
             check("1110", "10", "10000");
-            check("101", "11101", "100010");
-        });
+            check("101", "11101", "100010"); });
 
     Add("68. Text Justification", [&]()
         {
@@ -2407,8 +2351,7 @@ void LeetCodeTest::Init0(void)
                 {
                     check(w, i);
                 }
-            }
-        });
+            } });
 
     Add("69. Sqrt(x)", [&]()
         {
@@ -2456,8 +2399,7 @@ void LeetCodeTest::Init0(void)
             {
                 int v = Random::Int();
                 check(v);
-            }
-        });
+            } });
 
     Add("71. Simplify Path", [&]()
         {
@@ -2615,8 +2557,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100);
                 string s = Random::String<char>(n, "ab/.");
                 check(s, "", true);
-            }
-        });
+            } });
 
     Add("72. Edit Distance", [&]()
         {
@@ -2696,8 +2637,7 @@ void LeetCodeTest::Init0(void)
                 int len2 = Random::Int(100);
                 string w2 = Random::String(len2);
                 check(w1, w2, 0, true);
-            }
-        });
+            } });
 
     Add("73. Set Matrix Zeroes", [&]()
         {
@@ -2709,8 +2649,7 @@ void LeetCodeTest::Init0(void)
                 ASSERT1(0 == Util::Compare(m, m2));
             };
             vector<vector<int>> m = {{0, 1}};
-            test(m);
-        });
+            test(m); });
 
     Add("74. Search a 2D Matrix", [&]()
         {
@@ -2749,8 +2688,7 @@ void LeetCodeTest::Init0(void)
                 check(m, 40, false);
                 check(m, 50, true);
                 check(m, 60, false);
-            }
-        });
+            } });
 
     Add("75. Sort Colors", [&]()
         {
@@ -2929,8 +2867,7 @@ void LeetCodeTest::Init0(void)
                     vector<int> v = Random::Vector(len, 2, 0);
                     check(v);
                 }
-            }
-        });
+            } });
 
     Add("76. Minimum Window Substring", [&]()
         {
@@ -2977,8 +2914,7 @@ void LeetCodeTest::Init0(void)
                 int n2 = Random::Int(20);
                 string s2 = Random::String<char>(n2, "abcdefgh");
                 check(s1, s2, "", true);
-            }
-        });
+            } });
 
     Add("77. Combinations", [&]()
         {
@@ -3010,8 +2946,7 @@ void LeetCodeTest::Init0(void)
                 {
                     check(n, k);
                 }
-            }
-        });
+            } });
 
     Add("78. Subsets", [&]()
         {
@@ -3037,8 +2972,7 @@ void LeetCodeTest::Init0(void)
             {
                 vector<int> v = Util::IncreasingVector(i);
                 check(v);
-            }
-        });
+            } });
 
     Add("79. Word Search", [&]()
         {
@@ -3122,8 +3056,7 @@ void LeetCodeTest::Init0(void)
                                           {'A','A','A','A','A','A'}};
                 print(b);
                 check(b, "AAAAAAAAAAAABAA", false);
-            }
-        });
+            } });
 
     Add("80. Remove Duplicates from Sorted Array II", [&]()
         {
@@ -3189,8 +3122,7 @@ void LeetCodeTest::Init0(void)
             check({1, 1, 1, 1, 1}, 2);
             check({1, 1, 3, 3, 3}, 4);
             check({1, 3, 3, 3, 3}, 3);
-            check({1, 3, 3, 3, 4}, 4);
-        });
+            check({1, 3, 3, 3, 4}, 4); });
 
     Add("81. Search in Rotated Sorted Array II", [&]()
         {
@@ -3473,8 +3405,7 @@ void LeetCodeTest::Init0(void)
                 Logger() << a;
                 check(a, 0, -1);
                 check(a, 1, 0);
-            }
-        });
+            } });
 
     Add("82. Remove Duplicates from Sorted List II", [&]()
         {
@@ -3562,8 +3493,7 @@ void LeetCodeTest::Init0(void)
             check(vector<int>{1, 2, 2, 2});
             check(vector<int>{1, 1, 1, 1});
             check(vector<int>{1, 2, 2, 3});
-            check(vector<int>{1, 2, 3, 4});
-        });
+            check(vector<int>{1, 2, 3, 4}); });
 
     Add("83. Remove Duplicates from Sorted List", [&]()
         {
@@ -3628,8 +3558,7 @@ void LeetCodeTest::Init0(void)
             check(vector<int>{1, 2, 2, 2});
             check(vector<int>{1, 1, 1, 1});
             check(vector<int>{1, 2, 2, 3});
-            check(vector<int>{1, 2, 3, 4});
-        });
+            check(vector<int>{1, 2, 3, 4}); });
 
     Add("84. Largest Rectangle in Histogram", [&]()
         {
@@ -3718,8 +3647,7 @@ void LeetCodeTest::Init0(void)
                     hist.push_back(v);
                 }
                 check(hist, -1);
-            }
-        });
+            } });
 
     Add("85. Maximal Rectangle", [&]()
         {
@@ -3873,8 +3801,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100, 1);
                 vector<vector<char>> g = Random::Grid(m, n, '1', '0');
                 check(g, -1);
-            }
-        });
+            } });
 
     Add("86. Partition List", [&]()
         {
@@ -3928,8 +3855,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100, 1);
                 vector<int> v = Random::Vector(n, 100);
                 check(v, Random::Int(150, -50));
-            }
-        });
+            } });
 
     Add("87. Scramble String", [&]()
         {
@@ -3970,8 +3896,7 @@ void LeetCodeTest::Init0(void)
                     random_shuffle(s2.begin(), s2.end());
                     check(s1, s2);
                 }
-            }
-        });
+            } });
 
     Add("88. Merge Sorted Array", [&]()
         {
@@ -4044,8 +3969,7 @@ void LeetCodeTest::Init0(void)
                 sort(w.begin(), w.end());
                 v.resize(m + n, 0);
                 check(v, m, w, n);
-            }
-        });
+            } });
 
     Add("89. Gray Code", [&]()
         {
@@ -4072,8 +3996,7 @@ void LeetCodeTest::Init0(void)
             check(3);
             check(4);
             check(5);
-            check(6);
-        });
+            check(6); });
 
     Add("90. Subsets II", [&]()
         {
@@ -4109,8 +4032,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(10, 1);
                 vector<int> v = Random::Vector(n, 5);
                 check(v);
-            }
-        });
+            } });
 
     Add("91. Decode Ways", [&]()
         {
@@ -4134,8 +4056,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(20);
                 string s = Random::String<char>(n, "01112223456789");
                 check(s);
-            }
-        });
+            } });
 
     Add("92. Reverse Linked List II", [&]()
         {
@@ -4186,8 +4107,7 @@ void LeetCodeTest::Init0(void)
                     for (int n = m; n <= (int)v.size(); n++)
                         check(v, m, n);
                 }
-            }
-        });
+            } });
 
     Add("93. Restore IP Addresses", [&]()
         {
@@ -4215,8 +4135,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(12, 4);
                 string s = Random::String<char>(n, "0123456789");
                 check(s);
-            }
-        });
+            } });
 
     Add("144. Binary Tree Preorder Traversal", [&]()
         {
@@ -4249,8 +4168,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100);
                 vector<int> v = Util::IncreasingVector(n);
                 check(v);
-            }
-        });
+            } });
 
     Add("94. Binary Tree Inorder Traversal", [&]()
         {
@@ -4282,8 +4200,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100);
                 vector<int> v = Util::IncreasingVector(n);
                 check(v);
-            }
-        });
+            } });
 
     Add("145. Binary Tree Postorder Traversal", [&]()
         {
@@ -4316,8 +4233,7 @@ void LeetCodeTest::Init0(void)
                 int n = Random::Int(100);
                 vector<int> v = Util::IncreasingVector(n);
                 check(v);
-            }
-        });
+            } });
 
     Add("95. Unique Binary Search Trees II", [&]()
         {
@@ -4326,6 +4242,8 @@ void LeetCodeTest::Init0(void)
                 vector<TreeNode *> trees = generateTrees(n);
                 vector<TreeNode *> trees2 = generateTrees2(n);
                 vector<TreeNode *> trees3 = generateTrees3(n);
+                vector<TreeNode *> trees4 = generateTrees4(n);
+                vector<TreeNode *> trees5 = generateTrees5(n);
                 vector<vector<int>> m;
                 for (size_t i = 0; i < trees.size(); i++)
                 {
@@ -4346,11 +4264,27 @@ void LeetCodeTest::Init0(void)
                     m3.push_back(inorderTraversal(trees3[i]));
                     DeleteTree(trees3[i]);
                 }
+                vector<vector<int>> m4;
+                for (size_t i = 0; i < trees4.size(); i++)
+                {
+                    m4.push_back(inorderTraversal(trees4[i]));
+                    DeleteTree(trees4[i]);
+                }
+                vector<vector<int>> m5;
+                for (size_t i = 0; i < trees5.size(); i++)
+                {
+                    m5.push_back(inorderTraversal(trees5[i]));
+                    DeleteTree(trees5[i]);
+                }
                 Util::Sort(m);
                 Util::Sort(m2);
                 Util::Sort(m3);
+                Util::Sort(m4);
+                Util::Sort(m5);
                 ASSERT1(0 == Util::Compare(m, m2));
                 ASSERT1(0 == Util::Compare(m, m3));
+                ASSERT1(0 == Util::Compare(m, m4));
+                ASSERT1(0 == Util::Compare(m, m5));
                 int c = numTrees(n);
                 int c2 = numTrees2(n);
                 int c3 = numTrees3(n);
@@ -4359,8 +4293,7 @@ void LeetCodeTest::Init0(void)
                 ASSERT1((int)m.size() == c3);
             };
             for (int i = 0; i < 10; i++)
-                check(i + 1);
-        });
+                check(i + 1); });
 
     Add("97. Interleaving String", [&]()
         {
@@ -4394,8 +4327,7 @@ void LeetCodeTest::Init0(void)
             check("ab", "ac", "caab", false);
             check("ab", "ac", "bcaa", false);
             check("aabcc", "dbbca", "aadbbcbcac", true);
-            check("aabcc", "dbbca", "aadbbbaccc", false);
-        });
+            check("aabcc", "dbbca", "aadbbbaccc", false); });
 
     Add("98. Validate Binary Search Tree", [&]()
         {
@@ -4406,11 +4338,15 @@ void LeetCodeTest::Init0(void)
                 bool r = isValidBST(t);
                 bool r2 = isValidBST2(t);
                 bool r3 = isValidBST3(t);
+                bool r4 = isValidBST4(t);
+                bool r5 = isValidBST5(t);
                 DeleteTree(t);
                 Logger() << "is valid BST: " << r << ", " << r2 << ", " << r3
-                         << endl;
+                          << ", " << r4 << ", " << r5 << endl;
                 ASSERT1(r == r2);
                 ASSERT1(r == r3);
+                ASSERT1(r == r4);
+                ASSERT1(r == r5);
             };
             check({});
             check({1});
@@ -4423,8 +4359,7 @@ void LeetCodeTest::Init0(void)
                 check(v);
                 sort(v.begin(), v.end());
                 check(v);
-            }
-        });
+            } });
 
     Add("99. Recover Binary Search Tree", [&]()
         {
@@ -4460,7 +4395,6 @@ void LeetCodeTest::Init0(void)
                 Logger() << "Swap " << v[a] << " and " << v[b] << endl;
                 swap(v[a], v[b]);
                 check(v);
-            }
-        });
+            } });
 }
 #endif

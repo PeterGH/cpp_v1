@@ -13444,6 +13444,193 @@ namespace Test
             }
             return trees;
         }
+        vector<TreeNode *> generateTrees4(int n)
+        {
+            // generate all preorder serializations
+            function<vector<vector<int>>(int, int)> serialize = [&](int i, int j) -> vector<vector<int>>
+            {
+                vector<vector<int>> output;
+                if (i > j)
+                {
+                    output.push_back(vector<int>{0});
+                }
+                else
+                {
+                    for (int k = i; k <= j; k++)
+                    {
+                        vector<int> v = {k};
+                        vector<vector<int>> left = serialize(i, k - 1);
+                        vector<vector<int>> right = serialize(k + 1, j);
+                        for (const auto &l : left)
+                        {
+                            for (const auto &r : right)
+                            {
+                                vector<int> v = {k};
+                                v.insert(v.end(), l.begin(), l.end());
+                                v.insert(v.end(), r.begin(), r.end());
+                                output.push_back(v);
+                            }
+                        }
+                    }
+                }
+                return output;
+            };
+            // generate a tree from a preorder serialization
+            function<TreeNode *(const vector<int> &)> generate = [&](const vector<int> &v) -> TreeNode *
+            {
+                TreeNode *t = nullptr;
+                stack<TreeNode *> s;
+                TreeNode *n = nullptr;
+                size_t i = 0;
+                bool left = true;
+                while (i < v.size())
+                {
+                    if (v[i] != 0)
+                    {
+                        n = new TreeNode(v[i]);
+                        if (t == nullptr)
+                            t = n;
+                        if (!s.empty())
+                        {
+                            if (left)
+                            {
+                                s.top()->left = n;
+                            }
+                            else
+                            {
+                                s.top()->right = n;
+                                left = true;
+                            }
+                        }
+                        s.push(n);
+                    }
+                    else
+                    {
+                        if (left)
+                        {
+                            // build right subtree
+                            left = false;
+                        }
+                        else
+                        {
+                            // right child is nullptr.
+                            // pop the insert point and its parents
+                            // whose right subtree is complete.
+                            while (!s.empty())
+                            {
+                                n = s.top();
+                                s.pop();
+                                if (s.empty() || n == s.top()->left)
+                                    break;
+                            }
+                        }
+                    }
+                    i++;
+                }
+                return t;
+            };
+            auto serializations = serialize(1, n);
+            vector<TreeNode *> trees;
+            for (const auto &v : serializations)
+            {
+                trees.push_back(generate(v));
+            }
+            return trees;
+        }
+        vector<TreeNode *> generateTrees5(int n)
+        {
+            function<vector<vector<int>>(int, int)> serialize = [&](int i, int j) -> vector<vector<int>>
+            {
+                vector<vector<int>> output;
+                if (i > j)
+                {
+                    output.push_back(vector<int>{0});
+                }
+                else
+                {
+                    for (int k = i; k <= j; k++)
+                    {
+                        vector<int> v = {k};
+                        vector<vector<int>> left = serialize(i, k - 1);
+                        vector<vector<int>> right = serialize(k + 1, j);
+                        for (const auto &l : left)
+                        {
+                            for (const auto &r : right)
+                            {
+                                vector<int> v = {k};
+                                v.insert(v.end(), l.begin(), l.end());
+                                v.insert(v.end(), r.begin(), r.end());
+                                output.push_back(v);
+                            }
+                        }
+                    }
+                }
+                return output;
+            };
+            function<TreeNode *(const vector<int> &)> generate = [&](const vector<int> &v) -> TreeNode *
+            {
+                TreeNode *t = nullptr;
+                stack<TreeNode *> s;
+                TreeNode *n = nullptr;
+                size_t i = 0;
+                bool left = true;
+                while (i < v.size())
+                {
+                    if (v[i] != 0)
+                    {
+                        n = new TreeNode(v[i]);
+                        if (t == nullptr)
+                            t = n;
+                        if (!s.empty())
+                        {
+                            if (left)
+                            {
+                                s.top()->left = n;
+                            }
+                            else
+                            {
+                                s.top()->right = n;
+                                left = true;
+                            }
+                        }
+                        s.push(n);
+                        i++; // next node
+                    }
+                    else
+                    {
+                        if (left)
+                        {
+                            left = false;
+                            i++; // next node
+                        }
+                        else
+                        {
+                            if (!s.empty())
+                            {
+                                n = s.top();
+                                s.pop();
+                                if (!s.empty() && n == s.top()->right)
+                                {
+                                    // n is complete and is its parents right child
+                                    // so its parent is also complete. do not move
+                                    // to next, continue to pop its parent.
+                                    continue;
+                                }
+                            }
+                            i++;
+                        }
+                    }
+                }
+                return t;
+            };
+            auto serializations = serialize(1, n);
+            vector<TreeNode *> trees;
+            for (const auto &v : serializations)
+            {
+                trees.push_back(generate(v));
+            }
+            return trees;
+        }
 
         // 96. Unique Binary Search Trees
         // Given n, how many structurally unique BST's (binary search trees)
@@ -13763,6 +13950,23 @@ namespace Test
             int tmin;
             int tmax;
             return isValid(root, tmin, tmax);
+        }
+        bool isValidBST5(TreeNode *root)
+        {
+            // node value must be in [l, h]
+            function<bool(TreeNode *, long, long)> check = [&](TreeNode *n, long l, long h) -> bool
+            {
+                if (n == nullptr)
+                    return true;
+                long v = n->val; // use long to avoid overflow if node value is INT_MIN or INT_MAX
+                if (v < l || h < v)
+                    return false;
+                // left tree must be less than v, so range [l, v - 1]
+                // right tree must be greater than v, so range [v + 1, h]
+                return check(n->left, l, v - 1) && check(n->right, v + 1, h);
+            };
+            // node value is int type
+            return check(root, INT_MIN, INT_MAX);
         }
 
         // 99. Recover Binary Search Tree
