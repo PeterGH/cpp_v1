@@ -1091,6 +1091,44 @@ namespace Test
             }
             return true;
         }
+        // wrong, e.g.,
+        //        1
+        //      /   \
+        //     2     3
+        //    / \   /
+        //   4   5 6
+        //  /
+        // 8
+        bool isBalanced3(TreeNode *root)
+        {
+            if (root == nullptr)
+                return true;
+            int maxDepth = INT_MAX;
+            queue<TreeNode *> current;
+            queue<TreeNode *> next;
+            current.push(root);
+            int depth = 0;
+            while (!current.empty())
+            {
+                TreeNode *node = current.front();
+                current.pop();
+                if ((node->left == nullptr || node->right == nullptr) && maxDepth == INT_MAX)
+                    maxDepth = 1 + depth;
+                if (node->left != nullptr)
+                    next.push(node->left);
+                if (node->right != nullptr)
+                    next.push(node->right);
+                if (current.empty())
+                {
+                    current.swap(next);
+                    if (!current.empty())
+                        depth++;
+                }
+                if (depth > maxDepth)
+                    return false;
+            }
+            return true;
+        }
 
         // 111. Minimum Depth of Binary Tree
         // Given a binary tree, find its minimum depth.
