@@ -84,7 +84,12 @@ namespace Test
                 while (!s.empty() || n != nullptr)
                 {
                     // Need to include nullptr to make sure
-                    // the serialization is unique
+                    // the serialization is unique, e.g.
+                    //     1     1
+                    //    /     /
+                    //   2     2
+                    //  /       \
+                    // 3         3
                     v.push_back(n);
                     if (n != nullptr)
                     {
@@ -128,6 +133,32 @@ namespace Test
                     return false;
             }
             return true;
+        }
+        bool isSameTree4(TreeNode *p, TreeNode *q)
+        {
+            queue<TreeNode *> lp;
+            queue<TreeNode *> lq;
+            lp.push(p);
+            lq.push(q);
+            while (!lp.empty() && !lq.empty())
+            {
+                p = lp.front();
+                lp.pop();
+                q = lq.front();
+                lq.pop();
+                if ((p == nullptr) != (q == nullptr))
+                    return false;
+                if (p != nullptr)
+                {
+                    if (p->val != q->val)
+                        return false;
+                    lp.push(p->left);
+                    lp.push(p->right);
+                    lq.push(q->left);
+                    lq.push(q->right);
+                }
+            }
+            return lp.empty() && lq.empty();
         }
 
         // 101. Symmetric Tree

@@ -12,11 +12,13 @@ void LeetCodeTest::Init1(void)
             bool r = isSameTree(t, t2);
             bool r2 = isSameTree2(t, t2);
             bool r3 = isSameTree3(t, t2);
-            Logger() << "isSameTree " << r << ", " << r2 << ", " << r3 << endl;
+            bool r4 = isSameTree4(t, t2);
+            Logger() << "isSameTree " << r << ", " << r2 << ", " << r3 << ", " << r4 << endl;
             DeleteTree(t);
             DeleteTree(t2);
             ASSERT1(r == r2);
             ASSERT1(r == r3);
+            ASSERT1(r == r4);
         };
         auto check = [&](const vector<int> &v) {
             Logger() << v;
