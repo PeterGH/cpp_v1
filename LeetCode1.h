@@ -292,6 +292,33 @@ namespace Test
         }
         vector<vector<int>> levelOrder2(TreeNode *root)
         {
+            vector<vector<int>> output;
+            if (root == nullptr)
+                return output;
+            queue<TreeNode *> current;
+            queue<TreeNode *> next;
+            vector<int> v;
+            current.push(root);
+            while (!current.empty())
+            {
+                TreeNode *node = current.front();
+                current.pop();
+                v.push_back(node->val);
+                if (node->left != nullptr)
+                    next.push(node->left);
+                if (node->right != nullptr)
+                    next.push(node->right);
+                if (current.empty())
+                {
+                    output.push_back(v);
+                    v.clear();
+                    current.swap(next);
+                }
+            }
+            return output;
+        }
+        vector<vector<int>> levelOrder3(TreeNode *root)
+        {
             vector<vector<int>> result;
             stack<pair<TreeNode *, int>> s;
             TreeNode *n = root;
@@ -317,7 +344,7 @@ namespace Test
             }
             return result;
         }
-        vector<vector<int>> levelOrder3(TreeNode *root)
+        vector<vector<int>> levelOrder4(TreeNode *root)
         {
             vector<vector<int>> result;
             function<void(TreeNode *, size_t)> visit = [&](TreeNode *n, size_t l)

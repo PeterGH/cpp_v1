@@ -82,10 +82,12 @@ void LeetCodeTest::Init1(void)
             vector<vector<int>> r = levelOrder(t);
             vector<vector<int>> r2 = levelOrder2(t);
             vector<vector<int>> r3 = levelOrder3(t);
+            vector<vector<int>> r4 = levelOrder4(t);
             Logger() << "levelOrder: " << r << endl;
             DeleteTree(t);
             ASSERT1(0 == Util::Compare(r, r2));
             ASSERT1(0 == Util::Compare(r, r3));
+            ASSERT1(0 == Util::Compare(r, r4));
         };
         for (int i = 0; i < 100; i++)
         {
