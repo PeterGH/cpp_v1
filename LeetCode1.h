@@ -417,6 +417,45 @@ namespace Test
         }
         vector<vector<int>> zigzagLevelOrder2(TreeNode *root)
         {
+            vector<vector<int>> output;
+            if (root == nullptr)
+                return output;
+            stack<TreeNode *> current;
+            stack<TreeNode *> next;
+            bool lefttoright = true;
+            current.push(root);
+            vector<int> v;
+            while (!current.empty())
+            {
+                TreeNode *node = current.top();
+                current.pop();
+                v.push_back(node->val);
+                if (lefttoright)
+                {
+                    if (node->left != nullptr)
+                        next.push(node->left);
+                    if (node->right != nullptr)
+                        next.push(node->right);
+                }
+                else
+                {
+                    if (node->right != nullptr)
+                        next.push(node->right);
+                    if (node->left != nullptr)
+                        next.push(node->left);
+                }
+                if (current.empty())
+                {
+                    current.swap(next);
+                    lefttoright = !lefttoright;
+                    output.push_back(v);
+                    v.clear();
+                }
+            }
+            return output;
+        }
+        vector<vector<int>> zigzagLevelOrder3(TreeNode *root)
+        {
             vector<vector<int>> result;
             if (root == nullptr)
                 return result;
