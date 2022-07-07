@@ -501,6 +501,39 @@ namespace Test
             }
             return result;
         }
+        vector<vector<int>> zigzagLevelOrder4(TreeNode *root)
+        {
+            vector<vector<int>> output;
+            stack<pair<TreeNode *, size_t>> s;
+            TreeNode *n = root;
+            size_t l = 0;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (output.size() <= l)
+                        output.push_back(vector<int>{});
+                    if ((l & 0x1) == 0) // must parentheses around the and-operator
+                    {
+                        output[l].push_back(n->val);
+                    }
+                    else
+                    {
+                        output[l].insert(output[l].begin(), n->val);
+                    }
+                    s.push(make_pair(n, l));
+                    n = n->left;
+                    l++;
+                }
+                else
+                {
+                    n = s.top().first->right;
+                    l = s.top().second + 1;
+                    s.pop();
+                }
+            }
+            return output;
+        }
 
         // 104. Maximum Depth of Binary Tree
         // Given a binary tree, find its maximum depth. The maximum depth is the

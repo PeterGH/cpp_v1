@@ -103,10 +103,12 @@ void LeetCodeTest::Init1(void)
             vector<vector<int>> r = zigzagLevelOrder(t);
             vector<vector<int>> r2 = zigzagLevelOrder2(t);
             vector<vector<int>> r3 = zigzagLevelOrder3(t);
+            vector<vector<int>> r4 = zigzagLevelOrder4(t);
             Logger() << r;
             DeleteTree(t);
             ASSERT1(0 == Util::Compare(r, r2));
             ASSERT1(0 == Util::Compare(r, r3));
+            ASSERT1(0 == Util::Compare(r, r4));
         };
         auto checkVector = [&](const vector<int> &v) {
             TreeNode *t = RandomTree(v);
