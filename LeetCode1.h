@@ -1726,7 +1726,20 @@ namespace Test
         // next right node, the next pointer should be set to NULL. Initially, all next
         // pointers are set to NULL. Follow up: You may only use constant extra space.
         // Recursive approach is fine, you may assume implicit stack space does not
-        // count as extra space for this problem. Example 1: Input: root =
+        // count as extra space for this problem. For example, Given
+        // the following perfect binary tree,
+        //      1
+        //    /   \
+        //   2     3
+        //  / \   / \
+        // 4   5 6   7
+        // After calling your function, the tree should look like :
+        //      1->NULL
+        //    /   \
+        //   2 ->  3->NULL
+        //  / \   / \
+        // 4-> 5->6->7->NULL
+        // Example 1: Input: root =
         // [1,2,3,4,5,6,7] Output: [1,#,2,3,#,4,5,6,7,#] Explanation: Given the above
         // perfect binary tree (Figure A), your function should populate each next
         // pointer to point to its next right node, just like in Figure B. The
@@ -1778,6 +1791,31 @@ namespace Test
                     root->right->next = root->next->left;
                 connect3(root->left);
                 connect3(root->right);
+            }
+            return root;
+        }
+        NodeWithNextLink *connect4(NodeWithNextLink *root)
+        {
+            stack<NodeWithNextLink *> s;
+            NodeWithNextLink *n = root;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left != nullptr && n->right != nullptr)
+                    {
+                        n->left->next = n->right;
+                        if (n->next != nullptr)
+                            n->right->next = n->next->left;
+                    }
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    n = s.top()->right;
+                    s.pop();
+                }
             }
             return root;
         }
@@ -1889,6 +1927,111 @@ namespace Test
                 }
                 connectII3(root->left);
                 connectII3(root->right);
+            }
+            return root;
+        }
+        NodeWithNextLink *connectII4(NodeWithNextLink *root)
+        {
+            stack<NodeWithNextLink *> s;
+            NodeWithNextLink *n = root;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left != nullptr || n->right != nullptr)
+                    {
+                        NodeWithNextLink *x = nullptr;
+                        NodeWithNextLink *y = n;
+                        while (y != nullptr)
+                        {
+                            if (y->left != nullptr)
+                            {
+                                if (x != nullptr)
+                                    x->next = y->left;
+                                x = y->left;
+                            }
+                            if (y->right != nullptr)
+                            {
+                                if (x != nullptr)
+                                    x->next = y->right;
+                                x = y->right;
+                            }
+                            y = y->next;
+                        }
+                    }
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    n = s.top()->right;
+                    s.pop();
+                }
+            }
+            return root;
+        }
+        // wrong
+        //       -2--
+        //      /    \
+        //     1      3
+        //    / \    / \
+        //   0   7  9   1
+        //  /   / \    / \
+        // 2   1   0  8   8
+        //        /
+        //       7
+        // Expected:
+        // [ 2,#,
+        //   1,3,#,
+        //   0,7,9,1,#,
+        //   2,1,0,8,8,#,
+        //   7,#] 
+        // Output:
+        // [ 2,#,
+        //   1,3,#,
+        //   0,7,9,1,#,
+        //   2,1,0,#,
+        //   7,#]
+        NodeWithNextLink *connectII5(NodeWithNextLink *root)
+        {
+            stack<NodeWithNextLink *> s;
+            NodeWithNextLink *n = root;
+            while (!s.empty() || n != nullptr)
+            {
+                if (n != nullptr)
+                {
+                    if (n->left != nullptr || n->right != nullptr)
+                    {
+                        NodeWithNextLink *x = n->left;
+                        if (x != nullptr)
+                            x->next = n->right;
+                        if (n->right != nullptr)
+                            x = n->right;
+                        // Find the first next node who has at least one child and hook up
+                        // the next link between x and that child. This is wrong because
+                        // we traverse the next link at current level assuming they are
+                        // already set up but the assumption is false.
+                        NodeWithNextLink *y = n->next;
+                        while (y != nullptr && y->left == nullptr && y->right == nullptr)
+                        {
+                            y = y->next;
+                        }
+                        if (y != nullptr)
+                        {
+                            if (y->left != nullptr)
+                                x->next = y->left;
+                            else if (y->right != nullptr)
+                                x->next = y->right;
+                        }
+                    }
+                    s.push(n);
+                    n = n->left;
+                }
+                else
+                {
+                    n = s.top()->right;
+                    s.pop();
+                }
             }
             return root;
         }
