@@ -4196,6 +4196,7 @@ namespace Test
             {
                 Node *f = q.front();
                 q.pop();
+                // for each link check if need to clone the neighbor
                 for_each(f->neighbors.begin(), f->neighbors.end(), [&](Node *n)
                          {
                              if (m.find(n) == m.end())
