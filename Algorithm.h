@@ -16,6 +16,22 @@ using namespace std;
 
 namespace Test
 {
+    // 1. Assume the input array is not sorted.
+    // 2. The input array may contain duplicate elements.
+    // 3. The return value is the index of the first occurrence
+    // of the value to search in the input array if found, otherwise -1.
+    template <class T>
+    int LinearSearch(T e, const T *A, int L)
+    {
+        if (A == nullptr || L <= 0)
+            return -1;
+        for (int i = 0; i < L; i++)
+        {
+            if (e == A[i])
+                return i;
+        }
+        return -1;
+    }
 
     // Assume the input is sorted.
     // Cases:
@@ -46,7 +62,7 @@ namespace Test
     int BinarySearch2(const vector<int> &input, int target)
     {
         int b = 0;
-        int e = (int)input.size();
+        int e = (int)input.size(); // b <= e
         // [b..e) contain possible answers
         while (b < e)
         {
@@ -66,7 +82,7 @@ namespace Test
     int BinarySearch2_2(const vector<int> &input, int target)
     {
         int b = 0;
-        int e = (int)input.size() - 1;
+        int e = (int)input.size() - 1; // b > e if input is empty
         // [b..e) contain possible answers
         while (b < e)
         {
@@ -240,7 +256,8 @@ namespace Test
         static vector<vector<int>> Random(size_t m, size_t n, int max = RAND_MAX, int min = 0)
         {
             vector<vector<int>> result(m, vector<int>(n));
-            auto rnd = [&]() -> int { return min + (rand() % (max - min)); };
+            auto rnd = [&]() -> int
+            { return min + (rand() % (max - min)); };
             int l = 0;
             for (int j = 0; j < (int)n; j++)
             {
@@ -283,7 +300,8 @@ namespace Test
         static vector<vector<int>> Random2(size_t m, size_t n, int max = RAND_MAX, int min = 0)
         {
             vector<vector<int>> result(m, vector<int>(n));
-            auto rnd = [&]() -> int { return min + (rand() % (max - min)); };
+            auto rnd = [&]() -> int
+            { return min + (rand() % (max - min)); };
             for (size_t j = 0; j < n; j++)
                 result[0][j] = rnd();
             for (size_t i = 1; i < m; i++)
@@ -337,7 +355,8 @@ namespace Test
     // b_0 * 2^0 + b_1 * 2^1 + ... + b(k-1) * 2^(k-1)
     int RandomInt(int a, int b)
     {
-        function<int()> bit = [&]() -> int {
+        function<int()> bit = [&]() -> int
+        {
             return rand() & 0x1;
         };
         int r = b - a + 1; // [1, 2, ..., r]
@@ -371,7 +390,8 @@ namespace Test
     }
     int RandomInt2(int a, int b)
     {
-        function<int()> bit = [&]() -> int {
+        function<int()> bit = [&]() -> int
+        {
             return rand() & 0x1;
         };
         int r = b - a; // [0, 1, ..., r]
