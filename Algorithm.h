@@ -33,6 +33,76 @@ namespace Test
         return -1;
     }
 
+    // comp is a binary function returning a boolean value.
+    // If comp(first, second) returns true, then the first input
+    // should go before the second input. Default comp is std::less,
+    // which forms a non-decreasing sequence. Return -1 if not found.
+    template <class Value, class Compare = std::less<Value>>
+    static int BinarySearch(const Value &value, int begin, int end,
+                            function<const Value &(int)> get, bool first = true,
+                            Compare comp = std::less<Value>())
+    {
+        while (begin <= end)
+        {
+            // (1) b < m < e
+            // (2) b == m < e == b + 1
+            // (3) b == m == e
+            int middle = begin + ((end - begin) >> 1);
+            const Value &middleValue = get(middle);
+            if (comp(value, middleValue))
+                end = middle - 1;
+            else if (comp(middleValue, value))
+                begin = middle + 1;
+            else
+            {
+                if (first)
+                {
+                    if (begin == middle)
+                        return middle; // case (2) or (3)
+                    else
+                        end = middle; // case (1)
+                }
+                else
+                {
+                    if (middle == end)
+                        return middle; // case (3)
+                    else if (begin < middle)
+                        begin = middle; // case (1)
+                    else if (comp(value, get(end)))
+                        return middle; // case (2), m is the last
+                    else
+                        return end; // case (2), e is the last
+                }
+            }
+        }
+        return -1;
+    }
+
+    template <class Compare = std::less<>>
+    static int BinarySearch(const vector<int> &input, int value, size_t begin,
+                            size_t end, bool first = true,
+                            Compare comp = std::less<>())
+    {
+        return BinarySearch(
+            value, (int)begin, (int)end,
+            [&](int i) -> const int &
+            { return input[i]; },
+            first, comp);
+    }
+
+    // Search a value in a column
+    template <class Compare = std::less<>>
+    static int BinarySearch(const vector<vector<int>> &input, size_t col, int value,
+                            size_t begin, size_t end, bool first = true,
+                            Compare comp = std::less<>())
+    {
+        return BinarySearch(
+            value, (int)begin, (int)end,
+            [&](int i) -> const int &
+            { return input[i][col]; },
+            first, comp);
+    }
+
     // Assume the input is sorted.
     // Cases:
     // 1. empty input
@@ -122,6 +192,88 @@ namespace Test
         if (input[e] == target)
             return e;
         return -1;
+    }
+
+    // comp is a binary function returning a boolean value.
+    // If comp(first, second) returns true, then the first input
+    // should go before the second input. Default comp is std::less,
+    // which forms a non-decreasing sequence. Return i in [begin, end]
+    // if should insert value to position i. Return end + 1 if should
+    // append value.
+    template <class Value, class Compare = std::less<Value>>
+    static size_t FindInsertPoint(const Value &value, int begin, int end,
+                                  function<const Value &(int)> get,
+                                  bool first = true,
+                                  Compare comp = std::less<Value>())
+    {
+        while (begin <= end)
+        {
+            // (1) b < m < e
+            // (2) b == m < e == b + 1
+            // (3) b == m == e
+            int middle = begin + ((end - begin) >> 1);
+            int middleValue = get(middle);
+            if (comp(value, middleValue))
+            {
+                if (begin == middle)
+                    return middle; // case (2) or (3)
+                else
+                    end = middle - 1; // case (1)
+            }
+            else if (comp(middleValue, value))
+            {
+                if (middle == end)
+                    return end + 1; // case (3)
+                else
+                    begin = middle + 1; // case (1) or (2)
+            }
+            else
+            {
+                if (first)
+                {
+                    if (begin == middle)
+                        return middle; // case (2) or (3)
+                    else
+                        end = middle; // case (1)
+                }
+                else
+                {
+                    if (middle == end)
+                        return middle; // case (3)
+                    else if (begin < middle)
+                        begin = middle; // case (1)
+                    else if (comp(value, get(end)))
+                        return middle; // case (2), m is the last
+                    else
+                        return end; // case (2), e is the last
+                }
+            }
+        }
+        throw runtime_error("Unreachable code");
+    }
+
+    template <class Compare = std::less<>>
+    static size_t FindInsertPoint(vector<int> &input, int value, size_t begin,
+                                  size_t end, bool first = true,
+                                  Compare comp = std::less<>())
+    {
+        return FindInsertPoint(
+            value, (int)begin, (int)end, [&](int i) -> int
+            { return input[i]; },
+            first, comp);
+    }
+
+    // find insert point for a value in a column
+    template <class Compare = std::less<>>
+    static size_t FindInsertPoint(vector<vector<int>> &input, size_t col, int value,
+                                  size_t begin, size_t end, bool first = true,
+                                  Compare comp = std::less<>())
+    {
+        return FindInsertPoint(
+            value, (int)begin, (int)end,
+            [&](int i) -> int
+            { return input[i][col]; },
+            first, comp);
     }
 
     // Find a number closest to a target from a sorted array
