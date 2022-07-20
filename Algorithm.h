@@ -761,6 +761,287 @@ namespace Test
         }
     }
 
+    // Find all pairs of elements each of which is summed up to a given value
+    // Return the indices using a vector
+    // The elements of input will be rearranged so the indices returned are not the
+    // original ones
+    template <class T>
+    static void FindPairsBySum(T *input, int length, const T sum,
+                               vector<pair<int, int>> &indices)
+    {
+        if (input == nullptr)
+            throw invalid_argument("input is a nullptr");
+        if (length <= 0)
+            throw invalid_argument(String::Format("length %d is invalid", length));
+
+        if (length == 1)
+            return;
+
+        T half = sum >> 1;
+
+        // input may contain positive and negative values
+
+        int shortRangeBegin;
+        int shortRangeEnd;
+        int longRangeBegin;
+        int longRangeEnd;
+
+        if ((sum & 0x1) == 0)
+        {
+            //
+            // sum is even
+            // +--------------------------+---------------------+------------------------------+
+            // 0                          i1                    i2 length-1
+            //           < sum/2                  = sum/2                > sum/2
+
+            // Partition input so that input[0..i1] <= half - 1 <
+            // input[i1+1..length-1]
+            int i1 =
+                Partition::PartitionArrayByValue(input, 0, length - 1, half - 1);
+            if (i1 == length - 1)
+            {
+                // All elements are less than sum/2 - 1, no matter whether sum is
+                // positive or negative.
+                return;
+            }
+
+            // Partition input once more so that input[i1+1..i2] = half <
+            // input[i2+1..length-1]
+            int i2 =
+                Partition::PartitionArrayByValue(input, i1 + 1, length - 1, half);
+            if (i2 == -1)
+            {
+                // All elements are greater than sum/2, no matter whether sum is
+                // positive or negative.
+                return;
+            }
+
+            // Now input[i1+1..i2] == sum/2
+            for (int i = i1 + 1; i < i2; i++)
+            {
+                for (int j = i + 1; j <= i2; j++)
+                {
+                    indices.push_back(make_pair(i, j));
+                }
+            }
+
+            if (i1 == -1 || i2 == length - 1)
+            {
+                return;
+            }
+
+            if (i1 + 1 >= length - 1 - i2)
+            {
+                shortRangeBegin = i2 + 1;
+                shortRangeEnd = length - 1;
+                longRangeBegin = 0;
+                longRangeEnd = i1;
+            }
+            else
+            {
+                shortRangeBegin = 0;
+                shortRangeEnd = i1;
+                longRangeBegin = i2 + 1;
+                longRangeEnd = length - 1;
+            }
+        }
+        else
+        {
+            //
+            // sum is odd
+            // +-------------------------------------+-----------------------------------------+
+            // 0                                     i1 length-1
+            //                 <= sum/2                             >= sum/2 + 1
+
+            // Partition input so that input[0..i1] <= half < input[i1+1..length-1]
+            int i1 = Partition::PartitionArrayByValue(input, 0, length - 1, half);
+
+            if (i1 == -1)
+            {
+                // All elements are greater than sum/2, no matter whether sum is
+                // positive or negative.
+                return;
+            }
+
+            if (i1 == length - 1)
+            {
+                // All elements are less than or equal to sum/2, no matter whether
+                // sum is positive or negative.
+                return;
+            }
+
+            if (i1 + 1 >= length - 1 - i1)
+            {
+                shortRangeBegin = i1 + 1;
+                shortRangeEnd = length - 1;
+                longRangeBegin = 0;
+                longRangeEnd = i1;
+            }
+            else
+            {
+                shortRangeBegin = 0;
+                shortRangeEnd = i1;
+                longRangeBegin = i1 + 1;
+                longRangeEnd = length - 1;
+            }
+        }
+
+        Sort::Merge::Sort<T>(input, shortRangeBegin, shortRangeEnd);
+
+        for (int i = longRangeBegin; i <= longRangeEnd; i++)
+        {
+            T v = sum - input[i];
+            int j =
+                Search::BinarySearch<T>(v, &input[shortRangeBegin],
+                                        shortRangeEnd - shortRangeBegin + 1, true);
+            if (j == -1)
+            {
+                // No element == sum - input[i]
+                continue;
+            }
+
+            j = shortRangeBegin + j;
+
+            do
+            {
+                indices.push_back(make_pair(i, j));
+                j++;
+            } while (j <= shortRangeEnd && input[j] == v);
+        }
+    }
+
+    // Find all pairs of elements each of which is summed up to a given value
+    // Return the indices using a vector
+    // The elements of input will be rearranged so the indices returned are not the
+    // original ones
+    template <class T>
+    static void FindPairsBySum2(T *input, int length, const T sum,
+                                vector<pair<int, int>> &indices)
+    {
+        if (input == nullptr)
+            throw invalid_argument("input is a nullptr");
+        if (length <= 0)
+            throw invalid_argument(String::Format("length %d is invalid", length));
+
+        if (length == 1)
+            return;
+
+        Sort::Merge::Sort<T>(input, length);
+
+        for (int i = 0; i < length - 1; i++)
+        {
+            T v = sum - input[i];
+            int j = Search::BinarySearch<T>(v, &input[i + 1], length - 1 - i, true);
+            if (j == -1)
+            {
+                // No element == sum - input[i]
+                continue;
+            }
+
+            j = i + 1 + j;
+
+            do
+            {
+                indices.push_back(make_pair(i, j));
+                j++;
+            } while (j < length && input[j] == v);
+        }
+    }
+
+    // http://leetcode.com/2010/03/here-is-phone-screening-question-from.html
+    // Find the first common element of two sorted arrays
+    // Return a pair of indices of found element. If not found, then return a pair
+    // (-1, -1)
+    template <class T>
+    static pair<int, int> FindIntersection(const T *input1, int length1,
+                                           const T *input2, int length2)
+    {
+        if (input1 == nullptr)
+            throw invalid_argument("input1 is a nullptr");
+        if (length1 <= 0)
+            throw invalid_argument(
+                String::Format("length1 %d is invalid", length1));
+        if (input2 == nullptr)
+            throw invalid_argument("input2 is a nullptr");
+        if (length2 <= 0)
+            throw invalid_argument(
+                String::Format("length2 %d is invalid", length2));
+
+        const T *shortArray;
+        int shortLength;
+        const T *longArray;
+        int longLength;
+
+        if (length1 <= length2)
+        {
+            shortLength = length1;
+            shortArray = input1;
+            longLength = length2;
+            longArray = input2;
+        }
+        else
+        {
+            shortLength = length2;
+            shortArray = input2;
+            longLength = length1;
+            longArray = input1;
+        }
+
+        for (int i = 0; i < shortLength; i++)
+        {
+            int j = Search::BinarySearch<T>(shortArray[i], longArray, longLength);
+            if (j != -1)
+            {
+                if (shortArray == input1)
+                {
+                    return make_pair(i, j);
+                }
+                else
+                {
+                    return make_pair(j, i);
+                }
+            }
+        }
+
+        return make_pair(-1, -1);
+    }
+
+    template <class T>
+    static pair<int, int> FindIntersection2(const T *input1, int length1,
+                                            const T *input2, int length2)
+    {
+        if (input1 == nullptr)
+            throw invalid_argument("input1 is a nullptr");
+        if (length1 <= 0)
+            throw invalid_argument(
+                String::Format("length1 %d is invalid", length1));
+        if (input2 == nullptr)
+            throw invalid_argument("input2 is a nullptr");
+        if (length2 <= 0)
+            throw invalid_argument(
+                String::Format("length2 %d is invalid", length2));
+
+        int i = 0;
+        int j = 0;
+        while (i < length1 && j < length2)
+        {
+            if (input1[i] < input2[j])
+            {
+                i++;
+            }
+            else if (input1[i] > input2[j])
+            {
+                j++;
+            }
+            else
+            {
+                return make_pair(i, j);
+            }
+        }
+
+        return make_pair(-1, -1);
+    }
+
     class KMP
     {
     private:
