@@ -174,47 +174,6 @@ void AlgorithmTest::Init(void) {
         }
     });
 
-    Add("FindShiftPoint", [&]() {
-        auto check = [&](const vector<int> v, size_t d) {
-            Logger() << v;
-            size_t s = Algorithm::Search::FindShiftPoint(v);
-            Logger() << "shifted by " << d << ", " << s << endl;
-            ASSERT1(s == d);
-        };
-        {
-            vector<int> v = {0};
-            check(v, 0);
-        }
-        {
-            vector<int> v = {1, 2};
-            check(v, 0);
-        }
-        {
-            vector<int> v = {2, 1};
-            check(v, 1);
-        }
-        {
-            vector<int> v = {3, 4, 5};
-            check(v, 0);
-        }
-        {
-            vector<int> v = {5, 3, 4};
-            check(v, 1);
-        }
-        {
-            vector<int> v = {4, 5, 3};
-            check(v, 2);
-        }
-        {
-            for (int i = 0; i < 100; i++) {
-                size_t n = Util::RandomInt(100, 1);
-                size_t s = Util::RandomInt(100) % n;
-                vector<int> input = Util::SortedArrayWithShift(n, s);
-                check(input, s);
-            }
-        }
-    });
-
     Add("Median 0", [&]() {
         int I[] = {1,  1,  3,  3,   7,    8,    34,      35,
                    42, 43, 64, 445, 3556, 8769, 96656532};

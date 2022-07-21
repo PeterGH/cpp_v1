@@ -761,6 +761,42 @@ namespace Test
         }
     }
 
+    template <class T, class C>
+    int PartitionArrayByValue(T *input, int low, int high, const T &value, function<C(T)> transform)
+    {
+        if (input == nullptr)
+            throw invalid_argument("input is nullptr");
+        if (low < 0)
+            throw invalid_argument(String::Format("low %d is less than zero", low));
+        if (high < low)
+            throw invalid_argument(String::Format("low %d is greater than high %d", low, high));
+        int i = low - 1;
+        C v = transform(value);
+        for (int j = low; j <= high; j++)
+        {
+            if (transform(input[j]) <= v)
+            {
+                // The check can be <.
+                // The difference is:
+                // 1. <= incurs more swaps, but it is stable because all elements equal to value
+                //    are still in their original order. The return value is the last index of elements equal to value.
+                // 2. < incurs less swaps, but it is unstable. The return value is the first index of elements equal to value.
+                i++;
+                swap(input[i], input[j]);
+            }
+        }
+
+        // now input[low..i] <= value < input[(i+1)..high]
+        return i;
+    }
+
+    template <class T>
+    int PartitionArrayByValue(T *input, int low, int high, const T &value)
+    {
+        return PartitionArrayByValue<T, T>(input, low, high, value, [](T v) -> T
+                                           { return v; });
+    }
+
     // Find all pairs of elements each of which is summed up to a given value
     // Return the indices using a vector
     // The elements of input will be rearranged so the indices returned are not the
@@ -796,8 +832,7 @@ namespace Test
 
             // Partition input so that input[0..i1] <= half - 1 <
             // input[i1+1..length-1]
-            int i1 =
-                Partition::PartitionArrayByValue(input, 0, length - 1, half - 1);
+            int i1 = PartitionArrayByValue(input, 0, length - 1, half - 1);
             if (i1 == length - 1)
             {
                 // All elements are less than sum/2 - 1, no matter whether sum is
@@ -807,8 +842,7 @@ namespace Test
 
             // Partition input once more so that input[i1+1..i2] = half <
             // input[i2+1..length-1]
-            int i2 =
-                Partition::PartitionArrayByValue(input, i1 + 1, length - 1, half);
+            int i2 = PartitionArrayByValue(input, i1 + 1, length - 1, half);
             if (i2 == -1)
             {
                 // All elements are greater than sum/2, no matter whether sum is
@@ -854,7 +888,7 @@ namespace Test
             //                 <= sum/2                             >= sum/2 + 1
 
             // Partition input so that input[0..i1] <= half < input[i1+1..length-1]
-            int i1 = Partition::PartitionArrayByValue(input, 0, length - 1, half);
+            int i1 = PartitionArrayByValue(input, 0, length - 1, half);
 
             if (i1 == -1)
             {
@@ -1040,6 +1074,30 @@ namespace Test
         }
 
         return make_pair(-1, -1);
+    }
+
+    // A sorted array is rotated. Find the index of the minimal
+    // element, i.e., the shift distance.
+    // Assume no duplicates in the array.
+    static size_t FindShiftPoint(const vector<int> &input)
+    {
+        // Check if no shift
+        if (*input.begin() < *(input.end() - 1))
+            return 0;
+        // Now the shift > 0
+        int b = 0;
+        int e = input.size() - 1;
+        while (b <= e)
+        {
+            int m = b + ((e - b) >> 1);
+            if (input[b] < input[m])
+                b = m;
+            else if (input[b] > input[m])
+                e = m;
+            else
+                return b == e ? b : e;
+        }
+        throw runtime_error("Unreachable code");
     }
 
     class KMP

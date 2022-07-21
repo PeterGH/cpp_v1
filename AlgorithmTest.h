@@ -18,7 +18,8 @@ public:
 
 void AlgorithmTest::Init(void)
 {
-    Add("BinarySearch", [&]() {
+    Add("BinarySearch", [&]()
+        {
         auto check = [&](const vector<int> &v, int t) {
             Logger() << "Search " << t << " in " << v;
             int i = BinarySearch(v, t);
@@ -57,10 +58,10 @@ void AlgorithmTest::Init(void)
                 }
             }
             check(v, 100);
-        }
-    });
+        } });
 
-    Add("FindClosest", [&]() {
+    Add("FindClosest", [&]()
+        {
         auto check = [&](const vector<int> &v, int t) {
             Logger() << "Search " << t << " in " << v;
             int i = FindClosest(v, t);
@@ -81,10 +82,52 @@ void AlgorithmTest::Init(void)
                 int t = Random::Int(5000, -5000);
                 check(v, t);
             }
-        }
-    });
+        } });
 
-    Add("KMP", [&]() {
+    Add("FindShiftPoint", [&]()
+        {
+        auto check = [&](const vector<int> v, size_t d) {
+            Logger() << v;
+            size_t s = FindShiftPoint(v);
+            Logger() << "shifted by " << d << ", " << s << endl;
+            ASSERT1(s == d);
+        };
+        {
+            vector<int> v = {0};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {1, 2};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {2, 1};
+            check(v, 1);
+        }
+        {
+            vector<int> v = {3, 4, 5};
+            check(v, 0);
+        }
+        {
+            vector<int> v = {5, 3, 4};
+            check(v, 1);
+        }
+        {
+            vector<int> v = {4, 5, 3};
+            check(v, 2);
+        }
+        {
+            for (int i = 0; i < 100; i++) {
+                size_t n = Random::Int(100, 1);
+                size_t s = Random::Int(100) % n;
+                vector<int> input = Random::Vector(n);
+                Util::RotateLeft(input, s);
+                check(input, s);
+            }
+        } });
+
+    Add("KMP", [&]()
+        {
         for (int i = 0; i < 50; i++)
         {
             Logger().WriteInformation("Run %d\n", i);
@@ -100,10 +143,10 @@ void AlgorithmTest::Init(void)
                 printf("Found a match at index %d\n", i);
                 ASSERT1(input.substr(i, pattern.size()) == pattern);
             });
-        }
-    });
+        } });
 
-    Add("Monge", [&]() {
+    Add("Monge", [&]()
+        {
         for (int i = 0; i < 10; i++)
         {
             int m = Random::Int(20, 2);
@@ -117,10 +160,10 @@ void AlgorithmTest::Init(void)
             Logger() << "IsMonge = " << r << ", " << r2 << endl;
             ASSERT1(r);
             ASSERT1(r2);
-        }
-    });
+        } });
 
-    Add("RandomInt", [&]() {
+    Add("RandomInt", [&]()
+        {
         auto check = [&](int a, int b) {
             map<int, int> m;
             int n = 100 * (b - a + 1);
@@ -141,8 +184,7 @@ void AlgorithmTest::Init(void)
         for (int i = 0; i < 10; i++)
         {
             check(0, i);
-        }
-    });
+        } });
 }
 
 #endif
