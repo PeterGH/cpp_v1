@@ -534,6 +534,49 @@ namespace Test
             }
             return output;
         }
+        vector<vector<int>> zigzagLevelOrder5(TreeNode *root)
+        {
+            vector<vector<int>> output;
+            if (root == nullptr)
+                return output;
+            deque<TreeNode *> c;
+            deque<TreeNode *> n;
+            c.push_back(root);
+            bool l2r = true;
+            TreeNode *t;
+            vector<int> l;
+            while (!c.empty())
+            {
+                if (l2r)
+                {
+                    t = c.front();
+                    c.pop_front();
+                    l.push_back(t->val);
+                    if (t->left != nullptr)
+                        n.push_back(t->left);
+                    if (t->right != nullptr)
+                        n.push_back(t->right);
+                }
+                else
+                {
+                    t = c.back();
+                    c.pop_back();
+                    l.push_back(t->val);
+                    if (t->right != nullptr)
+                        n.push_front(t->right);
+                    if (t->left != nullptr)
+                        n.push_front(t->left);
+                }
+                if (c.empty())
+                {
+                    output.push_back(l);
+                    l.clear();
+                    l2r = !l2r;
+                    c.swap(n);
+                }
+            }
+            return output;
+        }
 
         // 104. Maximum Depth of Binary Tree
         // Given a binary tree, find its maximum depth. The maximum depth is the
@@ -1985,7 +2028,7 @@ namespace Test
         //   1,3,#,
         //   0,7,9,1,#,
         //   2,1,0,8,8,#,
-        //   7,#] 
+        //   7,#]
         // Output:
         // [ 2,#,
         //   1,3,#,
