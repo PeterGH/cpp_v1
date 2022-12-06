@@ -6298,6 +6298,44 @@ namespace Test
             };
             return match(0, 0);
         }
+        bool isMatch4(const string &s, const string &p)
+        {
+            map<pair<size_t, size_t>, bool> m;
+            function<bool(size_t, size_t)> match = [&](size_t i, size_t j) -> bool
+            {
+                auto k = make_pair(i, j);
+                if (m.find(k) != m.end())
+                    return m[k];
+                bool result = false;
+                if (i == s.size() && j == p.size())
+                {
+                    result = true;
+                }
+                else if (i == s.size())
+                {
+                    result = p[j] == '*' ? match(i, j + 1) : false;
+                }
+                else if (j == p.size())
+                {
+                    result = false;
+                }
+                else if (s[i] == p[j] || p[j] == '?')
+                {
+                    result = match(i + 1, j + 1);
+                }
+                else if (p[j] == '*')
+                {
+                    result = match(i, j + 1) || match(i + 1, j);
+                }
+                else
+                {
+                    result = false;
+                }
+                m[k] = result;
+                return m[k];
+            };
+            return match(0, 0);
+        }
         // s = "adceb" p = "*a*b"
         //  ( ,*)->(a,a)->( ,  *)->(d,b)
         // |            |->(d,  *)->(c,b)
@@ -6310,7 +6348,7 @@ namespace Test
         // |(adceb,*)->( ,a)
         // s = "abcabc" p = "*a*c"
         // http://yucoding.blogspot.com/2013/02/leetcode-question-123-wildcard-matching.html
-        bool isMatch4(const string &s, const string &p)
+        bool isMatch5(const string &s, const string &p)
         {
             int lastStarIndex = -1;
             int currentIndex = 0;

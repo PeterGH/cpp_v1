@@ -1,7 +1,7 @@
 #include "Argument.h"
 #include "Log.h"
 #include <iostream>
-#include "AlgorithmTest.h"
+//#include "AlgorithmTest.h"
 #include "ArgumentTest.h"
 //#include "ArrayTest.h"
 #include "CppTest.h"
@@ -40,7 +40,7 @@ int main(int argc, const char *argv[])
 
     Log log(cout, arg.Has("v") ? Log::Level::Verbose : Log::Level::Warning);
     TestSuite suite(log);
-    suite.Add(new AlgorithmTest(log));
+    // suite.Add(new AlgorithmTest(log));
     suite.Add(new ArgumentTest(log));
     // suite.Add(new ArrayTest(log));
     suite.Add(new CppTest(log));

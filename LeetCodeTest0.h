@@ -1377,11 +1377,13 @@ void LeetCodeTest::Init0(void)
                 // bool e = isMatch(s, p);
                 bool e2 = isMatch2(s, p);
                 bool e3 = isMatch3(s, p);
-                bool e4 = isMatch(s.c_str(), p.c_str());
-                Logger() << s << ", " << p << ", " << e2 << ", " << e3 << ", " << e4
+                bool e4 = isMatch4(s, p);
+                bool e5 = isMatch(s.c_str(), p.c_str());
+                Logger() << s << ", " << p << ", " << e2 << ", " << e3 << ", " << e4 << ", " << e5
                          << endl;
                 ASSERT1(e2 == e3);
                 ASSERT1(e2 == e4);
+                ASSERT1(e2 == e5);
             };
             check("aa", "a");
             check("aa", "aa");

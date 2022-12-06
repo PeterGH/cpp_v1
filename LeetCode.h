@@ -880,7 +880,7 @@ namespace Test
                 if (i >= 0)
                     j = i << 1;
                 else
-                    j = -((-i) << 1);
+                    j = -((-i) << 1); // i << 1
                 if (s.find(j) == s.end())
                     s.insert(j);
                 if ((i & 0x1) == 0)
