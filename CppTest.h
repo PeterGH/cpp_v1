@@ -3,6 +3,7 @@
 
 #include "Test.h"
 #include "Util.h"
+#include <limits.h>
 #include <set>
 #include <string.h>
 #include <utility>
@@ -787,6 +788,20 @@ void CppTest::Init(void) {
         check(9, 1);
         check(10, 2);
         check(0x10100000, 0x00100000);
+    });
+
+    Add("MultiplyBy2", [&]() {
+        auto check = [&](int n, int e) {
+            int v = n << 1;
+            Logger() << n << " << 1 = " << v << ", " << e << endl;
+            ASSERT1(v == e);
+        };
+        check(1, 2);
+        check(-1, -2);
+        check(3, 6);
+        check(-3, -6);
+        check(INT_MAX >> 1, INT_MAX - 1);
+        check(INT_MIN >> 1, INT_MIN);
     });
 }
 
