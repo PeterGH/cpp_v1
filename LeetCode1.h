@@ -5403,7 +5403,7 @@ namespace Test
                 struct Item *prev;
                 struct Item *next;
                 Item(int k, int v) : key(k), value(v), prev(nullptr), next(nullptr) {}
-            } * head, *tail;
+            } *head, *tail;
             map<int, struct Item *> keys;
             void MoveFront(struct Item *p)
             {
@@ -5884,6 +5884,53 @@ namespace Test
                                  max = m; });
             }
             return max;
+        }
+        int maxPoints3(const vector<vector<int>> &points)
+        {
+            if (points.empty())
+                return 0;
+            if (points.size() == 1)
+                return 1;
+            int m = 0;
+            map<pair<int, int>, int> c;
+            pair<int, int> k;
+            for (size_t i = 0; i < points.size(); i++)
+            {
+                c.clear();
+                for (size_t j = i + 1; j < points.size(); j++)
+                {
+                    // normalize slope k such that
+                    // 1. k.first and k.second are co-prime, and
+                    // 2. k.first is not negative
+                    if (points[i][0] == points[j][0])
+                    {
+                        k.first = 0;
+                        k.second = 1;
+                    }
+                    else
+                    {
+                        int dy = points[j][1] - points[i][1];
+                        int dx = points[j][0] - points[i][0];
+                        int d = std::gcd(abs(dx), abs(dy));
+                        k.first = dx / d;
+                        k.second = dy / d;
+                        if (k.first < 0)
+                        {
+                            k.first = -k.first;
+                            k.second = -k.second;
+                        }
+                    }
+                    if (c.find(k) == c.end())
+                        c[k] = 1;
+                    else
+                        c[k]++;
+                }
+                for (const auto &p : c)
+                {
+                    m = std::max(m, p.second + 1);
+                }
+            }
+            return m;
         }
 
         // 150. Evaluate Reverse Polish Notation

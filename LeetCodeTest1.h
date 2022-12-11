@@ -1252,9 +1252,12 @@ void LeetCodeTest::Init1(void)
             int c = maxPoints(points);
             vector<vector<int>> points2(points);
             int c2 = maxPoints2(points2);
-            Logger() << "maxPoints: " << c << ", " << c2 << endl;
+            vector<vector<int>> points3(points);
+            int c3 = maxPoints3(points3);
+            Logger() << "maxPoints: " << c << ", " << c2 << ", " << c3 << endl;
             ASSERT1(c == e);
             ASSERT1(c2 == e);
+            ASSERT1(c3 == e);
         };
         check({{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}}, 4);
         check({{1, 1}, {2, 2}, {3, 3}}, 3);
