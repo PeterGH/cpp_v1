@@ -1494,8 +1494,8 @@ namespace Test
             Node *flatten2(Node *head)
             {
                 stack<Node *> s;
-                Node *n = head;
-                Node *t = head;
+                Node *n = head; // parent of the head of the current level
+                Node *t = head; // tail of the current level
                 while (!s.empty() || n != nullptr)
                 {
                     if (n != nullptr)

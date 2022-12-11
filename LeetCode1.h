@@ -6233,14 +6233,14 @@ namespace Test
         int maxProduct(const vector<int> &nums)
         {
             long long maxProd = LLONG_MIN;
-            long long maxNeg = LLONG_MIN;
+            long long maxNeg = LLONG_MAX;
             long long p = 1;
             for (size_t i = 0; i < nums.size(); i++)
             {
                 p *= nums[i];
                 if (p < 0)
                 {
-                    if (maxNeg == LLONG_MIN)
+                    if (maxNeg == LLONG_MAX)
                     {
                         maxProd = max(maxProd, p);
                         maxNeg = p; // first negative product
@@ -6265,36 +6265,39 @@ namespace Test
         }
         int maxProduct2(const vector<int> &nums)
         {
-            long long maxNegative = LLONG_MIN;
-            long long maxProd = LLONG_MIN;
-            long long prod = 1;
-            for (size_t i = 0; i < nums.size(); i++)
+            int a = INT_MIN; // max cumulative product
+            int b = INT_MAX; // max cumulative product that is negative
+            int p = 1;
+            for (int n : nums)
             {
-                prod *= nums[i];
-                if (prod < 0)
+                p *= n;
+                if (p > 0)
                 {
-                    if (maxNegative == LLONG_MIN)
+                    a = max(a, p);
+                }
+                else if (p < 0)
+                {
+                    if (b > 0)
                     {
-                        maxProd = max(maxProd, prod);
+                        // n is the first negative number
+                        a = max(a, p);
+                        b = p;
                     }
                     else
                     {
-                        maxProd = max(maxProd, prod / maxNegative);
+                        a = max(a, p / b);
+                        b = max(b, p);
                     }
-                    maxNegative = max(maxNegative, prod);
-                }
-                else if (prod > 0)
-                {
-                    maxProd = max(maxProd, prod);
                 }
                 else
                 {
-                    maxProd = max(maxProd, prod);
-                    maxNegative = LLONG_MIN;
-                    prod = 1;
+                    // n is zero
+                    a = max(a, p);
+                    b = INT_MAX;
+                    p = 1;
                 }
             }
-            return (int)maxProd;
+            return a;
         }
         int maxProduct3(const vector<int> &nums)
         {
