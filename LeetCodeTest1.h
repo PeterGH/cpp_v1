@@ -5,7 +5,8 @@
 
 void LeetCodeTest::Init1(void)
 {
-    Add("100. Same Tree", [&]() {
+    Add("100. Same Tree", [&]()
+        {
         auto checkTree = [&](TreeNode *t, TreeNode *t2) {
             Print(t);
             Print(t2);
@@ -43,10 +44,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(40, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("101. Symmetric Tree", [&]() {
+    Add("101. Symmetric Tree", [&]()
+        {
         auto check = [&](const vector<int> &v,
                          bool createSymmetricTree = false) {
             Logger() << v;
@@ -71,10 +72,10 @@ void LeetCodeTest::Init1(void)
             vector<int> v = Random::Vector(n, 100);
             check(v);
             check(v, true);
-        }
-    });
+        } });
 
-    Add("102. Binary Tree Level Order Traversal", [&]() {
+    Add("102. Binary Tree Level Order Traversal", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             TreeNode *t = RandomTree(v);
@@ -94,10 +95,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("103. Binary Tree Zigzag Level Order Traversal", [&]() {
+    Add("103. Binary Tree Zigzag Level Order Traversal", [&]()
+        {
         auto checkTree = [&](TreeNode *t) {
             Print(t);
             vector<vector<int>> r = zigzagLevelOrder(t);
@@ -127,10 +128,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             checkVector(v);
-        }
-    });
+        } });
 
-    Add("104. Maximum Depth of Binary Tree", [&]() {
+    Add("104. Maximum Depth of Binary Tree", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             TreeNode *t = RandomTree(v);
             Print(t);
@@ -147,12 +148,13 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
     Add("105. Construct Binary Tree from Preorder and Inorder Traversal",
-        [&]() {
-            auto check = [&](const vector<int> &v) {
+        [&]()
+        {
+            auto check = [&](const vector<int> &v)
+            {
                 TreeNode *t = RandomTree(v);
                 Print(t);
                 vector<int> pre = preorderTraversal(t);
@@ -186,8 +188,10 @@ void LeetCodeTest::Init1(void)
         });
 
     Add("106. Construct Binary Tree from Inorder and Postorder Traversal",
-        [&]() {
-            auto check = [&](const vector<int> &v) {
+        [&]()
+        {
+            auto check = [&](const vector<int> &v)
+            {
                 TreeNode *t = RandomTree(v);
                 Print(t);
                 vector<int> in = inorderTraversal(t);
@@ -220,7 +224,8 @@ void LeetCodeTest::Init1(void)
             }
         });
 
-    Add("107. Binary Tree Level Order Traversal II", [&]() {
+    Add("107. Binary Tree Level Order Traversal II", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             TreeNode *t = RandomTree(v);
@@ -236,10 +241,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("108. Convert Sorted Array to Binary Search Tree", [&]() {
+    Add("108. Convert Sorted Array to Binary Search Tree", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << "Convert to balanced BST:" << v;
             TreeNode *t = sortedArrayToBST(v);
@@ -257,10 +262,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Util::IncreasingVector(n);
             check(v);
-        }
-    });
+        } });
 
-    Add("109. Convert Sorted List to Binary Search Tree", [&]() {
+    Add("109. Convert Sorted List to Binary Search Tree", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             ListNode *l = ToList(v);
             Logger() << "Convert to balanced BST:";
@@ -293,10 +298,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Util::IncreasingVector(n);
             check(v);
-        }
-    });
+        } });
 
-    Add("111. Minimum Depth of Binary Tree", [&]() {
+    Add("111. Minimum Depth of Binary Tree", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             TreeNode *t = RandomTree(v);
             Print(t);
@@ -313,10 +318,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Util::IncreasingVector(n);
             check(v);
-        }
-    });
+        } });
 
-    Add("112. Path Sum", [&]() {
+    Add("112. Path Sum", [&]()
+        {
         auto check = [&](const vector<int> &v, int sum) {
             TreeNode *t = RandomTree(v);
             Print(t);
@@ -338,10 +343,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Util::IncreasingVector(n);
             check(v, Random::Int(200));
-        }
-    });
+        } });
 
-    Add("113. Path Sum II", [&]() {
+    Add("113. Path Sum II", [&]()
+        {
         auto check = [&](const vector<int> &v, int sum) {
             TreeNode *t = RandomTree(v);
             Print(t);
@@ -368,10 +373,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Util::IncreasingVector(n);
             check(v, Random::Int(200));
-        }
-    });
+        } });
 
-    Add("114. Flatten Binary Tree to Linked List", [&]() {
+    Add("114. Flatten Binary Tree to Linked List", [&]()
+        {
         auto check = [&](int n) {
             TreeNode *t = RandomTree(n);
             Print(t);
@@ -399,10 +404,10 @@ void LeetCodeTest::Init1(void)
         {
             int n = Random::Int(100, 1);
             check(n);
-        }
-    });
+        } });
 
-    Add("115. Distinct Subsequences", [&]() {
+    Add("115. Distinct Subsequences", [&]()
+        {
         auto check = [&](const string &s, const string &t) {
             int c = numDistinct(s, t);
             int c2 = numDistinct2(s, t);
@@ -419,10 +424,10 @@ void LeetCodeTest::Init1(void)
             string s = Random::String<char>(n, "abcdefg");
             string t = Random::String<char>(m, "abcd");
             check(s, t);
-        }
-    });
+        } });
 
-    Add("123. Best Time to Buy and Sell Stock III", [&]() {
+    Add("123. Best Time to Buy and Sell Stock III", [&]()
+        {
         auto check = [&](const vector<int> &p) {
             Logger() << p;
             int m = maxProfitIII(p);
@@ -451,10 +456,10 @@ void LeetCodeTest::Init1(void)
             int len = Random::Int(100, 1);
             vector<int> v = Random::Vector(len, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("124. Binary Tree Maximum Path Sum", [&]() {
+    Add("124. Binary Tree Maximum Path Sum", [&]()
+        {
         auto check = [&](TreeNode *node, long long expect) {
             Print(node);
             long long sum = maxPathSum(node);
@@ -685,10 +690,10 @@ void LeetCodeTest::Init1(void)
             n2.right = &n5;
             n3.left = &n6;
             check(&n1, 11);
-        }
-    });
+        } });
 
-    Add("125. Valid Palindrome", [&]() {
+    Add("125. Valid Palindrome", [&]()
+        {
         auto check = [&](const string &s, bool e) {
             bool r = isPalindrome(s);
             bool r2 = isPalindrome2(s);
@@ -717,10 +722,10 @@ void LeetCodeTest::Init1(void)
         check("race a car", false);
         check("^%(&*%$%(", true);
         check("A^%(&*%$%(a", true);
-        check("^%9(&*%$9%(", true);
-    });
+        check("^%9(&*%$9%(", true); });
 
-    Add("126. Word Ladder II", [&]() {
+    Add("126. Word Ladder II", [&]()
+        {
         auto check = [&](const string &begin, const string &end,
                          const vector<string> &dic) {
             Logger() << dic;
@@ -735,10 +740,10 @@ void LeetCodeTest::Init1(void)
             ASSERT1(0 == Util::Compare(results, results2));
             ASSERT1(0 == Util::Compare(results, results3));
         };
-        check("hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"});
-    });
+        check("hit", "cog", {"hot", "dot", "dog", "lot", "log", "cog"}); });
 
-    Add("127. Word Ladder", [&]() {
+    Add("127. Word Ladder", [&]()
+        {
         auto check = [&](const string &start, const string &end,
                          const vector<string> &dict, int expect) {
             Logger() << "Dictionary:" << dict;
@@ -768,10 +773,10 @@ void LeetCodeTest::Init1(void)
               vector<string>{"si", "go", "se", "cm", "so", "ph", "mt", "db",
                              "mb", "sb", "kr", "ln", "tm", "le", "av", "sm",
                              "ar"},
-              0);
-    });
+              0); });
 
-    Add("128. Longest Consecutive Sequence", [&]() {
+    Add("128. Longest Consecutive Sequence", [&]()
+        {
         auto check = [&](const vector<int> &input, int expectLength,
                          bool ignoreE = false) {
             Logger() << input;
@@ -820,10 +825,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(200);
             vector<int> input = Random::Vector(n, 50, -50);
             check(input, 0, true);
-        }
-    });
+        } });
 
-    Add("129. Sum Root to Leaf Numbers", [&]() {
+    Add("129. Sum Root to Leaf Numbers", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             TreeNode *n = RandomTree(v);
             Print(n);
@@ -838,10 +843,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100);
             vector<int> input = Random::Vector(n, 9);
             check(input);
-        }
-    });
+        } });
 
-    Add("130. Surrounded Regions", [&]() {
+    Add("130. Surrounded Regions", [&]()
+        {
         auto verify = [&](const vector<vector<char>> &board) {
             int height = board.size();
             int width = board[0].size();
@@ -1067,10 +1072,10 @@ void LeetCodeTest::Init1(void)
                 }
                 check(board);
             }
-        }
-    });
+        } });
 
-    Add("131. Palindrome Partitioning", [&]() {
+    Add("131. Palindrome Partitioning", [&]()
+        {
         auto check = [&](const string &s) {
             Logger() << "Palindrom partition(\"" << s << "\") = " << endl;
             vector<vector<string>> r = partition(s);
@@ -1099,10 +1104,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(20, 1);
             string s = Random::String<char>(n, "abcde");
             check(s);
-        }
-    });
+        } });
 
-    Add("133. Clone Graph", [&]() {
+    Add("133. Clone Graph", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             Node *g = RandomGraph(v);
@@ -1124,10 +1129,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(20, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("134. Gas Station", [&]() {
+    Add("134. Gas Station", [&]()
+        {
         auto check = [&](const vector<int> &g, const vector<int> &c) {
             Logger() << g;
             Logger() << c;
@@ -1142,10 +1147,10 @@ void LeetCodeTest::Init1(void)
             vector<int> g = Random::Vector(n, 10);
             vector<int> c = Random::Vector(n, 10);
             check(g, c);
-        }
-    });
+        } });
 
-    Add("137. Single Number II", [&]() {
+    Add("137. Single Number II", [&]()
+        {
         auto check = [&](const vector<int> &input, int expect,
                          bool ignoreE = false) {
             Logger() << input;
@@ -1183,10 +1188,10 @@ void LeetCodeTest::Init1(void)
             n.insert(n.end(), 1, c);
             random_shuffle(n.begin(), n.end());
             check(n, 0, true);
-        }
-    });
+        } });
 
-    Add("139. Word Break", [&]() {
+    Add("139. Word Break", [&]()
+        {
         auto check = [&](const string &s, const vector<string> &dict, bool e,
                          bool ignoreE = false) {
             Logger() << "Dictionary: " << dict;
@@ -1243,10 +1248,10 @@ void LeetCodeTest::Init1(void)
             }
             check(s1, dict, true);
             check(s2, dict, false, true);
-        }
-    });
+        } });
 
-    Add("149. Max Points on a Line", [&]() {
+    Add("149. Max Points on a Line", [&]()
+        {
         auto check = [&](const vector<vector<int>> &points, int e) {
             Logger() << points;
             int c = maxPoints(points);
@@ -1261,10 +1266,10 @@ void LeetCodeTest::Init1(void)
         };
         check({{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}}, 4);
         check({{1, 1}, {2, 2}, {3, 3}}, 3);
-        check({{1, 1}, {2, 2}, {1, 1}, {2, 2}}, 4);
-    });
+        check({{1, 1}, {2, 2}, {1, 1}, {2, 2}}, 4); });
 
-    Add("150. Evaluate Reverse Polish Notation", [&]() {
+    Add("150. Evaluate Reverse Polish Notation", [&]()
+        {
         auto check = [&](const vector<string> &tokens, int expect) {
             Logger().WriteInformation("Expression:");
             Logger() << tokens;
@@ -1285,10 +1290,10 @@ void LeetCodeTest::Init1(void)
         t = {"-2", "-3", "*"};
         check(t, 6);
         t = {"-22", "-2", "/"};
-        check(t, 11);
-    });
+        check(t, 11); });
 
-    Add("151. Reverse Words in a String", [&]() {
+    Add("151. Reverse Words in a String", [&]()
+        {
         auto check = [&](const string &s, const string &expect) {
             Logger().WriteInformation("\nInput:  \"%s\"\n", s.c_str());
             string r = reverseWords(s);
@@ -1309,10 +1314,10 @@ void LeetCodeTest::Init1(void)
         check(" a b ", "b a");
         check("  a  b  ", "b a");
         check("  ab  cd  ", "cd ab");
-        check("   This is a test!   ", "test! a is This");
-    });
+        check("   This is a test!   ", "test! a is This"); });
 
-    Add("152. Maximum Product Subarray", [&]() {
+    Add("152. Maximum Product Subarray", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             int r = maxProduct(v);
@@ -1339,10 +1344,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(20, 1);
             vector<int> v = Random::Vector(n, 10, -10);
             check(v);
-        }
-    });
+        } });
 
-    Add("153. Find Minimum in Rotated Sorted Array", [&]() {
+    Add("153. Find Minimum in Rotated Sorted Array", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             int e = *min_element(v.cbegin(), v.cend());
@@ -1351,14 +1356,17 @@ void LeetCodeTest::Init1(void)
             int i3 = findMin3(v);
             int i4 = findMin4(v);
             int i5 = findMin5(v);
+            int i6 = findMin6(v);
             Logger() << "min: " << i << ", " << i2 << ", " << i3 << ", " << i4
-                     << ", " << i5 << ", " << e << endl;
+                     << ", " << i5 << ", " << i6 << ", " << e << endl;
             ASSERT1(i == e);
             ASSERT1(i2 == e);
             ASSERT1(i3 == e);
             ASSERT1(i4 == e);
             ASSERT1(i5 == e);
+            ASSERT1(i6 == e);
         };
+        check({3,4,5,1,2});
         check({4, 5, 6, 7, 0, 1, 2});
         check({1, 3});
         for (int i = 0; i < 100; i++)
@@ -1368,10 +1376,10 @@ void LeetCodeTest::Init1(void)
             int d = (i % 10) == 0 ? 0 : Random::Int(n);
             Util::RotateLeft(v, d);
             check(v);
-        }
-    });
+        } });
 
-    Add("154. Find Minimum in Rotated Sorted Array II", [&]() {
+    Add("154. Find Minimum in Rotated Sorted Array II", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             int e = *min_element(v.cbegin(), v.cend());
@@ -1391,10 +1399,10 @@ void LeetCodeTest::Init1(void)
             int d = (i % 10) == 0 ? 0 : Random::Int(n);
             Util::RotateLeft(v, d);
             check(v);
-        }
-    });
+        } });
 
-    Add("162. Find Peak Element", [&]() {
+    Add("162. Find Peak Element", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             vector<int> idx(6, -1);
@@ -1421,10 +1429,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, n);
             check(v);
-        }
-    });
+        } });
 
-    Add("164. Maximum Gap", [&]() {
+    Add("164. Maximum Gap", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             int g = maximumGap(v);
@@ -1437,10 +1445,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("165. Compare Version Numbers", [&]() {
+    Add("165. Compare Version Numbers", [&]()
+        {
         auto check = [&](const string &v1, const string &v2) {
             Logger() << "Compare(" << v1 << ", " << v2 << ")";
             int r = compareVersion(v1, v2);
@@ -1464,10 +1472,10 @@ void LeetCodeTest::Init1(void)
             string v1 = version();
             string v2 = version();
             check(v1, v2);
-        }
-    });
+        } });
 
-    Add("Excel", [&]() {
+    Add("Excel", [&]()
+        {
         auto check = [&](const string &input, unsigned long long expect) {
             Logger().WriteInformation("%s = ", input.c_str());
             unsigned long long r = titleToNumber(input);
@@ -1512,19 +1520,19 @@ void LeetCodeTest::Init1(void)
             Logger().WriteInformation("%llu, %s, %llu\n", n, code.c_str(),
                                       decode);
             ASSERT1(decode == n);
-        }
-    });
+        } });
 
-    Add("174. Dungeon Game", [&]() {
+    Add("174. Dungeon Game", [&]()
+        {
         auto check = [&](const vector<vector<int>> &v, int e) {
             Logger() << v;
             int r = calculateMinimumHP(v);
             ASSERT1(r == e);
         };
-        check({{-2, -3, 3}, {-5, -10, 1}, {10, 30, -5}}, 7);
-    });
+        check({{-2, -3, 3}, {-5, -10, 1}, {10, 30, -5}}, 7); });
 
-    Add("179. Largest Number", [&]() {
+    Add("179. Largest Number", [&]()
+        {
         auto check = [&](const vector<int> &nums, const string &expect,
                          bool ignoreE = false) {
             Logger() << nums;
@@ -1548,10 +1556,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(20, 1);
             vector<int> v = Random::Vector(n);
             check(v, "", true);
-        }
-    });
+        } });
 
-    Add("187. Repeated DNA Sequences", [&]() {
+    Add("187. Repeated DNA Sequences", [&]()
+        {
         auto check = [&](const string &s) {
             Logger() << s << endl;
             vector<string> r = findRepeatedDnaSequences(s);
@@ -1590,10 +1598,10 @@ void LeetCodeTest::Init1(void)
                 }
             }
             check(s);
-        }
-    });
+        } });
 
-    Add("188. Best Time to Buy and Sell Stock IV", [&]() {
+    Add("188. Best Time to Buy and Sell Stock IV", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             for (int k = 1; k < (int)v.size(); k++) {
                 Logger() << v;
@@ -1610,10 +1618,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(20, 1);
             auto v = Random::Vector(n, 1000);
             check(v);
-        }
-    });
+        } });
 
-    Add("189. Rotate Array", [&]() {
+    Add("189. Rotate Array", [&]()
+        {
         function<int(int, int)> gcd = [&](int a, int b) -> int {
             if (a < b)
                 swap(a, b);
@@ -1649,10 +1657,10 @@ void LeetCodeTest::Init1(void)
             }
         };
         for (int i = 1; i < 100; i++)
-            check(i);
-    });
+            check(i); });
 
-    Add("198. House Robber", [&]() {
+    Add("198. House Robber", [&]()
+        {
         auto check = [&](const vector<int> &v) {
             Logger() << v;
             int m = rob(v);
@@ -1665,10 +1673,10 @@ void LeetCodeTest::Init1(void)
             int n = Random::Int(100, 1);
             vector<int> v = Random::Vector(n, 100);
             check(v);
-        }
-    });
+        } });
 
-    Add("199. Binary Tree Right Side View", [&]() {
+    Add("199. Binary Tree Right Side View", [&]()
+        {
         auto check = [&](int n) {
             TreeNode *t = RandomTree(n);
             Print(t);
@@ -1679,8 +1687,6 @@ void LeetCodeTest::Init1(void)
             ASSERT1(Util::Compare(v, v2) == 0);
         };
         for (int i = 0; i < 100; i++)
-            check(Random::Int(100, 1));
-    });
-
+            check(Random::Int(100, 1)); });
 }
 #endif

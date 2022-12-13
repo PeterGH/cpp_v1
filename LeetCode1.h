@@ -6441,7 +6441,45 @@ namespace Test
             }
             return nums[m];
         }
-
+        int findMin6(const vector<int> &nums)
+        {
+            size_t i = 0;
+            size_t j = nums.size() - 1;
+            while (i < j)
+            {
+                size_t k = i + ((j - i) >> 1);
+                if (nums[i] <= nums[k])
+                {
+                    if (nums[i] <= nums[j])
+                        j = k;
+                    else
+                        i = k + 1;
+                }
+                else
+                {
+                    j = k;
+                }
+            }
+            return nums[i];
+        }
+        int findMin7(const vector<int> &nums)
+        {
+            size_t i = 0;
+            size_t j = nums.size() - 1;
+            while (i < j)
+            {
+                size_t k = i + ((j - i) >> 1);
+                if (nums[i] <= nums[k] && nums[i] > nums[j])
+                {
+                    i = k + 1;
+                }
+                else
+                {
+                    j = k;
+                }
+            }
+            return nums[i];
+        }
         // 154. Find Minimum in Rotated Sorted Array II
         // Suppose an array sorted in ascending order is rotated at some pivot unknown
         // to you beforehand. (i.e.,  [0,1,2,4,5,6,7] might become  [4,5,6,7,0,1,2]).
