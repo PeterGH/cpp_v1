@@ -1385,9 +1385,11 @@ void LeetCodeTest::Init1(void)
             int e = *min_element(v.cbegin(), v.cend());
             int i = findMinII(v);
             int i2 = findMinII2(v);
-            Logger() << "min: " << i << ", " << i2 << ", " << e << endl;
+            int i3 = findMinII3(v);
+            Logger() << "min: " << i << ", " << i2 << ", " << i3 << ", " << e << endl;
             ASSERT1(i == e);
             ASSERT1(i2 == e);
+            ASSERT1(i3 == e);
         };
         check({4, 5, 6, 7, 0, 1, 2});
         check({1, 3});

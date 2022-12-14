@@ -6539,6 +6539,34 @@ namespace Test
             };
             return find(0, nums.size() - 1);
         }
+        int findMinII3(const vector<int> &nums)
+        {
+            int e = nums.back();
+            function<int(int, int)> find = [&](int i, int j) -> int
+            {
+                if (i < j)
+                {
+                    int k = i + ((j - i) >> 1);
+                    if (nums[k] > e)
+                    {
+                        return find(i + 1, j);
+                    }
+                    else if (nums[k] < e)
+                    {
+                        return find(i, k);
+                    }
+                    else
+                    {
+                        return min(find(i, k), find(k + 1, j));
+                    }
+                }
+                else
+                {
+                    return nums[i];
+                }
+            };
+            return find(0, (int)nums.size() - 1);
+        }
 
         // 155. Min Stack
         // Design a stack that supports push, pop, top, and retrieving the minimum
