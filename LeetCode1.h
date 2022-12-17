@@ -6674,6 +6674,27 @@ namespace Test
         }
         ListNode *getIntersectionNode3(ListNode *headA, ListNode *headB)
         {
+            ListNode *a = headA;
+            ListNode *b = headB;
+            while (a != nullptr && b != nullptr)
+            {
+                if (a == b)
+                    break;
+                a = a->next;
+                b = b->next;
+                if (a == nullptr && b == nullptr)
+                    break;
+                if (a == nullptr)
+                    a = headB;
+                if (b == nullptr)
+                    b = headA;
+            }
+            if (a == b)
+                return a;
+            return nullptr;
+        }
+        ListNode *getIntersectionNode4(ListNode *headA, ListNode *headB)
+        {
             function<int(ListNode *)> getLength = [&](ListNode *h) -> int
             {
                 int i = 0;
