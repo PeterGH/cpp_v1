@@ -6610,6 +6610,73 @@ namespace Test
             int getMin() { return m.top(); }
         };
 
+        // 156. Binary Tree Upside Down
+        // Given a binary tree where all the right nodes are either leaf nodes with
+        // a sibling (a left node that shares the same parent node) or empty, flip it
+        // upside down and turn it into a tree where the original right nodes turned
+        // into left leaf nodes. Return the new root. Example:
+        // Input: [1,2,3,4,5]
+        //     1
+        //    / \
+        //   2   3
+        //  / \
+        // 4   5
+        // Output: return the root of the binary tree [4,5,2,#,#,3,1]
+        //    4
+        //   / \
+        //  5   2
+        //     / \
+        //    3   1
+        // Clarification: Confused what [4,5,2,#,#,3,1] means? Read more below on how
+        // binary tree is serialized on OJ. The serialization of a binary tree follows
+        // a level order traversal, where '#' signifies a path terminator where no node
+        // exists below. Here is an example:
+        //    1
+        //   / \
+        //  2   3
+        //     /
+        //    4
+        //     \
+        //      5
+        // The above binary tree is serialized as [1,2,3,#,#,4,#,#,5].
+        // A example of tree:
+        //         1
+        //        / \
+        //       2   3
+        //      /
+        //     4
+        //    / \
+        //   5   6
+        // to upside down:
+        //     5
+        //    / \
+        //   6   4
+        //        \
+        //         2
+        //        / \
+        //       3   1
+        TreeNode* toUpsideDown(TreeNode *tree)
+        {
+            if (tree == nullptr || tree->left == nullptr)
+                return tree;
+            TreeNode *a = tree;
+            TreeNode *b = a->left;
+            TreeNode *c = a->right;
+            while (b != nullptr) {
+                TreeNode *l = b->left;
+                TreeNode *r = b->right;
+                a->left = nullptr;
+                a->right = nullptr;
+                b->left = c;
+                b->right = a;
+                a = b;
+                b = l;
+                c = r;
+            }
+            return a;
+        }
+
+
         // 160. Intersection of Two Linked Lists
         // Write a program to find the node at which the intersection of two singly
         // linked lists begins. For example, the following two linked lists: begin to
