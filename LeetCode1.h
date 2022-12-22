@@ -6655,18 +6655,19 @@ namespace Test
         //         2
         //        / \
         //       3   1
-        TreeNode* toUpsideDown(TreeNode *tree)
+        TreeNode *toUpsideDown(TreeNode *tree)
         {
             if (tree == nullptr || tree->left == nullptr)
                 return tree;
             TreeNode *a = tree;
             TreeNode *b = a->left;
             TreeNode *c = a->right;
-            while (b != nullptr) {
+            a->left = nullptr;
+            a->right = nullptr;
+            while (b != nullptr)
+            {
                 TreeNode *l = b->left;
                 TreeNode *r = b->right;
-                a->left = nullptr;
-                a->right = nullptr;
                 b->left = c;
                 b->right = a;
                 a = b;
@@ -6675,7 +6676,60 @@ namespace Test
             }
             return a;
         }
-
+        bool isUpsideDown(TreeNode *tree)
+        {
+            TreeNode *n = tree;
+            while (n != nullptr)
+            {
+                if (n->left != nullptr)
+                {
+                    if (n->left->left != nullptr || n->left->right != nullptr)
+                        return false;
+                    if (n->right == nullptr)
+                        return false;
+                }
+                n = n->right;
+            }
+            return true;
+        }
+        TreeNode *testcase156Generate(size_t n)
+        {
+            TreeNode *tree = nullptr;
+            TreeNode *t;
+            while (n > 0)
+            {
+                if (tree == nullptr)
+                {
+                    tree = new TreeNode(n--);
+                    t = tree;
+                }
+                else
+                {
+                    t->left = new TreeNode(n--);
+                    if ((rand() & 1) && n > 0)
+                        t->right = new TreeNode(n--);
+                    t = t->left;
+                }
+            }
+            return tree;
+        }
+        bool testcase156Verify(TreeNode *tree, size_t n)
+        {
+            if (!isUpsideDown(tree))
+                return false;
+            int v = 1;
+            function<bool(TreeNode *)> verify = [&](TreeNode *t) -> bool
+            {
+                if (t == nullptr)
+                    return true;
+                if (!verify(t->left))
+                    return false;
+                if (t->val != v++ || t->val > (int)n)
+                    return false;
+                return verify(t->right);
+            };
+            return verify(tree);
+        }
 
         // 160. Intersection of Two Linked Lists
         // Write a program to find the node at which the intersection of two singly

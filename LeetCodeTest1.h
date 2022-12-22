@@ -1403,6 +1403,23 @@ void LeetCodeTest::Init1(void)
             check(v);
         } });
 
+    Add("156. Binary Tree Upside Down", [&]()
+        {
+        auto check = [&](size_t n) {
+            Logger() << n << ":" << endl;
+            TreeNode *t = testcase156Generate(n);
+            Print(t);
+            TreeNode *s = toUpsideDown(t);
+            Logger() << "toUpsideDown:" << endl;
+            Print(s);
+            bool r = testcase156Verify(s, n);
+            DeleteTree(s);
+            ASSERT1(r == true);
+        };
+        for (size_t i = 0; i < 20; i++) {
+            check(i);
+        } });
+
     Add("162. Find Peak Element", [&]()
         {
         auto check = [&](const vector<int> &v) {
