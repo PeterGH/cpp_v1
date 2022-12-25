@@ -1441,6 +1441,29 @@ void LeetCodeTest::Init1(void)
         check("abcdABCD1234", 12);
         check("leetcode", 5); });
 
+    Add("158. Read N Characters Given Read4 II - Call multiple times", [&]()
+        {
+        auto check = [&](const string & file, const vector<int> &n) {
+            Logger() << "read(\"" << file << "\", " << n << ")" << endl;
+            LeetCode::leetcode158 l(file);
+            int p = 0;
+            for (size_t i = 0; i < n.size(); i++) {
+                std::unique_ptr<char[]> buf(new char[n[i]]);
+                int c = l.read(buf.get(), n[i]);
+                int m = min((int)file.size(), n[i]);
+                Logger() << "\"";
+                for (int j = 0; j < c; j++)
+                    Logger() << buf[j];
+                Logger() << "\", " << c << endl;
+                ASSERT1(c <= m);
+                for (int j = 0; j < c; j++)
+                    ASSERT1(buf[j] == file[p + j]);
+                p += c;
+            }
+        };
+        check("abc", {1, 2, 1});
+        check("abc", {4, 1}); });
+
     Add("162. Find Peak Element", [&]()
         {
         auto check = [&](const vector<int> &v) {
