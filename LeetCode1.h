@@ -6907,6 +6907,74 @@ namespace Test
             }
         };
 
+        // 159. Longest Substring with At Most Two Distinct Characters
+        // Given a string s, find the length of the longest substring that contains at most 2 distinct characters.
+        // Example 1:
+        // Input: "eceba"
+        // Output: 3
+        // Explanation: t is "ece" which its length is 3.
+        // Example 2:
+        // Input: "ccaabbb"
+        // Output: 5
+        // Explanation: t is "aabbb" which its length is 5.
+        int lengthOfLongestSubstringTwoDistinct(const string &s)
+        {
+            int m = 0;
+            int j = 0;
+            int a = -1;
+            int b = -1;
+            int i = 0;
+            for (; i < (int)s.size(); i++)
+            {
+                if (a == -1 || s[i] == s[a])
+                {
+                    a = i;
+                }
+                else if (b == -1 || s[i] == s[b])
+                {
+                    b = i;
+                }
+                else
+                {
+                    m = max(m, i - j);
+                    if (a < b)
+                    {
+                        j = a + 1;
+                        a = i;
+                    }
+                    else
+                    {
+                        j = b + 1;
+                        b = i;
+                    }
+                }
+            }
+            m = max(m, i - j);
+            return m;
+        }
+        int lengthOfLongestSubstringTwoDistinct2(const string &s)
+        {
+            int m = 0;
+            for (int i = 0; i < (int)s.size(); i++)
+            {
+                set<char> u;
+                int j = i;
+                for (; j < (int)s.size(); j++)
+                {
+                    if (u.find(s[j]) == u.end())
+                    {
+                        if (u.size() == 2)
+                        {
+                            break;
+                        }
+                        u.insert(s[j]);
+                    }
+                }
+                m = max(m, j - i);
+            }
+            return m;
+        }
+
         // 160. Intersection of Two Linked Lists
         // Write a program to find the node at which the intersection of two singly
         // linked lists begins. For example, the following two linked lists: begin to
@@ -6926,7 +6994,7 @@ namespace Test
         // [0,9,1,2,4]. From the head of B, it reads as [3,2,4]. There are 3 nodes
         // before the intersected node in A; There are 1 node before the intersected
         // node in B. Example 3: Input: intersectVal = 0, listA = [2,6,4], listB =
-        // [1,5], skipA = 3, skipB = 2 Output: null Input Explanation: From the head of
+        // [1,5], skipA = 3, skipB = 2 Output: null Input Explaation: From the head of
         // A, it reads as [2,6,4]. From the head of B, it reads as [1,5]. Since the two
         // lists do not intersect, intersectVal must be 0, while skipA and skipB can be
         // arbitrary values. Explanation: The two lists do not intersect, so return

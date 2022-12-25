@@ -1464,6 +1464,23 @@ void LeetCodeTest::Init1(void)
         check("abc", {1, 2, 1});
         check("abc", {4, 1}); });
 
+    Add("159. Longest Substring with At Most Two Distinct Characters", [&]()
+        {
+        auto check = [&](const string &s) {
+            Logger() << s << endl;
+            int r = lengthOfLongestSubstringTwoDistinct(s);
+            int r2 = lengthOfLongestSubstringTwoDistinct2(s);
+            Logger() << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+        };
+        check("eceba");
+        check("ccaabbb");
+        check("aaaaaaaaa");
+        for (int i = 0; i < 10; i++) {
+            string s = Random::String<char>(20, "abcd");
+            check(s);
+        } });
+
     Add("162. Find Peak Element", [&]()
         {
         auto check = [&](const vector<int> &v) {
