@@ -7097,6 +7097,63 @@ namespace Test
             return pa;
         }
 
+        // 161. One Edit Distance
+        // Given two strings s and t, determine if they are both one edit distance apart.
+        // Note: There are 3 possiblities to satisify one edit distance apart:
+        // Insert a character into s to get t
+        // Delete a character from s to get t
+        // Replace a character of s to get t
+        // Example 1:
+        // Input: s = "ab", t = "acb"
+        // Output: true
+        // Explanation: We can insert 'c' into s to gett.
+        // Example 2:
+        // Input: s = "cab", t = "ad"
+        // Output: false
+        // Explanation: We cannot get t from s by only one step.
+        // Example 3:
+        // Input: s = "1203", t = "1213"
+        // Output: true
+        // Explanation: We can replace '0' with '1' to get t.
+        bool isOneEditDistance(const string &s, const string &t)
+        {
+            function<bool(size_t, size_t)> same = [&](size_t i, size_t j) -> bool
+            {
+                while (i < s.size() && j < t.size() && s[i] == t[j])
+                {
+                    i++;
+                    j++;
+                }
+                return i == s.size() && j == t.size();
+            };
+            size_t k = 0;
+            while (k < s.size() && k < t.size() && s[k] == t[k])
+            {
+                k++;
+            }
+            if (k == s.size() || k == t.size())
+                return false;
+            return same(k, k + 1) || same(k + 1, k) || same(k + 1, k + 1);
+        }
+        bool isOneEditDistance2(const string &s, const string &t)
+        {
+            int m = s.size();
+            int n = t.size();
+            if (m + 1 < n || n + 1 < m)
+                return false;
+            int i = 1;
+            while (i <= m && i <= n && s[i - 1] == t[i - 1])
+                i++;
+            int j = 1;
+            while (j <= m && j <= n && s[m - j] == t[n - j])
+                j++;
+            m = min(m, n);
+            // i - 1 is the number of matching chars from the beginning
+            // j - 1 the one from the end
+            // i + j - 2 is m when m + 1 == n, or m - 1 when m == n
+            return i + j - 2 == m || i + j - 2 == m - 1;
+        }
+
         // 162. Find Peak Element
         // A peak element is an element that is greater than its neighbors. Given an
         // input array nums, where nums[i] != nums[i+1], find a peak element and return

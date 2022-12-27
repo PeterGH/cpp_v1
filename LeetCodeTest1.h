@@ -1481,6 +1481,21 @@ void LeetCodeTest::Init1(void)
             check(s);
         } });
 
+    Add("161. One Edit Distance", [&]()
+        {
+        auto check = [&](const string &s, const string &t) {
+            Logger() << "IsOneEditDistance(\"" << s << "\", \"" << t << "\") = ";
+            bool r =  isOneEditDistance(s, t);
+            bool r2 =  isOneEditDistance2(s, t);
+            Logger() << r << ", " << r2 << endl;
+            ASSERT1(r == r2);
+        };
+        check("ab", "acb");
+        check("cab", "ad");
+        check("1203", "1213");
+        check("acd", "ad");
+        check("abc", "abc"); });
+
     Add("162. Find Peak Element", [&]()
         {
         auto check = [&](const vector<int> &v) {
