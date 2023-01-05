@@ -7329,6 +7329,49 @@ namespace Test
             return m;
         }
 
+        // 163. Missing Ranges
+        // Given a sorted integer array nums, where the range of elements are
+        // in the inclusive range [lower, upper], return its missing ranges.
+        // Example:
+        // Input: nums = [0, 1, 3, 50, 75], lower = 0 and upper = 99,
+        // Output: ["2", "4->49", "51->74", "76->99"]
+        vector<string> findMissingRanges(const vector<int> &nums, int lower, int upper)
+        {
+            vector<string> output;
+            ostringstream o;
+            for (int n : nums)
+            {
+                if (lower == n)
+                {
+                }
+                else if (lower + 1 == n)
+                {
+                    o << lower;
+                }
+                else
+                {
+                    o << lower << "->" << n - 1;
+                }
+                if (o.tellp() > 0)
+                {
+                    output.push_back(o.str());
+                    o = ostringstream();
+                }
+                lower = n + 1;
+            }
+            if (lower == upper)
+            {
+                o << lower;
+                output.push_back(o.str());
+            }
+            else if (lower < upper)
+            {
+                o << lower << "->" << upper;
+                output.push_back(o.str());
+            }
+            return output;
+        }
+
         // 164. Maximum Gap
         // Given an unsorted array, find the maximum difference between the successive
         // elements in its sorted form. Return 0 if the array contains less than 2

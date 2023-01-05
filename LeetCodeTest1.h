@@ -1526,6 +1526,30 @@ void LeetCodeTest::Init1(void)
             check(v);
         } });
 
+    Add("163. Missing Ranges", [&]()
+        {
+        auto check = [&](const vector<int> nums, int lower, int upper, const vector<string> &expect) {
+            Logger() << nums;
+            Logger() << "[" << lower << ", " << upper << "]" << endl;
+            vector<string> output = findMissingRanges(nums,lower, upper);
+            Logger() << output;
+            ASSERT1(output.size() == expect.size());
+            for (size_t i = 0; i < output.size(); i++) {
+                ASSERT1(output[i] == expect[i]);
+            }
+        };
+        check({0, 1, 3, 50, 75}, 0, 99, {"2", "4->49", "51->74", "76->99"});
+        check({0, 1, 3, 50, 75}, -1, 99, {"-1", "2", "4->49", "51->74", "76->99"});
+        check({0, 1, 3, 50, 75}, -3, 99, {"-3->-1", "2", "4->49", "51->74", "76->99"});
+        check({0, 1, 3, 50, 75}, 0, 75, {"2", "4->49", "51->74"});
+        check({0, 1, 3, 50, 75}, 0, 76, {"2", "4->49", "51->74", "76"});
+        check({}, 0, 1, {"0->1"});
+        check({}, 0, 0, {"0"});
+        check({0}, 0, 1, {"1"});
+        check({0}, 0, 2, {"1->2"});
+        check({0}, -1, 2, {"-1", "1->2"});
+        check({0}, -2, 2, {"-2->-1", "1->2"}); });
+
     Add("164. Maximum Gap", [&]()
         {
         auto check = [&](const vector<int> &v) {
