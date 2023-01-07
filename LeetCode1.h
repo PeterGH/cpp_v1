@@ -7467,6 +7467,13 @@ namespace Test
         // linear runtime. Space complexity: O(2 * b) ~= O(b) extra space. Each bucket
         // stores a maximum and a minimum element. Hence extra space linear to the
         // number of buckets is required.
+        // Let y = ax + b, b = 0, 1, ..., x - 1
+        // floor(y / x) = a
+        // ceil(y / a) = x        if b == 0
+        //             = x + 1    if b = 1, 2, ..., x - 1
+        // So
+        // b = floor((max - min) / (n - 1))
+        // k = ceil((max - min) / b) = (n - 1) or n
         int maximumGap(const vector<int> &nums)
         {
             if (nums.size() < 2)
@@ -7506,8 +7513,7 @@ namespace Test
             int gap = 0;
             for (size_t i = 1; i < v.size(); i++)
             {
-                if (v[i - 1] + 1 < v[i])
-                    gap = max(gap, v[i] - v[i - 1]);
+                gap = max(gap, v[i] - v[i - 1]);
             }
             return gap;
         }
