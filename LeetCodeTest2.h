@@ -290,7 +290,9 @@ void LeetCodeTest::Init2(void)
                 Logger() << v;
                 TreeNode *t = RandomTreeFromInOrder(v);
                 Print(t);
-                random_shuffle(v.begin(), v.end());
+                random_device rd;
+                mt19937 g(rd());
+                shuffle(v.begin(), v.end(), g);
                 for (int i : v)
                 {
                     Logger() << "Delete " << i << endl;
@@ -565,7 +567,9 @@ void LeetCodeTest::Init2(void)
                 vector<int> v = Util::IncreasingVector(n, 1);
                 int d = Random::Int(n, 1);
                 v.push_back(d);
-                random_shuffle(v.begin(), v.end());
+                random_device rd;
+                mt19937 g(rd());
+                shuffle(v.begin(), v.end(), g);
                 check(v);
             }
         });

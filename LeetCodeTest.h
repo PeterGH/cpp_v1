@@ -11,7 +11,9 @@
 #include "LeetCode7.h"
 #include "Test.h"
 #include "Util.h"
+#include <algorithm>
 #include <math.h>
+#include <random>
 
 using namespace std;
 using namespace Test;

@@ -4,6 +4,7 @@
 #include "Test.h"
 #include "Util.h"
 #include <limits.h>
+#include <random>
 #include <set>
 #include <string.h>
 #include <utility>
@@ -376,7 +377,9 @@ void CppTest::Init(void) {
             p.push_back(make_pair(i, v[i]));
         }
         print(p);
-        random_shuffle(p.begin(), p.end());
+        random_device rd;
+        mt19937 g(rd());
+        shuffle(p.begin(), p.end(), g);
         print(p);
         sort(p.begin(), p.end());
         print(p);

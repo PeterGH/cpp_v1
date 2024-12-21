@@ -3895,7 +3895,9 @@ void LeetCodeTest::Init0(void)
                 for (int j = 0; j < 10; j++)
                 {
                     string s2(s1);
-                    random_shuffle(s2.begin(), s2.end());
+                    random_device rd;
+                    mt19937 g(rd());
+                    shuffle(s2.begin(), s2.end(), g);
                     check(s1, s2);
                 }
             } });

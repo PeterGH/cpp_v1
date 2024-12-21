@@ -1186,7 +1186,9 @@ void LeetCodeTest::Init1(void)
             }
             c = 1 + rand() % INT_MAX;
             n.insert(n.end(), 1, c);
-            random_shuffle(n.begin(), n.end());
+            random_device rd;
+            mt19937 g(rd());
+            shuffle(n.begin(), n.end(), g);
             check(n, 0, true);
         } });
 
