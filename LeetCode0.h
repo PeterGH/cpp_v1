@@ -331,6 +331,60 @@ namespace Test
             }
             return ans;
         }
+        vector<vector<int>> threeSum4(vector<int> &nums)
+        {
+            vector<vector<int>> result;
+            sort(nums.begin(), nums.end());
+            set<tuple<int, int, int>> s;
+            map<size_t, set<size_t>> m;
+            function<void(size_t, size_t)> solve = [&](size_t i, size_t j)
+            {
+                if (i + 1 >= j)
+                    return;
+                if (m.find(i) != m.end() && m[i].find(j) != m[i].end())
+                    return;
+                int t = -nums[i] - nums[j];
+                bool found = false;
+                size_t l = i + 1;
+                size_t h = j - 1;
+                size_t k;
+                while (l <= h)
+                {
+                    k = l + ((h - l) >> 1);
+                    if (nums[k] < t)
+                    {
+                        if (k == h)
+                            break;
+                        l = k + 1;
+                    }
+                    else if (t < nums[k])
+                    {
+                        if (l == k)
+                            break;
+                        h = k - 1;
+                    }
+                    else
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                {
+                    tuple<int, int, int> r = make_tuple(nums[i], nums[k], nums[j]);
+                    if (s.find(r) == s.end())
+                    {
+                        result.push_back(vector<int>{nums[i], nums[k], nums[j]});
+                        s.insert(r);
+                    }
+                }
+                m[i].insert(j);
+                solve(i + 1, j);
+                solve(i, j - 1);
+            };
+            solve(0, nums.size() - 1);
+            return result;
+        }
 
         // 16. 3Sum Closest
         // Given an array nums of n integers and an integer target, find three integers
