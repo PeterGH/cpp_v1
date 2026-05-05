@@ -385,6 +385,31 @@ namespace Test
             solve(0, nums.size() - 1);
             return result;
         }
+        vector<vector<int>> threeSum5(vector<int> &nums)
+        {
+            vector<vector<int>> result;
+            set<vector<int>> s;
+            set<int> x;
+            for (size_t i = 0; i + 1 < nums.size(); i++)
+            {
+                for (size_t j = i + 1; j < nums.size(); j++)
+                {
+                    int y = -nums[i] - nums[j];
+                    if (x.find(y) != x.end())
+                    {
+                        vector<int> r = vector<int>{y, nums[i], nums[j]};
+                        sort(r.begin(), r.end());
+                        if (s.find(r) == s.end())
+                        {
+                            result.push_back(r);
+                            s.insert(r);
+                        }
+                    }
+                }
+                x.insert(nums[i]);
+            }
+            return result;
+        }
 
         // 16. 3Sum Closest
         // Given an array nums of n integers and an integer target, find three integers
