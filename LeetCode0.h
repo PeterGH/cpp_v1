@@ -976,6 +976,44 @@ namespace Test
             }
             return output;
         }
+        // wrong
+        // nums = [1,0,-1,0,-2,2] target = 0
+        // Output: [[-1,0,0,1],[-2,-1,1,2],[-1,-1,0,2],[-2,0,0,2]]
+        // Expected: [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+        vector<vector<int>> fourSum11(vector<int> &nums, int target)
+        {
+            vector<vector<int>> result;
+            set<vector<int>> s;
+            map<int, set<vector<int>>> m;
+            for (size_t i = 0; i + 1 < nums.size(); i++)
+            {
+                map<int, set<vector<int>>> n;
+                for (size_t j = i + 1; j < nums.size(); j++)
+                {
+                    int t = -nums[i] - nums[j];
+                    if (m.find(t) != m.end())
+                    {
+                        for (const auto &f : m[t])
+                        {
+                            vector<int> r(vector<int>{f[0], f[1], nums[i], nums[j]});
+                            sort(r.begin(), r.end());
+                            if (s.find(r) == s.end())
+                            {
+                                result.push_back(r);
+                                s.insert(r);
+                            }
+                        }
+                    }
+                    t = -t;
+                    n[t].insert(vector<int>{nums[i], nums[j]});
+                }
+                for (const auto &p : n)
+                {
+                    m[p.first].insert(p.second.begin(), p.second.end());
+                }
+            }
+            return result;
+        }
 
         // 4Sum II
         // Given four lists A, B, C, D of integer values, compute how many
