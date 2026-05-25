@@ -30,6 +30,9 @@ namespace Test
         // -10^9 <= nums[i] <= 10^9
         // -10^9 <= target <= 10^9
         // Only one valid answer exists.
+        // Brute force: For j in [0, n), check every i in [0, j)
+        // if (i, j) is the solution.
+        // Optimization: Use a map to track every i in [0, j)
         vector<int> twoSum(const vector<int> &nums, int target)
         {
             unordered_map<int, int> m;
@@ -47,7 +50,6 @@ namespace Test
             }
             return output;
         }
-
         static vector<pair<int, int>> twoSumUnsortedMultiSolutions(vector<int> &nums, int target)
         {
             vector<pair<int, int>> result;
@@ -87,8 +89,9 @@ namespace Test
                 {
                     if (valueIndex[j].first < v)
                     {
-                        if (i++ != j)
-                            swap(valueIndex[i - 1], valueIndex[j]);
+                        if (i != j)
+                            swap(valueIndex[i], valueIndex[j]);
+                        i++;
                     }
                 }
                 return i;
@@ -215,6 +218,7 @@ namespace Test
             set<tuple<int, int>> m; // dedup
             for (size_t i = 0; i + 2 < nums.size(); i++)
             {
+                // two sum: find two elements in [i+1, n-1] whose sum is -nums[i]
                 set<int> s;
                 for (size_t j = i + 1; j < nums.size(); j++)
                 {
@@ -390,6 +394,8 @@ namespace Test
             vector<vector<int>> result;
             set<vector<int>> s;
             set<int> x;
+            // for every pair (i, j) find an element in [0, i-1]
+            // such that its value plus nums[i] and nums[j] is 0.
             for (size_t i = 0; i + 1 < nums.size(); i++)
             {
                 for (size_t j = i + 1; j < nums.size(); j++)

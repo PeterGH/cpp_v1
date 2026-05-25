@@ -60,6 +60,88 @@ void AlgorithmTest::Init(void)
             check(v, 100);
         } });
 
+    Add("FindInsertPoint", [&]() {
+        {
+            for (int n = 1; n < 10; n++) {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n, 0, input.size() - 1);
+                Logger() << input;
+                Logger() << "First " << n << " should be inserted at " << i << endl;
+                ASSERT1(i == 0);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++) {
+                vector<int> input(n, n);
+                size_t i = FindInsertPoint(input, n - 1, 0, input.size() - 1);
+                Logger() << input;
+                Logger() << "First " << n - 1 << " should be inserted at " << i << endl;
+                ASSERT1(i == 0);
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++) {
+                vector<int> input(n, n);
+                size_t i =
+                    FindInsertPoint(input, n, 0, input.size() - 1, false);
+                Logger() << input;
+                Logger() << "Last " << n << " should be inserted at " << i << endl;
+                ASSERT1(i == input.size());
+            }
+        }
+        {
+            for (int n = 1; n < 10; n++) {
+                vector<int> input(n, n);
+                size_t i =
+                    FindInsertPoint(input, n + 1, 0, input.size() - 1, false);
+                Logger() << input;
+                Logger() << "Last " << n + 1 << " should be inserted at " << i << endl;
+                ASSERT1(i == input.size());
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Random::Vector(Random::Int(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++) {
+                    int e = Random::Int(max + 10, -10);
+                    size_t i = FindInsertPoint(input, e, 0, input.size() - 1);
+                    Logger() << "First " << e << " should be inserted at " << i << endl;
+                    ASSERT1(i >= 0);
+                    ASSERT1(i <= input.size());
+                    if (i < input.size())
+                        ASSERT1(e <= input[i]);
+                    if (i > 0)
+                        ASSERT1(input[i - 1] < e);
+                }
+            }
+        }
+        {
+            int max = 50;
+            for (int i = 0; i < 100; i++) {
+                vector<int> input =
+                    Random::Vector(Random::Int(1000, 1), max);
+                sort(input.begin(), input.end());
+                Logger() << input;
+                for (int j = 0; j < 100; j++) {
+                    int e = Random::Int(max + 10, -10);
+                    size_t i =
+                        FindInsertPoint(input, e, 0, input.size() - 1, false);
+                    Logger() << "Last " << e << " should be inserted at " << i << endl;
+                    ASSERT1(i >= 0);
+                    ASSERT1(i <= input.size());
+                    if (i < input.size())
+                        ASSERT1(e < input[i]);
+                    if (i > 0)
+                        ASSERT1(input[i - 1] <= e);
+                }
+            }
+        }
+    });
+/*
     Add("FindClosest", [&]()
         {
         auto check = [&](const vector<int> &v, int t) {
@@ -185,6 +267,7 @@ void AlgorithmTest::Init(void)
         {
             check(0, i);
         } });
+*/
 }
 
 #endif

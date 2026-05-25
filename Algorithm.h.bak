@@ -19,8 +19,8 @@ namespace Search {
 // Find a subarray of contiguous elements whose sum is maximized
 // If array contains both positive and negative numbers, return the maximum
 // subarray If array contains positive numbers, return entire array A If array
-// contains non-positive numbers, return the maximum number Parameter sum is the
-// summation of the returned subarray Parameters start and end are the start and
+// contains non-positive numbers, return the maximum number. Parameter sum is the
+// summation of the returned subarray. Parameters start and end are the start and
 // end indices of the returned subarray
 template <class T>
 static void MaxSum(const T *input, int length, int &start, int &end, T &sum) {

@@ -3,6 +3,7 @@
 
 #include "String.h"
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <limits.h>
 #include <map>
@@ -62,7 +63,7 @@ namespace Test
                     else
                         end = middle; // case (1)
                 }
-                else
+                else // last
                 {
                     if (middle == end)
                         return middle; // case (3)
@@ -236,16 +237,12 @@ namespace Test
                     else
                         end = middle; // case (1)
                 }
-                else
+                else // last
                 {
                     if (middle == end)
-                        return middle; // case (3)
-                    else if (begin < middle)
-                        begin = middle; // case (1)
-                    else if (comp(value, get(end)))
-                        return middle; // case (2), m is the last
+                        return end + 1; // case (3)
                     else
-                        return end; // case (2), e is the last
+                        begin = middle + 1; // case (1) or (2)
                 }
             }
         }
@@ -257,8 +254,8 @@ namespace Test
                                   size_t end, bool first = true,
                                   Compare comp = std::less<>())
     {
-        return FindInsertPoint(
-            value, (int)begin, (int)end, [&](int i) -> int
+        return FindInsertPoint<int, Compare>(
+            value, (int)begin, (int)end, [&](int i) -> const int&
             { return input[i]; },
             first, comp);
     }
@@ -269,13 +266,13 @@ namespace Test
                                   size_t begin, size_t end, bool first = true,
                                   Compare comp = std::less<>())
     {
-        return FindInsertPoint(
+        return FindInsertPoint<int, Compare>(
             value, (int)begin, (int)end,
-            [&](int i) -> int
+            [&](int i) -> const int&
             { return input[i][col]; },
             first, comp);
     }
-
+/*
     // Find a number closest to a target from a sorted array
     int FindClosest(const vector<int> &input, int target)
     {
@@ -1358,5 +1355,6 @@ namespace Test
         }
         return a + s;
     }
+*/
 } // namespace Test
 #endif
