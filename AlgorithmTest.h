@@ -141,7 +141,7 @@ void AlgorithmTest::Init(void)
             }
         }
     });
-/*
+
     Add("FindClosest", [&]()
         {
         auto check = [&](const vector<int> &v, int t) {
@@ -149,7 +149,7 @@ void AlgorithmTest::Init(void)
             int i = FindClosest(v, t);
             int i2 = FindClosest2(v, t);
             Logger() << "at " << i << ", " << i2 << endl;
-            if (i == -1)
+            if (i == -1 || i2 == -1)
                 ASSERT1(i == i2);
             else
                 ASSERT1(v[i] == v[i2]);
@@ -165,7 +165,7 @@ void AlgorithmTest::Init(void)
                 check(v, t);
             }
         } });
-
+/*
     Add("FindShiftPoint", [&]()
         {
         auto check = [&](const vector<int> v, size_t d) {

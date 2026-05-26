@@ -272,7 +272,7 @@ namespace Test
             { return input[i][col]; },
             first, comp);
     }
-/*
+
     // Find a number closest to a target from a sorted array
     int FindClosest(const vector<int> &input, int target)
     {
@@ -282,7 +282,7 @@ namespace Test
         int e = (int)input.size() - 1;
         while (b + 1 < e)
         {
-            int m = b + ((e - b) >> 1);
+            int m = b + ((e - b) >> 1); // b < m < e
             if (input[m] < target)
                 b = m;
             else if (input[m] > target)
@@ -314,7 +314,7 @@ namespace Test
         }
         return index;
     }
-
+/*
     // Find the median of a sorted array.
     // If the array length is odd, then the median is unique.
     // If the array length is even, then return the lower median.
