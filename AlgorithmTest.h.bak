@@ -92,24 +92,6 @@ void AlgorithmTest::Init(void) {
         }
     });
 
-    Add("Median 0", [&]() {
-        int I[] = {1,  1,  3,  3,   7,    8,    34,      35,
-                   42, 43, 64, 445, 3556, 8769, 96656532};
-        int L = sizeof(I) / sizeof(I[0]);
-        ASSERT1(1 == Test::BinarySearch::FindMedian(I, 1));
-        ASSERT1(1 == Test::BinarySearch::FindMedian(I, 2));
-        ASSERT1(1 == Test::BinarySearch::FindMedian(I, 3));
-        ASSERT1(1 == Test::BinarySearch::FindMedian(I, 4));
-        ASSERT1(3 == Test::BinarySearch::FindMedian(I, 5));
-        ASSERT1(3 == Test::BinarySearch::FindMedian(I, 6));
-        ASSERT1(3 == Test::BinarySearch::FindMedian(I, 7));
-        ASSERT1(3 == Test::BinarySearch::FindMedian(I, 8));
-        ASSERT1(7 == Test::BinarySearch::FindMedian(I, 9));
-        ASSERT1(7 == Test::BinarySearch::FindMedian(I, 10));
-        ASSERT1(8 == Test::BinarySearch::FindMedian(I, 11));
-        ASSERT1(8 == Test::BinarySearch::FindMedian(I, 12));
-    });
-
     Add("Median 1", [&]() {
         int A1[] = {0};
         int B1[] = {0};

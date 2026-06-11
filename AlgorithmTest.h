@@ -18,8 +18,7 @@ public:
 
 void AlgorithmTest::Init(void)
 {
-    Add("BinarySearch", [&]()
-        {
+    Add("BinarySearch", [&]() {
         auto check = [&](const vector<int> &v, int t) {
             Logger() << "Search " << t << " in " << v;
             int i = BinarySearch(v, t);
@@ -58,7 +57,8 @@ void AlgorithmTest::Init(void)
                 }
             }
             check(v, 100);
-        } });
+        }
+    });
 
     Add("FindInsertPoint", [&]() {
         {
@@ -142,8 +142,7 @@ void AlgorithmTest::Init(void)
         }
     });
 
-    Add("FindClosest", [&]()
-        {
+    Add("FindClosest", [&]() {
         auto check = [&](const vector<int> &v, int t) {
             Logger() << "Search " << t << " in " << v;
             int i = FindClosest(v, t);
@@ -164,110 +163,130 @@ void AlgorithmTest::Init(void)
                 int t = Random::Int(5000, -5000);
                 check(v, t);
             }
-        } });
-/*
-    Add("FindShiftPoint", [&]()
-        {
-        auto check = [&](const vector<int> v, size_t d) {
-            Logger() << v;
-            size_t s = FindShiftPoint(v);
-            Logger() << "shifted by " << d << ", " << s << endl;
-            ASSERT1(s == d);
-        };
-        {
-            vector<int> v = {0};
-            check(v, 0);
         }
-        {
-            vector<int> v = {1, 2};
-            check(v, 0);
-        }
-        {
-            vector<int> v = {2, 1};
-            check(v, 1);
-        }
-        {
-            vector<int> v = {3, 4, 5};
-            check(v, 0);
-        }
-        {
-            vector<int> v = {5, 3, 4};
-            check(v, 1);
-        }
-        {
-            vector<int> v = {4, 5, 3};
-            check(v, 2);
-        }
-        {
-            for (int i = 0; i < 100; i++) {
-                size_t n = Random::Int(100, 1);
-                size_t s = Random::Int(100) % n;
-                vector<int> input = Random::Vector(n);
-                Util::RotateLeft(input, s);
-                check(input, s);
-            }
-        } });
+    });
 
-    Add("KMP", [&]()
+    Add("FindMedian", [&]() {
         {
-        for (int i = 0; i < 50; i++)
-        {
-            Logger().WriteInformation("Run %d\n", i);
-            string pattern = Random::String(1 + rand() % 10, string("abc"));
-            string input = Random::String(1 + rand() % 1000, string("abc"));
-            KMP kmp(pattern.c_str());
-            kmp.Print();
-            vector<int> indices =
-                kmp.SearchString(input.c_str(), strlen(input.c_str()));
-            printf("Pattern: %s\n", pattern.c_str());
-            printf("Input: %s\n", input.c_str());
-            for_each(indices.begin(), indices.end(), [&](int i) {
-                printf("Found a match at index %d\n", i);
-                ASSERT1(input.substr(i, pattern.size()) == pattern);
-            });
-        } });
-
-    Add("Monge", [&]()
-        {
-        for (int i = 0; i < 10; i++)
-        {
-            int m = Random::Int(20, 2);
-            int n = Random::Int(20, 2);
-            int h = Random::Int(100);
-            vector<vector<int>> grid = Monge::Random(m, n, h);
-            vector<vector<int>> grid2 = Monge::Random2(m, n, h);
-            bool r = Monge::IsMonge(grid);
-            bool r2 = Monge::IsMonge(grid2);
-            Logger() << grid << grid2;
-            Logger() << "IsMonge = " << r << ", " << r2 << endl;
-            ASSERT1(r);
-            ASSERT1(r2);
-        } });
-
-    Add("RandomInt", [&]()
-        {
-        auto check = [&](int a, int b) {
-            map<int, int> m;
-            int n = 100 * (b - a + 1);
-            for (int i = 0; i < n; i++)
+            int I[] = {1,  1,  3,  3,   7,    8,    34,      35,
+                       42, 43, 64, 445, 3556, 8769, 96656532};
+            ASSERT1(1 == Test::FindMedian(I, 1));
+            ASSERT1(1 == Test::FindMedian(I, 2));
+            ASSERT1(1 == Test::FindMedian(I, 3));
+            ASSERT1(1 == Test::FindMedian(I, 4));
+            ASSERT1(3 == Test::FindMedian(I, 5));
+            ASSERT1(3 == Test::FindMedian(I, 6));
+            ASSERT1(3 == Test::FindMedian(I, 7));
+            ASSERT1(3 == Test::FindMedian(I, 8));
+            ASSERT1(7 == Test::FindMedian(I, 9));
+            ASSERT1(7 == Test::FindMedian(I, 10));
+            ASSERT1(8 == Test::FindMedian(I, 11));
+            ASSERT1(8 == Test::FindMedian(I, 12));
+        }
+    });
+    /*
+        Add("FindShiftPoint", [&]()
             {
-                int j = RandomInt(a, b);
-                if (m.find(j) == m.end())
-                    m[j] = 1;
-                else
-                    m[j]++;
+            auto check = [&](const vector<int> v, size_t d) {
+                Logger() << v;
+                size_t s = FindShiftPoint(v);
+                Logger() << "shifted by " << d << ", " << s << endl;
+                ASSERT1(s == d);
+            };
+            {
+                vector<int> v = {0};
+                check(v, 0);
             }
-            Logger() << "RandomInt(" << a << ", " << b << ") distribution:" << endl;
-            Logger() << m;
-            ASSERT1((int)m.size() == b - a + 1);
-            for (int i = a; i <= b; i++)
-                ASSERT1(m.find(i) != m.end());
-        };
-        for (int i = 0; i < 10; i++)
-        {
-            check(0, i);
-        } });
-*/
+            {
+                vector<int> v = {1, 2};
+                check(v, 0);
+            }
+            {
+                vector<int> v = {2, 1};
+                check(v, 1);
+            }
+            {
+                vector<int> v = {3, 4, 5};
+                check(v, 0);
+            }
+            {
+                vector<int> v = {5, 3, 4};
+                check(v, 1);
+            }
+            {
+                vector<int> v = {4, 5, 3};
+                check(v, 2);
+            }
+            {
+                for (int i = 0; i < 100; i++) {
+                    size_t n = Random::Int(100, 1);
+                    size_t s = Random::Int(100) % n;
+                    vector<int> input = Random::Vector(n);
+                    Util::RotateLeft(input, s);
+                    check(input, s);
+                }
+            } });
+
+        Add("KMP", [&]()
+            {
+            for (int i = 0; i < 50; i++)
+            {
+                Logger().WriteInformation("Run %d\n", i);
+                string pattern = Random::String(1 + rand() % 10, string("abc"));
+                string input = Random::String(1 + rand() % 1000, string("abc"));
+                KMP kmp(pattern.c_str());
+                kmp.Print();
+                vector<int> indices =
+                    kmp.SearchString(input.c_str(), strlen(input.c_str()));
+                printf("Pattern: %s\n", pattern.c_str());
+                printf("Input: %s\n", input.c_str());
+                for_each(indices.begin(), indices.end(), [&](int i) {
+                    printf("Found a match at index %d\n", i);
+                    ASSERT1(input.substr(i, pattern.size()) == pattern);
+                });
+            } });
+
+        Add("Monge", [&]()
+            {
+            for (int i = 0; i < 10; i++)
+            {
+                int m = Random::Int(20, 2);
+                int n = Random::Int(20, 2);
+                int h = Random::Int(100);
+                vector<vector<int>> grid = Monge::Random(m, n, h);
+                vector<vector<int>> grid2 = Monge::Random2(m, n, h);
+                bool r = Monge::IsMonge(grid);
+                bool r2 = Monge::IsMonge(grid2);
+                Logger() << grid << grid2;
+                Logger() << "IsMonge = " << r << ", " << r2 << endl;
+                ASSERT1(r);
+                ASSERT1(r2);
+            } });
+
+        Add("RandomInt", [&]()
+            {
+            auto check = [&](int a, int b) {
+                map<int, int> m;
+                int n = 100 * (b - a + 1);
+                for (int i = 0; i < n; i++)
+                {
+                    int j = RandomInt(a, b);
+                    if (m.find(j) == m.end())
+                        m[j] = 1;
+                    else
+                        m[j]++;
+                }
+                Logger() << "RandomInt(" << a << ", " << b << ") distribution:" << endl;
+                Logger() << m;
+                ASSERT1((int)m.size() == b - a + 1);
+                for (int i = a; i <= b; i++)
+                    ASSERT1(m.find(i) != m.end());
+            };
+            for (int i = 0; i < 10; i++)
+            {
+                check(0, i);
+            } });
+    */
 }
 
 #endif

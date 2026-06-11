@@ -314,7 +314,7 @@ namespace Test
         }
         return index;
     }
-/*
+
     // Find the median of a sorted array.
     // If the array length is odd, then the median is unique.
     // If the array length is even, then return the lower median.
@@ -341,7 +341,7 @@ namespace Test
         int medianIndex = (length - 1) >> 1;
         return input[medianIndex];
     }
-
+/*
     // Find the median from two sorted arrays.
     // If the two arrays contain odd number of elements, then the median is unique.
     // If the two arrays contain even number of elements, then return the lower
