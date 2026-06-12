@@ -341,7 +341,7 @@ namespace Test
         int medianIndex = (length - 1) >> 1;
         return input[medianIndex];
     }
-/*
+
     // Find the median from two sorted arrays.
     // If the two arrays contain odd number of elements, then the median is unique.
     // If the two arrays contain even number of elements, then return the lower
@@ -387,8 +387,9 @@ namespace Test
             if (medianIndex == shortLength - 1)
             {
                 // +---------------------------------------+
+                // 0                                       s-1
                 // +---------------------------------------+
-                // 0 s-1 0 l-1
+                // 0                                       l-1
                 // s = l
                 // m = s - 1 = l - 1
                 return shortArray[medianIndex];
@@ -396,8 +397,9 @@ namespace Test
             else
             {
                 // +---------------------------------------+
+                // 0                                       s-1
                 // +-----+------------------------------------------+
-                // 0 s-1 0 m-s l-1
+                // 0     m-s                                        l-1
                 // s < l
                 // m = (s + l - 1) / 2
                 //   = k - 1    if (s + l) = 2k
@@ -409,8 +411,9 @@ namespace Test
         else if (longArray[longLength - 1] <= shortArray[0])
         {
             // +---------------------------------------+---------+
+            // 0                                       m         l-1
             // +---------------------------------------+
-            // 0 m l-1 0 s-1
+            // 0                                       s-1
             // s <= l
             // m = (s + l - 1) / 2
             //   = k - 1    if (s + l) = 2k
@@ -500,7 +503,7 @@ namespace Test
             }
         }
     }
-
+/*
     // Find the k-th order statistic (smallest element) from two sorted arrays.
     // k = 1, 2, ...
     template <class T>
