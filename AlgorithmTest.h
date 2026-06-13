@@ -681,8 +681,8 @@ void AlgorithmTest::Init(void)
                 ASSERT1(m == 1001089438);
             }
             {
-                for (int i = 0; i < 100; i++) {
-                    int length = 1 + Random::Int(100);
+                for (int i = 0; i < 500; i++) {
+                    int length = 1 + Random::Int(100, 1);
                     unique_ptr<int[]> input(new int[length]);
                     for (int j = 0; j < length; j++) {
                         input[j] = Random::Int();

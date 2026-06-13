@@ -447,13 +447,17 @@ namespace Test
             // (3) If low = high, then low = m = high
             int m = (low + high) >> 1;
             int n = medianIndex - m - 1;
-            if (shortArray[m] > longArray[n])
+            // Because 0 <= m <= s-1,
+            // so medianIndex - s <= n <= medianIndex - 1.
+            // Because s-1 <= medianIndex <= l-1,
+            // so -1 <= n <= l-2.
+            if (n >= 0 && shortArray[m] > longArray[n])
             {
                 if (shortArray[m] <= longArray[n + 1])
                 {
                     return shortArray[m];
                 }
-                else
+                else // shortArray[m] > longArray[n + 1]
                 {
                     if (m < high)
                     {
@@ -472,13 +476,13 @@ namespace Test
                     }
                 }
             }
-            else if (longArray[n] > shortArray[m])
+            else if (n >= 0 && longArray[n] > shortArray[m])
             {
-                if (longArray[n] <= shortArray[m + 1])
+                if (m + 1 == shortLength || longArray[n] <= shortArray[m + 1])
                 {
                     return longArray[n];
                 }
-                else
+                else // m + 1 < shortLength && longArray[n] > shortArray[m + 1]
                 {
                     if (low < m)
                     {
@@ -497,7 +501,7 @@ namespace Test
                     }
                 }
             }
-            else
+            else // n == -1 || shortArray[m] == longArray[n]
             {
                 return shortArray[m];
             }
