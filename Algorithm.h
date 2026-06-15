@@ -507,6 +507,63 @@ namespace Test
             }
         }
     }
+    template <class T>
+    static T FindMedian2(const T *input1, int length1, const T *input2,
+                         int length2)
+    {
+        int b1 = 0;
+        int e1 = length1 - 1;
+        int b2 = 0;
+        int e2 = length2 - 1;
+        while (b1 <= e1 || b2 <= e2)
+        {
+            if (b1 > e1)
+            {
+                int m = b2 + ((e2 - b2) >> 1);
+                return input2[m];
+            }
+            else if (b2 > e2)
+            {
+                int m = b1 + ((e1 - b1) >> 1);
+                return input1[m];
+            }
+            else if (b1 == e1 && b2 == e2)
+            {
+                return min(input1[b1], input2[b2]);
+            }
+            else
+            {
+                if (input1[b1] <= input2[b2])
+                {
+                    b1++;
+                }
+                else
+                {
+                    b2++;
+                }
+                if (b1 > e1)
+                {
+                    e2--;
+                }
+                else if (b2 > e2)
+                {
+                    e1--;
+                }
+                else // b1 <= e1 && b2 <= e2
+                {
+                    if (input1[e1] >= input2[e2])
+                    {
+                        e1--;
+                    }
+                    else
+                    {
+                        e2--;
+                    }
+                }
+            }
+        }
+        throw runtime_error("Unable to find median");
+    }
 /*
     // Find the k-th order statistic (smallest element) from two sorted arrays.
     // k = 1, 2, ...

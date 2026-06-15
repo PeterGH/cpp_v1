@@ -681,7 +681,7 @@ void AlgorithmTest::Init(void)
                 ASSERT1(m == 1001089438);
             }
             {
-                for (int i = 0; i < 500; i++) {
+                for (int i = 0; i < 1000; i++) {
                     int length = 1 + Random::Int(100, 1);
                     unique_ptr<int[]> input(new int[length]);
                     for (int j = 0; j < length; j++) {
@@ -696,12 +696,15 @@ void AlgorithmTest::Init(void)
                     Logger().Print(input.get() + len0, length - len0);
                     int median = Test::FindMedian<int>(
                         input.get(), len0, (input.get() + len0), length - len0);
+                    int median2 = Test::FindMedian2<int>(
+                        input.get(), len0, (input.get() + len0), length - len0);
                     std::sort(input.get(), input.get() + length);
                     Logger().Print(input.get(), length);
-                    int median2 =
+                    int median3 =
                         Test::FindMedian<int>(input.get(), length);
-                    Logger() << "Medians: " << median << ", " << median2 << endl;
+                    Logger() << "Medians: " << median << ", " << median2 << ", " << median3 << endl;
                     ASSERT1(median == median2);
+                    ASSERT1(median == median3);
                 }
             } });
     /*
