@@ -870,604 +870,602 @@ namespace Test
                 String::Format("Unable to find %d-th smallest element", k));
         }
     }
-    /*
-        template <class T, class C>
-        int PartitionArrayByValue(T *input, int low, int high, const T &value, function<C(T)> transform)
+
+    template <class T, class C>
+    int PartitionArrayByValue(T *input, int low, int high, const T &value, function<C(T)> transform)
+    {
+        if (input == nullptr)
+            throw invalid_argument("input is nullptr");
+        if (low < 0)
+            throw invalid_argument(String::Format("low %d is less than zero", low));
+        if (high < low)
+            throw invalid_argument(String::Format("low %d is greater than high %d", low, high));
+        int i = low - 1;
+        C v = transform(value);
+        for (int j = low; j <= high; j++)
         {
-            if (input == nullptr)
-                throw invalid_argument("input is nullptr");
-            if (low < 0)
-                throw invalid_argument(String::Format("low %d is less than zero", low));
-            if (high < low)
-                throw invalid_argument(String::Format("low %d is greater than high %d", low, high));
-            int i = low - 1;
-            C v = transform(value);
-            for (int j = low; j <= high; j++)
+            if (transform(input[j]) <= v)
             {
-                if (transform(input[j]) <= v)
-                {
-                    // The check can be <.
-                    // The difference is:
-                    // 1. <= incurs more swaps, but it is stable because all elements equal to value
-                    //    are still in their original order. The return value is the last index of elements equal to value.
-                    // 2. < incurs less swaps, but it is unstable. The return value is the first index of elements equal to value.
-                    i++;
-                    swap(input[i], input[j]);
-                }
+                // The check can be <.
+                // The difference is:
+                // 1. <= incurs more swaps, but it is stable because all elements equal to value
+                //    are still in their original order. The return value is the last index of elements equal to value.
+                // 2. < incurs less swaps, but it is unstable. The return value is the first index of elements equal to value.
+                i++;
+                swap(input[i], input[j]);
             }
-
-            // now input[low..i] <= value < input[(i+1)..high]
-            return i;
         }
-
-        template <class T>
-        int PartitionArrayByValue(T *input, int low, int high, const T &value)
-        {
-            return PartitionArrayByValue<T, T>(input, low, high, value, [](T v) -> T
-                                               { return v; });
-        }
-
-        // Find all pairs of elements each of which is summed up to a given value
-        // Return the indices using a vector
-        // The elements of input will be rearranged so the indices returned are not the
-        // original ones
-        template <class T>
-        static void FindPairsBySum(T *input, int length, const T sum,
-                                   vector<pair<int, int>> &indices)
-        {
-            if (input == nullptr)
-                throw invalid_argument("input is a nullptr");
-            if (length <= 0)
-                throw invalid_argument(String::Format("length %d is invalid", length));
-
-            if (length == 1)
-                return;
-
-            T half = sum >> 1;
-
-            // input may contain positive and negative values
-
-            int shortRangeBegin;
-            int shortRangeEnd;
-            int longRangeBegin;
-            int longRangeEnd;
-
-            if ((sum & 0x1) == 0)
+        // now input[low..i] <= value < input[(i+1)..high]
+        return i;
+    }
+    template <class T>
+    int PartitionArrayByValue(T *input, int low, int high, const T &value)
+    {
+        return PartitionArrayByValue<T, T>(input, low, high, value, [](T v) -> T
+                                           { return v; });
+    }
+    /*
+            // Find all pairs of elements each of which is summed up to a given value
+            // Return the indices using a vector
+            // The elements of input will be rearranged so the indices returned are not the
+            // original ones
+            template <class T>
+            static void FindPairsBySum(T *input, int length, const T sum,
+                                       vector<pair<int, int>> &indices)
             {
-                //
-                // sum is even
-                // +--------------------------+---------------------+------------------------------+
-                // 0                          i1                    i2 length-1
-                //           < sum/2                  = sum/2                > sum/2
+                if (input == nullptr)
+                    throw invalid_argument("input is a nullptr");
+                if (length <= 0)
+                    throw invalid_argument(String::Format("length %d is invalid", length));
 
-                // Partition input so that input[0..i1] <= half - 1 <
-                // input[i1+1..length-1]
-                int i1 = PartitionArrayByValue(input, 0, length - 1, half - 1);
-                if (i1 == length - 1)
-                {
-                    // All elements are less than sum/2 - 1, no matter whether sum is
-                    // positive or negative.
+                if (length == 1)
                     return;
+
+                T half = sum >> 1;
+
+                // input may contain positive and negative values
+
+                int shortRangeBegin;
+                int shortRangeEnd;
+                int longRangeBegin;
+                int longRangeEnd;
+
+                if ((sum & 0x1) == 0)
+                {
+                    //
+                    // sum is even
+                    // +--------------------------+---------------------+------------------------------+
+                    // 0                          i1                    i2 length-1
+                    //           < sum/2                  = sum/2                > sum/2
+
+                    // Partition input so that input[0..i1] <= half - 1 <
+                    // input[i1+1..length-1]
+                    int i1 = PartitionArrayByValue(input, 0, length - 1, half - 1);
+                    if (i1 == length - 1)
+                    {
+                        // All elements are less than sum/2 - 1, no matter whether sum is
+                        // positive or negative.
+                        return;
+                    }
+
+                    // Partition input once more so that input[i1+1..i2] = half <
+                    // input[i2+1..length-1]
+                    int i2 = PartitionArrayByValue(input, i1 + 1, length - 1, half);
+                    if (i2 == -1)
+                    {
+                        // All elements are greater than sum/2, no matter whether sum is
+                        // positive or negative.
+                        return;
+                    }
+
+                    // Now input[i1+1..i2] == sum/2
+                    for (int i = i1 + 1; i < i2; i++)
+                    {
+                        for (int j = i + 1; j <= i2; j++)
+                        {
+                            indices.push_back(make_pair(i, j));
+                        }
+                    }
+
+                    if (i1 == -1 || i2 == length - 1)
+                    {
+                        return;
+                    }
+
+                    if (i1 + 1 >= length - 1 - i2)
+                    {
+                        shortRangeBegin = i2 + 1;
+                        shortRangeEnd = length - 1;
+                        longRangeBegin = 0;
+                        longRangeEnd = i1;
+                    }
+                    else
+                    {
+                        shortRangeBegin = 0;
+                        shortRangeEnd = i1;
+                        longRangeBegin = i2 + 1;
+                        longRangeEnd = length - 1;
+                    }
+                }
+                else
+                {
+                    //
+                    // sum is odd
+                    // +-------------------------------------+-----------------------------------------+
+                    // 0                                     i1 length-1
+                    //                 <= sum/2                             >= sum/2 + 1
+
+                    // Partition input so that input[0..i1] <= half < input[i1+1..length-1]
+                    int i1 = PartitionArrayByValue(input, 0, length - 1, half);
+
+                    if (i1 == -1)
+                    {
+                        // All elements are greater than sum/2, no matter whether sum is
+                        // positive or negative.
+                        return;
+                    }
+
+                    if (i1 == length - 1)
+                    {
+                        // All elements are less than or equal to sum/2, no matter whether
+                        // sum is positive or negative.
+                        return;
+                    }
+
+                    if (i1 + 1 >= length - 1 - i1)
+                    {
+                        shortRangeBegin = i1 + 1;
+                        shortRangeEnd = length - 1;
+                        longRangeBegin = 0;
+                        longRangeEnd = i1;
+                    }
+                    else
+                    {
+                        shortRangeBegin = 0;
+                        shortRangeEnd = i1;
+                        longRangeBegin = i1 + 1;
+                        longRangeEnd = length - 1;
+                    }
                 }
 
-                // Partition input once more so that input[i1+1..i2] = half <
-                // input[i2+1..length-1]
-                int i2 = PartitionArrayByValue(input, i1 + 1, length - 1, half);
-                if (i2 == -1)
-                {
-                    // All elements are greater than sum/2, no matter whether sum is
-                    // positive or negative.
-                    return;
-                }
+                Sort::Merge::Sort<T>(input, shortRangeBegin, shortRangeEnd);
 
-                // Now input[i1+1..i2] == sum/2
-                for (int i = i1 + 1; i < i2; i++)
+                for (int i = longRangeBegin; i <= longRangeEnd; i++)
                 {
-                    for (int j = i + 1; j <= i2; j++)
+                    T v = sum - input[i];
+                    int j =
+                        Search::BinarySearch<T>(v, &input[shortRangeBegin],
+                                                shortRangeEnd - shortRangeBegin + 1, true);
+                    if (j == -1)
+                    {
+                        // No element == sum - input[i]
+                        continue;
+                    }
+
+                    j = shortRangeBegin + j;
+
+                    do
                     {
                         indices.push_back(make_pair(i, j));
-                    }
+                        j++;
+                    } while (j <= shortRangeEnd && input[j] == v);
                 }
+            }
 
-                if (i1 == -1 || i2 == length - 1)
-                {
+            // Find all pairs of elements each of which is summed up to a given value
+            // Return the indices using a vector
+            // The elements of input will be rearranged so the indices returned are not the
+            // original ones
+            template <class T>
+            static void FindPairsBySum2(T *input, int length, const T sum,
+                                        vector<pair<int, int>> &indices)
+            {
+                if (input == nullptr)
+                    throw invalid_argument("input is a nullptr");
+                if (length <= 0)
+                    throw invalid_argument(String::Format("length %d is invalid", length));
+
+                if (length == 1)
                     return;
-                }
 
-                if (i1 + 1 >= length - 1 - i2)
+                Sort::Merge::Sort<T>(input, length);
+
+                for (int i = 0; i < length - 1; i++)
                 {
-                    shortRangeBegin = i2 + 1;
-                    shortRangeEnd = length - 1;
-                    longRangeBegin = 0;
-                    longRangeEnd = i1;
-                }
-                else
-                {
-                    shortRangeBegin = 0;
-                    shortRangeEnd = i1;
-                    longRangeBegin = i2 + 1;
-                    longRangeEnd = length - 1;
-                }
-            }
-            else
-            {
-                //
-                // sum is odd
-                // +-------------------------------------+-----------------------------------------+
-                // 0                                     i1 length-1
-                //                 <= sum/2                             >= sum/2 + 1
-
-                // Partition input so that input[0..i1] <= half < input[i1+1..length-1]
-                int i1 = PartitionArrayByValue(input, 0, length - 1, half);
-
-                if (i1 == -1)
-                {
-                    // All elements are greater than sum/2, no matter whether sum is
-                    // positive or negative.
-                    return;
-                }
-
-                if (i1 == length - 1)
-                {
-                    // All elements are less than or equal to sum/2, no matter whether
-                    // sum is positive or negative.
-                    return;
-                }
-
-                if (i1 + 1 >= length - 1 - i1)
-                {
-                    shortRangeBegin = i1 + 1;
-                    shortRangeEnd = length - 1;
-                    longRangeBegin = 0;
-                    longRangeEnd = i1;
-                }
-                else
-                {
-                    shortRangeBegin = 0;
-                    shortRangeEnd = i1;
-                    longRangeBegin = i1 + 1;
-                    longRangeEnd = length - 1;
-                }
-            }
-
-            Sort::Merge::Sort<T>(input, shortRangeBegin, shortRangeEnd);
-
-            for (int i = longRangeBegin; i <= longRangeEnd; i++)
-            {
-                T v = sum - input[i];
-                int j =
-                    Search::BinarySearch<T>(v, &input[shortRangeBegin],
-                                            shortRangeEnd - shortRangeBegin + 1, true);
-                if (j == -1)
-                {
-                    // No element == sum - input[i]
-                    continue;
-                }
-
-                j = shortRangeBegin + j;
-
-                do
-                {
-                    indices.push_back(make_pair(i, j));
-                    j++;
-                } while (j <= shortRangeEnd && input[j] == v);
-            }
-        }
-
-        // Find all pairs of elements each of which is summed up to a given value
-        // Return the indices using a vector
-        // The elements of input will be rearranged so the indices returned are not the
-        // original ones
-        template <class T>
-        static void FindPairsBySum2(T *input, int length, const T sum,
-                                    vector<pair<int, int>> &indices)
-        {
-            if (input == nullptr)
-                throw invalid_argument("input is a nullptr");
-            if (length <= 0)
-                throw invalid_argument(String::Format("length %d is invalid", length));
-
-            if (length == 1)
-                return;
-
-            Sort::Merge::Sort<T>(input, length);
-
-            for (int i = 0; i < length - 1; i++)
-            {
-                T v = sum - input[i];
-                int j = Search::BinarySearch<T>(v, &input[i + 1], length - 1 - i, true);
-                if (j == -1)
-                {
-                    // No element == sum - input[i]
-                    continue;
-                }
-
-                j = i + 1 + j;
-
-                do
-                {
-                    indices.push_back(make_pair(i, j));
-                    j++;
-                } while (j < length && input[j] == v);
-            }
-        }
-
-        // http://leetcode.com/2010/03/here-is-phone-screening-question-from.html
-        // Find the first common element of two sorted arrays
-        // Return a pair of indices of found element. If not found, then return a pair
-        // (-1, -1)
-        template <class T>
-        static pair<int, int> FindIntersection(const T *input1, int length1,
-                                               const T *input2, int length2)
-        {
-            if (input1 == nullptr)
-                throw invalid_argument("input1 is a nullptr");
-            if (length1 <= 0)
-                throw invalid_argument(
-                    String::Format("length1 %d is invalid", length1));
-            if (input2 == nullptr)
-                throw invalid_argument("input2 is a nullptr");
-            if (length2 <= 0)
-                throw invalid_argument(
-                    String::Format("length2 %d is invalid", length2));
-
-            const T *shortArray;
-            int shortLength;
-            const T *longArray;
-            int longLength;
-
-            if (length1 <= length2)
-            {
-                shortLength = length1;
-                shortArray = input1;
-                longLength = length2;
-                longArray = input2;
-            }
-            else
-            {
-                shortLength = length2;
-                shortArray = input2;
-                longLength = length1;
-                longArray = input1;
-            }
-
-            for (int i = 0; i < shortLength; i++)
-            {
-                int j = Search::BinarySearch<T>(shortArray[i], longArray, longLength);
-                if (j != -1)
-                {
-                    if (shortArray == input1)
+                    T v = sum - input[i];
+                    int j = Search::BinarySearch<T>(v, &input[i + 1], length - 1 - i, true);
+                    if (j == -1)
                     {
-                        return make_pair(i, j);
+                        // No element == sum - input[i]
+                        continue;
                     }
-                    else
+
+                    j = i + 1 + j;
+
+                    do
                     {
-                        return make_pair(j, i);
-                    }
+                        indices.push_back(make_pair(i, j));
+                        j++;
+                    } while (j < length && input[j] == v);
                 }
             }
 
-            return make_pair(-1, -1);
-        }
-
-        template <class T>
-        static pair<int, int> FindIntersection2(const T *input1, int length1,
-                                                const T *input2, int length2)
-        {
-            if (input1 == nullptr)
-                throw invalid_argument("input1 is a nullptr");
-            if (length1 <= 0)
-                throw invalid_argument(
-                    String::Format("length1 %d is invalid", length1));
-            if (input2 == nullptr)
-                throw invalid_argument("input2 is a nullptr");
-            if (length2 <= 0)
-                throw invalid_argument(
-                    String::Format("length2 %d is invalid", length2));
-
-            int i = 0;
-            int j = 0;
-            while (i < length1 && j < length2)
+            // http://leetcode.com/2010/03/here-is-phone-screening-question-from.html
+            // Find the first common element of two sorted arrays
+            // Return a pair of indices of found element. If not found, then return a pair
+            // (-1, -1)
+            template <class T>
+            static pair<int, int> FindIntersection(const T *input1, int length1,
+                                                   const T *input2, int length2)
             {
-                if (input1[i] < input2[j])
-                {
-                    i++;
-                }
-                else if (input1[i] > input2[j])
-                {
-                    j++;
-                }
-                else
-                {
-                    return make_pair(i, j);
-                }
-            }
-
-            return make_pair(-1, -1);
-        }
-
-        // A sorted array is rotated. Find the index of the minimal
-        // element, i.e., the shift distance.
-        // Assume no duplicates in the array.
-        static size_t FindShiftPoint(const vector<int> &input)
-        {
-            // Check if no shift
-            if (*input.begin() < *(input.end() - 1))
-                return 0;
-            // Now the shift > 0
-            int b = 0;
-            int e = input.size() - 1;
-            while (b <= e)
-            {
-                int m = b + ((e - b) >> 1);
-                if (input[b] < input[m])
-                    b = m;
-                else if (input[b] > input[m])
-                    e = m;
-                else
-                    return b == e ? b : e;
-            }
-            throw runtime_error("Unreachable code");
-        }
-
-        class KMP
-        {
-        private:
-            unique_ptr<char[]> pattern;
-            unique_ptr<int[]> prefix;
-            int length;
-
-        public:
-            KMP(const char *pattern)
-            {
-                if (pattern == nullptr)
-                    throw invalid_argument("pattern is nullptr");
-                this->length = (int)strlen(pattern);
-                if (this->length <= 0)
+                if (input1 == nullptr)
+                    throw invalid_argument("input1 is a nullptr");
+                if (length1 <= 0)
                     throw invalid_argument(
-                        String::Format("length %d <= 0", this->length));
-                this->pattern.reset(new char[this->length + 1]);
-                strcpy(this->pattern.get(), pattern);
-                this->prefix.reset(new int[this->length]);
-                memset(this->prefix.get(), 0, this->length * sizeof(int));
-                // Maintain prefix[i] = k, update prefix[i+1] by checking pattern[i+1]
-                // vs pattern[k+1]. The goal is for each input i, find k such that
-                // pattern[0..k] is suffix of input[0..i].
-                int k = -1;
-                this->prefix[0] = k;
-                for (int i = 1; i < this->length; i++)
-                {
-                    while (k > -1 && this->pattern[k + 1] != this->pattern[i])
-                    {
-                        // Keep searching backward for minimum k
-                        // such that pattern[0..k)] is a suffix of pattern[0..(i-1)]
-                        k = this->prefix[k];
-                    }
-                    // The while loop terminates when
-                    // 1. there is a k such that pattern[0..(k+1)] is a suffix of
-                    // pattern[0..i], or
-                    // 2. k = -1 (i.e., pattern[0] != pattern[i])
-                    if (this->pattern[k + 1] == this->pattern[i])
-                    {
-                        // One more match
-                        k = k + 1;
-                    }
-                    else
-                    {
-                        // k = -1
-                    }
-                    this->prefix[i] = k;
-                }
-            }
-            void Print(void)
-            {
-                for (int i = 0; i < this->length; i++)
-                {
-                    printf("\t%d", i);
-                }
-                printf("\n");
-                for (int i = 0; i < this->length; i++)
-                {
-                    printf("\t%d", this->prefix[i]);
-                }
-                printf("\n");
-            }
-            vector<int> SearchString(const char *input, int length)
-            {
-                vector<int> indices;
-                if (input == nullptr || input[0] == '\0' || length <= 0)
-                    return indices;
-                int k = -1;
-                for (int i = 0; i < length; i++)
-                {
-                    while (k > -1 && this->pattern[k + 1] != input[i])
-                        k = this->prefix[k];
-                    if (this->pattern[k + 1] == input[i])
-                        k = k + 1;
-                    if (k == this->length - 1)
-                    {
-                        indices.push_back(i - k);
-                        k = this->prefix[k];
-                    }
-                }
-                return indices;
-            }
-        };
+                        String::Format("length1 %d is invalid", length1));
+                if (input2 == nullptr)
+                    throw invalid_argument("input2 is a nullptr");
+                if (length2 <= 0)
+                    throw invalid_argument(
+                        String::Format("length2 %d is invalid", length2));
 
-        class Monge
-        {
-        public:
-            static vector<vector<int>> Random(size_t m, size_t n, int max = RAND_MAX, int min = 0)
-            {
-                vector<vector<int>> result(m, vector<int>(n));
-                auto rnd = [&]() -> int
-                { return min + (rand() % (max - min)); };
-                int l = 0;
-                for (int j = 0; j < (int)n; j++)
+                const T *shortArray;
+                int shortLength;
+                const T *longArray;
+                int longLength;
+
+                if (length1 <= length2)
                 {
-                    for (int i = 0; i <= j && i < (int)m; i++)
-                    {
-                        int k = j - i;
-                        if (i == 0 || i == j)
-                            result[i][k] = rnd();
-                        else
-                            result[i][k] = std::min(
-                                rnd(),
-                                result[i][k - 1] + result[i - 1][k] - result[i - 1][k - 1]);
-                        l = std::min(l, result[i][k]);
-                    }
+                    shortLength = length1;
+                    shortArray = input1;
+                    longLength = length2;
+                    longArray = input2;
                 }
-                for (int i = 1; i < (int)m; i++)
+                else
                 {
-                    for (int j = (int)n - 1; j >= 0 && j >= (int)n - (int)m + i; j--)
-                    {
-                        int k = i + (int)n - 1 - j;
-                        if (j == 0)
-                            result[k][j] = rnd();
-                        else
-                            result[k][j] = std::min(
-                                rnd(),
-                                result[k][j - 1] + result[k - 1][j] - result[k - 1][j - 1]);
-                        l = std::min(l, result[k][j]);
-                    }
+                    shortLength = length2;
+                    shortArray = input2;
+                    longLength = length1;
+                    longArray = input1;
                 }
-                if (l < 0)
+
+                for (int i = 0; i < shortLength; i++)
                 {
-                    for (int i = 0; i < (int)m; i++)
+                    int j = Search::BinarySearch<T>(shortArray[i], longArray, longLength);
+                    if (j != -1)
                     {
-                        for (int j = 0; j < (int)n; j++)
-                            result[i][j] -= l;
-                    }
-                }
-                return result;
-            }
-            static vector<vector<int>> Random2(size_t m, size_t n, int max = RAND_MAX, int min = 0)
-            {
-                vector<vector<int>> result(m, vector<int>(n));
-                auto rnd = [&]() -> int
-                { return min + (rand() % (max - min)); };
-                for (size_t j = 0; j < n; j++)
-                    result[0][j] = rnd();
-                for (size_t i = 1; i < m; i++)
-                {
-                    result[i][0] = rnd();
-                    for (size_t j = 1; j < n; j++)
-                    {
-                        result[i][j] = std::min(rnd(),
-                                                result[i - 1][j] + result[i][j - 1] - result[i - 1][j - 1]);
-                        if (j < n - 1)
+                        if (shortArray == input1)
                         {
-                            int d = result[i - 1][j] - result[i - 1][j + 1] - result[i][j];
-                            if (d > 0)
-                            {
-                                d += (rnd() >> 1);
-                                for (size_t k = 0; k <= j; k++)
-                                    result[i][k] += d;
-                            }
+                            return make_pair(i, j);
+                        }
+                        else
+                        {
+                            return make_pair(j, i);
                         }
                     }
                 }
-                return result;
+
+                return make_pair(-1, -1);
             }
 
-            static bool IsMonge(const vector<vector<int>> &grid)
+            template <class T>
+            static pair<int, int> FindIntersection2(const T *input1, int length1,
+                                                    const T *input2, int length2)
             {
-                if (grid.size() <= 1 || grid[0].size() <= 1)
-                    return false;
-                for (size_t i = 0; i < grid.size() - 1; i++)
-                {
-                    for (size_t j = 0; j < grid[i].size() - 1; j++)
-                    {
-                        if (grid[i][j] + grid[i + 1][j + 1] > grid[i][j + 1] + grid[i + 1][j])
-                            return false;
-                    }
-                }
-                return true;
-            }
-        };
+                if (input1 == nullptr)
+                    throw invalid_argument("input1 is a nullptr");
+                if (length1 <= 0)
+                    throw invalid_argument(
+                        String::Format("length1 %d is invalid", length1));
+                if (input2 == nullptr)
+                    throw invalid_argument("input2 is a nullptr");
+                if (length2 <= 0)
+                    throw invalid_argument(
+                        String::Format("length2 %d is invalid", length2));
 
-        // Given Random(0, 1) = 0 or 1 at 1/2 probability each, implement Random(a, b)
-        // to ouput a random integer in [a, b].
-        // Solution 1 (wrong):
-        // Compute Random(0, 1) for (b - a + 1) times, sum the results and add to a.
-        // This is wrong because the distribution of the sum is not uniform.
-        // Solution 2:
-        // Obvious we need to compute Random(0, 1) for k times, where k is to be determined.
-        // So we have a sequence b = {b_0, b_1, ..., b_(k-1)}, where b_i = Random(0, 1) for the i-th time.
-        // For range [a, b], k must satisfy 2^k >= (b - a + 1) so that we can map the
-        // sequence b to an output.
-        // b_0 * 2^0 + b_1 * 2^1 + ... + b(k-1) * 2^(k-1)
-        int RandomInt(int a, int b)
-        {
-            function<int()> bit = [&]() -> int
-            {
-                return rand() & 0x1;
-            };
-            int r = b - a + 1; // [1, 2, ..., r]
-            int k = 0;
-            int d = 1;
-            while (d < r)
-            {
-                k++;
-                d = d << 1;
-            }
-            int s = 0;
-            while (true)
-            {
-                // Need to run bit() for k times
                 int i = 0;
-                d = 1;
-                s = 0;
-                while (i < k)
+                int j = 0;
+                while (i < length1 && j < length2)
                 {
-                    if (bit() > 0)
+                    if (input1[i] < input2[j])
                     {
-                        s += d;
+                        i++;
                     }
-                    i++;
+                    else if (input1[i] > input2[j])
+                    {
+                        j++;
+                    }
+                    else
+                    {
+                        return make_pair(i, j);
+                    }
+                }
+
+                return make_pair(-1, -1);
+            }
+
+            // A sorted array is rotated. Find the index of the minimal
+            // element, i.e., the shift distance.
+            // Assume no duplicates in the array.
+            static size_t FindShiftPoint(const vector<int> &input)
+            {
+                // Check if no shift
+                if (*input.begin() < *(input.end() - 1))
+                    return 0;
+                // Now the shift > 0
+                int b = 0;
+                int e = input.size() - 1;
+                while (b <= e)
+                {
+                    int m = b + ((e - b) >> 1);
+                    if (input[b] < input[m])
+                        b = m;
+                    else if (input[b] > input[m])
+                        e = m;
+                    else
+                        return b == e ? b : e;
+                }
+                throw runtime_error("Unreachable code");
+            }
+
+            class KMP
+            {
+            private:
+                unique_ptr<char[]> pattern;
+                unique_ptr<int[]> prefix;
+                int length;
+
+            public:
+                KMP(const char *pattern)
+                {
+                    if (pattern == nullptr)
+                        throw invalid_argument("pattern is nullptr");
+                    this->length = (int)strlen(pattern);
+                    if (this->length <= 0)
+                        throw invalid_argument(
+                            String::Format("length %d <= 0", this->length));
+                    this->pattern.reset(new char[this->length + 1]);
+                    strcpy(this->pattern.get(), pattern);
+                    this->prefix.reset(new int[this->length]);
+                    memset(this->prefix.get(), 0, this->length * sizeof(int));
+                    // Maintain prefix[i] = k, update prefix[i+1] by checking pattern[i+1]
+                    // vs pattern[k+1]. The goal is for each input i, find k such that
+                    // pattern[0..k] is suffix of input[0..i].
+                    int k = -1;
+                    this->prefix[0] = k;
+                    for (int i = 1; i < this->length; i++)
+                    {
+                        while (k > -1 && this->pattern[k + 1] != this->pattern[i])
+                        {
+                            // Keep searching backward for minimum k
+                            // such that pattern[0..k)] is a suffix of pattern[0..(i-1)]
+                            k = this->prefix[k];
+                        }
+                        // The while loop terminates when
+                        // 1. there is a k such that pattern[0..(k+1)] is a suffix of
+                        // pattern[0..i], or
+                        // 2. k = -1 (i.e., pattern[0] != pattern[i])
+                        if (this->pattern[k + 1] == this->pattern[i])
+                        {
+                            // One more match
+                            k = k + 1;
+                        }
+                        else
+                        {
+                            // k = -1
+                        }
+                        this->prefix[i] = k;
+                    }
+                }
+                void Print(void)
+                {
+                    for (int i = 0; i < this->length; i++)
+                    {
+                        printf("\t%d", i);
+                    }
+                    printf("\n");
+                    for (int i = 0; i < this->length; i++)
+                    {
+                        printf("\t%d", this->prefix[i]);
+                    }
+                    printf("\n");
+                }
+                vector<int> SearchString(const char *input, int length)
+                {
+                    vector<int> indices;
+                    if (input == nullptr || input[0] == '\0' || length <= 0)
+                        return indices;
+                    int k = -1;
+                    for (int i = 0; i < length; i++)
+                    {
+                        while (k > -1 && this->pattern[k + 1] != input[i])
+                            k = this->prefix[k];
+                        if (this->pattern[k + 1] == input[i])
+                            k = k + 1;
+                        if (k == this->length - 1)
+                        {
+                            indices.push_back(i - k);
+                            k = this->prefix[k];
+                        }
+                    }
+                    return indices;
+                }
+            };
+
+            class Monge
+            {
+            public:
+                static vector<vector<int>> Random(size_t m, size_t n, int max = RAND_MAX, int min = 0)
+                {
+                    vector<vector<int>> result(m, vector<int>(n));
+                    auto rnd = [&]() -> int
+                    { return min + (rand() % (max - min)); };
+                    int l = 0;
+                    for (int j = 0; j < (int)n; j++)
+                    {
+                        for (int i = 0; i <= j && i < (int)m; i++)
+                        {
+                            int k = j - i;
+                            if (i == 0 || i == j)
+                                result[i][k] = rnd();
+                            else
+                                result[i][k] = std::min(
+                                    rnd(),
+                                    result[i][k - 1] + result[i - 1][k] - result[i - 1][k - 1]);
+                            l = std::min(l, result[i][k]);
+                        }
+                    }
+                    for (int i = 1; i < (int)m; i++)
+                    {
+                        for (int j = (int)n - 1; j >= 0 && j >= (int)n - (int)m + i; j--)
+                        {
+                            int k = i + (int)n - 1 - j;
+                            if (j == 0)
+                                result[k][j] = rnd();
+                            else
+                                result[k][j] = std::min(
+                                    rnd(),
+                                    result[k][j - 1] + result[k - 1][j] - result[k - 1][j - 1]);
+                            l = std::min(l, result[k][j]);
+                        }
+                    }
+                    if (l < 0)
+                    {
+                        for (int i = 0; i < (int)m; i++)
+                        {
+                            for (int j = 0; j < (int)n; j++)
+                                result[i][j] -= l;
+                        }
+                    }
+                    return result;
+                }
+                static vector<vector<int>> Random2(size_t m, size_t n, int max = RAND_MAX, int min = 0)
+                {
+                    vector<vector<int>> result(m, vector<int>(n));
+                    auto rnd = [&]() -> int
+                    { return min + (rand() % (max - min)); };
+                    for (size_t j = 0; j < n; j++)
+                        result[0][j] = rnd();
+                    for (size_t i = 1; i < m; i++)
+                    {
+                        result[i][0] = rnd();
+                        for (size_t j = 1; j < n; j++)
+                        {
+                            result[i][j] = std::min(rnd(),
+                                                    result[i - 1][j] + result[i][j - 1] - result[i - 1][j - 1]);
+                            if (j < n - 1)
+                            {
+                                int d = result[i - 1][j] - result[i - 1][j + 1] - result[i][j];
+                                if (d > 0)
+                                {
+                                    d += (rnd() >> 1);
+                                    for (size_t k = 0; k <= j; k++)
+                                        result[i][k] += d;
+                                }
+                            }
+                        }
+                    }
+                    return result;
+                }
+
+                static bool IsMonge(const vector<vector<int>> &grid)
+                {
+                    if (grid.size() <= 1 || grid[0].size() <= 1)
+                        return false;
+                    for (size_t i = 0; i < grid.size() - 1; i++)
+                    {
+                        for (size_t j = 0; j < grid[i].size() - 1; j++)
+                        {
+                            if (grid[i][j] + grid[i + 1][j + 1] > grid[i][j + 1] + grid[i + 1][j])
+                                return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+
+            // Given Random(0, 1) = 0 or 1 at 1/2 probability each, implement Random(a, b)
+            // to ouput a random integer in [a, b].
+            // Solution 1 (wrong):
+            // Compute Random(0, 1) for (b - a + 1) times, sum the results and add to a.
+            // This is wrong because the distribution of the sum is not uniform.
+            // Solution 2:
+            // Obvious we need to compute Random(0, 1) for k times, where k is to be determined.
+            // So we have a sequence b = {b_0, b_1, ..., b_(k-1)}, where b_i = Random(0, 1) for the i-th time.
+            // For range [a, b], k must satisfy 2^k >= (b - a + 1) so that we can map the
+            // sequence b to an output.
+            // b_0 * 2^0 + b_1 * 2^1 + ... + b(k-1) * 2^(k-1)
+            int RandomInt(int a, int b)
+            {
+                function<int()> bit = [&]() -> int
+                {
+                    return rand() & 0x1;
+                };
+                int r = b - a + 1; // [1, 2, ..., r]
+                int k = 0;
+                int d = 1;
+                while (d < r)
+                {
+                    k++;
                     d = d << 1;
                 }
-                if (s < r)
-                    break;
-            }
-            return a + s;
-        }
-        int RandomInt2(int a, int b)
-        {
-            function<int()> bit = [&]() -> int
-            {
-                return rand() & 0x1;
-            };
-            int r = b - a; // [0, 1, ..., r]
-            int k = 0;
-            int d = 1;
-            int s = 0;
-            while (s < r)
-            {
-                s += d;
-                k++;
-                d = d << 1;
-            }
-            while (true)
-            {
-                // Need to run bit() for k times
-                int i = 0;
-                d = 1;
-                s = 0;
-                while (i < k)
+                int s = 0;
+                while (true)
                 {
-                    if (bit() > 0)
+                    // Need to run bit() for k times
+                    int i = 0;
+                    d = 1;
+                    s = 0;
+                    while (i < k)
                     {
-                        s += d;
+                        if (bit() > 0)
+                        {
+                            s += d;
+                        }
+                        i++;
+                        d = d << 1;
                     }
-                    i++;
+                    if (s < r)
+                        break;
+                }
+                return a + s;
+            }
+            int RandomInt2(int a, int b)
+            {
+                function<int()> bit = [&]() -> int
+                {
+                    return rand() & 0x1;
+                };
+                int r = b - a; // [0, 1, ..., r]
+                int k = 0;
+                int d = 1;
+                int s = 0;
+                while (s < r)
+                {
+                    s += d;
+                    k++;
                     d = d << 1;
                 }
-                if (s <= r)
-                    break;
+                while (true)
+                {
+                    // Need to run bit() for k times
+                    int i = 0;
+                    d = 1;
+                    s = 0;
+                    while (i < k)
+                    {
+                        if (bit() > 0)
+                        {
+                            s += d;
+                        }
+                        i++;
+                        d = d << 1;
+                    }
+                    if (s <= r)
+                        break;
+                }
+                return a + s;
             }
-            return a + s;
-        }
-    */
+        */
 } // namespace Test
 #endif

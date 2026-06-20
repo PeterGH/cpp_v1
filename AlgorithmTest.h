@@ -984,6 +984,33 @@ void AlgorithmTest::Init(void)
                 }
             } });
 
+    Add("PartitionArrayByValue", [&]()
+        {
+            auto check = [&](int* a, int l, int v)
+            {
+                Logger().Print(a, l);
+                Logger() << "Partiton by " << v << endl;
+                int m = PartitionArrayByValue(a, 0, l - 1, v);
+                Logger().Print(a, l);
+                Logger() << "at index " << m << endl;
+                for (int i = 0; i <= m; i++)
+                {
+                    ASSERT1(a[i] <= v);
+                }
+                for (int i = m + 1; i < l; i++)
+                {
+                    ASSERT1(a[i] > v);
+                }
+            };
+            for (int i = 0; i < 100; i++)
+            {
+                int length = 1 + Random::Int(100);
+                std::unique_ptr<int[]> input(new int[length]);
+                Random::Array(input.get(), length, 100);
+                check(input.get(), length, -10);
+                check(input.get(), length, Random::Int(100));
+                check(input.get(), length, 110);
+            } });
     /*
         Add("FindShiftPoint", [&]()
             {
