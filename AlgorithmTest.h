@@ -1089,9 +1089,8 @@ void AlgorithmTest::Init(void)
             check(input.get(), length1, (input.get() + length1), length2);
         } });
 
-    /*
-        Add("FindShiftPoint", [&]()
-            {
+    Add("FindShiftPoint", [&]()
+        {
             auto check = [&](const vector<int> v, size_t d) {
                 Logger() << v;
                 size_t s = FindShiftPoint(v);
@@ -1126,72 +1125,73 @@ void AlgorithmTest::Init(void)
                 for (int i = 0; i < 100; i++) {
                     size_t n = Random::Int(100, 1);
                     size_t s = Random::Int(100) % n;
-                    vector<int> input = Random::Vector(n);
+                    vector<int> input = Util::IncreasingVector(n);
                     Util::RotateLeft(input, s);
-                    check(input, s);
+                    check(input, ((n - s) % n));
+                    ASSERT1(input[(n - s) % n] == 0);
                 }
             } });
-
-        Add("KMP", [&]()
-            {
-            for (int i = 0; i < 50; i++)
-            {
-                Logger().WriteInformation("Run %d\n", i);
-                string pattern = Random::String(1 + rand() % 10, string("abc"));
-                string input = Random::String(1 + rand() % 1000, string("abc"));
-                KMP kmp(pattern.c_str());
-                kmp.Print();
-                vector<int> indices =
-                    kmp.SearchString(input.c_str(), strlen(input.c_str()));
-                printf("Pattern: %s\n", pattern.c_str());
-                printf("Input: %s\n", input.c_str());
-                for_each(indices.begin(), indices.end(), [&](int i) {
-                    printf("Found a match at index %d\n", i);
-                    ASSERT1(input.substr(i, pattern.size()) == pattern);
-                });
-            } });
-
-        Add("Monge", [&]()
-            {
-            for (int i = 0; i < 10; i++)
-            {
-                int m = Random::Int(20, 2);
-                int n = Random::Int(20, 2);
-                int h = Random::Int(100);
-                vector<vector<int>> grid = Monge::Random(m, n, h);
-                vector<vector<int>> grid2 = Monge::Random2(m, n, h);
-                bool r = Monge::IsMonge(grid);
-                bool r2 = Monge::IsMonge(grid2);
-                Logger() << grid << grid2;
-                Logger() << "IsMonge = " << r << ", " << r2 << endl;
-                ASSERT1(r);
-                ASSERT1(r2);
-            } });
-
-        Add("RandomInt", [&]()
-            {
-            auto check = [&](int a, int b) {
-                map<int, int> m;
-                int n = 100 * (b - a + 1);
-                for (int i = 0; i < n; i++)
+    /*
+            Add("KMP", [&]()
                 {
-                    int j = RandomInt(a, b);
-                    if (m.find(j) == m.end())
-                        m[j] = 1;
-                    else
-                        m[j]++;
-                }
-                Logger() << "RandomInt(" << a << ", " << b << ") distribution:" << endl;
-                Logger() << m;
-                ASSERT1((int)m.size() == b - a + 1);
-                for (int i = a; i <= b; i++)
-                    ASSERT1(m.find(i) != m.end());
-            };
-            for (int i = 0; i < 10; i++)
-            {
-                check(0, i);
-            } });
-    */
+                for (int i = 0; i < 50; i++)
+                {
+                    Logger().WriteInformation("Run %d\n", i);
+                    string pattern = Random::String(1 + rand() % 10, string("abc"));
+                    string input = Random::String(1 + rand() % 1000, string("abc"));
+                    KMP kmp(pattern.c_str());
+                    kmp.Print();
+                    vector<int> indices =
+                        kmp.SearchString(input.c_str(), strlen(input.c_str()));
+                    printf("Pattern: %s\n", pattern.c_str());
+                    printf("Input: %s\n", input.c_str());
+                    for_each(indices.begin(), indices.end(), [&](int i) {
+                        printf("Found a match at index %d\n", i);
+                        ASSERT1(input.substr(i, pattern.size()) == pattern);
+                    });
+                } });
+
+            Add("Monge", [&]()
+                {
+                for (int i = 0; i < 10; i++)
+                {
+                    int m = Random::Int(20, 2);
+                    int n = Random::Int(20, 2);
+                    int h = Random::Int(100);
+                    vector<vector<int>> grid = Monge::Random(m, n, h);
+                    vector<vector<int>> grid2 = Monge::Random2(m, n, h);
+                    bool r = Monge::IsMonge(grid);
+                    bool r2 = Monge::IsMonge(grid2);
+                    Logger() << grid << grid2;
+                    Logger() << "IsMonge = " << r << ", " << r2 << endl;
+                    ASSERT1(r);
+                    ASSERT1(r2);
+                } });
+
+            Add("RandomInt", [&]()
+                {
+                auto check = [&](int a, int b) {
+                    map<int, int> m;
+                    int n = 100 * (b - a + 1);
+                    for (int i = 0; i < n; i++)
+                    {
+                        int j = RandomInt(a, b);
+                        if (m.find(j) == m.end())
+                            m[j] = 1;
+                        else
+                            m[j]++;
+                    }
+                    Logger() << "RandomInt(" << a << ", " << b << ") distribution:" << endl;
+                    Logger() << m;
+                    ASSERT1((int)m.size() == b - a + 1);
+                    for (int i = a; i <= b; i++)
+                        ASSERT1(m.find(i) != m.end());
+                };
+                for (int i = 0; i < 10; i++)
+                {
+                    check(0, i);
+                } });
+        */
 }
 
 #endif
